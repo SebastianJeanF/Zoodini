@@ -1,0 +1,30 @@
+{
+    "textures": {
+    	"earth": {
+    		"file":	 "textures/dirt.png",
+			"wrapU": "repeated",
+			"wrapV": "repeated"
+    	},
+    	"dude": {
+    		"file": 	"textures/walking.png",
+    		"wrap":  	false,
+    		"sprites":	{
+				"walking" : {
+					"size" : 4,
+					"rows" : 1,
+					"cols" : 4
+				}
+    		}
+    	},
+        "goal": "textures/helicopter.png"
+  	},
+  	"fonts": {
+  		"display": {
+  			"file": 	"fonts/MarkerFelt.ttf",
+  			"size": 	64
+  		}
+  	},
+	"jsons" : {
+		"level1" : "jsons/level.json"
+	}
+}

@@ -1,0 +1,33 @@
+{
+	"textures": {
+        "splash": {
+            "file": "loading/splash.png",
+            "minfilter" : "linear",
+            "magfilter" : "linear"
+        },
+		"play":     {
+			"file" : "loading/play.png",
+            "minfilter" : "linear",
+            "magfilter" : "linear"
+		},
+        "progress": {
+            "file":   "loading/progress.png",
+            "atlas":  {
+                "background" : [24,   0, 296, 45],
+                "backleft"   : [0,    0,  24, 45],
+                "backright"  : [296,  0, 320, 45],
+                "foreground" : [24,  45, 296, 90],
+                "foreleft"   : [0,   45,  24, 90],
+                "foreright"  : [296, 45, 320, 90]
+            }
+        }
+	},
+    "jsons" : {
+      "constants" : {
+        "height" : 576,
+        "bar.width" : 0.66,
+        "bar.height" : 0.25,
+        "button.scale" : 0.75
+      }
+    }
+}
