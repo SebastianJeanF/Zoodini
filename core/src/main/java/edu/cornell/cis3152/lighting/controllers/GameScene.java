@@ -10,15 +10,16 @@
  * @author: Walker M. White
  * @version: 2/15/2025
  */
-package edu.cornell.cis3152.lighting;
+package edu.cornell.cis3152.lighting.controllers;
 
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import edu.cornell.cis3152.lighting.models.Avatar;
+import edu.cornell.cis3152.lighting.models.GameLevel;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.TextAlign;
@@ -256,11 +257,6 @@ public class GameScene implements Screen, ContactListener {
 		Avatar avatar = level.getAvatar();
 		InputController input = InputController.getInstance();
 
-		if (input.didForward()) {
-			level.activateNextLight();
-		} else if (input.didBack()){
-			level.activatePrevLight();
-		}
 
 		// Rotate the avatar to face the direction of movement
 		angleCache.set(input.getHorizontal(),input.getVertical());

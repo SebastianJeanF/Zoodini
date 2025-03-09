@@ -10,6 +10,8 @@
 package edu.cornell.cis3152.lighting;
 
 import com.badlogic.gdx.*;
+import edu.cornell.cis3152.lighting.controllers.GameScene;
+import edu.cornell.cis3152.lighting.controllers.LoadingScene;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.*;

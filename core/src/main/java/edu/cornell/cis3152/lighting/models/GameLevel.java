@@ -27,7 +27,7 @@
  * @author: Walker M. White
  * @version: 2/15/2025
  */
-package edu.cornell.cis3152.lighting;
+package edu.cornell.cis3152.lighting.models;
 
 import box2dLight.*;
 
@@ -79,15 +79,6 @@ public class GameLevel {
 	/** The boundary of the world */
 	protected Rectangle bounds;
 
-	/** The camera defining the RayHandler view; scale is in physics coordinates */
-	protected OrthographicCamera raycamera;
-	/** The rayhandler for storing lights, and drawing them (SIGH) */
-	protected RayHandler rayhandler;
-	/** All of the active lights that we loaded from the JSON file */
-	private Array<PositionalLight> lights = new Array<PositionalLight>();
-	/** The current light source being used.  If -1, there are no shadows */
-	private int activeLight;
-
 	// TO FIX THE TIMESTEP
 	/** The maximum frames per second setting for this level */
 	protected int maxFPS;
@@ -122,14 +113,6 @@ public class GameLevel {
 		return world;
 	}
 
-	/**
-	 * Returns a reference to the lighting rayhandler
-	 *
-	 * @return a reference to the lighting rayhandler
-	 */
-	public RayHandler getRayHandler() {
-		return rayhandler;
-	}
 
 	/**
 	 * Returns a reference to the player avatar
@@ -250,12 +233,6 @@ public class GameLevel {
 		maxSteps = 1.0f + (float)maxFPS/minFPS;
 		maxTimePerFrame = timeStep*maxSteps;
 
-		// Create the lighting if appropriate
-		if (levelFormat.has("lighting")) {
-			initLighting(levelFormat.get("lighting"));
-		}
-		createPointLights(levelFormat.get("pointlights"));
-		createConeLights(levelFormat.get("conelights"));
 
 		// Get the units
 		goalDoor = new Exit(directory, levelFormat.get("exit"), units);
@@ -275,172 +252,10 @@ public class GameLevel {
 	        walls = walls.next();
 	    }
 
-		// Create the dude and attach light sources
 	    JsonValue avdata = levelFormat.get("avatar");
 		avatar = new Avatar(directory, avdata, units);
 		activate(avatar);
-		attachLights(avatar);
 	}
-
-	/**
-	 * Creates the ambient lighting for the level
-	 *
-	 * This is the amount of lighting that the level has without any light sources.
-	 * However, if activeLight is -1, this will be ignored and the level will be
-	 * completely visible.
-	 *
-	 * @param  light	the JSON tree defining the light
-	 */
-	private void initLighting(JsonValue light) {
-		raycamera = new OrthographicCamera(bounds.width,bounds.height);
-		raycamera.position.set(bounds.width/2.0f, bounds.height/2.0f, 0);
-		raycamera.update();
-
-		RayHandler.setGammaCorrection(light.getBoolean("gamma"));
-		RayHandler.useDiffuseLight(light.getBoolean("diffuse"));
-		rayhandler = new RayHandler(world, Gdx.graphics.getWidth(), Gdx.graphics.getWidth());
-		rayhandler.setCombinedMatrix(raycamera);
-
-		float[] color = light.get("color").asFloatArray();
-		rayhandler.setAmbientLight(color[0], color[0], color[0], color[0]);
-		int blur = light.getInt("blur");
-		rayhandler.setBlur(blur > 0);
-		rayhandler.setBlurNum(blur);
-	}
-
-	/**
-	 * Creates the points lights for the level
-	 *
-	 * Point lights show light in all direction.  We treat them differently from
-	 * cone lights because they have different defining attributes. However, all
-	 * lights are added to the lights array. This allows us to cycle through both
-	 * the point lights and the cone lights with activateNextLight().
-	 *
-	 * All lights are deactivated initially. We only want one active light at a
-	 * time.
-	 *
-	 * @param  json	the JSON tree defining the list of point lights
-	 */
-	private void createPointLights(JsonValue json) {
-		JsonValue light = json.child();
-	    while (light != null) {
-	    	float[] color = light.get("color").asFloatArray();
-	    	float[] pos = light.get("pos").asFloatArray();
-	    	float dist  = light.getFloat("distance");
-	    	int rays = light.getInt("rays");
-
-			PointLight point = new PointLight(rayhandler, rays, Color.WHITE, dist, pos[0], pos[1]);
-			point.setColor(color[0],color[1],color[2],color[3]);
-			point.setSoft(light.getBoolean("soft"));
-
-			// Create a filter to exclude see through items
-			Filter f = new Filter();
-			f.maskBits = bitStringToComplement(light.getString("exclude"));
-			point.setContactFilter(f);
-			point.setActive(false); // TURN ON LATER
-			lights.add(point);
-	        light = light.next();
-	    }
-	}
-
-	/**
-	 * Creates the cone lights for the level
-	 *
-	 * Cone lights show light in a cone with a direction.  We treat them differently from
-	 * point lights because they have different defining attributes.  However, all lights
-	 * are added to the lights array.  This allows us to cycle through both the point
-	 * lights and the cone lights with activateNextLight().
-	 *
-	 * All lights are deactivated initially.  We only want one active light at a time.
-	 *
-	 * @param  json	the JSON tree defining the list of point lights
-	 */
-	private void createConeLights(JsonValue json) {
-		JsonValue light = json.child();
-	    while (light != null) {
-	    	float[] color = light.get("color").asFloatArray();
-	    	float[] pos = light.get("pos").asFloatArray();
-	    	float dist  = light.getFloat("distance");
-	    	float face  = light.getFloat("facing");
-	    	float angle = light.getFloat("angle");
-	    	int rays = light.getInt("rays");
-
-			ConeLight cone = new ConeLight(rayhandler, rays, Color.WHITE, dist, pos[0], pos[1], face, angle);
-			cone.setColor(color[0],color[1],color[2],color[3]);
-			cone.setSoft(light.getBoolean("soft"));
-
-			// Create a filter to exclude see through items
-			Filter f = new Filter();
-			f.maskBits = bitStringToComplement(light.getString("exclude"));
-			cone.setContactFilter(f);
-			cone.setActive(false); // TURN ON LATER
-			lights.add(cone);
-	        light = light.next();
-	    }
-	}
-
-	/**
-	 * Attaches all lights to the avatar.
-	 *
-	 * Lights are offset form the center of the avatar according to the initial
-	 * position. By default, a light ignores the body. This means that putting
-	 * the light inside of these bodies fixtures will not block the light.
-	 * However, if a light source is offset outside of the bodies fixtures,
-	 * then they will cast a shadow.
-	 *
-	 * The activeLight is set to be the first element of lights, assuming it is
-	 * not empty.
-	 */
-	public void attachLights(Avatar avatar) {
-		for(PositionalLight light : lights) {
-			light.attachToBody(avatar.getObstacle().getBody(), light.getX(), light.getY(), light.getDirection());
-		}
-		if (lights.size > 0) {
-			activeLight = 0;
-			lights.get(0).setActive(true);
-		} else {
-			activeLight = -1;
-		}
-	}
-
-	/**
-	 * Activates the next light in the light list.
-	 *
-	 * If activeLight is at the end of the list, it sets the value to -1,
-	 * disabling all shadows. If activeLight is -1, it activates the first light
-	 * in the list.
-	 */
-	public void activateNextLight() {
-		if (activeLight != -1) {
-			lights.get(activeLight).setActive(false);
-		}
-		activeLight++;
-		if (activeLight >= lights.size) {
-			activeLight = -1;
-		} else {
-			lights.get(activeLight).setActive(true);
-		}
-	}
-
-	/**
-	 * Activates the previous light in the light list.
-	 *
-	 * If activeLight is at the end of the list, it sets the value to -1,
-	 * disabling all shadows. If activeLight is -1, it activates the first light
-	 * in the list.
-	 */
-	public void activatePrevLight() {
-		if (activeLight != -1) {
-			lights.get(activeLight).setActive(false);
-		}
-		activeLight--;
-		if (activeLight < -1) {
-			activeLight = lights.size-1;
-		} else if (activeLight > -1) {
-			lights.get(activeLight).setActive(true);
-		}
-	}
-
 	/**
 	 * Disposes of all resources for this model.
 	 *
@@ -448,16 +263,6 @@ public class GameLevel {
 	 * necessary whenever we reset a level.
 	 */
 	public void dispose() {
-		for(PositionalLight light : lights) {
-			light.remove();
-		}
-		lights.clear();
-
-		if (rayhandler != null) {
-			rayhandler.dispose();
-			rayhandler = null;
-		}
-
 		for(ObstacleSprite s : sprites) {
 			s.getObstacle().deactivatePhysics(world);
 		}
@@ -504,9 +309,6 @@ public class GameLevel {
 	 */
 	public boolean update(float dt) {
 		if (fixedStep(dt)) {
-			if (rayhandler != null) {
-				rayhandler.update();
-			}
 			avatar.update(dt);
 			return true;
 		}
@@ -553,11 +355,6 @@ public class GameLevel {
 			obj.draw(batch);
 		}
 		batch.end();
-
-		// Now draw the shadows
-		if (rayhandler != null && activeLight != -1) {
-			rayhandler.render();
-		}
 
 		// Draw debugging on top of everything.
 		if (debug) {

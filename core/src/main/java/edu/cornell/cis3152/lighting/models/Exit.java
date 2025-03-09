@@ -7,7 +7,7 @@
  * @author: Walker M. White
  * @version: 2/15/2025
  */
-package edu.cornell.cis3152.lighting;
+package edu.cornell.cis3152.lighting.models;
 
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
