@@ -38,6 +38,7 @@ import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
+import com.badlogic.gdx.utils.ObjectIntMap.Keys;
 import edu.cornell.cis3152.lighting.HardEdgeLightShader;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
@@ -372,6 +373,12 @@ public class GameLevel {
 		for(ObstacleSprite s : sprites) {
 			s.getObstacle().deactivatePhysics(world);
 		}
+
+        for(Enemy key :enemyLights.keys()){
+            enemyLights.get(key).remove();
+            enemyLights.remove(key);
+
+        }
 
         if(rayhandler != null){
             rayhandler.dispose();

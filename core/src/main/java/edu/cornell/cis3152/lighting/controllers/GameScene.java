@@ -283,7 +283,6 @@ public class GameScene implements Screen, ContactListener {
 	 * The method draws all objects in the order that they were added.
 	 */
 	public void draw() {
-		// Clear the screen (color is homage to the XNA years)
 		ScreenUtils.clear(0.39f, 0.58f, 0.93f, 1.0f);
 
 		level.draw(batch, camera);
