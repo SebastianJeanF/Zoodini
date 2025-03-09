@@ -33,10 +33,12 @@ import box2dLight.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
+import edu.cornell.cis3152.lighting.HardEdgeLightShader;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
@@ -66,6 +68,12 @@ public class GameLevel {
 	private Avatar avatar;
 	/** Reference to the goalDoor (for collision detection) */
 	private Exit goalDoor;
+
+    private RayHandler rayhandler;
+    private OrthographicCamera raycamera;
+
+    private Array<Enemy> enemies;
+    private ObjectMap<Enemy, PositionalLight> enemyLights;
 
 	/** Whether or not the level is in debug more (showing off physics) */
 	private boolean debug;
@@ -233,8 +241,7 @@ public class GameLevel {
 		maxSteps = 1.0f + (float)maxFPS/minFPS;
 		maxTimePerFrame = timeStep*maxSteps;
 
-
-		// Get the units
+		// Walls
 		goalDoor = new Exit(directory, levelFormat.get("exit"), units);
 		activate(goalDoor);
 
@@ -252,10 +259,109 @@ public class GameLevel {
 	        walls = walls.next();
 	    }
 
+
+        //Entities
 	    JsonValue avdata = levelFormat.get("avatar");
 		avatar = new Avatar(directory, avdata, units);
 		activate(avatar);
+
+        this.enemies = new Array<>();
+
+
+        //Lights
+        if (levelFormat.has("ambientLight")){
+            initializeRayHandler(levelFormat.get("ambientLight"));
+            populateLights(levelFormat.get("entityLights"));
+        }
 	}
+
+    public void initializeRayHandler(JsonValue json){
+        raycamera = new OrthographicCamera(bounds.width, bounds.height);
+        raycamera.position.set(bounds.width/2.0f, bounds.height/2.0f, 0);
+        raycamera.update();
+
+        RayHandler.setGammaCorrection(json.getBoolean("gamma"));
+        RayHandler.useDiffuseLight(json.getBoolean("diffuse"));
+        rayhandler = new RayHandler(world, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        rayhandler.setCombinedMatrix(raycamera);
+
+        float[] ambient = json.get("ambientColor").asFloatArray();
+        rayhandler.setAmbientLight(ambient[0], ambient[1], ambient[2], ambient[3]);
+        int blur = json.getInt("blur");
+        rayhandler.setBlur(blur > 0);
+        rayhandler.setBlurNum(blur);
+        rayhandler.setLightShader(HardEdgeLightShader.createLightShader());
+    }
+
+
+    /**
+     * 1. Create lights.
+     * 2. Attach lights to entities.
+     *
+     * Modifies enemyLights field.
+     *
+     * @param json JsonValue of "entityLights" in level.json
+     */
+    private void populateLights(JsonValue json){
+        JsonValue light = json.get("security");
+
+        enemyLights = new ObjectMap<>();
+        for(Enemy guard : enemies){
+            ConeLight cone = createConeLight(light);
+            cone.attachToBody(guard.getObstacle().getBody(), cone.getX(), cone.getY(), cone.getDirection());
+            enemyLights.put(guard, cone);
+        }
+
+        light = json.get("player");
+        PointLight point = createPointLight(light);
+        point.attachToBody(avatar.getObstacle().getBody(), point.getX(), point.getY(), point.getDirection());
+    }
+
+    /**
+     *  Helper fuction for populateLights.
+     */
+    private PointLight createPointLight(JsonValue light){
+        float[] color = light.get("color").asFloatArray();
+        float[] pos = light.get("pos").asFloatArray();
+        float dist  = light.getFloat("distance");
+        int rays = light.getInt("rays");
+
+        PointLight point = new PointLight(rayhandler, rays, Color.WHITE, dist, pos[0], pos[1]);
+        point.setColor(color[0],color[1],color[2],color[3]);
+        point.setSoft(light.getBoolean("soft"));
+
+        // Create a filter to exclude see through items
+        Filter f = new Filter();
+        f.maskBits = bitStringToComplement(light.getString("exclude"));
+        point.setContactFilter(f);
+
+        return point;
+    }
+
+    /**
+     * Helper function for populateLights
+     */
+    private ConeLight createConeLight (JsonValue light){
+        float[] color = light.get("color").asFloatArray();
+        float[] pos = light.get("pos").asFloatArray();
+        float dist  = light.getFloat("distance");
+        float face  = light.getFloat("facing");
+        float angle = light.getFloat("angle");
+        int rays = light.getInt("rays");
+
+        ConeLight cone = new ConeLight(rayhandler, rays, Color.WHITE, dist, pos[0], pos[1], face, angle);
+        cone.setColor(color[0],color[1],color[2],color[3]);
+        cone.setSoft(light.getBoolean("soft"));
+
+        // Create a filter to exclude see through items
+        Filter f = new Filter();
+        f.maskBits = bitStringToComplement(light.getString("exclude"));
+        cone.setContactFilter(f);
+
+        return cone;
+    }
+
+
 	/**
 	 * Disposes of all resources for this model.
 	 *
@@ -266,6 +372,16 @@ public class GameLevel {
 		for(ObstacleSprite s : sprites) {
 			s.getObstacle().deactivatePhysics(world);
 		}
+
+        if(rayhandler != null){
+            rayhandler.dispose();
+            rayhandler = null;
+        }
+
+        if(enemyLights != null){
+            enemyLights = null;
+        }
+
 		sprites.clear();
 		if (world != null) {
 			world.dispose();
@@ -309,6 +425,9 @@ public class GameLevel {
 	 */
 	public boolean update(float dt) {
 		if (fixedStep(dt)) {
+            if(rayhandler != null){
+                rayhandler.update();
+            }
 			avatar.update(dt);
 			return true;
 		}
@@ -355,6 +474,10 @@ public class GameLevel {
 			obj.draw(batch);
 		}
 		batch.end();
+
+        if(rayhandler != null){
+            rayhandler.render();
+        }
 
 		// Draw debugging on top of everything.
 		if (debug) {

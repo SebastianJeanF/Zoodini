@@ -2,74 +2,33 @@
     "world_size":   [16.0,12.0],
     "screen_size":  [1000, 750],
     "fps_range":    [  20,  60],
-    "lighting": {
-        "color":    [0.25, 0.25, 0.25, 0.25],
-        "gamma":    true,
-        "diffuse":  true,
-        "blur":     3
+    "ambientLight":  {
+        "gamma": true,
+        "diffuse": true,
+        "ambientColor": [0.75, 0.75, 0.75, 0.75],
+        "blur": 1
     },
-    "pointlights": {
-        "standard": {
-            "color":        [1.0, 1.0, 1.0, 1.0],
-            "pos":          [  0,   0],
-            "distance":     7,
-            "rays":         512,
-            "soft":         false,
-            "exclude":      "0010"
+    "entityLights": {
+        "security" : {
+          "color":        [1.0, 0.0, 0.0, 1.0],
+          "pos":          [  0,   0],
+          "distance":     9,
+          "angle":        40,
+          "facing":       90,
+          "rays":         512,
+          "soft":         false,
+          "exclude":      "0000"
         },
-        "soft": {
-            "color":        [1.0, 1.0, 1.0, 1.0],
-            "pos":          [  0,   0],
-            "distance":     9,
-            "rays":         512,
-            "soft":         true,
-            "exclude":      "0010"
-        },
-        "exterior": {
-            "color":        [1.0, 1.0, 1.0, 1.0],
-            "pos":          [  0,   0],
-            "distance":     9,
-            "rays":         512,
-            "soft":         false,
-            "exclude":      "0110"
-        },
-        "forward": {
-            "color":        [1.0, 1.0, 1.0, 1.0],
-            "pos":          [  0,   0.5],
-            "distance":     9,
-            "rays":         512,
-            "soft":         false,
-            "exclude":      "0010"
-        },
-        "cursed": {
-            "color":        [1.0, 1.0, 1.0, 1.0],
-            "pos":          [  0,   0],
-            "distance":     50,
-            "rays":         512,
-            "soft":         false,
-            "exclude":      "0000"
-        }
-    },
-    "conelights": {
-        "xray": {
-            "color":        [1.0, 0.0, 0.0, 1.0],
-            "pos":          [  0,   0],
-            "distance":     9,
-            "angle":        40,
-            "facing":       90,
-            "rays":         512,
-            "soft":         false,
-            "exclude":      "1111"
-        },
-        "side": {
-            "color":        [1.0, 1.0, 1.0, 1.0],
-            "pos":          [  0,   0],
-            "distance":     9,
-            "angle":        90,
-            "facing":       0,
-            "rays":         512,
-            "soft":         false,
-            "exclude":      "1111"
+
+        "player"  : {
+          "color":        [1.0, 1.0, 1.0, 1.0],
+          "pos":          [  0,   0],
+          "distance":     5,
+          "angle":        90,
+          "facing":       0,
+          "rays":         512,
+          "soft":         false,
+          "exclude":      "0000"
         }
     },
     "avatar": {
