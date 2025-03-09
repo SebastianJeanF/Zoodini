@@ -75,6 +75,7 @@ public class GameLevel {
 
     private Array<Enemy> enemies;
     private ObjectMap<Enemy, PositionalLight> enemyLights;
+    private PositionalLight avatarLight; //TODO: array or separate field for two avatars?
 
 	/** Whether or not the level is in debug more (showing off physics) */
 	private boolean debug;
@@ -313,8 +314,10 @@ public class GameLevel {
             enemyLights.put(guard, cone);
         }
 
+        //TODO: use loop over player array if we use array.
         light = json.get("player");
         PointLight point = createPointLight(light);
+        avatarLight = point;
         point.attachToBody(avatar.getObstacle().getBody(), point.getX(), point.getY(), point.getDirection());
     }
 
@@ -375,10 +378,11 @@ public class GameLevel {
 		}
 
         for(Enemy key :enemyLights.keys()){
-            enemyLights.get(key).remove();
+            enemyLights.get(key).dispose();
             enemyLights.remove(key);
-
         }
+
+        avatarLight.remove();
 
         if(rayhandler != null){
             rayhandler.dispose();
@@ -386,6 +390,7 @@ public class GameLevel {
         }
 
         if(enemyLights != null){
+            enemyLights.clear();
             enemyLights = null;
         }
 
