@@ -31,12 +31,12 @@ import edu.cornell.gdiac.physics2.*;
 /**
  * Gameplay controller for the game.
  *
- * This class does not have the Box2d world.  That is stored inside of the
+ * This class does not have the Box2d world. That is stored inside of the
  * LevelModel object, as the world settings are determined by the JSON
- * file.  However, the class does have all of the controller functionality,
+ * file. However, the class does have all of the controller functionality,
  * including collision listeners for the active level.
  *
- * You will notice that asset loading is very different.  It relies on the
+ * You will notice that asset loading is very different. It relies on the
  * singleton asset manager to manage the various assets.
  */
 public class GameScene implements Screen, ContactListener {
@@ -44,15 +44,15 @@ public class GameScene implements Screen, ContactListener {
 	/** Need an ongoing reference to the asset directory */
 	protected AssetDirectory directory;
 	/** The JSON defining the level model */
-	private JsonValue  levelFormat;
+	private JsonValue levelFormat;
 	/** The font for giving messages to the player */
 	protected BitmapFont displayFont;
-    /** The message to display */
+	/** The message to display */
 	protected TextLayout message;
 
 	/** Exit code for quitting the game */
 	public static final int EXIT_QUIT = 0;
-    /** How many frames after winning/losing do we continue? */
+	/** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
 
 	/** The orthographic camera */
@@ -65,7 +65,7 @@ public class GameScene implements Screen, ContactListener {
 	/** Reference to the game level */
 	protected GameLevel level;
 
-    /** Whether or not this is an active controller */
+	/** Whether or not this is an active controller */
 	private boolean active;
 	/** Whether we have completed this level */
 	private boolean complete;
@@ -73,7 +73,6 @@ public class GameScene implements Screen, ContactListener {
 	private boolean failed;
 	/** Countdown active for winning or losing */
 	private int countdown;
-
 
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
@@ -85,7 +84,7 @@ public class GameScene implements Screen, ContactListener {
 	 *
 	 * @return true if the level is completed.
 	 */
-	public boolean isComplete( ) {
+	public boolean isComplete() {
 		return complete;
 	}
 
@@ -100,8 +99,8 @@ public class GameScene implements Screen, ContactListener {
 		if (value) {
 			BitmapFont font = directory.getEntry("display", BitmapFont.class);
 			message = new TextLayout("Victory!", font);
-			message.setAlignment( TextAlign.middleCenter );
-			message.setColor( Color.YELLOW );
+			message.setAlignment(TextAlign.middleCenter);
+			message.setColor(Color.YELLOW);
 			message.layout();
 			countdown = EXIT_COUNT;
 		}
@@ -115,7 +114,7 @@ public class GameScene implements Screen, ContactListener {
 	 *
 	 * @return true if the level is failed.
 	 */
-	public boolean isFailure( ) {
+	public boolean isFailure() {
 		return failed;
 	}
 
@@ -129,7 +128,7 @@ public class GameScene implements Screen, ContactListener {
 	public void setFailure(boolean value) {
 		if (value) {
 			message = new TextLayout("Failure", displayFont);
-			message.setAlignment( TextAlign.middleCenter );
+			message.setAlignment(TextAlign.middleCenter);
 			message.layout();
 			countdown = EXIT_COUNT;
 		}
@@ -141,7 +140,7 @@ public class GameScene implements Screen, ContactListener {
 	 *
 	 * @return true if this is the active screen
 	 */
-	public boolean isActive( ) {
+	public boolean isActive() {
 		return active;
 	}
 
@@ -156,8 +155,8 @@ public class GameScene implements Screen, ContactListener {
 		this.batch = batch;
 
 		level = new GameLevel();
-		levelFormat = directory.getEntry( "level1", JsonValue.class );
-		level.populate( directory, levelFormat );
+		levelFormat = directory.getEntry("level1", JsonValue.class);
+		level.populate(directory, levelFormat);
 		level.getWorld().setContactListener(this);
 
 		complete = false;
@@ -166,7 +165,7 @@ public class GameScene implements Screen, ContactListener {
 		countdown = -1;
 
 		camera = new OrthographicCamera();
-		camera.setToOrtho( false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight() );
+		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
 		setComplete(false);
 		setFailure(false);
@@ -177,7 +176,7 @@ public class GameScene implements Screen, ContactListener {
 	 */
 	public void dispose() {
 		level.dispose();
-		level  = null;
+		level = null;
 	}
 
 	/**
@@ -203,7 +202,7 @@ public class GameScene implements Screen, ContactListener {
 	 * Returns whether to process the update loop
 	 *
 	 * At the start of the update loop, we check if it is time
-	 * to switch to a new game mode.  If not, the update proceeds
+	 * to switch to a new game mode. If not, the update proceeds
 	 * normally.
 	 *
 	 * @param delta Number of seconds since last animation frame
@@ -242,32 +241,39 @@ public class GameScene implements Screen, ContactListener {
 	}
 
 	private Vector2 angleCache = new Vector2();
+
 	/**
 	 * The core gameplay loop of this world.
 	 *
 	 * This method contains the specific update code for this mini-game. It does
-	 * not handle collisions, as those are managed by the parent class WorldController.
-	 * This method is called after input is read, but before collisions are resolved.
-	 * The very last thing that it should do is apply forces to the appropriate objects.
+	 * not handle collisions, as those are managed by the parent class
+	 * WorldController.
+	 * This method is called after input is read, but before collisions are
+	 * resolved.
+	 * The very last thing that it should do is apply forces to the appropriate
+	 * objects.
 	 *
 	 * @param delta Number of seconds since last animation frame
 	 */
 	public void update(float dt) {
 		// Process actions in object model
-		Avatar avatar = level.getAvatar();
 		InputController input = InputController.getInstance();
 
+		if (input.didSwap()) {
+			level.swapActiveAvatar();
+		}
+		Avatar avatar = level.getAvatar();
 
 		// Rotate the avatar to face the direction of movement
-		angleCache.set(input.getHorizontal(),input.getVertical());
+		angleCache.set(input.getHorizontal(), input.getVertical());
 		if (angleCache.len2() > 0.0f) {
 			float angle = angleCache.angleDeg();
 			// Convert to radians with up as 0
-			angle = (float)Math.PI*(angle-90.0f)/180.0f;
-			avatar.getObstacle().setAngle( angle );
+			angle = (float) Math.PI * (angle - 90.0f) / 180.0f;
+			avatar.getObstacle().setAngle(angle);
 		}
 		angleCache.scl(avatar.getForce());
-		avatar.setMovement(angleCache.x,angleCache.y);
+		avatar.setMovement(angleCache.x, angleCache.y);
 		avatar.applyForce();
 
 		// Turn the physics engine crank.
@@ -277,7 +283,7 @@ public class GameScene implements Screen, ContactListener {
 	/**
 	 * Draw the physics objects to the canvas
 	 *
-	 * For simple worlds, this method is enough by itself.  It will need
+	 * For simple worlds, this method is enough by itself. It will need
 	 * to be overriden if the world needs fancy backgrounds or the like.
 	 *
 	 * The method draws all objects in the order that they were added.
@@ -290,8 +296,8 @@ public class GameScene implements Screen, ContactListener {
 		// Final message
 		if (message != null) {
 			batch.begin(camera);
-			batch.setBlur( 0.5f );
-			batch.drawText( message, Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2 );
+			batch.setBlur(0.5f);
+			batch.drawText(message, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
 			batch.setBlur(0.0f);
 			batch.end();
 		}
@@ -313,7 +319,8 @@ public class GameScene implements Screen, ContactListener {
 	/**
 	 * Called when the Screen should render itself.
 	 *
-	 * We defer to the other methods update() and draw().  However, it is VERY important
+	 * We defer to the other methods update() and draw(). However, it is VERY
+	 * important
 	 * that we only quit AFTER a draw.
 	 *
 	 * @param delta Number of seconds since last animation frame
@@ -374,7 +381,8 @@ public class GameScene implements Screen, ContactListener {
 	/**
 	 * Callback method for the start of a collision
 	 *
-	 * This method is called when we first get a collision between two objects. We use
+	 * This method is called when we first get a collision between two objects. We
+	 * use
 	 * this method to test if it is the "right" kind of collision. In particular, we
 	 * use it to test if we made it to the win door.
 	 *
@@ -391,15 +399,15 @@ public class GameScene implements Screen, ContactListener {
 		Object fd2 = fix2.getUserData();
 
 		try {
-			Obstacle bd1 = (Obstacle)body1.getUserData();
-			Obstacle bd2 = (Obstacle)body2.getUserData();
+			Obstacle bd1 = (Obstacle) body1.getUserData();
+			Obstacle bd2 = (Obstacle) body2.getUserData();
 
 			Obstacle avatar = level.getAvatar().getObstacle();
-			Obstacle door   = level.getExit().getObstacle();
+			Obstacle door = level.getExit().getObstacle();
 
 			// Check for win condition
-			if ((bd1 == avatar && bd2 == door  ) ||
-				(bd1 == door   && bd2 == avatar)) {
+			if ((bd1 == avatar && bd2 == door) ||
+					(bd1 == door && bd2 == avatar)) {
 				setComplete(true);
 			}
 		} catch (Exception e) {
@@ -409,9 +417,14 @@ public class GameScene implements Screen, ContactListener {
 	}
 
 	/** Unused ContactListener method */
-	public void endContact(Contact contact) {}
+	public void endContact(Contact contact) {
+	}
+
 	/** Unused ContactListener method */
-	public void postSolve(Contact contact, ContactImpulse impulse) {}
+	public void postSolve(Contact contact, ContactImpulse impulse) {
+	}
+
 	/** Unused ContactListener method */
-	public void preSolve(Contact contact, Manifold oldManifold) {}
+	public void preSolve(Contact contact, Manifold oldManifold) {
+	}
 }

@@ -40,6 +40,7 @@ import com.badlogic.gdx.physics.box2d.*;
 
 import com.badlogic.gdx.utils.ObjectIntMap.Keys;
 import edu.cornell.cis3152.lighting.HardEdgeLightShader;
+import edu.cornell.cis3152.lighting.models.Avatar.AvatarType;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
@@ -65,23 +66,30 @@ public class GameLevel {
 	public static final int WORLD_POSIT = 2;
 
 	// Physics objects for the game
-	/** Reference to the character avatar */
-	private Avatar avatar;
+	/** Reference to the cat avatar */
+	private Cat avatarCat;
+	/** Reference to the octopus avatar */
+	private Octopus avatarOctopus;
+	/**
+	 * Whether the currently active avatar is the cat. Otherwise, it's the octopus
+	 */
+	private boolean catActive;
+
 	/** Reference to the goalDoor (for collision detection) */
 	private Exit goalDoor;
 
-    private RayHandler rayhandler;
-    private OrthographicCamera raycamera;
+	private RayHandler rayhandler;
+	private OrthographicCamera raycamera;
 
-    private Array<Enemy> enemies;
-    private ObjectMap<Enemy, PositionalLight> enemyLights;
-    private PositionalLight avatarLight; //TODO: array or separate field for two avatars?
+	private Array<Enemy> enemies;
+	private ObjectMap<Enemy, PositionalLight> enemyLights;
+	private PositionalLight[] avatarLights; // TODO: array or separate field for two avatars?
 
 	/** Whether or not the level is in debug more (showing off physics) */
 	private boolean debug;
 
 	/** All the objects in the world. */
-	protected PooledList<ObstacleSprite> sprites  = new PooledList<ObstacleSprite>();
+	protected PooledList<ObstacleSprite> sprites = new PooledList<ObstacleSprite>();
 
 	// LET THE TIGHT COUPLING BEGIN
 	/** The Box2D world */
@@ -123,14 +131,13 @@ public class GameLevel {
 		return world;
 	}
 
-
 	/**
 	 * Returns a reference to the player avatar
 	 *
 	 * @return a reference to the player avatar
 	 */
 	public Avatar getAvatar() {
-		return avatar;
+		return catActive ? avatarCat : avatarOctopus;
 	}
 
 	/**
@@ -160,7 +167,7 @@ public class GameLevel {
 	 * If the level is in debug mode, then the physics bodies will all be drawn
 	 * as wireframes onscreen
 	 *
-	 * @param value	whether this level is currently in debug node
+	 * @param value whether this level is currently in debug node
 	 */
 	public void setDebug(boolean value) {
 		debug = value;
@@ -217,154 +224,177 @@ public class GameLevel {
 	 * the JSON file to initialize the level
 	 */
 	public GameLevel() {
-		world  = null;
-		bounds = new Rectangle(0,0,1,1);
-		debug  = false;
+		world = null;
+		bounds = new Rectangle(0, 0, 1, 1);
+		debug = false;
+		avatarLights = new PointLight[2];
+		catActive = true;
 	}
 
 	/**
 	 * Lays out the game geography from the given JSON file
 	 *
-	 * @param directory 	the asset manager
-	 * @param levelFormat	the JSON file defining the level
+	 * @param directory   the asset manager
+	 * @param levelFormat the JSON file defining the level
 	 */
 	public void populate(AssetDirectory directory, JsonValue levelFormat) {
 		float[] pSize = levelFormat.get("world_size").asFloatArray();
 		int[] gSize = levelFormat.get("screen_size").asIntArray();
 
-		world = new World(Vector2.Zero,false);
-		bounds = new Rectangle(0,0,pSize[0],pSize[1]);
-		float units = gSize[1]/pSize[1];
+		world = new World(Vector2.Zero, false);
+		bounds = new Rectangle(0, 0, pSize[0], pSize[1]);
+		float units = gSize[1] / pSize[1];
 
 		// Compute the FPS
 		int[] fps = levelFormat.get("fps_range").asIntArray();
-		maxFPS = fps[1]; minFPS = fps[0];
-		timeStep = 1.0f/maxFPS;
-		maxSteps = 1.0f + (float)maxFPS/minFPS;
-		maxTimePerFrame = timeStep*maxSteps;
+		maxFPS = fps[1];
+		minFPS = fps[0];
+		timeStep = 1.0f / maxFPS;
+		maxSteps = 1.0f + (float) maxFPS / minFPS;
+		maxTimePerFrame = timeStep * maxSteps;
 
 		// Walls
 		goalDoor = new Exit(directory, levelFormat.get("exit"), units);
 		activate(goalDoor);
 
-	    JsonValue bounds = levelFormat.getChild("exterior");
-	    while (bounds != null) {
-	    	ExteriorWall obj = new ExteriorWall(directory, bounds, units);
-	        activate(obj);
-	        bounds = bounds.next();
-	    }
+		JsonValue bounds = levelFormat.getChild("exterior");
+		while (bounds != null) {
+			ExteriorWall obj = new ExteriorWall(directory, bounds, units);
+			activate(obj);
+			bounds = bounds.next();
+		}
 
-	    JsonValue walls = levelFormat.getChild("interior");
-	    while (walls != null) {
-	    	InteriorWall obj = new InteriorWall(directory, walls, units);
-	        activate(obj);
-	        walls = walls.next();
-	    }
+		JsonValue walls = levelFormat.getChild("interior");
+		while (walls != null) {
+			InteriorWall obj = new InteriorWall(directory, walls, units);
+			activate(obj);
+			walls = walls.next();
+		}
 
+		// Entities
+		JsonValue catData = levelFormat.get("avatar");
+		avatarCat = new Cat(directory, catData, units);
+		activate(avatarCat);
 
-        //Entities
-	    JsonValue avdata = levelFormat.get("avatar");
-		avatar = new Avatar(directory, avdata, units);
-		activate(avatar);
+		// Avatars
+		JsonValue octopusData = levelFormat.get("avatar");
+		avatarOctopus = new Octopus(directory, octopusData, units);
+		activate(avatarOctopus);
 
-        this.enemies = new Array<>();
+		// Enemies
+		this.enemies = new Array<>();
+		JsonValue guards = levelFormat.getChild("guards");
+		while (guards != null) {
+			enemies.add(new Guard(directory, guards, units));
+			activate(enemies.peek());
+			guards = guards.next();
+		}
 
-
-        //Lights
-        if (levelFormat.has("ambientLight")){
-            initializeRayHandler(levelFormat.get("ambientLight"));
-            populateLights(levelFormat.get("entityLights"));
-        }
+		// Lights
+		if (levelFormat.has("ambientLight")) {
+			initializeRayHandler(levelFormat.get("ambientLight"));
+			populateLights(levelFormat.get("entityLights"));
+		}
 	}
 
-    public void initializeRayHandler(JsonValue json){
-        raycamera = new OrthographicCamera(bounds.width, bounds.height);
-        raycamera.position.set(bounds.width/2.0f, bounds.height/2.0f, 0);
-        raycamera.update();
+	public void initializeRayHandler(JsonValue json) {
+		raycamera = new OrthographicCamera(bounds.width, bounds.height);
+		raycamera.position.set(bounds.width / 2.0f, bounds.height / 2.0f, 0);
+		raycamera.update();
 
-        RayHandler.setGammaCorrection(json.getBoolean("gamma"));
-        RayHandler.useDiffuseLight(json.getBoolean("diffuse"));
-        rayhandler = new RayHandler(world, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        rayhandler.setCombinedMatrix(raycamera);
+		RayHandler.setGammaCorrection(json.getBoolean("gamma"));
+		RayHandler.useDiffuseLight(json.getBoolean("diffuse"));
+		rayhandler = new RayHandler(world, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		rayhandler.setCombinedMatrix(raycamera);
 
-        float[] ambient = json.get("ambientColor").asFloatArray();
-        rayhandler.setAmbientLight(ambient[0], ambient[1], ambient[2], ambient[3]);
-        int blur = json.getInt("blur");
-        rayhandler.setBlur(blur > 0);
-        rayhandler.setBlurNum(blur);
-        rayhandler.setLightShader(HardEdgeLightShader.createLightShader());
-    }
+		float[] ambient = json.get("ambientColor").asFloatArray();
+		rayhandler.setAmbientLight(ambient[0], ambient[1], ambient[2], ambient[3]);
+		int blur = json.getInt("blur");
+		rayhandler.setBlur(blur > 0);
+		rayhandler.setBlurNum(blur);
+		rayhandler.setLightShader(HardEdgeLightShader.createLightShader());
+	}
 
+	/**
+	 * 1. Create lights.
+	 * 2. Attach lights to entities.
+	 *
+	 * Modifies enemyLights field.
+	 *
+	 * @param json JsonValue of "entityLights" in level.json
+	 */
+	private void populateLights(JsonValue json) {
+		JsonValue light = json.get("security");
 
-    /**
-     * 1. Create lights.
-     * 2. Attach lights to entities.
-     *
-     * Modifies enemyLights field.
-     *
-     * @param json JsonValue of "entityLights" in level.json
-     */
-    private void populateLights(JsonValue json){
-        JsonValue light = json.get("security");
+		enemyLights = new ObjectMap<>();
+		for (Enemy guard : enemies) {
+			ConeLight cone = createConeLight(light);
+			cone.attachToBody(guard.getObstacle().getBody(), cone.getX(), cone.getY(), cone.getDirection());
+			enemyLights.put(guard, cone);
+		}
 
-        enemyLights = new ObjectMap<>();
-        for(Enemy guard : enemies){
-            ConeLight cone = createConeLight(light);
-            cone.attachToBody(guard.getObstacle().getBody(), cone.getX(), cone.getY(), cone.getDirection());
-            enemyLights.put(guard, cone);
-        }
+		// TODO: use loop over player array if we use array.
+		PointLight point;
+		light = json.get("player");
+		point = createPointLight(light);
+		avatarLights[0] = point;
+		point.attachToBody(avatarCat.getObstacle().getBody(), point.getX(), point.getY(), point.getDirection());
 
-        //TODO: use loop over player array if we use array.
-        light = json.get("player");
-        PointLight point = createPointLight(light);
-        avatarLight = point;
-        point.attachToBody(avatar.getObstacle().getBody(), point.getX(), point.getY(), point.getDirection());
-    }
+		point = createPointLight(light);
+		avatarLights[1] = point;
+		point.attachToBody(avatarOctopus.getObstacle().getBody(), point.getX(), point.getY(), point.getDirection());
+	}
 
-    /**
-     *  Helper fuction for populateLights.
-     */
-    private PointLight createPointLight(JsonValue light){
-        float[] color = light.get("color").asFloatArray();
-        float[] pos = light.get("pos").asFloatArray();
-        float dist  = light.getFloat("distance");
-        int rays = light.getInt("rays");
+	/**
+	 * Helper fuction for populateLights.
+	 */
+	private PointLight createPointLight(JsonValue light) {
+		float[] color = light.get("color").asFloatArray();
+		float[] pos = light.get("pos").asFloatArray();
+		float dist = light.getFloat("distance");
+		int rays = light.getInt("rays");
 
-        PointLight point = new PointLight(rayhandler, rays, Color.WHITE, dist, pos[0], pos[1]);
-        point.setColor(color[0],color[1],color[2],color[3]);
-        point.setSoft(light.getBoolean("soft"));
+		PointLight point = new PointLight(rayhandler, rays, Color.WHITE, dist, pos[0], pos[1]);
+		point.setColor(color[0], color[1], color[2], color[3]);
+		point.setSoft(light.getBoolean("soft"));
 
-        // Create a filter to exclude see through items
-        Filter f = new Filter();
-        f.maskBits = bitStringToComplement(light.getString("exclude"));
-        point.setContactFilter(f);
+		// Create a filter to exclude see through items
+		Filter f = new Filter();
+		f.maskBits = bitStringToComplement(light.getString("exclude"));
+		point.setContactFilter(f);
 
-        return point;
-    }
+		return point;
+	}
 
-    /**
-     * Helper function for populateLights
-     */
-    private ConeLight createConeLight (JsonValue light){
-        float[] color = light.get("color").asFloatArray();
-        float[] pos = light.get("pos").asFloatArray();
-        float dist  = light.getFloat("distance");
-        float face  = light.getFloat("facing");
-        float angle = light.getFloat("angle");
-        int rays = light.getInt("rays");
+	/**
+	 * Helper function for populateLights
+	 */
+	private ConeLight createConeLight(JsonValue light) {
+		float[] color = light.get("color").asFloatArray();
+		float[] pos = light.get("pos").asFloatArray();
+		float dist = light.getFloat("distance");
+		float face = light.getFloat("facing");
+		float angle = light.getFloat("angle");
+		int rays = light.getInt("rays");
 
-        ConeLight cone = new ConeLight(rayhandler, rays, Color.WHITE, dist, pos[0], pos[1], face, angle);
-        cone.setColor(color[0],color[1],color[2],color[3]);
-        cone.setSoft(light.getBoolean("soft"));
+		ConeLight cone = new ConeLight(rayhandler, rays, Color.WHITE, dist, pos[0], pos[1], face, angle);
+		cone.setColor(color[0], color[1], color[2], color[3]);
+		cone.setSoft(light.getBoolean("soft"));
 
-        // Create a filter to exclude see through items
-        Filter f = new Filter();
-        f.maskBits = bitStringToComplement(light.getString("exclude"));
-        cone.setContactFilter(f);
+		// Create a filter to exclude see through items
+		Filter f = new Filter();
+		f.maskBits = bitStringToComplement(light.getString("exclude"));
+		cone.setContactFilter(f);
 
-        return cone;
-    }
+		return cone;
+	}
 
+	/** Handles the avatar-swapping logic */
+	public void swapActiveAvatar() {
+		avatarLights[catActive ? 0 : 1].setActive(false);
+		catActive = !catActive;
+		avatarLights[catActive ? 0 : 1].setActive(true);
+	}
 
 	/**
 	 * Disposes of all resources for this model.
@@ -373,26 +403,27 @@ public class GameLevel {
 	 * necessary whenever we reset a level.
 	 */
 	public void dispose() {
-		for(ObstacleSprite s : sprites) {
+		for (ObstacleSprite s : sprites) {
 			s.getObstacle().deactivatePhysics(world);
 		}
 
-        for(Enemy key :enemyLights.keys()){
-            enemyLights.get(key).dispose();
-            enemyLights.remove(key);
-        }
+		for (Enemy key : enemyLights.keys()) {
+			enemyLights.get(key).dispose();
+			enemyLights.remove(key);
+		}
 
-        avatarLight.remove();
+		avatarLights[0].remove();
+		avatarLights[1].remove();
 
-        if(rayhandler != null){
-            rayhandler.dispose();
-            rayhandler = null;
-        }
+		if (rayhandler != null) {
+			rayhandler.dispose();
+			rayhandler = null;
+		}
 
-        if(enemyLights != null){
-            enemyLights.clear();
-            enemyLights = null;
-        }
+		if (enemyLights != null) {
+			enemyLights.clear();
+			enemyLights = null;
+		}
 
 		sprites.clear();
 		if (world != null) {
@@ -422,25 +453,27 @@ public class GameLevel {
 	 * @return true if the object is in bounds.
 	 */
 	private boolean inBounds(Obstacle obj) {
-		boolean horiz = (bounds.x <= obj.getX() && obj.getX() <= bounds.x+bounds.width);
-		boolean vert  = (bounds.y <= obj.getY() && obj.getY() <= bounds.y+bounds.height);
+		boolean horiz = (bounds.x <= obj.getX() && obj.getX() <= bounds.x + bounds.width);
+		boolean vert = (bounds.y <= obj.getY() && obj.getY() <= bounds.y + bounds.height);
 		return horiz && vert;
 	}
 
 	/**
 	 * Updates all of the models in the level.
 	 *
-	 * This is borderline controller functionality. However, we have to do this because
+	 * This is borderline controller functionality. However, we have to do this
+	 * because
 	 * of how tightly coupled everything is.
 	 *
 	 * @param dt the time passed since the last frame
 	 */
 	public boolean update(float dt) {
 		if (fixedStep(dt)) {
-            if(rayhandler != null){
-                rayhandler.update();
-            }
-			avatar.update(dt);
+			if (rayhandler != null) {
+				rayhandler.update();
+			}
+			avatarCat.update(dt);
+			avatarOctopus.update(dt);
 			return true;
 		}
 		return false;
@@ -454,7 +487,8 @@ public class GameLevel {
 	 * @param dt the time passed since the last frame
 	 */
 	private boolean fixedStep(float dt) {
-		if (world == null) return false;
+		if (world == null)
+			return false;
 
 		physicsTimeLeft += dt;
 		if (physicsTimeLeft > maxTimePerFrame) {
@@ -476,31 +510,30 @@ public class GameLevel {
 	 * If debug mode is true, it will outline all physics bodies as wireframes.
 	 * Otherwise it will only draw the sprite representations.
 	 *
-	 * @param batch     the sprite batch to draw to
-	 * @param camera    the drawing camera
+	 * @param batch  the sprite batch to draw to
+	 * @param camera the drawing camera
 	 */
 	public void draw(SpriteBatch batch, Camera camera) {
 		// Draw the sprites first (will be hidden by shadows)
 		batch.begin(camera);
-		for(ObstacleSprite obj : sprites) {
+		for (ObstacleSprite obj : sprites) {
 			obj.draw(batch);
 		}
 		batch.end();
 
-        if(rayhandler != null){
-            rayhandler.render();
-        }
+		if (rayhandler != null) {
+			rayhandler.render();
+		}
 
 		// Draw debugging on top of everything.
 		if (debug) {
 			batch.begin(camera);
-			for(ObstacleSprite obj : sprites) {
+			for (ObstacleSprite obj : sprites) {
 				obj.drawDebug(batch);
 			}
 			batch.end();
 		}
 	}
-
 
 	/**
 	 * Returns a string equivalent to the sequence of bits in s
@@ -516,7 +549,7 @@ public class GameLevel {
 	public static short bitStringToShort(String s) {
 		short value = 0;
 		short pos = 1;
-		for(int ii = s.length()-1; ii >= 0; ii--) {
+		for (int ii = s.length() - 1; ii >= 0; ii--) {
 			if (s.charAt(ii) == '1') {
 				value += pos;
 			}
@@ -539,7 +572,7 @@ public class GameLevel {
 	public static short bitStringToComplement(String s) {
 		short value = 0;
 		short pos = 1;
-		for(int ii = s.length()-1; ii >= 0; ii--) {
+		for (int ii = s.length() - 1; ii >= 0; ii--) {
 			if (s.charAt(ii) == '0') {
 				value += pos;
 			}
