@@ -49,6 +49,44 @@
         "texture":      "dude.walking",
         "debug":        "#ffffffC0"
     },
+  "guards" : {
+    "1" : {
+      "pos":          [ 5, 1.5],
+      "radius":       0.2,
+      "spriterad":    0.6,
+      "bodytype":     "dynamic",
+      "density":      1.0,
+      "friction":     0.0,
+      "restitution":  0.0,
+      "force":        80.0,
+      "damping":      10.0,
+      "maxspeed":     5.0,
+      "collide":      "0001",
+      "exclude":      "0000",
+      "startframe":   0,
+      "walklimit":    4,
+      "texture":      "dude.walking",
+      "debug":        "#ffffffC0"
+    },
+    "2" : {
+      "pos":          [ 5, 4.5],
+      "radius":       0.2,
+      "spriterad":    0.6,
+      "bodytype":     "dynamic",
+      "density":      1.0,
+      "friction":     0.0,
+      "restitution":  0.0,
+      "force":        80.0,
+      "damping":      10.0,
+      "maxspeed":     5.0,
+      "collide":      "0001",
+      "exclude":      "0000",
+      "startframe":   0,
+      "walklimit":    4,
+      "texture":      "dude.walking",
+      "debug":        "#ffffffC0"
+    }
+  },
     "exit": {
         "pos":          [ 1.5, 10.35],
         "size":         [ 1.25, 1.25],

@@ -262,12 +262,20 @@ public class GameLevel {
 	    }
 
 
-        //Entities
+        //Avatars
 	    JsonValue avdata = levelFormat.get("avatar");
 		avatar = new Avatar(directory, avdata, units);
 		activate(avatar);
 
+
+        //Enemies
         this.enemies = new Array<>();
+        JsonValue guards = levelFormat.getChild("guards");
+        while (guards != null) {
+            enemies.add(new Guard(directory, guards, units));
+            activate(enemies.peek());
+            guards = guards.next();
+        }
 
 
         //Lights
