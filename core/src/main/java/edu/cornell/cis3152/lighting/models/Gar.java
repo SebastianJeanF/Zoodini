@@ -48,6 +48,6 @@ public class Gar extends Avatar {
     }
 
     public Gar(AssetDirectory directory, JsonValue json, float units) {
-        super(directory, json, units);
+        super(AvatarType.GAR, directory, json, units);
     }
 }

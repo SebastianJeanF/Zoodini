@@ -56,6 +56,26 @@ public class Avatar extends ObstacleSprite {
 	/** Cache for internal force calculations */
 	private Vector2 forceCache = new Vector2();
 
+	public enum AvatarType {
+		GAR,
+		OTTO,
+		ENEMY
+	}
+
+	private AvatarType avatarType;
+
+	/**
+	 * Returns the avatar type.
+	 * 
+	 * Could be accomplished by runtime type checking but don't want to spend
+	 * resources on that
+	 * 
+	 * @return the type of this avatar
+	 */
+	public AvatarType getAvatarType() {
+		return avatarType;
+	}
+
 	/**
 	 * Returns the directional movement of this character.
 	 *
@@ -191,11 +211,14 @@ public class Avatar extends ObstacleSprite {
 	/**
 	 * Creates a new avatar with from the given settings
 	 *
-	 * @param directory The asset directory (for textures, etc)
-	 * @param json      The JSON values defining this avatar
-	 * @param units     The physics units for this avatar
+	 * @param avatarType The type of this avatar
+	 * @param directory  The asset directory (for textures, etc)
+	 * @param json       The JSON values defining this avatar
+	 * @param units      The physics units for this avatar
 	 */
-	public Avatar(AssetDirectory directory, JsonValue json, float units) {
+	public Avatar(AvatarType avatarType, AssetDirectory directory, JsonValue json, float units) {
+		this.avatarType = avatarType;
+
 		float[] pos = json.get("pos").asFloatArray();
 		float radius = json.getFloat("radius");
 		obstacle = new WheelObstacle(pos[0], pos[1], radius);

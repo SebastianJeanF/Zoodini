@@ -38,6 +38,6 @@ public class Otto extends Avatar {
     }
 
     public Otto(AssetDirectory directory, JsonValue json, float units) {
-        super(directory, json, units);
+        super(AvatarType.OTTO, directory, json, units);
     }
 }

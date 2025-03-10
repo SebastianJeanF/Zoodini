@@ -7,8 +7,7 @@ import edu.cornell.gdiac.physics2.ObstacleSprite;
 public class Enemy extends Avatar {
 
     public Enemy(AssetDirectory directory, JsonValue json, float units) {
-        super(directory, json, units);
-        // TODO Auto-generated constructor stub
+        super(AvatarType.ENEMY, directory, json, units);
     }
 
 }
