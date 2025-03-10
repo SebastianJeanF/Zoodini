@@ -181,7 +181,8 @@ public class GameScene implements Screen, ContactListener {
         cameraTargetPosition = new Vector2();
         cameraPreviousPosition = new Vector2();
         cameraTransitionTimer = 0;
-        cameraTransitionDuration = Constants.CAMERA_INTERPOLATION_DURATION;
+        cameraTransitionDuration = directory.getEntry("constants", JsonValue.class).getFloat("CAMERA_INTERPOLATION_DURATION");
+        System.out.println(cameraTransitionDuration);
         inCameraTransition = false;
 
 		setComplete(false);

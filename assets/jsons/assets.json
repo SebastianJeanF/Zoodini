@@ -36,6 +36,7 @@
   		}
   	},
 	"jsons" : {
+        "constants" : "jsons/constants.json",
 		"level1" : "jsons/level.json"
 	}
 }

@@ -373,6 +373,7 @@ public class GameLevel {
 		// TODO: use loop over player array if we use array.
 		PointLight point;
 		light = json.get("player");
+
 		point = createPointLight(light);
 		point.setActive(catActive);
 		avatarLights[0] = point;
@@ -561,9 +562,9 @@ public class GameLevel {
 		}
 		batch.end();
 
-		if (rayhandler != null) {
-			rayhandler.render();
-		}
+        if(rayhandler != null){
+            rayhandler.render();
+        }
 
 		// Draw debugging on top of everything.
 		if (debug) {

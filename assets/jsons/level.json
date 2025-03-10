@@ -154,7 +154,7 @@
         "collide":      "0010",
         "exclude":      "0000",
         "texture":      "goal",
-        "debug":        "#ffff00C8",
+        "debug":        "#ffff00C8"
     },
     "exterior": {
         "wall1": {
