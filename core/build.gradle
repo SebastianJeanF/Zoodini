@@ -6,6 +6,7 @@ dependencies {
   api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
   api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
+  api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
   implementation fileTree(dir: '../dependencies', include: '*.jar')
 
   if(enableGraalNative == 'true') {

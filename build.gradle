@@ -25,11 +25,15 @@ allprojects {
       testOutputDir file('build/classes/java/test')
     }
   }
+
+  ext {
+    aiVersion = '1.8.2'
+  }
 }
 
 configure(subprojects) {
   apply plugin: 'java-library'
-  sourceCompatibility = 11
+  sourceCompatibility = 17
 
   // From https://lyze.dev/2021/04/29/libGDX-Internal-Assets-List/
   // The article can be helpful when using assets.txt in your project.
@@ -70,4 +74,11 @@ subprojects {
   }
 }
 
+project(":core") {
+  apply plugin: "java-library"
+
+  dependencies {
+    api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
+  }
+}
 eclipse.project.name = 'Lighting' + '-parent'
