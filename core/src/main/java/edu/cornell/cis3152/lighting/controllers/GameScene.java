@@ -19,7 +19,9 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import edu.cornell.cis3152.lighting.models.Avatar;
+import edu.cornell.cis3152.lighting.models.Enemy;
 import edu.cornell.cis3152.lighting.models.GameLevel;
+import edu.cornell.cis3152.lighting.models.Guard;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.TextAlign;
@@ -280,6 +282,8 @@ public class GameScene implements Screen, ContactListener {
 		avatar.setMovement(angleCache.x, angleCache.y);
 		avatar.applyForce();
 
+        // Update guards
+        updateGuards();
 		// Turn the physics engine crank.
 		level.update(dt);
 	}
@@ -337,6 +341,76 @@ public class GameScene implements Screen, ContactListener {
 			draw();
 		}
 	}
+    void updateGuards() {
+        Array<Enemy> enemies = level.getEnemies();
+        for (Enemy enemy : enemies) {
+            if (!(enemy instanceof Guard))
+                continue;
+
+            Guard guard = (Guard) enemy;
+            // Check for meow alert (Gar) or inked alert (Otto)
+
+
+
+            // Reset meow alert when the guard reaches its target
+            if ((guard.isMeowed() && guard.getPosition().dst(guard.getTarget()) < 0.1f)
+            ) {
+                guard.setMeow(false);
+            }
+
+            // Check Field-of-view (FOV), making guard agroed if they see a player
+
+            if (guard.isMeowed()) {
+
+            }
+
+            guard.updatePatrol();
+            moveGuard(guard);
+        }
+
+
+
+    }
+
+
+
+
+    void moveGuard(Guard guard) {
+
+        Vector2 guardPos = guard.getPosition();
+
+        Vector2 targetPos = level.getAvatar().getPosition();
+
+        if (!guard.isAgroed() && !guard.isMeowed() && guard.getTarget() != null) {
+            targetPos = guard.getTarget();
+        }
+        Vector2 direction = new Vector2(targetPos).sub(guardPos);
+
+        if (direction.len() > 0) {
+            direction.nor().scl(guard.getForce());
+            if (guard.isMeowed()) {
+                direction.scl(0.5f);
+            }
+            else if (guard.isAgroed()){
+                direction.scl(1.1f);
+            }
+            else if (guard.isCameraAlerted()) {
+                direction.scl(1.5f);
+            }
+
+            guard.setMovement(direction.x, direction.y);
+            // Update guard orientation to face the target.
+            guard.setAngle(direction.angleRad());
+        }
+
+        // Update the guard's orientation to face the direction of movement.
+        Vector2 movement = guard.getMovement();
+        if (movement.len2() > 0.0001f) {  // Only update if there is significant movement
+            guard.setAngle(movement.angleRad() - (float)Math.PI/2);
+        }
+        guard.applyForce();
+
+    }
 
 	/**
 	 * Called when the Screen is paused.

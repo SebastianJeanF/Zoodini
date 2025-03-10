@@ -153,6 +153,15 @@ public class GameLevel {
 		return goalDoor;
 	}
 
+    /**
+     * Returns a reference to the enemies
+     *
+     * @return a reference to the enemies
+     */
+    public Array<Enemy> getEnemies(){
+        return enemies;
+    }
+
 	/**
 	 * Returns whether this level is currently in debug node
 	 *
