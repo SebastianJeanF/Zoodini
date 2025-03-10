@@ -66,15 +66,32 @@ public class Avatar extends ObstacleSprite {
 
 	/**
 	 * Returns the avatar type.
-	 * 
+	 *
 	 * Could be accomplished by runtime type checking but don't want to spend
 	 * resources on that
-	 * 
+	 *
 	 * @return the type of this avatar
 	 */
 	public AvatarType getAvatarType() {
 		return avatarType;
 	}
+
+    /**
+     * Returns the position of this avatar.
+     *
+     * @return the position of this avatar.
+     */
+    public Vector2 getPosition() {
+        return obstacle.getPosition();
+    }
+
+    public void setAngle(float angle) {
+        obstacle.setAngle(angle);
+    }
+
+    public float getAngle() {
+        return obstacle.getAngle();
+    }
 
 	/**
 	 * Returns the directional movement of this character.

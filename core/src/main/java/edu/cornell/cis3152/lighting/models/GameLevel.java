@@ -82,6 +82,7 @@ public class GameLevel {
 	private OrthographicCamera raycamera;
 
 	private Array<Enemy> enemies;
+    private Array<SecurityCamera> securityCameras;
 	private ObjectMap<Enemy, PositionalLight> enemyLights;
 	private PositionalLight[] avatarLights; // TODO: array or separate field for two avatars?
 
@@ -151,6 +152,15 @@ public class GameLevel {
 	public Exit getExit() {
 		return goalDoor;
 	}
+
+    /**
+     * Returns a reference to the enemies
+     *
+     * @return a reference to the enemies
+     */
+    public Array<Enemy> getEnemies(){
+        return enemies;
+    }
 
 	/**
 	 * Returns whether this level is currently in debug node
@@ -292,6 +302,16 @@ public class GameLevel {
 			activate(enemies.peek());
 			guards = guards.next();
 		}
+
+        // Security Cameras
+        this.securityCameras = new Array<>();
+        JsonValue cameras = levelFormat.getChild("cameras");
+        while (cameras != null) {
+            SecurityCamera camera = new SecurityCamera(directory, cameras, units);
+            activate(camera);
+            securityCameras.add(camera);
+            cameras = cameras.next();
+        }
 
 		// Lights
 		if (levelFormat.has("ambientLight")) {

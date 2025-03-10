@@ -70,13 +70,20 @@
   "guards" : {
     "1" : {
       "pos":          [ 5, 1.5],
+      "patrol": [
+        [1, 8],
+        [4, 8],
+        [4, 1],
+        [4, 8],
+        [ 14, 8]
+      ],
       "radius":       0.2,
       "spriterad":    0.6,
       "bodytype":     "dynamic",
       "density":      1.0,
       "friction":     0.0,
       "restitution":  0.0,
-      "force":        80.0,
+      "force":        20.0,
       "damping":      10.0,
       "maxspeed":     5.0,
       "collide":      "0001",
@@ -94,7 +101,7 @@
       "density":      1.0,
       "friction":     0.0,
       "restitution":  0.0,
-      "force":        80.0,
+      "force":        20.0,
       "damping":      10.0,
       "maxspeed":     5.0,
       "collide":      "0001",
@@ -105,6 +112,38 @@
       "debug":        "#ffffffC0"
     }
   },
+  "cameras" : {
+    "1" : {
+      "pos":          [ 15, 8],
+      "radius":       0.2,
+      "spriterad":    0.6,
+      "angle":        90,
+      "startframe":   0,
+      "collide":      "0001",
+      "exclude":      "0000",
+      "texture":      "security-camera.camera",
+      "debug":        "#ffffffC0",
+      "density":      1.0,
+      "friction":     0.0,
+      "restitution":  0.0
+    },
+    "2" : {
+      "pos":          [ 12.5, 5.5],
+      "radius":       0.2,
+      "spriterad":    0.6,
+      "angle":        90,
+      "startframe":   0,
+      "collide":      "0001",
+      "exclude":      "0000",
+      "texture":      "security-camera.camera",
+      "debug":        "#ffffffC0",
+      "density":      1.0,
+      "friction":     0.0,
+      "restitution":  0.0
+    }
+
+  },
+
     "exit": {
         "pos":          [ 1.5, 10.35],
         "size":         [ 1.25, 1.25],
@@ -241,9 +280,9 @@
             "tile":         128
           },
           "maze7": {
-            "pos":          [  7.0f, 9.0f],
-            "size":         [ 13.0f,  0.5f],
-            "pad":          [ 0.1f, 0.1f],
+            "pos":          [  "7.0f", "9.0f"],
+            "size":         [ "13.0f",  "0.5f"],
+            "pad":          [ "0.1f", "0.1f"],
             "bodytype":     "static",
             "density":      0.0,
             "friction":     0.4,
