@@ -5,7 +5,7 @@
     "ambientLight":  {
         "gamma": true,
         "diffuse": true,
-        "ambientColor": [0.0, 0.0, 0.0, 0.0],
+        "ambientColor": [0.5, 0.5, 0.5, 0.5],
         "blur": 1
     },
     "entityLights": {
