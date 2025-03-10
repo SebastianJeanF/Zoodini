@@ -13,7 +13,7 @@
 package edu.cornell.cis3152.lighting.controllers;
 
 import com.badlogic.gdx.*;
-
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import edu.cornell.gdiac.util.Controllers;
 import edu.cornell.gdiac.util.XBoxController;
@@ -66,6 +66,9 @@ public class InputController {
 	/** How much did we move vertically? */
 	private float vertical;
 
+	/** Where are we targeting? */
+	private Vector2 aiming;
+
 	/** An X-Box controller (if it is connected) */
 	XBoxController xbox;
 
@@ -89,6 +92,10 @@ public class InputController {
 	 */
 	public float getVertical() {
 		return vertical;
+	}
+
+	public Vector2 getAiming() {
+		return aiming;
 	}
 
 	/**
@@ -159,6 +166,7 @@ public class InputController {
 		} else {
 			xbox = null;
 		}
+		aiming = new Vector2();
 	}
 
 	/**
@@ -240,5 +248,7 @@ public class InputController {
 		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
 			vertical -= 1.0f;
 		}
+
+		aiming.set(Gdx.input.getX(), Gdx.input.getY());
 	}
 }

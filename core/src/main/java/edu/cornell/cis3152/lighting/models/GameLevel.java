@@ -356,7 +356,6 @@ public class GameLevel {
 			enemyLights.put(guard, cone);
 		}
 
-		// TODO: use loop over player array if we use array.
 		PointLight point;
 		light = json.get("player");
 		point = createPointLight(light);
