@@ -80,8 +80,11 @@ public class GameLevel {
 	/** Whether or not the level is in debug more (showing off physics) */
 	private boolean debug;
 
-	/** All the objects in the world. */
+	/** All the object sprites in the world. */
 	protected PooledList<ObstacleSprite> sprites  = new PooledList<ObstacleSprite>();
+
+    /** All the objects in the world. */
+    protected PooledList<Obstacle> objects = new PooledList<>();
 
 	// LET THE TIGHT COUPLING BEGIN
 	/** The Box2D world */
@@ -409,6 +412,7 @@ public class GameLevel {
 	protected void activate(ObstacleSprite sprite) {
 		assert inBounds(sprite.getObstacle()) : "Object is not in bounds";
 		sprites.add(sprite);
+        objects.add(sprite.getObstacle());
 		sprite.getObstacle().activatePhysics(world);
 	}
 
