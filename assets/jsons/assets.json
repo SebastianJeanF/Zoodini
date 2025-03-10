@@ -16,6 +16,17 @@
 				}
     		}
     	},
+        "security-camera": {
+            "file":  "textures/security_camera.png",
+            "wrap":   false,
+            "sprites":  {
+                "camera" : {
+                  "size" : 1,
+                  "rows" : 1,
+                  "cols" : 1
+                }
+            }
+        },
         "goal": "textures/helicopter.png"
   	},
   	"fonts": {
