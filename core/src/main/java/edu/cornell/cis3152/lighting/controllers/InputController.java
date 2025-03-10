@@ -57,6 +57,9 @@ public class InputController {
 	/** Whether the exit button was pressed. */
 	private boolean exitPressed;
 	private boolean exitPrevious;
+	/** Whether the swap button was pressed. */
+	private boolean swapPressed;
+	private boolean swapPrevious;
 
 	/** How much did we move horizontally? */
 	private float horizontal;
@@ -134,16 +137,25 @@ public class InputController {
 	}
 
 	/**
+	 * Returns true if the swap button was pressed.
+	 *
+	 * @return true if the swap button was pressed.
+	 */
+	public boolean didSwap() {
+		return swapPressed && !swapPrevious;
+	}
+
+	/**
 	 * Creates a new input controller
 	 *
 	 * The input controller attempts to connect to the X-Box controller at device 0,
-	 * if it exists.  Otherwise, it falls back to the keyboard control.
+	 * if it exists. Otherwise, it falls back to the keyboard control.
 	 */
 	public InputController() {
 		// If we have a game-pad for id, then use it.
 		Array<XBoxController> controllers = Controllers.get().getXBoxControllers();
 		if (controllers.size > 0) {
-			xbox = controllers.get( 0 );
+			xbox = controllers.get(0);
 		} else {
 			xbox = null;
 		}
@@ -155,11 +167,12 @@ public class InputController {
 	public void sync() {
 		// Copy state from last animation frame
 		// Helps us ignore buttons that are held down
-		resetPrevious  = resetPressed;
-		debugPrevious  = debugPressed;
+		resetPrevious = resetPressed;
+		debugPrevious = debugPressed;
 		exitPrevious = exitPressed;
 		nextPrevious = nextPressed;
 		prevPrevious = prevPressed;
+		swapPrevious = swapPressed;
 
 		// Check to see if a GamePad is connected
 		if (xbox != null && xbox.isConnected()) {
@@ -168,7 +181,7 @@ public class InputController {
 		} else {
 			readKeyboard(false);
 		}
-}
+	}
 
 	/**
 	 * Reads input from an X-Box controller connected to this computer.
@@ -182,14 +195,15 @@ public class InputController {
 	 */
 	private void readGamepad() {
 		resetPressed = xbox.getStart();
-		exitPressed  = xbox.getBack();
-		nextPressed  = xbox.getRBumper();
-		prevPressed  = xbox.getLBumper();
-		debugPressed  = xbox.getY();
+		exitPressed = xbox.getBack();
+		nextPressed = xbox.getRBumper();
+		prevPressed = xbox.getLBumper();
+		debugPressed = xbox.getY();
+		swapPressed = xbox.getA();
 
 		// Increase animation frame, but only if trying to move
 		horizontal = xbox.getLeftX();
-		vertical   = xbox.getLeftY();
+		vertical = xbox.getLeftY();
 	}
 
 	/**
@@ -207,7 +221,8 @@ public class InputController {
 		debugPressed = (secondary && debugPressed) || (Gdx.input.isKeyPressed(Input.Keys.O));
 		prevPressed = (secondary && prevPressed) || (Gdx.input.isKeyPressed(Input.Keys.P));
 		nextPressed = (secondary && nextPressed) || (Gdx.input.isKeyPressed(Input.Keys.N));
-		exitPressed  = (secondary && exitPressed) || (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));
+		exitPressed = (secondary && exitPressed) || (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));
+		swapPressed = (secondary && swapPressed) || (Gdx.input.isKeyPressed(Input.Keys.SPACE));
 
 		// Directional controls
 		horizontal = (secondary ? horizontal : 0.0f);

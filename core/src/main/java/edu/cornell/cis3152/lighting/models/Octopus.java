@@ -10,7 +10,7 @@ import edu.cornell.gdiac.assets.AssetDirectory;
  * Note that the constructor does very little. The true initialization happens
  * by reading the JSON value.
  */
-public class Otto extends Avatar {
+public class Octopus extends Avatar {
     /// Whether or not this Otto instance has triggered the blind action
     private boolean inked;
     private float flipScale = 1.0f;
@@ -37,7 +37,7 @@ public class Otto extends Avatar {
         flipScale = scale;
     }
 
-    public Otto(AssetDirectory directory, JsonValue json, float units) {
+    public Octopus(AssetDirectory directory, JsonValue json, float units) {
         super(AvatarType.OTTO, directory, json, units);
     }
 }

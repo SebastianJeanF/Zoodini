@@ -25,7 +25,7 @@ import edu.cornell.gdiac.assets.AssetDirectory;
  * Note that the constructor does very little. The true initialization happens
  * by reading the JSON value.
  */
-public class Gar extends Avatar {
+public class Cat extends Avatar {
     /// Whether or not this Gar instance has triggered the meow action
     private boolean meowed;
 
@@ -47,7 +47,7 @@ public class Gar extends Avatar {
         meowed = value;
     }
 
-    public Gar(AssetDirectory directory, JsonValue json, float units) {
+    public Cat(AssetDirectory directory, JsonValue json, float units) {
         super(AvatarType.GAR, directory, json, units);
     }
 }
