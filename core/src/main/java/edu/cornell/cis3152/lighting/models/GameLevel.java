@@ -115,6 +115,17 @@ public class GameLevel {
 	/** The amount of time that has passed without updating the frame */
 	protected float physicsTimeLeft;
 
+    private float levelScaleX;
+    private float levelScaleY;
+
+    public float getLevelScaleX(){
+        return levelScaleX;
+    }
+
+    public float getLevelScaleY(){
+        return levelScaleY;
+    }
+
 	/**
 	 * Returns the bounding rectangle for the physics world
 	 *
@@ -257,6 +268,9 @@ public class GameLevel {
 		world = new World(Vector2.Zero, false);
 		bounds = new Rectangle(0, 0, pSize[0], pSize[1]);
 		float units = gSize[1] / pSize[1];
+
+        levelScaleX = gSize[0] / pSize[0];
+        levelScaleY = gSize[1] / pSize[1];
 
 		// Compute the FPS
 		int[] fps = levelFormat.get("fps_range").asIntArray();
