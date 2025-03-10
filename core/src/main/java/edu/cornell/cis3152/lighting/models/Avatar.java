@@ -56,6 +56,26 @@ public class Avatar extends ObstacleSprite {
 	/** Cache for internal force calculations */
 	private Vector2 forceCache = new Vector2();
 
+	public enum AvatarType {
+		GAR,
+		OTTO,
+		ENEMY
+	}
+
+	private AvatarType avatarType;
+
+	/**
+	 * Returns the avatar type.
+	 * 
+	 * Could be accomplished by runtime type checking but don't want to spend
+	 * resources on that
+	 * 
+	 * @return the type of this avatar
+	 */
+	public AvatarType getAvatarType() {
+		return avatarType;
+	}
+
 	/**
 	 * Returns the directional movement of this character.
 	 *
@@ -75,7 +95,7 @@ public class Avatar extends ObstacleSprite {
 	 * @param value the directional movement of this character.
 	 */
 	public void setMovement(Vector2 value) {
-		setMovement(value.x,value.y);
+		setMovement(value.x, value.y);
 	}
 
 	/**
@@ -87,7 +107,7 @@ public class Avatar extends ObstacleSprite {
 	 * @param dy the horizontal movement of this character.
 	 */
 	public void setMovement(float dx, float dy) {
-		movement.set(dx,dy);
+		movement.set(dx, dy);
 	}
 
 	/**
@@ -106,7 +126,7 @@ public class Avatar extends ObstacleSprite {
 	 *
 	 * Multiply this by the input to get the movement value.
 	 *
-	 * @param value	how much force to apply to get the avatar moving
+	 * @param value how much force to apply to get the avatar moving
 	 */
 	public void setForce(float value) {
 		force = value;
@@ -124,7 +144,7 @@ public class Avatar extends ObstacleSprite {
 	/**
 	 * Sets how hard the brakes are applied to stop the avatar from moving
 	 *
-	 * @param value	how hard the brakes are applied to stop the avatar
+	 * @param value how hard the brakes are applied to stop the avatar
 	 */
 	public void setDamping(float value) {
 		damping = value;
@@ -146,7 +166,7 @@ public class Avatar extends ObstacleSprite {
 	 *
 	 * This does NOT apply to vertical movement.
 	 *
-	 * @param value	the upper limit on avatar left-right movement.
+	 * @param value the upper limit on avatar left-right movement.
 	 */
 	public void setMaxSpeed(float value) {
 		maxspeed = value;
@@ -164,10 +184,10 @@ public class Avatar extends ObstacleSprite {
 	/**
 	 * Sets the animation frame of this avatar.
 	 *
-	 * @param value	animation frame of this avatar.
+	 * @param value animation frame of this avatar.
 	 */
 	public void setFrame(int value) {
-		sprite.setFrame( value );
+		sprite.setFrame(value);
 	}
 
 	/**
@@ -182,34 +202,37 @@ public class Avatar extends ObstacleSprite {
 	/**
 	 * Sets the cooldown limit between walk animations
 	 *
-	 * @param value	the cooldown limit between walk animations
+	 * @param value the cooldown limit between walk animations
 	 */
 	public void setWalkLimit(int value) {
 		walkLimit = value;
 	}
 
-
 	/**
 	 * Creates a new avatar with from the given settings
 	 *
-	 * @param directory The asset directory (for textures, etc)
-	 * @param json      The JSON values defining this avatar
-	 * @param units     The physics units for this avatar
+	 * @param avatarType The type of this avatar
+	 * @param directory  The asset directory (for textures, etc)
+	 * @param json       The JSON values defining this avatar
+	 * @param units      The physics units for this avatar
 	 */
-	public Avatar(AssetDirectory directory, JsonValue json, float units) {
-		float[] pos  = json.get("pos").asFloatArray();
+	public Avatar(AvatarType avatarType, AssetDirectory directory, JsonValue json, float units) {
+		this.avatarType = avatarType;
+
+		float[] pos = json.get("pos").asFloatArray();
 		float radius = json.getFloat("radius");
-		obstacle = new WheelObstacle(pos[0],pos[1],radius);
-		obstacle.setName( json.name() );
-		obstacle.setFixedRotation( false );
+		obstacle = new WheelObstacle(pos[0], pos[1], radius);
+		obstacle.setName(json.name());
+		obstacle.setFixedRotation(false);
 
 		// Technically, we should do error checking here.
 		// A JSON field might accidentally be missing
-		obstacle.setBodyType(json.getString("bodytype").equals("static") ? BodyDef.BodyType.StaticBody : BodyDef.BodyType.DynamicBody);
+		obstacle.setBodyType(json.getString("bodytype").equals("static") ? BodyDef.BodyType.StaticBody
+				: BodyDef.BodyType.DynamicBody);
 		obstacle.setDensity(json.getFloat("density"));
 		obstacle.setFriction(json.getFloat("friction"));
 		obstacle.setRestitution(json.getFloat("restitution"));
-		obstacle.setPhysicsUnits( units );
+		obstacle.setPhysicsUnits(units);
 
 		setForce(json.getFloat("force"));
 		setDamping(json.getFloat("damping"));
@@ -224,15 +247,15 @@ public class Avatar extends ObstacleSprite {
 		filter.maskBits = excludeBits;
 		obstacle.setFilterData(filter);
 
-		setDebugColor( ParserUtils.parseColor( json.get( "debug" ), Color.WHITE ) );
+		setDebugColor(ParserUtils.parseColor(json.get("debug"), Color.WHITE));
 
-		String key = json.getString( "texture" );
+		String key = json.getString("texture");
 		startFrame = json.getInt("startframe");
-		sprite = directory.getEntry( key, SpriteSheet.class );
-		sprite.setFrame( startFrame );
+		sprite = directory.getEntry(key, SpriteSheet.class);
+		sprite.setFrame(startFrame);
 
-		float r = json.getFloat( "spriterad" )*units;
-		mesh = new SpriteMesh(-r,-r,2*r,2*r);
+		float r = json.getFloat("spriterad") * units;
+		mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 	}
 
 	/**
@@ -252,7 +275,7 @@ public class Avatar extends ObstacleSprite {
 		// Apply force for movement
 		if (getMovement().len2() > 0f) {
 			forceCache.set(getMovement());
-			obstacle.getBody().applyForce(forceCache,obstacle.getPosition(),true);
+			obstacle.getBody().applyForce(forceCache, obstacle.getPosition(), true);
 			animate = true;
 		} else {
 			animate = false;
@@ -264,13 +287,13 @@ public class Avatar extends ObstacleSprite {
 	 *
 	 * We use this method to reset cooldowns.
 	 *
-	 * @param dt    number of seconds since last animation frame
+	 * @param dt number of seconds since last animation frame
 	 */
 	public void update(float dt) {
 		// Animate if necessary
 		if (animate && walkCool == 0) {
 			if (sprite != null) {
-				int next = (sprite.getFrame()+1) % sprite.getSize();
+				int next = (sprite.getFrame() + 1) % sprite.getSize();
 				sprite.setFrame(next);
 			}
 			walkCool = walkLimit;
