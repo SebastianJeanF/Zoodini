@@ -260,6 +260,10 @@ public class GameScene implements Screen, ContactListener {
 		InputController input = InputController.getInstance();
 
 		if (input.didSwap()) {
+			// stop active character movement
+			level.getAvatar().setMovement(0, 0);
+			level.getAvatar().applyForce();
+			// swap the active character
 			level.swapActiveAvatar();
 		}
 		Avatar avatar = level.getAvatar();

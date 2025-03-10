@@ -272,12 +272,12 @@ public class GameLevel {
 		}
 
 		// Entities
-		JsonValue catData = levelFormat.get("avatar");
+		JsonValue catData = levelFormat.get("avatarCat");
 		avatarCat = new Cat(directory, catData, units);
 		activate(avatarCat);
 
 		// Avatars
-		JsonValue octopusData = levelFormat.get("avatar");
+		JsonValue octopusData = levelFormat.get("avatarOctopus");
 		avatarOctopus = new Octopus(directory, octopusData, units);
 		activate(avatarOctopus);
 
@@ -337,10 +337,12 @@ public class GameLevel {
 		PointLight point;
 		light = json.get("player");
 		point = createPointLight(light);
+		point.setActive(catActive);
 		avatarLights[0] = point;
 		point.attachToBody(avatarCat.getObstacle().getBody(), point.getX(), point.getY(), point.getDirection());
 
 		point = createPointLight(light);
+		point.setActive(!catActive);
 		avatarLights[1] = point;
 		point.attachToBody(avatarOctopus.getObstacle().getBody(), point.getX(), point.getY(), point.getDirection());
 	}
