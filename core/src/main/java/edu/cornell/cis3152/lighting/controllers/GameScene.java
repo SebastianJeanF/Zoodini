@@ -13,6 +13,7 @@
 package edu.cornell.cis3152.lighting.controllers;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -22,6 +23,7 @@ import edu.cornell.cis3152.lighting.models.Avatar;
 import edu.cornell.cis3152.lighting.models.Enemy;
 import edu.cornell.cis3152.lighting.models.GameLevel;
 import edu.cornell.cis3152.lighting.models.Guard;
+import edu.cornell.cis3152.lighting.utils.Constants;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.TextAlign;
@@ -78,6 +80,13 @@ public class GameScene implements Screen, ContactListener {
 
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
+
+    // Camera movement fields
+    private Vector2 cameraTargetPosition;
+    private Vector2 cameraPreviousPosition;
+    private float cameraTransitionTimer;
+    private float cameraTransitionDuration;
+    private boolean inCameraTransition;
 
 	/**
 	 * Returns true if the level is completed.
@@ -168,6 +177,12 @@ public class GameScene implements Screen, ContactListener {
 
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        // Initialize camera tracking variables
+        cameraTargetPosition = new Vector2();
+        cameraPreviousPosition = new Vector2();
+        cameraTransitionTimer = 0;
+        cameraTransitionDuration = Constants.CAMERA_INTERPOLATION_DURATION;
+        inCameraTransition = false;
 
 		setComplete(false);
 		setFailure(false);
@@ -265,10 +280,22 @@ public class GameScene implements Screen, ContactListener {
 			// stop active character movement
 			level.getAvatar().setMovement(0, 0);
 			level.getAvatar().applyForce();
+            // Save previous camera position before swapping
+            cameraPreviousPosition.set(cameraTargetPosition);
 			// swap the active character
 			level.swapActiveAvatar();
+
+            // Start camera transition
+            cameraTransitionTimer = 0;
+            inCameraTransition = true;
 		}
 		Avatar avatar = level.getAvatar();
+
+        // Update camera target to active avatar's position
+        cameraTargetPosition.set(avatar.getPosition());
+
+        // Update camera position with interpolation
+        updateCamera(dt);
 
 		// Rotate the avatar to face the direction of movement
 		angleCache.set(input.getHorizontal(), input.getVertical());
@@ -299,6 +326,9 @@ public class GameScene implements Screen, ContactListener {
 	public void draw() {
 		ScreenUtils.clear(0.39f, 0.58f, 0.93f, 1.0f);
 
+        // Set the camera's updated view
+        batch.setProjectionMatrix(camera.combined);
+
 		level.draw(batch, camera);
 
 		// Final message
@@ -310,6 +340,38 @@ public class GameScene implements Screen, ContactListener {
 			batch.end();
 		}
 	}
+
+    /**
+     * Updates the camera position with interpolation when transitioning
+     */
+    private void updateCamera(float dt) {
+        if (inCameraTransition) {
+            // Update transition timer
+            cameraTransitionTimer += dt;
+
+            if (cameraTransitionTimer >= cameraTransitionDuration) {
+                // Transition complete
+                inCameraTransition = false;
+                camera.position.set(cameraTargetPosition.x, cameraTargetPosition.y, 0);
+            } else {
+                // Calculate interpolated position
+                float alpha = cameraTransitionTimer / cameraTransitionDuration;
+                float x = Interpolation.smooth.apply(cameraPreviousPosition.x, cameraTargetPosition.x, alpha);
+                float y = Interpolation.smooth.apply(cameraPreviousPosition.y, cameraTargetPosition.y, alpha);
+                camera.position.set(x, y, 0);
+            }
+        } else {
+            // Just follow the target directly
+            camera.position.set(cameraTargetPosition.x, cameraTargetPosition.y, 0);
+        }
+
+        // Apply scaling to match world units
+        camera.position.x *= level.getLevelScaleX();
+        camera.position.y *= level.getLevelScaleY();
+
+        // Update the camera
+        camera.update();
+    }
 
 	/**
 	 * Called when the Screen is resized.

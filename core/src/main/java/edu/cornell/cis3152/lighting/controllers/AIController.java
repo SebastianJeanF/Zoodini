@@ -82,23 +82,33 @@ public class AIController {
      * Converts the discrete Movement enum to a continuous movement vector
      */
     public Vector2 movementToVector(Movement movement) {
-        return switch (movement) {
-            case RIGHT -> new Vector2(1, 0);
-            case UP -> new Vector2(0, 1);
-            case LEFT -> new Vector2(-1, 0);
-            case DOWN -> new Vector2(0, -1);
-            default -> new Vector2(0, 0); // NO_ACTION
-        };
+        switch (movement) {
+            case RIGHT:
+                return new Vector2(1, 0);
+            case UP:
+                return new Vector2(0, 1);
+            case LEFT:
+                return new Vector2(-1, 0);
+            case DOWN:
+                return new Vector2(0, -1);
+            default:
+                return new Vector2(0, 0); // NO_ACTION
+        }
     }
 
     public Movement ordinalToMovement(int ordinal) {
-        return switch (ordinal) {
-            case 0 -> Movement.DOWN;
-            case 1 -> Movement.UP;
-            case 2 -> Movement.LEFT;
-            case 3 -> Movement.RIGHT;
-            default -> Movement.NO_ACTION;
-        };
+        switch (ordinal) {
+            case 0:
+                return Movement.DOWN;
+            case 1:
+                return Movement.UP;
+            case 2:
+                return Movement.LEFT;
+            case 3:
+                return Movement.RIGHT;
+            default:
+                return Movement.NO_ACTION;
+        }
     }
 
 
