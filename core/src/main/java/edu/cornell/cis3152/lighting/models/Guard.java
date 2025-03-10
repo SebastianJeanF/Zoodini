@@ -30,15 +30,26 @@ public class Guard extends Enemy {
     public Guard(AssetDirectory directory, JsonValue json, float units) {
         super(directory, json, units);
 
-        patrolPoints = new Vector2[] {
-//				new Vector2(2, 2),
-//				new Vector2(8, 2),
-//				new Vector2(8, 8),
-//				new Vector2(2, 8)
-                new Vector2(1,8),
-                new Vector2(14,8),
 
-        };
+
+        // Read patrol points from JSON if available.
+        if (json.has("patrol")) {
+            JsonValue patrolJson = json.get("patrol");
+            patrolPoints = new Vector2[patrolJson.size];
+            int index = 0;
+            for (JsonValue point : patrolJson) {
+                float x = point.getFloat(0);
+                float y = point.getFloat(1);
+                patrolPoints[index++] = new Vector2(x, y);
+            }
+        } else {
+            // Fallback to default patrol points if none are provided in JSON.
+            patrolPoints = new Vector2[] {
+                    new Vector2(1, 8),
+                    new Vector2(14, 8)
+            };
+        }
+
         currentPatrolIndex = 0;
 
         isChasing = false;
