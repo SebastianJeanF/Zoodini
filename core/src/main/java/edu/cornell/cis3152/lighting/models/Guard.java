@@ -14,6 +14,12 @@ public class Guard extends Enemy {
     private int chaseTimer;
     private boolean cameraAlerted;
 
+    // --- Patrol Path Variables for Guard ---
+    private Vector2[] patrolPoints;
+    private int currentPatrolIndex = 0;
+    private static final float PATROL_THRESHOLD = 0.5f; // Distance to switch patrol points
+
+
 
     /**
      * Creates a new dude with degenerate settings
@@ -24,11 +30,25 @@ public class Guard extends Enemy {
     public Guard(AssetDirectory directory, JsonValue json, float units) {
         super(directory, json, units);
 
+        patrolPoints = new Vector2[] {
+//				new Vector2(2, 2),
+//				new Vector2(8, 2),
+//				new Vector2(8, 8),
+//				new Vector2(2, 8)
+                new Vector2(1,8),
+                new Vector2(14,8),
+
+        };
+        currentPatrolIndex = 0;
+
         isChasing = false;
         meowed = false;
         chaseTimer = 0;
     }
 
+    public Vector2[] getPatrolPoints() {
+        return patrolPoints;
+    }
     public boolean isCameraAlerted() {
         return cameraAlerted;
     }
@@ -68,6 +88,18 @@ public class Guard extends Enemy {
         this.meowed = meowed;
     }
 
+    public void updatePatrol() {
+        if (patrolPoints == null || patrolPoints.length <= 0 || isAgroed() || isMeowed()) {
+            return;
+        }
+
+        Vector2 patrolTarget = patrolPoints[currentPatrolIndex];
+        if (getPosition().dst(patrolTarget) < PATROL_THRESHOLD) {
+            currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.length;
+            patrolTarget = patrolPoints[currentPatrolIndex];
+        }
+        setTarget(patrolTarget);
+    }
 
     /** If a guard is "meowed", it is currently patrolling to the spot of the meow,
      * but they are not chasing a player. When either alerted by a security camera,
