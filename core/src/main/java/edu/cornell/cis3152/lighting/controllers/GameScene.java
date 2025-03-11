@@ -77,6 +77,8 @@ public class GameScene implements Screen, ContactListener {
 	private boolean failed;
 	/** Countdown active for winning or losing */
 	private int countdown;
+    /** Controller for guards and security cameras */
+    private AIController aiController;
 
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
@@ -176,6 +178,7 @@ public class GameScene implements Screen, ContactListener {
 		countdown = -1;
 
 		camera = new OrthographicCamera();
+        System.out.println("");
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         // Initialize camera tracking variables
         cameraTargetPosition = new Vector2();
@@ -184,6 +187,7 @@ public class GameScene implements Screen, ContactListener {
         cameraTransitionDuration = directory.getEntry("constants", JsonValue.class).getFloat("CAMERA_INTERPOLATION_DURATION");
         System.out.println(cameraTransitionDuration);
         inCameraTransition = false;
+
 
 		setComplete(false);
 		setFailure(false);
@@ -310,6 +314,13 @@ public class GameScene implements Screen, ContactListener {
 		avatar.setMovement(angleCache.x, angleCache.y);
 		avatar.applyForce();
 
+        camera.translate(1f, 0, 0);
+
+//        camera.lookAt(camera.viewportHeight,camera.viewportWidth,0);
+//        camera.
+
+        camera.update();
+
         // Update guards
         updateGuards();
 		// Turn the physics engine crank.
@@ -413,8 +424,6 @@ public class GameScene implements Screen, ContactListener {
             Guard guard = (Guard) enemy;
             // Check for meow alert (Gar) or inked alert (Otto)
 
-
-
             // Reset meow alert when the guard reaches its target
             if ((guard.isMeowed() && guard.getPosition().dst(guard.getTarget()) < 0.1f)
             ) {
@@ -448,6 +457,7 @@ public class GameScene implements Screen, ContactListener {
             targetPos = guard.getTarget();
         }
         Vector2 direction = new Vector2(targetPos).sub(guardPos);
+
 
         if (direction.len() > 0) {
             direction.nor().scl(guard.getForce());

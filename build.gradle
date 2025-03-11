@@ -54,7 +54,6 @@ configure(subprojects) {
     options.incremental = true
   }
 }
-
 subprojects {
   version = '$projectVersion'
   ext.appName = 'Lighting'

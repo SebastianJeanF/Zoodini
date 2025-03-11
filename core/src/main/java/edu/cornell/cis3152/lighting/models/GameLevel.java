@@ -510,7 +510,11 @@ public class GameLevel {
 	 */
 	public boolean update(float dt) {
 		if (fixedStep(dt)) {
-			if (rayhandler != null) {
+			if (rayhandler != null)
+            {
+//                raycamera.translate(.02f, .02f, 0);
+//                raycamera.update();
+//                rayhandler.setCombinedMatrix(raycamera);
 				rayhandler.update();
 			}
 			avatarCat.update(dt);
@@ -562,9 +566,9 @@ public class GameLevel {
 		}
 		batch.end();
 
-        if(rayhandler != null){
-            rayhandler.render();
-        }
+		if (rayhandler != null) {
+			rayhandler.render();
+		}
 
 		// Draw debugging on top of everything.
 		if (debug) {
