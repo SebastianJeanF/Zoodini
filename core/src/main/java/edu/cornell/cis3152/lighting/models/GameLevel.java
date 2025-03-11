@@ -340,6 +340,10 @@ public class GameLevel {
 		}
 	}
 
+    /**
+     * Configures and instantiates a rayhandler.
+     * @param json containing the configuration settings.
+     */
 	public void initializeRayHandler(JsonValue json) {
 		raycamera = new OrthographicCamera(bounds.width, bounds.height);
 		raycamera.position.set(bounds.width / 2.0f, bounds.height / 2.0f, 0);
@@ -362,7 +366,7 @@ public class GameLevel {
 	 * 1. Create lights.
 	 * 2. Attach lights to entities.
 	 *
-	 * Modifies enemyLights field.
+	 * Modifies enemyLights and avatarLights field.
 	 *
 	 * @param json JsonValue of "entityLights" in level.json
 	 */
@@ -376,7 +380,6 @@ public class GameLevel {
 			enemyLights.put(guard, cone);
 		}
 
-		// TODO: use loop over player array if we use array.
 		PointLight point;
 		light = json.get("player");
 
@@ -393,6 +396,8 @@ public class GameLevel {
 
 	/**
 	 * Helper fuction for populateLights.
+     * Returns PointLight
+     * @param light json that contains settings
 	 */
 	private PointLight createPointLight(JsonValue light) {
 		float[] color = light.get("color").asFloatArray();
@@ -414,6 +419,8 @@ public class GameLevel {
 
 	/**
 	 * Helper function for populateLights
+     * Returns ConeLight.
+     * @param light json that contains settings.
 	 */
 	private ConeLight createConeLight(JsonValue light) {
 		float[] color = light.get("color").asFloatArray();
@@ -518,9 +525,6 @@ public class GameLevel {
 		if (fixedStep(dt)) {
 			if (rayhandler != null)
             {
-//                raycamera.translate(.02f, .02f, 0);
-//                raycamera.update();
-//                rayhandler.setCombinedMatrix(raycamera);
 				rayhandler.update();
 			}
 			avatarCat.update(dt);
