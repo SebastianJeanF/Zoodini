@@ -2,8 +2,9 @@ package edu.cornell.cis3152.lighting.utils;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import edu.cornell.cis3152.lighting.models.nonentities.ExteriorWall;
+import edu.cornell.cis3152.lighting.models.nonentities.InteriorWall;
 import edu.cornell.gdiac.physics2.*;
-import edu.cornell.cis3152.lighting.models.*;
 import edu.cornell.gdiac.util.PooledList;
 
 /**

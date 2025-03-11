@@ -10,7 +10,7 @@
  * @author: Walker M. White
  * @version: 2/15/2025
  */
-package edu.cornell.cis3152.lighting.controllers;
+package edu.cornell.cis3152.lighting.controllers.screens;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.math.Interpolation;
@@ -19,11 +19,12 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-import edu.cornell.cis3152.lighting.models.Avatar;
-import edu.cornell.cis3152.lighting.models.Enemy;
+import edu.cornell.cis3152.lighting.controllers.AIController;
+import edu.cornell.cis3152.lighting.controllers.InputController;
+import edu.cornell.cis3152.lighting.models.entities.Avatar;
+import edu.cornell.cis3152.lighting.models.entities.Enemy;
 import edu.cornell.cis3152.lighting.models.GameLevel;
-import edu.cornell.cis3152.lighting.models.Guard;
-import edu.cornell.cis3152.lighting.utils.Constants;
+import edu.cornell.cis3152.lighting.models.entities.Guard;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.TextAlign;

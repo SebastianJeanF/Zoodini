@@ -1,7 +1,8 @@
-package edu.cornell.cis3152.lighting.models;
+package edu.cornell.cis3152.lighting.models.entities;
 
 import com.badlogic.gdx.utils.JsonValue;
 
+import edu.cornell.cis3152.lighting.models.entities.Avatar;
 import edu.cornell.gdiac.assets.AssetDirectory;
 
 /**

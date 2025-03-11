@@ -12,13 +12,14 @@
  * @author: Walker M. White
  * @version: 2/15/2025
  */
-package edu.cornell.cis3152.lighting.models;
+package edu.cornell.cis3152.lighting.models.entities;
 
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
+import edu.cornell.cis3152.lighting.models.GameLevel;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.assets.ParserUtils;
 import edu.cornell.gdiac.graphics.SpriteMesh;

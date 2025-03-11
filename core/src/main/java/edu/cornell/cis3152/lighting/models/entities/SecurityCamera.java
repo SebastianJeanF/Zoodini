@@ -1,9 +1,10 @@
-package edu.cornell.cis3152.lighting.models;
+package edu.cornell.cis3152.lighting.models.entities;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.utils.JsonValue;
+import edu.cornell.cis3152.lighting.models.GameLevel;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.assets.ParserUtils;
 import edu.cornell.gdiac.graphics.SpriteMesh;

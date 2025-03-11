@@ -33,14 +33,20 @@ import box2dLight.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.*;
-import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
-import com.badlogic.gdx.utils.ObjectIntMap.Keys;
-import edu.cornell.cis3152.lighting.HardEdgeLightShader;
-import edu.cornell.cis3152.lighting.models.Avatar.AvatarType;
+import edu.cornell.cis3152.lighting.utils.HardEdgeLightShader;
+import edu.cornell.cis3152.lighting.models.entities.Avatar;
+import edu.cornell.cis3152.lighting.models.entities.Cat;
+import edu.cornell.cis3152.lighting.models.entities.Enemy;
+import edu.cornell.cis3152.lighting.models.entities.Guard;
+import edu.cornell.cis3152.lighting.models.entities.Octopus;
+import edu.cornell.cis3152.lighting.models.entities.SecurityCamera;
+import edu.cornell.cis3152.lighting.models.nonentities.Exit;
+import edu.cornell.cis3152.lighting.models.nonentities.ExteriorWall;
+import edu.cornell.cis3152.lighting.models.nonentities.InteriorWall;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.physics2.ObstacleSprite;

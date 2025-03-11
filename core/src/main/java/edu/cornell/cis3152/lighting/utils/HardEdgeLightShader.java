@@ -1,4 +1,4 @@
-package edu.cornell.cis3152.lighting;
+package edu.cornell.cis3152.lighting.utils;
 
 import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;

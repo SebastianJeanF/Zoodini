@@ -13,7 +13,7 @@
  * Based on original PhysicsDemo Lab by Don Holden, 2007
  * B2Lights version, 3/12/2016
  */
-package edu.cornell.cis3152.lighting.models;
+package edu.cornell.cis3152.lighting.models.entities;
 
 import com.badlogic.gdx.utils.JsonValue;
 
@@ -31,7 +31,7 @@ public class Cat extends Avatar {
 
     /**
      * Gets the current value of <code>meowed</code>.
-     * 
+     *
      * @return Whether this Gar instance has meowed
      */
     public boolean getMeowed() {
@@ -40,7 +40,7 @@ public class Cat extends Avatar {
 
     /**
      * Update the value of <code>meowed</code>.
-     * 
+     *
      * @param value What to set the new value of <code>meowed</code> to
      */
     public void setMeowed(boolean value) {

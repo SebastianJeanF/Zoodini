@@ -2,7 +2,8 @@ package edu.cornell.cis3152.lighting.controllers;
 
 import com.badlogic.gdx.utils.Queue;
 import com.badlogic.gdx.math.Vector2;
-import edu.cornell.cis3152.lighting.models.*;
+import edu.cornell.cis3152.lighting.models.entities.Avatar;
+import edu.cornell.cis3152.lighting.models.entities.Guard;
 import edu.cornell.cis3152.lighting.utils.Grid;
 
 public class AIController {
