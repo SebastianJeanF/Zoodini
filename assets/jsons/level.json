@@ -3,9 +3,9 @@
     "screen_size":  [1000, 750],
     "fps_range":    [  20,  60],
     "ambientLight":  {
-        "gamma": true,
+        "gamma": false,
         "diffuse": true,
-        "ambientColor": [0.5, 0.5, 0.5, 0.5],
+        "ambientColor": [1.0, 1.0, 1.0, 1.0],
         "blur": 1
     },
     "entityLights": {
