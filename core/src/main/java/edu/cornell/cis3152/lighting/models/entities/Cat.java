@@ -48,6 +48,6 @@ public class Cat extends Avatar {
     }
 
     public Cat(AssetDirectory directory, JsonValue json, float units) {
-        super(AvatarType.GAR, directory, json, units);
+        super(AvatarType.CAT, directory, json, units);
     }
 }

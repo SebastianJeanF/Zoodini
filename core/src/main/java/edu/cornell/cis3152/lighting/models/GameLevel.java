@@ -578,6 +578,14 @@ public class GameLevel {
 			obj.draw(batch);
 		}
 
+		Avatar avatar = getAvatar();
+		if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
+			Octopus octopus = (Octopus) avatar;
+			if (octopus.isAiming()) {
+				drawOctopusReticle(batch, camera);
+			}
+		}
+
 		batch.end();
 
 		if (rayhandler != null) {
@@ -592,6 +600,49 @@ public class GameLevel {
 			}
 			batch.end();
 		}
+	}
+
+	/**
+	 * Draws an octopus-shaped reticle on the screen to indicate aiming direction.
+	 *
+	 * <p>
+	 * This method retrieves the player's avatar and calculates the aiming position
+	 * relative to the game world using the camera's unprojection. It then
+	 * determines the direction from the avatar to the aiming position and draws a
+	 * purple reticle using a rotated rectangle.
+	 * </p>
+	 *
+	 * @param batch  the sprite batch used for rendering
+	 * @param camera the camera used to unproject screen coordinates to world
+	 *               coordinates
+	 */
+	private void drawOctopusReticle(SpriteBatch batch, Camera camera) {
+		Avatar avatar = getAvatar();
+		batch.setTexture(null);
+		batch.setColor(Color.PURPLE);
+		float x = avatar.getObstacle().getX();
+		float y = avatar.getObstacle().getY();
+		float u = avatar.getObstacle().getPhysicsUnits();
+
+		var input = InputController.getInstance();
+		Vector3 unprojected = camera.unproject(
+				new Vector3(input.getAiming().x, input.getAiming().y, 0));
+
+		Vector2 mouseWorldVector = new Vector2(unprojected.x / getLevelScaleX(),
+				unprojected.y / getLevelScaleY());
+
+		// TODO: remove this hardcoding
+		Rectangle rect = new Rectangle(x, y - 2,
+				Math.min(mouseWorldVector.dst(avatar.getPosition()) * getLevelScaleX(), 250f), 2);
+		Affine2 transform = new Affine2();
+
+		double dx = avatar.getPosition().x - mouseWorldVector.x;
+		double dy = avatar.getPosition().y - mouseWorldVector.y;
+		float angleDeg = -((float) Math.toDegrees(Math.atan2(dx, dy)) + 90f);
+		transform.preRotate(angleDeg);
+		transform.preTranslate(x * u, y * u);
+		batch.fill(rect, transform);
+		batch.setColor(Color.WHITE);
 	}
 
 	/**

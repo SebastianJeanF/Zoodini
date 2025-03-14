@@ -12,33 +12,28 @@ import edu.cornell.gdiac.assets.AssetDirectory;
  * by reading the JSON value.
  */
 public class Octopus extends Avatar {
-    /// Whether or not this Otto instance has triggered the blind action
-    private boolean inked;
-    private float flipScale = 1.0f;
+    /// Whether this Octopus is currently aiming at a target
+    private boolean aiming;
 
     /**
-     * Gets the current value of <code>inked</code>.
+     * Gets the current value of <code>aiming</code>.
      *
-     * @return Whether this Otto instance has inked
+     * @return Whether this Octopus instance is aiming
      */
-    public boolean getInked() {
-        return inked;
+    public boolean isAiming() {
+        return aiming;
     }
 
     /**
-     * Update the value of <code>inked</code>.
+     * Update the value of <code>aiming</code>.
      *
-     * @param value What to set the new value of <code>inked</code> to
+     * @param value Whether the Octopus is currently aiming
      */
-    public void setInked(boolean value) {
-        inked = value;
-    }
-
-    public void setFlipScale(float scale) {
-        flipScale = scale;
+    public void setAiming(boolean value) {
+        this.aiming = value;
     }
 
     public Octopus(AssetDirectory directory, JsonValue json, float units) {
-        super(AvatarType.OTTO, directory, json, units);
+        super(AvatarType.OCTOPUS, directory, json, units);
     }
 }

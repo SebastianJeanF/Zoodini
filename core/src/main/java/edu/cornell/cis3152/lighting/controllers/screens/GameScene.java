@@ -29,6 +29,7 @@ import edu.cornell.cis3152.lighting.models.entities.Avatar.AvatarType;
 import edu.cornell.cis3152.lighting.models.entities.Enemy;
 import edu.cornell.cis3152.lighting.models.GameLevel;
 import edu.cornell.cis3152.lighting.models.entities.Guard;
+import edu.cornell.cis3152.lighting.models.entities.Octopus;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.TextAlign;
@@ -301,6 +302,16 @@ public class GameScene implements Screen, ContactListener {
 		}
 		Avatar avatar = level.getAvatar();
 
+		if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
+			Octopus octopus = (Octopus) avatar;
+			if (input.isAbilityHeld()) {
+				octopus.setAiming(true);
+			}
+			if (octopus.isAiming() && !input.isAbilityHeld()) {
+				octopus.setAiming(false);
+			}
+		}
+
 		// Update camera target to active avatar's position
 		cameraTargetPosition.set(avatar.getPosition());
 
@@ -347,36 +358,6 @@ public class GameScene implements Screen, ContactListener {
 		batch.setProjectionMatrix(camera.combined);
 
 		level.draw(batch, camera);
-
-		if (level.getAvatar().getAvatarType() == AvatarType.OTTO) {
-			batch.begin(camera);
-			var avatar = level.getAvatar();
-			batch.setTexture(null);
-			batch.setColor(Color.PURPLE);
-			float x = avatar.getObstacle().getX();
-			float y = avatar.getObstacle().getY();
-			float u = avatar.getObstacle().getPhysicsUnits();
-
-			var input = InputController.getInstance();
-			Vector3 unprojected = camera.unproject(
-					new Vector3(input.getAiming().x, input.getAiming().y, 0));
-			Vector2 unprojectedVector2 = new Vector2(unprojected.x / level.getLevelScaleX(),
-					unprojected.y / level.getLevelScaleY());
-			double dx = avatar.getPosition().x - unprojectedVector2.x;
-			double dy = avatar.getPosition().y - unprojectedVector2.y;
-
-			Rectangle rect = new Rectangle(x, y - 2,
-					Math.min(unprojectedVector2.dst(avatar.getPosition()) * level.getLevelScaleX(), 250f), 2);
-			Affine2 transform = new Affine2();
-
-			float angleDeg = -((float) Math.toDegrees(Math.atan2(dx, dy)) + 90f);
-			transform.preRotate(angleDeg);
-			transform.preTranslate(x * u, y * u);
-			batch.fill(rect, transform);
-			batch.setColor(Color.WHITE);
-			batch.end();
-			// System.out.println("tried to draw the funny line");
-		}
 
 		// Final message
 		if (message != null) {

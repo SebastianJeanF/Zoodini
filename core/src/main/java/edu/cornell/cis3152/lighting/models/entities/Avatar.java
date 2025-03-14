@@ -58,8 +58,8 @@ public class Avatar extends ObstacleSprite {
 	private Vector2 forceCache = new Vector2();
 
 	public enum AvatarType {
-		GAR,
-		OTTO,
+		CAT,
+		OCTOPUS,
 		ENEMY
 	}
 
