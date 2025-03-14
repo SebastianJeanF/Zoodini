@@ -10,13 +10,21 @@ import edu.cornell.gdiac.physics2.Obstacle;
 import java.util.*;
 
 public class GameGraph {
+    /** The graph representing the game world */
     private Graph graph;
+    /** The heuristic used by the A* algorithm */
     private DistanceHeuristic heuristic;
+    /** The number of rows in the grid */
     private final int ROWS;
+    /** The number of columns in the grid */
     private final int COLS;
+    /** The A* pathfinder used to find paths in the graph */
     private IndexedAStarPathFinder<Node> aStarPathFinder;
+    /** The x-coordinate of the bottom-left corner of the grid in world coordinates */
     private final float startX;
+    /** The y-coordinate of the bottom-left corner of the grid in world coordinates */
     private final float startY;
+    /** The size of each tile in the grid */
     private final float TERRAIN_TILE_SIZE = 1.0f;
 
     /**
@@ -47,7 +55,7 @@ public class GameGraph {
         Vector2 graphIndex = this.worldToGraphIndex(pos);
         int x = MathUtils.clamp(Math.round(graphIndex.x), 0, this.COLS - 1);
         int y = MathUtils.clamp(Math.round(graphIndex.y), 0, this.ROWS - 1);
-        return x >= 0 && x < this.COLS && y >= 0 && y < this.ROWS? (Node)this.graph.getNodes().get(y * this.COLS + x) : null;
+        return x >= 0 && x < this.COLS && y >= 0 && y < this.ROWS? this.graph.getNodes().get(y * this.COLS + x) : null;
     }
 
     /**
@@ -58,22 +66,21 @@ public class GameGraph {
      * @param nodes The array of nodes to process and generate connections for
      */
     public void addEdges(Array<Node> nodes) {
-        // For each node in the provided array
         for (Node node : nodes) {
-            // Skip obstacle nodes - they don't need connections
-            if (node.isObstacle) continue;
-
+            // Don't add edge to obstacles
+            if (node.isObstacle) {
+                continue;
+            }
             // Check potential connections to all other nodes
             for (int i = 0; i < nodes.size; i++) {
                 Node targetNode = nodes.get(i);
-
-                // Skip if the target is an obstacle or is the same node
+                // Don't add edge to obstacles or self
                 if (targetNode.isObstacle || node == targetNode) continue;
-
                 // Check if the target is within connect distance (1.5 units)
                 float distance = node.tileCoords.dst(targetNode.tileCoords);
-                if (distance > 1.5f) continue;
-
+                if (distance > 1.5f) {
+                    continue;
+                }
                 // If it's a diagonal connection, perform corner-cutting check
                 if (node.tileCoords.x != targetNode.tileCoords.x && node.tileCoords.y != targetNode.tileCoords.y) {
                     // Get the two corner nodes that would be cut through
@@ -81,18 +88,15 @@ public class GameGraph {
                         new Vector2(Math.round(node.tileCoords.x),
                         Math.round(targetNode.tileCoords.y))
                     );
-
                     Node cornerNode2 = getNode(
                         new Vector2(Math.round(targetNode.tileCoords.x),
                         Math.round(node.tileCoords.y))
                     );
-
                     // If either corner is an obstacle, don't allow diagonal movement
                     if (cornerNode1 != null && cornerNode2 != null && (cornerNode1.isObstacle || cornerNode2.isObstacle)) {
                         continue;
                     }
                 }
-
                 // Add a connection from the current node to the target node
                 node.edges.add(new Edge(node, targetNode));
             }
@@ -120,29 +124,23 @@ public class GameGraph {
         Array<Node> neighbors = new Array<>();
         neighbors.add(node); // Include the node itself for connection generation
 
-        // Add all 8-way neighbors
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
-                // Skip the center node (original position)
-                if (i == 0 && j == 0) continue;
-
-                // Calculate neighbor position
+                if (i == 0 && j == 0) { // Skip the center node (original position)
+                    continue;
+                }
                 Vector2 neighborPos = new Vector2(
                     pos.x + i * TERRAIN_TILE_SIZE,
                     pos.y + j * TERRAIN_TILE_SIZE
                 );
-
                 // Find the node at this position
                 Node neighbor = getNode(neighborPos);
-
-                // Add to neighbors list if it exists
                 if (neighbor != null) {
                     neighbors.add(neighbor);
                 }
             }
         }
-
-        // Regenerate connections for the node and its neighbors
+        // Generate connections for the node and its neighbors
         addEdges(neighbors);
     }
 
@@ -177,7 +175,7 @@ public class GameGraph {
         this.addEdges(nodes);
         this.graph = new Graph(nodes);
 
-        // Add walls to graph by reading game objects
+        // TODO: Add walls to graph by reading game objects
 
         addEdges(nodes);
         this.aStarPathFinder = new IndexedAStarPathFinder<>(graph);
