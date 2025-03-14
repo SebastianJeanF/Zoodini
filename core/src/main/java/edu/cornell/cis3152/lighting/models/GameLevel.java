@@ -412,7 +412,7 @@ public class GameLevel {
 		float dist = light.getFloat("distance");
 		int rays = light.getInt("rays");
 
-		PointLight point = new PointLight(rayhandler, rays, Color.WHITE, dist, pos[0], pos[1]);
+		PointLight point = new PointLight(rayhandler, rays, Color.WHITE, dist * getLevelScaleX(), pos[0], pos[1]);
 		point.setColor(color[0], color[1], color[2], color[3]);
 		point.setSoft(light.getBoolean("soft"));
 
@@ -590,7 +590,8 @@ public class GameLevel {
 		batch.end();
 
 		if (rayhandler != null) {
-			rayhandler.render();
+            rayhandler.setCombinedMatrix(camera.combined);
+			rayhandler.updateAndRender();
 		}
 
 		// Draw debugging on top of everything.

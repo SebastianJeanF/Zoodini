@@ -282,6 +282,10 @@ public class GameScene implements Screen, ContactListener {
 		// Process actions in object model
 		InputController input = InputController.getInstance();
 
+        if(input.zoomOut()){
+            camera.setToOrtho(false, camera.viewportWidth + 1, camera.viewportHeight + 1);
+        }
+
 		if (input.didSwap()) {
 			// stop active character movement
 			level.getAvatar().setMovement(0, 0);
