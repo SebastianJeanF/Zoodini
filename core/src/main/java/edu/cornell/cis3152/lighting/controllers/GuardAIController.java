@@ -36,11 +36,6 @@ public class GuardAIController {
     /** Min distance from waypoint where the guard will recalculate to next waypoint*/
     private final float WAYPOINT_RADIUS = 1.0F;
 
-
-
-
-
-
     public GuardAIController(Guard guard, Avatar player, GameGraph gameGraph, int susDelay) {
         this.guard = guard;
         this.player = player;
@@ -51,7 +46,34 @@ public class GuardAIController {
         this.ticks = 0L;
         this.SUS_DELAY = susDelay;
         this.susTicks = 0;
+    }
 
+    private boolean hasReachedPatrolPath() {
+        if (waypoints.length == 0) {
+            return true;
+        }
+        // Check if guard is close enough to the nearest waypoint
+        return distanceFromGuard(nextTargetLocation) <= WAYPOINT_RADIUS;
+    }
+
+    private Vector2 findNearestWaypoint() {
+        if (waypoints.length == 0) {
+            return guard.getPosition();
+        }
+
+        Vector2 nearest = waypoints[0];
+        float minDistance = guard.getPosition().dst(nearest);
+
+        for (int i = 1; i < waypoints.length; i++) {
+            float distance = guard.getPosition().dst(waypoints[i]);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearest = waypoints[i];
+                currentWaypointIndex = i; // Update the current waypoint index
+            }
+        }
+
+        return nearest;
     }
 
 
@@ -84,6 +106,11 @@ public class GuardAIController {
                 // If guard spots player while returning, change state to chase
                 if (checkPlayerIsSpotted()) {
                     currState = GuardState.CHASE;
+                }
+
+                // If guard reaches a waypoint, change state to patrol
+                else if (hasReachedPatrolPath()) {
+                    currState = GuardState.PATROL;
                 }
             case DISTRACTED:
                 // TODO: Implement when meow is implemented
@@ -156,18 +183,20 @@ public class GuardAIController {
             case CHASE:
                 this.nextTargetLocation = getNextWaypointLocation(player.getPosition());
             case RETURN:
+                // Return to the nearest waypoint on the patrol path
+                if (waypoints.length == 0) {
+                    return;
+                }
+                // Find nearest waypoint to return to
+                Vector2 nearestWaypoint = findNearestWaypoint();
+                nextTargetLocation = getNextWaypointLocation(nearestWaypoint);
                 break;
             case DISTRACTED:
                 break;
             default:
                 break;
-
         }
     }
-
-
-
-
 
     private static enum GuardState {
         /** Guard is patrolling without target*/
@@ -182,10 +211,6 @@ public class GuardAIController {
 
         private GuardState() {}
     }
-
-
-
-
 
 
 }
