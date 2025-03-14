@@ -13,6 +13,8 @@ import edu.cornell.gdiac.assets.AssetDirectory;
  */
 public class Octopus extends Avatar {
     /// Whether or not this Otto instance has triggered the blind action
+
+    // sample change
     private boolean inked;
     private float flipScale = 1.0f;
 
