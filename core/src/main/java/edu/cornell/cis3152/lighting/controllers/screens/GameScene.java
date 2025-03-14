@@ -13,15 +13,19 @@
 package edu.cornell.cis3152.lighting.controllers.screens;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import edu.cornell.cis3152.lighting.controllers.AIController;
 import edu.cornell.cis3152.lighting.controllers.InputController;
 import edu.cornell.cis3152.lighting.models.entities.Avatar;
+import edu.cornell.cis3152.lighting.models.entities.Avatar.AvatarType;
 import edu.cornell.cis3152.lighting.models.entities.Enemy;
 import edu.cornell.cis3152.lighting.models.GameLevel;
 import edu.cornell.cis3152.lighting.models.entities.Guard;
@@ -78,18 +82,18 @@ public class GameScene implements Screen, ContactListener {
 	private boolean failed;
 	/** Countdown active for winning or losing */
 	private int countdown;
-    /** Controller for guards and security cameras */
-    private AIController aiController;
+	/** Controller for guards and security cameras */
+	private AIController aiController;
 
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
 
-    // Camera movement fields
-    private Vector2 cameraTargetPosition;
-    private Vector2 cameraPreviousPosition;
-    private float cameraTransitionTimer;
-    private float cameraTransitionDuration;
-    private boolean inCameraTransition;
+	// Camera movement fields
+	private Vector2 cameraTargetPosition;
+	private Vector2 cameraPreviousPosition;
+	private float cameraTransitionTimer;
+	private float cameraTransitionDuration;
+	private boolean inCameraTransition;
 
 	/**
 	 * Returns true if the level is completed.
@@ -179,16 +183,16 @@ public class GameScene implements Screen, ContactListener {
 		countdown = -1;
 
 		camera = new OrthographicCamera();
-        System.out.println("");
+		System.out.println("");
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        // Initialize camera tracking variables
-        cameraTargetPosition = new Vector2();
-        cameraPreviousPosition = new Vector2();
-        cameraTransitionTimer = 0;
-        cameraTransitionDuration = directory.getEntry("constants", JsonValue.class).getFloat("CAMERA_INTERPOLATION_DURATION");
-        System.out.println(cameraTransitionDuration);
-        inCameraTransition = false;
-
+		// Initialize camera tracking variables
+		cameraTargetPosition = new Vector2();
+		cameraPreviousPosition = new Vector2();
+		cameraTransitionTimer = 0;
+		cameraTransitionDuration = directory.getEntry("constants", JsonValue.class)
+				.getFloat("CAMERA_INTERPOLATION_DURATION");
+		System.out.println(cameraTransitionDuration);
+		inCameraTransition = false;
 
 		setComplete(false);
 		setFailure(false);
@@ -286,22 +290,22 @@ public class GameScene implements Screen, ContactListener {
 			// stop active character movement
 			level.getAvatar().setMovement(0, 0);
 			level.getAvatar().applyForce();
-            // Save previous camera position before swapping
-            cameraPreviousPosition.set(cameraTargetPosition);
+			// Save previous camera position before swapping
+			cameraPreviousPosition.set(cameraTargetPosition);
 			// swap the active character
 			level.swapActiveAvatar();
 
-            // Start camera transition
-            cameraTransitionTimer = 0;
-            inCameraTransition = true;
+			// Start camera transition
+			cameraTransitionTimer = 0;
+			inCameraTransition = true;
 		}
 		Avatar avatar = level.getAvatar();
 
-        // Update camera target to active avatar's position
-        cameraTargetPosition.set(avatar.getPosition());
+		// Update camera target to active avatar's position
+		cameraTargetPosition.set(avatar.getPosition());
 
-        // Update camera position with interpolation
-        updateCamera(dt);
+		// Update camera position with interpolation
+		updateCamera(dt);
 
 		// Rotate the avatar to face the direction of movement
 		angleCache.set(input.getHorizontal(), input.getVertical());
@@ -315,15 +319,15 @@ public class GameScene implements Screen, ContactListener {
 		avatar.setMovement(angleCache.x, angleCache.y);
 		avatar.applyForce();
 
-        camera.translate(1f, 0, 0);
+		camera.translate(1f, 0, 0);
 
-//        camera.lookAt(camera.viewportHeight,camera.viewportWidth,0);
-//        camera.
+		// camera.lookAt(camera.viewportHeight,camera.viewportWidth,0);
+		// camera.
 
-        camera.update();
+		camera.update();
 
-        // Update guards
-        updateGuards();
+		// Update guards
+		updateGuards();
 		// Turn the physics engine crank.
 		level.update(dt);
 	}
@@ -339,10 +343,40 @@ public class GameScene implements Screen, ContactListener {
 	public void draw() {
 		ScreenUtils.clear(0.39f, 0.58f, 0.93f, 1.0f);
 
-        // Set the camera's updated view
-        batch.setProjectionMatrix(camera.combined);
+		// Set the camera's updated view
+		batch.setProjectionMatrix(camera.combined);
 
 		level.draw(batch, camera);
+
+		if (level.getAvatar().getAvatarType() == AvatarType.OTTO) {
+			batch.begin(camera);
+			var avatar = level.getAvatar();
+			batch.setTexture(null);
+			batch.setColor(Color.PURPLE);
+			float x = avatar.getObstacle().getX();
+			float y = avatar.getObstacle().getY();
+			float u = avatar.getObstacle().getPhysicsUnits();
+
+			var input = InputController.getInstance();
+			Vector3 unprojected = camera.unproject(
+					new Vector3(input.getAiming().x, input.getAiming().y, 0));
+			Vector2 unprojectedVector2 = new Vector2(unprojected.x / level.getLevelScaleX(),
+					unprojected.y / level.getLevelScaleY());
+			double dx = avatar.getPosition().x - unprojectedVector2.x;
+			double dy = avatar.getPosition().y - unprojectedVector2.y;
+
+			Rectangle rect = new Rectangle(x, y - 2,
+					Math.min(unprojectedVector2.dst(avatar.getPosition()) * level.getLevelScaleX(), 250f), 2);
+			Affine2 transform = new Affine2();
+
+			float angleDeg = -((float) Math.toDegrees(Math.atan2(dx, dy)) + 90f);
+			transform.preRotate(angleDeg);
+			transform.preTranslate(x * u, y * u);
+			batch.fill(rect, transform);
+			batch.setColor(Color.WHITE);
+			batch.end();
+			// System.out.println("tried to draw the funny line");
+		}
 
 		// Final message
 		if (message != null) {
@@ -354,37 +388,37 @@ public class GameScene implements Screen, ContactListener {
 		}
 	}
 
-    /**
-     * Updates the camera position with interpolation when transitioning
-     */
-    private void updateCamera(float dt) {
-        if (inCameraTransition) {
-            // Update transition timer
-            cameraTransitionTimer += dt;
+	/**
+	 * Updates the camera position with interpolation when transitioning
+	 */
+	private void updateCamera(float dt) {
+		if (inCameraTransition) {
+			// Update transition timer
+			cameraTransitionTimer += dt;
 
-            if (cameraTransitionTimer >= cameraTransitionDuration) {
-                // Transition complete
-                inCameraTransition = false;
-                camera.position.set(cameraTargetPosition.x, cameraTargetPosition.y, 0);
-            } else {
-                // Calculate interpolated position
-                float alpha = cameraTransitionTimer / cameraTransitionDuration;
-                float x = Interpolation.smooth.apply(cameraPreviousPosition.x, cameraTargetPosition.x, alpha);
-                float y = Interpolation.smooth.apply(cameraPreviousPosition.y, cameraTargetPosition.y, alpha);
-                camera.position.set(x, y, 0);
-            }
-        } else {
-            // Just follow the target directly
-            camera.position.set(cameraTargetPosition.x, cameraTargetPosition.y, 0);
-        }
+			if (cameraTransitionTimer >= cameraTransitionDuration) {
+				// Transition complete
+				inCameraTransition = false;
+				camera.position.set(cameraTargetPosition.x, cameraTargetPosition.y, 0);
+			} else {
+				// Calculate interpolated position
+				float alpha = cameraTransitionTimer / cameraTransitionDuration;
+				float x = Interpolation.smooth.apply(cameraPreviousPosition.x, cameraTargetPosition.x, alpha);
+				float y = Interpolation.smooth.apply(cameraPreviousPosition.y, cameraTargetPosition.y, alpha);
+				camera.position.set(x, y, 0);
+			}
+		} else {
+			// Just follow the target directly
+			camera.position.set(cameraTargetPosition.x, cameraTargetPosition.y, 0);
+		}
 
-        // Apply scaling to match world units
-        camera.position.x *= level.getLevelScaleX();
-        camera.position.y *= level.getLevelScaleY();
+		// Apply scaling to match world units
+		camera.position.x *= level.getLevelScaleX();
+		camera.position.y *= level.getLevelScaleY();
 
-        // Update the camera
-        camera.update();
-    }
+		// Update the camera
+		camera.update();
+	}
 
 	/**
 	 * Called when the Screen is resized.
@@ -416,75 +450,67 @@ public class GameScene implements Screen, ContactListener {
 			draw();
 		}
 	}
-    void updateGuards() {
-        Array<Enemy> enemies = level.getEnemies();
-        for (Enemy enemy : enemies) {
-            if (!(enemy instanceof Guard))
-                continue;
 
-            Guard guard = (Guard) enemy;
-            // Check for meow alert (Gar) or inked alert (Otto)
+	void updateGuards() {
+		Array<Enemy> enemies = level.getEnemies();
+		for (Enemy enemy : enemies) {
+			if (!(enemy instanceof Guard))
+				continue;
 
-            // Reset meow alert when the guard reaches its target
-            if ((guard.isMeowed() && guard.getPosition().dst(guard.getTarget()) < 0.1f)
-            ) {
-                guard.setMeow(false);
-            }
+			Guard guard = (Guard) enemy;
+			// Check for meow alert (Gar) or inked alert (Otto)
 
-            // Check Field-of-view (FOV), making guard agroed if they see a player
+			// Reset meow alert when the guard reaches its target
+			if ((guard.isMeowed() && guard.getPosition().dst(guard.getTarget()) < 0.1f)) {
+				guard.setMeow(false);
+			}
 
-            if (guard.isMeowed()) {
+			// Check Field-of-view (FOV), making guard agroed if they see a player
 
-            }
+			if (guard.isMeowed()) {
 
-            guard.updatePatrol();
-            moveGuard(guard);
-        }
+			}
 
+			guard.updatePatrol();
+			moveGuard(guard);
+		}
 
+	}
 
-    }
+	void moveGuard(Guard guard) {
 
+		Vector2 guardPos = guard.getPosition();
 
+		Vector2 targetPos = level.getAvatar().getPosition();
 
+		if (!guard.isAgroed() && !guard.isMeowed() && guard.getTarget() != null) {
+			targetPos = guard.getTarget();
+		}
+		Vector2 direction = new Vector2(targetPos).sub(guardPos);
 
-    void moveGuard(Guard guard) {
+		if (direction.len() > 0) {
+			direction.nor().scl(guard.getForce());
+			if (guard.isMeowed()) {
+				direction.scl(0.5f);
+			} else if (guard.isAgroed()) {
+				direction.scl(1.1f);
+			} else if (guard.isCameraAlerted()) {
+				direction.scl(1.5f);
+			}
 
-        Vector2 guardPos = guard.getPosition();
+			guard.setMovement(direction.x, direction.y);
+			// Update guard orientation to face the target.
+			guard.setAngle(direction.angleRad());
+		}
 
-        Vector2 targetPos = level.getAvatar().getPosition();
+		// Update the guard's orientation to face the direction of movement.
+		Vector2 movement = guard.getMovement();
+		if (movement.len2() > 0.0001f) { // Only update if there is significant movement
+			guard.setAngle(movement.angleRad() - (float) Math.PI / 2);
+		}
+		guard.applyForce();
 
-        if (!guard.isAgroed() && !guard.isMeowed() && guard.getTarget() != null) {
-            targetPos = guard.getTarget();
-        }
-        Vector2 direction = new Vector2(targetPos).sub(guardPos);
-
-
-        if (direction.len() > 0) {
-            direction.nor().scl(guard.getForce());
-            if (guard.isMeowed()) {
-                direction.scl(0.5f);
-            }
-            else if (guard.isAgroed()){
-                direction.scl(1.1f);
-            }
-            else if (guard.isCameraAlerted()) {
-                direction.scl(1.5f);
-            }
-
-            guard.setMovement(direction.x, direction.y);
-            // Update guard orientation to face the target.
-            guard.setAngle(direction.angleRad());
-        }
-
-        // Update the guard's orientation to face the direction of movement.
-        Vector2 movement = guard.getMovement();
-        if (movement.len2() > 0.0001f) {  // Only update if there is significant movement
-            guard.setAngle(movement.angleRad() - (float)Math.PI/2);
-        }
-        guard.applyForce();
-
-    }
+	}
 
 	/**
 	 * Called when the Screen is paused.

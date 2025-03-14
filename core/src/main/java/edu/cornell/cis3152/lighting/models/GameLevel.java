@@ -38,18 +38,19 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
 import edu.cornell.cis3152.lighting.utils.HardEdgeLightShader;
+import edu.cornell.cis3152.lighting.controllers.InputController;
 import edu.cornell.cis3152.lighting.models.entities.Avatar;
 import edu.cornell.cis3152.lighting.models.entities.Cat;
 import edu.cornell.cis3152.lighting.models.entities.Enemy;
 import edu.cornell.cis3152.lighting.models.entities.Guard;
 import edu.cornell.cis3152.lighting.models.entities.Octopus;
 import edu.cornell.cis3152.lighting.models.entities.SecurityCamera;
+import edu.cornell.cis3152.lighting.models.entities.Avatar.AvatarType;
 import edu.cornell.cis3152.lighting.models.nonentities.Exit;
 import edu.cornell.cis3152.lighting.models.nonentities.ExteriorWall;
 import edu.cornell.cis3152.lighting.models.nonentities.InteriorWall;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
-import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.physics2.*;
 
@@ -88,7 +89,7 @@ public class GameLevel {
 	private OrthographicCamera raycamera;
 
 	private Array<Enemy> enemies;
-    private Array<SecurityCamera> securityCameras;
+	private Array<SecurityCamera> securityCameras;
 	private ObjectMap<Enemy, PositionalLight> enemyLights;
 	private PositionalLight[] avatarLights; // TODO: array or separate field for two avatars?
 
@@ -98,8 +99,8 @@ public class GameLevel {
 	/** All the object sprites in the world. */
 	protected PooledList<ObstacleSprite> sprites = new PooledList<ObstacleSprite>();
 
-    /** All the objects in the world. */
-    protected PooledList<Obstacle> objects = new PooledList<>();
+	/** All the objects in the world. */
+	protected PooledList<Obstacle> objects = new PooledList<>();
 
 	// LET THE TIGHT COUPLING BEGIN
 	/** The Box2D world */
@@ -121,16 +122,16 @@ public class GameLevel {
 	/** The amount of time that has passed without updating the frame */
 	protected float physicsTimeLeft;
 
-    private float levelScaleX;
-    private float levelScaleY;
+	private float levelScaleX;
+	private float levelScaleY;
 
-    public float getLevelScaleX(){
-        return levelScaleX;
-    }
+	public float getLevelScaleX() {
+		return levelScaleX;
+	}
 
-    public float getLevelScaleY(){
-        return levelScaleY;
-    }
+	public float getLevelScaleY() {
+		return levelScaleY;
+	}
 
 	/**
 	 * Returns the bounding rectangle for the physics world
@@ -170,14 +171,14 @@ public class GameLevel {
 		return goalDoor;
 	}
 
-    /**
-     * Returns a reference to the enemies
-     *
-     * @return a reference to the enemies
-     */
-    public Array<Enemy> getEnemies(){
-        return enemies;
-    }
+	/**
+	 * Returns a reference to the enemies
+	 *
+	 * @return a reference to the enemies
+	 */
+	public Array<Enemy> getEnemies() {
+		return enemies;
+	}
 
 	/**
 	 * Returns whether this level is currently in debug node
@@ -275,8 +276,8 @@ public class GameLevel {
 		bounds = new Rectangle(0, 0, pSize[0], pSize[1]);
 		float units = gSize[1] / pSize[1];
 
-        levelScaleX = gSize[0] / pSize[0];
-        levelScaleY = gSize[1] / pSize[1];
+		levelScaleX = gSize[0] / pSize[0];
+		levelScaleY = gSize[1] / pSize[1];
 
 		// Compute the FPS
 		int[] fps = levelFormat.get("fps_range").asIntArray();
@@ -323,15 +324,15 @@ public class GameLevel {
 			guards = guards.next();
 		}
 
-        // Security Cameras
-        this.securityCameras = new Array<>();
-        JsonValue cameras = levelFormat.getChild("cameras");
-        while (cameras != null) {
-            SecurityCamera camera = new SecurityCamera(directory, cameras, units);
-            activate(camera);
-            securityCameras.add(camera);
-            cameras = cameras.next();
-        }
+		// Security Cameras
+		this.securityCameras = new Array<>();
+		JsonValue cameras = levelFormat.getChild("cameras");
+		while (cameras != null) {
+			SecurityCamera camera = new SecurityCamera(directory, cameras, units);
+			activate(camera);
+			securityCameras.add(camera);
+			cameras = cameras.next();
+		}
 
 		// Lights
 		if (levelFormat.has("ambientLight")) {
@@ -340,10 +341,11 @@ public class GameLevel {
 		}
 	}
 
-    /**
-     * Configures and instantiates a rayhandler.
-     * @param json containing the configuration settings.
-     */
+	/**
+	 * Configures and instantiates a rayhandler.
+	 * 
+	 * @param json containing the configuration settings.
+	 */
 	public void initializeRayHandler(JsonValue json) {
 		raycamera = new OrthographicCamera(bounds.width, bounds.height);
 		raycamera.position.set(bounds.width / 2.0f, bounds.height / 2.0f, 0);
@@ -396,8 +398,9 @@ public class GameLevel {
 
 	/**
 	 * Helper fuction for populateLights.
-     * Returns PointLight
-     * @param light json that contains settings
+	 * Returns PointLight
+	 * 
+	 * @param light json that contains settings
 	 */
 	private PointLight createPointLight(JsonValue light) {
 		float[] color = light.get("color").asFloatArray();
@@ -419,8 +422,9 @@ public class GameLevel {
 
 	/**
 	 * Helper function for populateLights
-     * Returns ConeLight.
-     * @param light json that contains settings.
+	 * Returns ConeLight.
+	 * 
+	 * @param light json that contains settings.
 	 */
 	private ConeLight createConeLight(JsonValue light) {
 		float[] color = light.get("color").asFloatArray();
@@ -493,7 +497,7 @@ public class GameLevel {
 	protected void activate(ObstacleSprite sprite) {
 		assert inBounds(sprite.getObstacle()) : "Object is not in bounds";
 		sprites.add(sprite);
-        objects.add(sprite.getObstacle());
+		objects.add(sprite.getObstacle());
 		sprite.getObstacle().activatePhysics(world);
 	}
 
@@ -523,8 +527,7 @@ public class GameLevel {
 	 */
 	public boolean update(float dt) {
 		if (fixedStep(dt)) {
-			if (rayhandler != null)
-            {
+			if (rayhandler != null) {
 				rayhandler.update();
 			}
 			avatarCat.update(dt);
@@ -574,6 +577,7 @@ public class GameLevel {
 		for (ObstacleSprite obj : sprites) {
 			obj.draw(batch);
 		}
+
 		batch.end();
 
 		if (rayhandler != null) {
