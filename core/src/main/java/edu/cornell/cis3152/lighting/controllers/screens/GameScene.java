@@ -96,6 +96,9 @@ public class GameScene implements Screen, ContactListener {
 	private float cameraTransitionDuration;
 	private boolean inCameraTransition;
 
+	// general-purpose cache vector
+	private Vector2 cacheVec;
+
 	/**
 	 * Returns true if the level is completed.
 	 *
@@ -194,6 +197,8 @@ public class GameScene implements Screen, ContactListener {
 				.getFloat("CAMERA_INTERPOLATION_DURATION");
 		System.out.println(cameraTransitionDuration);
 		inCameraTransition = false;
+
+		cacheVec = new Vector2();
 
 		setComplete(false);
 		setFailure(false);
@@ -305,10 +310,26 @@ public class GameScene implements Screen, ContactListener {
 		if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
 			Octopus octopus = (Octopus) avatar;
 			if (input.isAbilityHeld()) {
-				octopus.setAiming(true);
+				octopus.setCurrentlyAiming(true);
+
+				Vector3 unprojected = camera.unproject(
+						new Vector3(input.getAiming().x, input.getAiming().y, 0));
+
+				cacheVec.set(unprojected.x / level.getLevelScaleX(),
+						unprojected.y / level.getLevelScaleY());
+
+				// TODO: max length should be a configurable value
+				float scale = Math.min(cacheVec.dst(avatar.getPosition()) * level.getLevelScaleX(), 200);
+
+				double dx = avatar.getPosition().x - cacheVec.x;
+				double dy = avatar.getPosition().y - cacheVec.y;
+				float angleRad = -((float) (Math.atan2(dx, dy) + Math.toRadians(90)));
+				cacheVec.set((float) Math.toDegrees(Math.cos(angleRad)), (float) Math.toDegrees(Math.sin(angleRad)))
+						.nor().scl(scale);
+				octopus.setTarget(cacheVec);
 			}
-			if (octopus.isAiming() && !input.isAbilityHeld()) {
-				octopus.setAiming(false);
+			if (octopus.isCurrentlyAiming() && !input.isAbilityHeld()) {
+				octopus.setCurrentlyAiming(false);
 			}
 		}
 
