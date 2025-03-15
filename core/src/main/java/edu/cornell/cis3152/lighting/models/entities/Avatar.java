@@ -232,47 +232,48 @@ public class Avatar extends ObstacleSprite {
 	 * @param avatarType The type of this avatar
 	 * @param directory  The asset directory (for textures, etc)
 	 * @param json       The JSON values defining this avatar
+	 * @param globals	 The global JSON values defining this avatar
 	 * @param units      The physics units for this avatar
 	 */
-	public Avatar(AvatarType avatarType, AssetDirectory directory, JsonValue json, float units) {
+	public Avatar(AvatarType avatarType, AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
 		this.avatarType = avatarType;
 
 		float[] pos = json.get("pos").asFloatArray();
-		float radius = json.getFloat("radius");
+		float radius = globals.getFloat("radius");
 		obstacle = new WheelObstacle(pos[0], pos[1], radius);
 		obstacle.setName(json.name());
 		obstacle.setFixedRotation(false);
 
 		// Technically, we should do error checking here.
 		// A JSON field might accidentally be missing
-		obstacle.setBodyType(json.getString("bodytype").equals("static") ? BodyDef.BodyType.StaticBody
+		obstacle.setBodyType(globals.getString("bodytype").equals("static") ? BodyDef.BodyType.StaticBody
 				: BodyDef.BodyType.DynamicBody);
-		obstacle.setDensity(json.getFloat("density"));
-		obstacle.setFriction(json.getFloat("friction"));
-		obstacle.setRestitution(json.getFloat("restitution"));
+		obstacle.setDensity(globals.getFloat("density"));
+		obstacle.setFriction(globals.getFloat("friction"));
+		obstacle.setRestitution(globals.getFloat("restitution"));
 		obstacle.setPhysicsUnits(units);
 
-		setForce(json.getFloat("force"));
-		setDamping(json.getFloat("damping"));
-		setMaxSpeed(json.getFloat("maxspeed"));
-		setWalkLimit(json.getInt("walklimit"));
+		setForce(globals.getFloat("force"));
+		setDamping(globals.getFloat("damping"));
+		setMaxSpeed(globals.getFloat("maxspeed"));
+		setWalkLimit(globals.getInt("walklimit"));
 
 		// Create the collision filter (used for light penetration)
-		short collideBits = GameLevel.bitStringToShort(json.getString("collide"));
-		short excludeBits = GameLevel.bitStringToComplement(json.getString("exclude"));
+		short collideBits = GameLevel.bitStringToShort(globals.getString("collide"));
+		short excludeBits = GameLevel.bitStringToComplement(globals.getString("exclude"));
 		Filter filter = new Filter();
 		filter.categoryBits = collideBits;
 		filter.maskBits = excludeBits;
 		obstacle.setFilterData(filter);
 
-		setDebugColor(ParserUtils.parseColor(json.get("debug"), Color.WHITE));
+		setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));
 
-		String key = json.getString("texture");
-		startFrame = json.getInt("startframe");
+		String key = globals.getString("texture");
+		startFrame = globals.getInt("startframe");
 		sprite = directory.getEntry(key, SpriteSheet.class);
 		sprite.setFrame(startFrame);
 
-		float r = json.getFloat("spriterad") * units;
+		float r = globals.getFloat("spriterad") * units;
 		mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 	}
 

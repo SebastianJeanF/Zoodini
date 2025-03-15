@@ -5,8 +5,8 @@ import edu.cornell.gdiac.assets.AssetDirectory;
 
 public class Enemy extends Avatar {
 
-    public Enemy(AssetDirectory directory, JsonValue json, float units) {
-        super(AvatarType.ENEMY, directory, json, units);
+    public Enemy(AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
+        super(AvatarType.ENEMY, directory, json, globals, units);
     }
 
 }

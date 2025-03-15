@@ -37,6 +37,7 @@
   	},
 	"jsons" : {
         "constants" : "jsons/constants.json",
-		"level1" : "jsons/level.json"
+		"level1" : "jsons/level.json",
+		"globals" : "jsons/global-configs.json"
 	}
 }

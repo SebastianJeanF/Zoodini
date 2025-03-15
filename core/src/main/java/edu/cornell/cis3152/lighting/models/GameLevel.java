@@ -266,10 +266,11 @@ public class GameLevel {
 	 *
 	 * @param directory   the asset manager
 	 * @param levelFormat the JSON file defining the level
+	 * @param levelGlobals the JSON file defining configs global to every level
 	 */
-	public void populate(AssetDirectory directory, JsonValue levelFormat) {
+	public void populate(AssetDirectory directory, JsonValue levelFormat, JsonValue levelGlobals) {
 		float[] pSize = levelFormat.get("world_size").asFloatArray();
-		int[] gSize = levelFormat.get("screen_size").asIntArray();
+		int[] gSize = levelGlobals.get("screen_size").asIntArray();
 
 		world = new World(Vector2.Zero, false);
 		bounds = new Rectangle(0, 0, pSize[0], pSize[1]);
@@ -279,7 +280,7 @@ public class GameLevel {
         levelScaleY = gSize[1] / pSize[1];
 
 		// Compute the FPS
-		int[] fps = levelFormat.get("fps_range").asIntArray();
+		int[] fps = levelGlobals.get("fps_range").asIntArray();
 		maxFPS = fps[1];
 		minFPS = fps[0];
 		timeStep = 1.0f / maxFPS;
@@ -287,7 +288,7 @@ public class GameLevel {
 		maxTimePerFrame = timeStep * maxSteps;
 
 		// Walls
-		goalDoor = new Exit(directory, levelFormat.get("exit"), units);
+		goalDoor = new Exit(directory, levelFormat.get("exit"), levelGlobals.get("exit"), units);
 		activate(goalDoor);
 
 		JsonValue bounds = levelFormat.getChild("exterior");
@@ -306,19 +307,19 @@ public class GameLevel {
 
 		// Entities
 		JsonValue catData = levelFormat.get("avatarCat");
-		avatarCat = new Cat(directory, catData, units);
+		avatarCat = new Cat(directory, catData, levelGlobals.get("avatarCat"), units);
 		activate(avatarCat);
 
 		// Avatars
 		JsonValue octopusData = levelFormat.get("avatarOctopus");
-		avatarOctopus = new Octopus(directory, octopusData, units);
+		avatarOctopus = new Octopus(directory, octopusData, levelGlobals.get("avatarOctopus"), units);
 		activate(avatarOctopus);
 
 		// Enemies
 		this.enemies = new Array<>();
 		JsonValue guards = levelFormat.getChild("guards");
 		while (guards != null) {
-			enemies.add(new Guard(directory, guards, units));
+			enemies.add(new Guard(directory, guards, levelGlobals.get("guard"), units));
 			activate(enemies.peek());
 			guards = guards.next();
 		}
@@ -327,7 +328,7 @@ public class GameLevel {
         this.securityCameras = new Array<>();
         JsonValue cameras = levelFormat.getChild("cameras");
         while (cameras != null) {
-            SecurityCamera camera = new SecurityCamera(directory, cameras, units);
+            SecurityCamera camera = new SecurityCamera(directory, cameras, levelGlobals.get("camera"), units);
             activate(camera);
             securityCameras.add(camera);
             cameras = cameras.next();

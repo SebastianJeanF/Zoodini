@@ -1,0 +1,88 @@
+{
+    "screen_size": [
+        1000,
+        750
+    ],
+    "fps_range": [
+        20,
+        60
+    ],
+    "avatarCat": {
+        "radius": 0.4,
+        "spriterad": 0.6,
+        "bodytype": "dynamic",
+        "density": 1.0,
+        "friction": 0.0,
+        "restitution": 0.0,
+        "force": 80.0,
+        "damping": 10.0,
+        "maxspeed": 5.0,
+        "collide": "0001",
+        "exclude": "0000",
+        "startframe": 0,
+        "walklimit": 4,
+        "texture": "dude.walking",
+        "debug": "#ffffffC0"
+    },
+    "avatarOctopus": {
+        "radius": 0.4,
+        "spriterad": 0.6,
+        "bodytype": "dynamic",
+        "density": 1.0,
+        "friction": 0.0,
+        "restitution": 0.0,
+        "force": 80.0,
+        "damping": 10.0,
+        "maxspeed": 5.0,
+        "collide": "0001",
+        "exclude": "0000",
+        "startframe": 0,
+        "walklimit": 4,
+        "texture": "dude.walking",
+        "debug": "#ffffffC0"
+    },
+    "guard": {
+        "radius": 0.2,
+        "spriterad": 0.6,
+        "bodytype": "dynamic",
+        "density": 1.0,
+        "friction": 0.0,
+        "restitution": 0.0,
+        "force": 20.0,
+        "damping": 10.0,
+        "maxspeed": 5.0,
+        "collide": "0001",
+        "exclude": "0000",
+        "startframe": 0,
+        "walklimit": 4,
+        "texture": "dude.walking",
+        "debug": "#ffffffC0"
+    },
+    "camera": {
+        "radius": 0.2,
+        "spriterad": 0.6,
+        "angle": 90,
+        "startframe": 0,
+        "collide": "0001",
+        "exclude": "0000",
+        "texture": "security-camera.camera",
+        "debug": "#ffffffC0",
+        "density": 1.0,
+        "friction": 0.0,
+        "restitution": 0.0
+    },
+    "exit": {
+        "size": [
+            1.25,
+            1.25
+        ],
+        "bodytype": "static",
+        "density": 0.0,
+        "friction": 0.0,
+        "restitution": 0.0,
+        "collide": "0010",
+        "exclude": "0000",
+        "texture": "goal",
+        "debug": "#ffff00C8"
+    }
+}
