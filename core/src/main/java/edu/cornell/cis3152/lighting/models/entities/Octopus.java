@@ -19,6 +19,17 @@ public class Octopus extends Avatar {
     /// The direction this Octopus is aiming in
     private Vector2 target;
 
+    /// Whether this Octopus has fired an ink projectile
+    private boolean didFire;
+
+    public boolean didFire() {
+        return didFire;
+    }
+
+    public void setDidFire(boolean didFire) {
+        this.didFire = didFire;
+    }
+
     public Vector2 getTarget() {
         return target;
     }

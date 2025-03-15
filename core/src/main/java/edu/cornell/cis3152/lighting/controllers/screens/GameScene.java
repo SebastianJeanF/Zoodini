@@ -12,6 +12,8 @@
  */
 package edu.cornell.cis3152.lighting.controllers.screens;
 
+import java.util.Arrays;
+
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Interpolation;
@@ -30,6 +32,7 @@ import edu.cornell.cis3152.lighting.models.entities.Enemy;
 import edu.cornell.cis3152.lighting.models.GameLevel;
 import edu.cornell.cis3152.lighting.models.entities.Guard;
 import edu.cornell.cis3152.lighting.models.entities.Octopus;
+import edu.cornell.cis3152.lighting.models.entities.SecurityCamera;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.TextAlign;
@@ -311,25 +314,39 @@ public class GameScene implements Screen, ContactListener {
 			Octopus octopus = (Octopus) avatar;
 			if (input.isAbilityHeld()) {
 				octopus.setCurrentlyAiming(true);
-
 				Vector3 unprojected = camera.unproject(
 						new Vector3(input.getAiming().x, input.getAiming().y, 0));
-
 				cacheVec.set(unprojected.x / level.getLevelScaleX(),
 						unprojected.y / level.getLevelScaleY());
 
 				// TODO: max length should be a configurable value
 				float scale = Math.min(cacheVec.dst(avatar.getPosition()) * level.getLevelScaleX(), 200);
-
 				double dx = avatar.getPosition().x - cacheVec.x;
 				double dy = avatar.getPosition().y - cacheVec.y;
-				float angleRad = -((float) (Math.atan2(dx, dy) + Math.toRadians(90)));
+				float angleRad = -((float) (Math.atan2(dx, dy) + Math.toRadians(90))); // scuffed math (TODO: fix?)
 				cacheVec.set((float) Math.toDegrees(Math.cos(angleRad)), (float) Math.toDegrees(Math.sin(angleRad)))
 						.nor().scl(scale);
 				octopus.setTarget(cacheVec);
 			}
 			if (octopus.isCurrentlyAiming() && !input.isAbilityHeld()) {
 				octopus.setCurrentlyAiming(false);
+				octopus.setDidFire(true);
+			}
+
+			if (octopus.didFire()) {
+				// TODO: need to create a new projectile here
+				level.hideInkProjectile();
+				level.createInkProjectile();
+				octopus.setDidFire(false);
+			}
+
+			System.out.println(octopus.getTarget().len());
+			// System.out.println(level.getProjectile().getPosition().dst(avatar.getPosition()) * level.getLevelScaleX());
+			if ((level.getProjectile().getPosition().dst(avatar.getPosition())
+					* level.getLevelScaleX()) > (octopus.getTarget().len() * level.getLevelScaleX())) {
+				System.out.println("FUCK");
+				level.getProjectile().setToHide(true);
+
 			}
 		}
 
@@ -360,6 +377,12 @@ public class GameScene implements Screen, ContactListener {
 
 		// Update guards
 		updateGuards();
+
+		if (level.getProjectile().getToHide() == true) {
+			level.hideInkProjectile();
+			level.getProjectile().setToHide(false);
+		}
+
 		// Turn the physics engine crank.
 		level.update(dt);
 	}
@@ -589,6 +612,20 @@ public class GameScene implements Screen, ContactListener {
 			if ((bd1 == avatar && bd2 == door) ||
 					(bd1 == door && bd2 == avatar)) {
 				setComplete(true);
+			}
+
+			Obstacle projectile = level.getProjectile().getObstacle();
+			if ((bd1 == projectile || bd2 == projectile)) {
+				Array<SecurityCamera> secCameras = level.getSecurityCameras();
+				for (int i = 0; i < secCameras.size; i++) {
+					Obstacle o = secCameras.get(i).getObstacle();
+					if (bd1 == o || bd2 == o) {
+						// TODO: disable the camera HERE
+						contact.setEnabled(false);
+						level.getProjectile().setToHide(true);
+						return;
+					}
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

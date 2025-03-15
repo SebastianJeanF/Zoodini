@@ -48,6 +48,7 @@ import edu.cornell.cis3152.lighting.models.entities.SecurityCamera;
 import edu.cornell.cis3152.lighting.models.entities.Avatar.AvatarType;
 import edu.cornell.cis3152.lighting.models.nonentities.Exit;
 import edu.cornell.cis3152.lighting.models.nonentities.ExteriorWall;
+import edu.cornell.cis3152.lighting.models.nonentities.InkProjectile;
 import edu.cornell.cis3152.lighting.models.nonentities.InteriorWall;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
@@ -92,6 +93,8 @@ public class GameLevel {
 	private Array<SecurityCamera> securityCameras;
 	private ObjectMap<Enemy, PositionalLight> enemyLights;
 	private PositionalLight[] avatarLights; // TODO: array or separate field for two avatars?
+	// ink projectile (there should only ever be one!!!)
+	private InkProjectile inkProjectile;
 
 	/** Whether or not the level is in debug more (showing off physics) */
 	private boolean debug;
@@ -171,6 +174,10 @@ public class GameLevel {
 		return goalDoor;
 	}
 
+	public Array<SecurityCamera> getSecurityCameras() {
+		return securityCameras;
+	}
+
 	/**
 	 * Returns a reference to the enemies
 	 *
@@ -178,6 +185,10 @@ public class GameLevel {
 	 */
 	public Array<Enemy> getEnemies() {
 		return enemies;
+	}
+
+	public InkProjectile getProjectile() {
+		return inkProjectile;
 	}
 
 	/**
@@ -339,6 +350,13 @@ public class GameLevel {
 			initializeRayHandler(levelFormat.get("ambientLight"));
 			populateLights(levelFormat.get("entityLights"));
 		}
+
+		// Initialize an ink projectile (but do not add it to the physics world, we only
+		// do that on demand)
+		JsonValue projectileData = levelFormat.get("ink");
+		inkProjectile = new InkProjectile(directory, projectileData, units);
+		activate(inkProjectile);
+		inkProjectile.getObstacle().setActive(false);
 	}
 
 	/**
@@ -492,7 +510,7 @@ public class GameLevel {
 	/**
 	 * Immediately adds the object to the physics world
 	 *
-	 * param obj The object to add
+	 * @param obj The object to add
 	 */
 	protected void activate(ObstacleSprite sprite) {
 		assert inBounds(sprite.getObstacle()) : "Object is not in bounds";
@@ -516,6 +534,21 @@ public class GameLevel {
 		return horiz && vert;
 	}
 
+	public void createInkProjectile() {
+		inkProjectile.setPosition(this.getAvatar().getPosition());
+		inkProjectile.getObstacle().setActive(true);
+		Octopus o = (Octopus) getAvatar();
+		Vector2 facing = o.getTarget().nor();
+		inkProjectile.setMovement(facing.x, facing.y);
+		inkProjectile.applyForce();
+		sprites.add(inkProjectile);
+	}
+
+	public void hideInkProjectile() {
+		inkProjectile.getObstacle().setActive(false);
+		sprites.remove(inkProjectile);
+	}
+
 	/**
 	 * Updates all of the models in the level.
 	 *
@@ -530,6 +563,7 @@ public class GameLevel {
 			if (rayhandler != null) {
 				rayhandler.update();
 			}
+			inkProjectile.update(dt);
 			avatarCat.update(dt);
 			avatarOctopus.update(dt);
 			return true;
@@ -603,7 +637,7 @@ public class GameLevel {
 	}
 
 	/**
-	 * Draws an octopus-shaped reticle on the screen to indicate aiming direction.
+	 * Draws a reticle on the screen to indicate aiming direction.
 	 *
 	 * <p>
 	 * This method retrieves the player's avatar and calculates the aiming position
@@ -625,6 +659,7 @@ public class GameLevel {
 		float u = octopus.getObstacle().getPhysicsUnits();
 
 		Vector2 target = octopus.getTarget();
+		// TODO: fix the centering on this and stuff
 		Rectangle rect = new Rectangle(x, y - 2, target.len(), 2);
 		Affine2 transform = new Affine2();
 		transform.preRotate(target.angleDeg());
