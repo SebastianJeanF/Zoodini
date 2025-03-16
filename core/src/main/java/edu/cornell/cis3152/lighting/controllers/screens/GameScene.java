@@ -21,10 +21,14 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import edu.cornell.cis3152.lighting.controllers.AIController;
 import edu.cornell.cis3152.lighting.controllers.InputController;
+import edu.cornell.cis3152.lighting.controllers.UIController;
 import edu.cornell.cis3152.lighting.models.entities.Avatar;
+import edu.cornell.cis3152.lighting.models.entities.Cat;
 import edu.cornell.cis3152.lighting.models.entities.Enemy;
 import edu.cornell.cis3152.lighting.models.GameLevel;
 import edu.cornell.cis3152.lighting.models.entities.Guard;
+import edu.cornell.cis3152.lighting.models.entities.Octopus;
+import edu.cornell.cis3152.lighting.models.nonentities.Exit;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.TextAlign;
@@ -69,6 +73,9 @@ public class GameScene implements Screen, ContactListener {
 	/** Listener that will update the player mode when we are done */
 	private ScreenListener listener;
 
+
+    private UIController ui;
+
 	/** Reference to the game level */
 	protected GameLevel level;
 
@@ -111,13 +118,17 @@ public class GameScene implements Screen, ContactListener {
 	 *
 	 * @param value whether the level is completed.
 	 */
-	public void setComplete(boolean value) {
+    private boolean octopusArrived = false;
+    private boolean catArrived = false;
+    public void setComplete(boolean value) {
 		if (value) {
 			BitmapFont font = directory.getEntry("display", BitmapFont.class);
-			message = new TextLayout("Victory!", font);
+            TextLayout message = new TextLayout("Victory!", font);
 			message.setAlignment(TextAlign.middleCenter);
 			message.setColor(Color.YELLOW);
 			message.layout();
+            ui.setFont(font);
+            ui.setMessage(message);
 			countdown = EXIT_COUNT;
 		}
 		complete = value;
@@ -142,13 +153,16 @@ public class GameScene implements Screen, ContactListener {
 	 * @param value whether the level is failed.
 	 */
 	public void setFailure(boolean value) {
-		if (value) {
-			message = new TextLayout("Failure", displayFont);
-			message.setAlignment(TextAlign.middleCenter);
-			message.layout();
-			countdown = EXIT_COUNT;
-		}
-		failed = value;
+        if (value) {
+            BitmapFont font = directory.getEntry("display", BitmapFont.class);
+            TextLayout message = new TextLayout("Failure!", font);
+            message.setAlignment(TextAlign.middleCenter);
+            message.setColor(Color.RED);
+            message.layout();
+            ui.setFont(font);
+            ui.setMessage(message);
+        }
+        complete = value;
 	}
 
 	/**
@@ -193,6 +207,8 @@ public class GameScene implements Screen, ContactListener {
 		System.out.println(cameraTransitionDuration);
 		inCameraTransition = false;
 
+        ui = new UIController();
+
 		setComplete(false);
 		setFailure(false);
 	}
@@ -214,6 +230,8 @@ public class GameScene implements Screen, ContactListener {
 	public void reset() {
 		level.dispose();
 
+        catArrived = false;
+        octopusArrived = false;
 		setComplete(false);
 		setFailure(false);
 		countdown = -1;
@@ -319,12 +337,9 @@ public class GameScene implements Screen, ContactListener {
 		avatar.setMovement(angleCache.x, angleCache.y);
 		avatar.applyForce();
 
-		camera.translate(1f, 0, 0);
-
-		// camera.lookAt(camera.viewportHeight,camera.viewportWidth,0);
-		// camera.
 
 		camera.update();
+        ui.update();
 
 		// Update guards
 		updateGuards();
@@ -349,13 +364,8 @@ public class GameScene implements Screen, ContactListener {
 		level.draw(batch, camera);
 
 		// Final message
-		if (message != null) {
-			batch.begin(camera);
-			batch.setBlur(0.5f);
-			batch.drawText(message, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
-			batch.setBlur(0.0f);
-			batch.end();
-		}
+        ui.draw(batch);
+
 	}
 
 	/**
@@ -547,25 +557,72 @@ public class GameScene implements Screen, ContactListener {
 		Object fd2 = fix2.getUserData();
 
 		try {
-			Obstacle bd1 = (Obstacle) body1.getUserData();
-			Obstacle bd2 = (Obstacle) body2.getUserData();
 
-			Obstacle avatar = level.getAvatar().getObstacle();
-			Obstacle door = level.getExit().getObstacle();
+            Obstacle o1 = (Obstacle) body1.getUserData();
+            Obstacle o2 = (Obstacle) body2.getUserData();
 
-			// Check for win condition
-			if ((bd1 == avatar && bd2 == door) ||
-					(bd1 == door && bd2 == avatar)) {
-				setComplete(true);
-			}
+            Obstacle cat = level.getCat().getObstacle();
+            Obstacle oct = level.getOctopus().getObstacle();
+            Obstacle exit = level.getExit().getObstacle();
+            Array<Enemy> guards = level.getEnemies();
+
+
+            for(Enemy guard : guards){
+                Obstacle enemy = guard.getObstacle();
+                if((o1 == cat && o2 == enemy) || (o2 == cat && o1 == enemy) || (o1 == oct && o2 == enemy) || (o2 == oct && o1 == enemy)){
+                    setFailure(true);
+                }
+            }
+
+            if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
+                catArrived = true;
+            }
+
+            if((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)){
+                octopusArrived = true;
+            }
+
+            if(catArrived && octopusArrived && !failed){
+                setComplete(true);
+            }
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	/** Unused ContactListener method */
 	public void endContact(Contact contact) {
+        Fixture fix1 = contact.getFixtureA();
+        Fixture fix2 = contact.getFixtureB();
+
+        Body body1 = fix1.getBody();
+        Body body2 = fix2.getBody();
+
+        Object fd1 = fix1.getUserData();
+        Object fd2 = fix2.getUserData();
+
+        try {
+
+            Obstacle o1 = (Obstacle) body1.getUserData();
+            Obstacle o2 = (Obstacle) body2.getUserData();
+
+            Obstacle cat = level.getCat().getObstacle();
+            Obstacle oct = level.getOctopus().getObstacle();
+            Obstacle exit = level.getExit().getObstacle();
+
+
+            if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
+                catArrived = false;
+            }
+
+            if((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)){
+                octopusArrived = false;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 	}
 
 	/** Unused ContactListener method */

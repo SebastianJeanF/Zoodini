@@ -31,8 +31,6 @@ public class Guard extends Enemy {
     public Guard(AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
         super(directory, json, globals, units);
 
-
-
         // Read patrol points from JSON if available.
         if (json.has("patrol")) {
             JsonValue patrolJson = json.get("patrol");

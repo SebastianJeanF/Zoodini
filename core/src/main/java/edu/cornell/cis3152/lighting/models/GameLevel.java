@@ -165,6 +165,16 @@ public class GameLevel {
 		return catActive ? avatarCat : avatarOctopus;
 	}
 
+    public Avatar getCat() {
+        return avatarCat;
+    }
+
+    public Avatar getOctopus() {
+        return avatarOctopus;
+    }
+
+
+
 	/**
 	 * Returns a reference to the exit door
 	 *
@@ -440,6 +450,10 @@ public class GameLevel {
                         ((Guard) key).setTarget(avatarCat.getPosition());
                         ((Guard) key).setAgroed(true);
                     }
+                } else {
+                    if(key instanceof Guard){
+                        ((Guard) key).setAgroed(false);
+                    }
                 }
             }
 
@@ -492,9 +506,7 @@ public class GameLevel {
 	 * @param batch  the sprite batch to draw to
 	 * @param camera the drawing camera
 	 */
-
-    RayHandler temp = new RayHandler(world);
-	public void draw(SpriteBatch batch, Camera camera) {
+    public void draw(SpriteBatch batch, Camera camera) {
 		// Draw the sprites first (will be hidden by shadows)
 
         for(VisionCone v : visions.values()){
