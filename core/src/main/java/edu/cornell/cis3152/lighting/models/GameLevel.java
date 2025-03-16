@@ -109,6 +109,7 @@ public class GameLevel {
     private Array<Enemy> enemies;
     private Array<SecurityCamera> securityCameras;
     private ObjectMap<ObstacleSprite, VisionCone> visions;
+    RayHandler rayHandler;
 
 	// TO FIX THE TIMESTEP
 	/** The maximum frames per second setting for this level */
@@ -340,6 +341,13 @@ public class GameLevel {
         this.visions = new ObjectMap<>();
         JsonValue visionJson = levelFormat.get("visions");
         initializeVisionCones(visionJson);
+
+        raycamera = new OrthographicCamera(gSize[0], gSize[1]);
+        raycamera.setToOrtho(false, gSize[0], gSize[1]);
+        rayHandler = new RayHandler(world, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        RayHandler.useDiffuseLight(true);
+        RayHandler.setGammaCorrection(true);
+        rayHandler.setAmbientLight(0.5f,0.5f,0.5f,0.5f);
 	}
 
     private void initializeVisionCones(JsonValue json){
@@ -427,6 +435,9 @@ public class GameLevel {
             for(VisionCone v : visions.values()){
                 v.update(world);
             }
+
+            rayHandler.setCombinedMatrix(raycamera);
+
 			avatarCat.update(dt);
 			avatarOctopus.update(dt);
 			return true;
@@ -459,6 +470,12 @@ public class GameLevel {
 		return stepped;
 	}
 
+    public void swapActiveAvatar() {
+//        avatarLights[catActive ? 0 : 1].setActive(false);
+        catActive = !catActive;
+//        avatarLights[catActive ? 0 : 1].setActive(true);
+    }
+
 	/**
 	 * Draws the level to the given game canvas
 	 *
@@ -468,6 +485,8 @@ public class GameLevel {
 	 * @param batch  the sprite batch to draw to
 	 * @param camera the drawing camera
 	 */
+
+    RayHandler temp = new RayHandler(world);
 	public void draw(SpriteBatch batch, Camera camera) {
 		// Draw the sprites first (will be hidden by shadows)
 
@@ -481,6 +500,7 @@ public class GameLevel {
 		}
 		batch.end();
 
+        rayHandler.render();
 
 		// Draw debugging on top of everything.
 		if (debug) {

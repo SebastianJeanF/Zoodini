@@ -293,7 +293,7 @@ public class GameScene implements Screen, ContactListener {
 			// Save previous camera position before swapping
 			cameraPreviousPosition.set(cameraTargetPosition);
 			// swap the active character
-			//level.swapActiveAvatar();
+			level.swapActiveAvatar();
 
 			// Start camera transition
 			cameraTransitionTimer = 0;
