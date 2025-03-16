@@ -87,6 +87,15 @@ public class Guard extends Enemy {
         return target;
     }
 
+    /** Get current movement direction of guard.
+     *
+     * @INVARIANT: Must call guard.think() to get the most recent movement direction
+     * @return The current movement direction of the guard
+     */
+    public Vector2 getMovementDirection() {
+        return movementDirection;
+    }
+
     public void setTarget(Vector2 target) {
 
         this.target = target;

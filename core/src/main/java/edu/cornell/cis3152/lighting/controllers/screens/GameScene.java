@@ -227,6 +227,8 @@ public class GameScene implements Screen, ContactListener {
             GuardAIController aiController = new GuardAIController(guard, level.getAvatar(), this.gameGraph, 60);
             guardToAIController.put(guard, aiController);
         }
+
+        gameGraph.printGrid();
     }
 
 	/**
@@ -356,6 +358,42 @@ public class GameScene implements Screen, ContactListener {
             controller.update();
             guard.think(controller.getNextTargetLocation(), controller.getMovementDirection());
         });
+
+        // Move guard
+        {
+            for (Enemy enemy : level.getEnemies()) {
+                if (!(enemy instanceof Guard)) {
+                    continue;
+                }
+
+                Guard guard = (Guard) enemy;
+                Vector2 guardPos = guard.getPosition();
+                Vector2 targetPos = level.getAvatar().getPosition();
+                Vector2 direction = guard.getMovementDirection();
+                if (direction.len() > 0) {
+                    // Scale the direction vector by the guard's force
+                    direction.nor().scl(guard.getForce()*.1f);
+
+                    // Tell Physics Engine where to move the guard
+                    guard.setMovement(direction);
+
+                    // Update guard orientation to face the target.
+                    guard.setAngle(direction.angleRad());
+                }
+
+
+                // Update the guard's orientation to face the direction of movement.
+//                Vector2 movement = guard.getMovement();
+//                if (movement.len2() > 0.0001f) { // Only update if there is significant movement
+//                    guard.setAngle(movement.angleRad() - (float) Math.PI / 2);
+//                }
+//
+
+                // Make Physics Engine calculate guard's movement for this frame
+                guard.applyForce();
+            }
+        }
+
 		updateGuards();
 
 		// Turn the physics engine crank.

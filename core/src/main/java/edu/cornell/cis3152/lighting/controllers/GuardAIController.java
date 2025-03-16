@@ -145,7 +145,7 @@ public class GuardAIController {
 
     private Vector2 getNextWaypointLocation(Vector2 targetLocation) {
         List<Node> path = gameGraph.getPath(guard.getPosition().cpy(), targetLocation.cpy());
-        System.out.println("path " + path);
+//        System.out.println("path " + path);
 
         if (path.isEmpty()) {
             if (currState == GuardState.CHASE) {
