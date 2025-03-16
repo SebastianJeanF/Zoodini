@@ -2,8 +2,8 @@ package edu.cornell.cis3152.lighting.controllers;
 
 
 import com.badlogic.gdx.math.Vector2;
-import edu.cornell.cis3152.lighting.models.Avatar;
-import edu.cornell.cis3152.lighting.models.Guard;
+import edu.cornell.cis3152.lighting.models.entities.Avatar;
+import edu.cornell.cis3152.lighting.models.entities.Guard;
 import edu.cornell.cis3152.lighting.utils.GameGraph;
 import edu.cornell.cis3152.lighting.utils.GameGraph.Node;
 import java.util.List;
