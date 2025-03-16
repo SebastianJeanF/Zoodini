@@ -57,8 +57,8 @@ public class DesktopLauncher {
 
         // Use windowed mode
         config.fullscreen = false;
-        config.width  = 1000;
-        config.height = 750;
+        config.width  = 1280;
+        config.height = 720;
 
 
         config.rawHDPI = false;

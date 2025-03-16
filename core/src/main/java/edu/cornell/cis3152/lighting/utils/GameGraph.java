@@ -7,6 +7,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.*;
 import edu.cornell.gdiac.physics2.Obstacle;
+
+import java.lang.StringBuilder;
 import java.util.*;
 
 public class GameGraph {
@@ -42,12 +44,53 @@ public class GameGraph {
         this.startX = startX;
         this.startY = startY;
         this.initializeGraph(obstacles);
+
+        this.heuristic = new DistanceHeuristic();
     }
+
+    /**
+     * Prints a grid representation of the game graph to standard output.
+     *
+     * Each cell in the grid corresponds to a node in the game graph.
+     * A cell is represented as "X" if the node is an obstacle, or "." if it is passable.
+     * The grid is printed row by row, with the top row corresponding to the highest y-coordinate,
+     * so that the output visually represents the game world's layout.
+     *
+     * Preconditions:
+     * - The graph must be properly initialized and contain a list of nodes in row-major order.
+     * - The number of nodes in the graph must equal ROWS * COLS.
+     *
+     * Postconditions:
+     * - A textual grid is printed to the console that represents the navigability of each node.
+     *
+     * Invariants:
+     * - Each node's obstacle status is not modified during the printing process.
+     */
+    public void printGrid() {
+        // Get the list of nodes from the graph
+        Array<Node> nodes = this.graph.getNodes();
+
+        // Loop through rows in reverse order (so that the highest y values appear at the top)
+        for (int row = ROWS - 1; row >= 0; row--) {
+            StringBuilder line = new StringBuilder();
+            // Loop through columns
+            for (int col = 0; col < COLS; col++) {
+                int index = row * COLS + col;
+                Node node = nodes.get(index);
+                // Use "X" for obstacles and "." for passable nodes
+                line.append(node.isObstacle() ? "X " : ". ");
+            }
+            System.out.println(line);
+        }
+    }
+
 
     /**
      * Gets the node at the specified world position.
      * Converts the world position to grid coordinates and returns the corresponding node.
      *
+     *
+     * @INVARIANT this.graph must be initialized
      * @param pos The world position to get the node for
      * @return The node at the specified position, or null if no node exists there
      */
@@ -55,14 +98,21 @@ public class GameGraph {
         Vector2 graphIndex = this.worldToGraphIndex(pos);
         int x = MathUtils.clamp(Math.round(graphIndex.x), 0, this.COLS - 1);
         int y = MathUtils.clamp(Math.round(graphIndex.y), 0, this.ROWS - 1);
-        return x >= 0 && x < this.COLS && y >= 0 && y < this.ROWS? this.graph.getNodes().get(y * this.COLS + x) : null;
+
+//        System.out.println("Graph Index: (" + x + ", " + y + ")");
+
+        return x >= 0 && x < this.COLS && y >= 0 && y < this.ROWS
+            ? this.graph.getNodes().get(y * this.COLS + x)
+            : null;
     }
 
     /**
+     *
      * Generates edges between nodes in the pathfinding graph.
      * Connects nodes that are adjacent (orthogonally or diagonally) and not obstacles.
      * For diagonal connections, prevents corner-cutting through obstacles.
      *
+     * @INVARIANT this.graph must be initialized
      * @param nodes The array of nodes to process and generate connections for
      */
     public void addEdges(Array<Node> nodes) {
@@ -164,6 +214,9 @@ public class GameGraph {
             }
         }
 
+        this.graph = new Graph(nodes);
+        this.addEdges(nodes);
+
         for (Obstacle obs: obstacles) {
             Vector2 pos = obs.getPosition();
             Node node = getNode(pos);
@@ -172,12 +225,10 @@ public class GameGraph {
             }
         }
 
-        this.addEdges(nodes);
-        this.graph = new Graph(nodes);
 
         // TODO: Add walls to graph by reading game objects
 
-        addEdges(nodes);
+//        addEdges(nodes);
         this.aStarPathFinder = new IndexedAStarPathFinder<>(graph);
     }
 
@@ -199,14 +250,24 @@ public class GameGraph {
     /**
      * Finds the shortest path between two positions in the world using A*.
      *
+     * @INVARIANT this.heuristic must be initialized
      * @param currPos The starting position in world coordinates
      * @param targetPos The target position in world coordinates
      * @return A list of nodes representing the path from start to target, excluding the start node
      */
     public List<Node> getPath(Vector2 currPos, Vector2 targetPos) {
+//        System.out.println(currPos);
+//        System.out.println(targetPos);
         GraphPath<Node> graphPath = new DefaultGraphPath<>();
         Node start = getNode(currPos);
         Node end = getNode(targetPos);
+        // Check if start or end node is null
+        if (start == null || end == null) {
+            System.err.println("Error: Start or end node is null.");
+            return new ArrayList<>();
+        }
+
+
         this.aStarPathFinder.searchNodePath(start, end, this.heuristic, graphPath);
 
         List<Node> path = new ArrayList<>();

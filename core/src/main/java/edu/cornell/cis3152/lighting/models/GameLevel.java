@@ -50,6 +50,7 @@ import edu.cornell.cis3152.lighting.models.entities.SecurityCamera;
 import edu.cornell.cis3152.lighting.models.nonentities.Exit;
 import edu.cornell.cis3152.lighting.models.nonentities.ExteriorWall;
 import edu.cornell.cis3152.lighting.models.nonentities.InteriorWall;
+import edu.cornell.cis3152.lighting.models.nonentities.Key;
 import edu.cornell.cis3152.lighting.utils.VisionCone;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
@@ -128,12 +129,24 @@ public class GameLevel {
     private float levelScaleX;
     private float levelScaleY;
 
+    /** Reference to the key (for pickup detection) */
+    private Key key;
+
     public float getLevelScaleX(){
         return levelScaleX;
     }
 
     public float getLevelScaleY(){
         return levelScaleY;
+    }
+
+    /**
+     * Returns a reference to the key
+     *
+     * @return a reference to the key
+     */
+    public Key getKey() {
+        return key;
     }
 
 	/**
@@ -164,6 +177,16 @@ public class GameLevel {
 	public Avatar getAvatar() {
 		return catActive ? avatarCat : avatarOctopus;
 	}
+
+    public Avatar getCat() {
+        return avatarCat;
+    }
+
+    public Avatar getOctopus() {
+        return avatarOctopus;
+    }
+
+
 
 	/**
 	 * Returns a reference to the exit door
@@ -294,6 +317,13 @@ public class GameLevel {
 		goalDoor = new Exit(directory, levelFormat.get("exit"), levelGlobals.get("exit"), units);
 		activate(goalDoor);
 
+        // Create the key
+        if (levelFormat.has("key")) {
+            JsonValue keyData = levelFormat.get("key");
+            key = new Key(directory, keyData, levelGlobals.get("key"), units);
+            activate(key);
+        }
+
 		JsonValue bounds = levelFormat.getChild("exterior");
 		while (bounds != null) {
 			ExteriorWall obj = new ExteriorWall(directory, bounds, units);
@@ -406,6 +436,10 @@ public class GameLevel {
 		sprite.getObstacle().activatePhysics(world);
 	}
 
+    public PooledList<Obstacle> getObjects() {
+        return objects;
+    }
+
 	/**
 	 * Returns true if the object is in bounds.
 	 *
@@ -439,6 +473,10 @@ public class GameLevel {
                     if(key instanceof Guard){
                         ((Guard) key).setTarget(avatarCat.getPosition());
                         ((Guard) key).setAgroed(true);
+                    }
+                } else {
+                    if(key instanceof Guard){
+                        ((Guard) key).setAgroed(false);
                     }
                 }
             }
@@ -492,9 +530,7 @@ public class GameLevel {
 	 * @param batch  the sprite batch to draw to
 	 * @param camera the drawing camera
 	 */
-
-    RayHandler temp = new RayHandler(world);
-	public void draw(SpriteBatch batch, Camera camera) {
+    public void draw(SpriteBatch batch, Camera camera) {
 		// Draw the sprites first (will be hidden by shadows)
 
         for(VisionCone v : visions.values()){
