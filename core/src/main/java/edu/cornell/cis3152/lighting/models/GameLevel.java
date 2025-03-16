@@ -85,16 +85,7 @@ public class GameLevel {
 	/** Reference to the goalDoor (for collision detection) */
 	private Exit goalDoor;
 
-	private RayHandler rayhandler;
-	private OrthographicCamera raycamera;
-
-	private Array<Enemy> enemies;
-    private Array<SecurityCamera> securityCameras;
-	private ObjectMap<Enemy, PositionalLight> enemyLights;
-	private PositionalLight[] avatarLights; // TODO: array or separate field for two avatars?
-
-
-    private VisionCone vc;
+    private OrthographicCamera raycamera;
 
 	/** Whether or not the level is in debug more (showing off physics) */
 	private boolean debug;
@@ -110,6 +101,9 @@ public class GameLevel {
 	protected World world;
 	/** The boundary of the world */
 	protected Rectangle bounds;
+
+    private Array<Enemy> enemies;
+    private Array<SecurityCamera> securityCameras;
 
 	// TO FIX THE TIMESTEP
 	/** The maximum frames per second setting for this level */
@@ -261,7 +255,6 @@ public class GameLevel {
 		world = null;
 		bounds = new Rectangle(0, 0, 1, 1);
 		debug = false;
-		avatarLights = new PointLight[2];
 		catActive = true;
 	}
 
@@ -339,123 +332,10 @@ public class GameLevel {
         }
 
 		// Lights
-		if (levelFormat.has("ambientLight")) {
-			initializeRayHandler(levelFormat.get("ambientLight"));
-			populateLights(levelFormat.get("entityLights"));
-		}
 
-        vc = new VisionCone(120, Vector2.Zero, 50, 0, 120.0f, Color.GOLD, units, (short) 0b0100, (short) 0b0000);
-        vc.attachToBody(avatarCat.getObstacle().getBody(), avatarCat.getAngle() + 90.0f);
 	}
 
-    /**
-     * Configures and instantiates a rayhandler.
-     * @param json containing the configuration settings.
-     */
-	public void initializeRayHandler(JsonValue json) {
-		raycamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		raycamera.position.set(Gdx.graphics.getWidth() / 2.0f, Gdx.graphics.getHeight() / 2.0f, 0);
-		raycamera.update();
 
-		RayHandler.setGammaCorrection(json.getBoolean("gamma"));
-		RayHandler.useDiffuseLight(json.getBoolean("diffuse"));
-		rayhandler = new RayHandler(world, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		rayhandler.setCombinedMatrix(raycamera);
-
-		float[] ambient = json.get("ambientColor").asFloatArray();
-		rayhandler.setAmbientLight(ambient[0], ambient[1], ambient[2], ambient[3]);
-		int blur = json.getInt("blur");
-		rayhandler.setBlur(blur > 0);
-		rayhandler.setBlurNum(blur);
-		rayhandler.setLightShader(HardEdgeLightShader.createLightShader());
-	}
-
-	/**
-	 * 1. Create lights.
-	 * 2. Attach lights to entities.
-	 *
-	 * Modifies enemyLights and avatarLights field.
-	 *
-	 * @param json JsonValue of "entityLights" in level.json
-	 */
-	private void populateLights(JsonValue json) {
-		JsonValue light = json.get("security");
-
-		enemyLights = new ObjectMap<>();
-		for (Enemy guard : enemies) {
-			ConeLight cone = createConeLight(light);
-			cone.attachToBody(guard.getObstacle().getBody(), cone.getX(), cone.getY(), cone.getDirection());
-			enemyLights.put(guard, cone);
-		}
-
-		PointLight point;
-		light = json.get("player");
-
-		point = createPointLight(light);
-		point.setActive(catActive);
-		avatarLights[0] = point;
-		point.attachToBody(avatarCat.getObstacle().getBody(), point.getX(), point.getY(), point.getDirection());
-
-		point = createPointLight(light);
-		point.setActive(!catActive);
-		avatarLights[1] = point;
-		point.attachToBody(avatarOctopus.getObstacle().getBody(), point.getX(), point.getY(), point.getDirection());
-	}
-
-	/**
-	 * Helper fuction for populateLights.
-     * Returns PointLight
-     * @param light json that contains settings
-	 */
-	private PointLight createPointLight(JsonValue light) {
-		float[] color = light.get("color").asFloatArray();
-		float[] pos = light.get("pos").asFloatArray();
-		float dist = light.getFloat("distance");
-		int rays = light.getInt("rays");
-
-		PointLight point = new PointLight(rayhandler, rays, Color.WHITE, dist * getLevelScaleX(), pos[0], pos[1]);
-		point.setColor(color[0], color[1], color[2], color[3]);
-		point.setSoft(light.getBoolean("soft"));
-
-		// Create a filter to exclude see through items
-		Filter f = new Filter();
-		f.maskBits = bitStringToComplement(light.getString("exclude"));
-		point.setContactFilter(f);
-
-		return point;
-	}
-
-	/**
-	 * Helper function for populateLights
-     * Returns ConeLight.
-     * @param light json that contains settings.
-	 */
-	private ConeLight createConeLight(JsonValue light) {
-		float[] color = light.get("color").asFloatArray();
-		float[] pos = light.get("pos").asFloatArray();
-		float dist = light.getFloat("distance");
-		float face = light.getFloat("facing");
-		float angle = light.getFloat("angle");
-		int rays = light.getInt("rays");
-
-		ConeLight cone = new ConeLight(rayhandler, rays, Color.WHITE, dist * 63, pos[0], pos[1], face, angle);
-		cone.setColor(color[0], color[1], color[2], color[3]);
-		cone.setSoft(light.getBoolean("soft"));
-
-		// Create a filter to exclude see through items
-		Filter f = new Filter();
-		f.maskBits = bitStringToComplement(light.getString("exclude"));
-		cone.setContactFilter(f);
-
-		return cone;
-	}
-
-	/** Handles the avatar-swapping logic */
-	public void swapActiveAvatar() {
-		avatarLights[catActive ? 0 : 1].setActive(false);
-		catActive = !catActive;
-		avatarLights[catActive ? 0 : 1].setActive(true);
-	}
 
 	/**
 	 * Disposes of all resources for this model.
@@ -468,23 +348,6 @@ public class GameLevel {
 			s.getObstacle().deactivatePhysics(world);
 		}
 
-		for (Enemy key : enemyLights.keys()) {
-			enemyLights.get(key).dispose();
-			enemyLights.remove(key);
-		}
-
-		avatarLights[0].remove();
-		avatarLights[1].remove();
-
-		if (rayhandler != null) {
-			rayhandler.dispose();
-			rayhandler = null;
-		}
-
-		if (enemyLights != null) {
-			enemyLights.clear();
-			enemyLights = null;
-		}
 
 		sprites.clear();
 		if (world != null) {
@@ -531,16 +394,6 @@ public class GameLevel {
 	 */
 	public boolean update(float dt) {
 		if (fixedStep(dt)) {
-            raycamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-            rayhandler.setCombinedMatrix(raycamera);
-			if (rayhandler != null)
-            {
-				rayhandler.update();
-			}
-            vc.update(world);
-
-            System.out.println(vc.contains(enemies.get(0).getPosition()));
-
 			avatarCat.update(dt);
 			avatarOctopus.update(dt);
 			return true;
@@ -584,18 +437,12 @@ public class GameLevel {
 	 */
 	public void draw(SpriteBatch batch, Camera camera) {
 		// Draw the sprites first (will be hidden by shadows)
-        vc.draw(batch, camera);
-
         batch.begin(camera);
 		for (ObstacleSprite obj : sprites) {
 			obj.draw(batch);
 		}
 		batch.end();
 
-		if (rayhandler != null) {
-            rayhandler.setCombinedMatrix(camera.combined);
-			rayhandler.updateAndRender();
-		}
 
 		// Draw debugging on top of everything.
 		if (debug) {
