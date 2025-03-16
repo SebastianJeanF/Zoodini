@@ -40,7 +40,7 @@ public class Octopus extends Avatar {
         flipScale = scale;
     }
 
-    public Octopus(AssetDirectory directory, JsonValue json, float units) {
-        super(AvatarType.OTTO, directory, json, units);
+    public Octopus(AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
+        super(AvatarType.OTTO, directory, json, globals, units);
     }
 }

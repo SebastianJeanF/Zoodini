@@ -37,6 +37,9 @@ import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
+import com.badlogic.gdx.utils.ObjectMap.Entries;
+import com.badlogic.gdx.utils.ObjectMap.Entry;
+import com.badlogic.gdx.utils.ObjectMap.Values;
 import edu.cornell.cis3152.lighting.utils.HardEdgeLightShader;
 import edu.cornell.cis3152.lighting.models.entities.Avatar;
 import edu.cornell.cis3152.lighting.models.entities.Cat;
@@ -47,6 +50,7 @@ import edu.cornell.cis3152.lighting.models.entities.SecurityCamera;
 import edu.cornell.cis3152.lighting.models.nonentities.Exit;
 import edu.cornell.cis3152.lighting.models.nonentities.ExteriorWall;
 import edu.cornell.cis3152.lighting.models.nonentities.InteriorWall;
+import edu.cornell.cis3152.lighting.utils.VisionCone;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
@@ -84,13 +88,7 @@ public class GameLevel {
 	/** Reference to the goalDoor (for collision detection) */
 	private Exit goalDoor;
 
-	private RayHandler rayhandler;
-	private OrthographicCamera raycamera;
-
-	private Array<Enemy> enemies;
-    private Array<SecurityCamera> securityCameras;
-	private ObjectMap<Enemy, PositionalLight> enemyLights;
-	private PositionalLight[] avatarLights; // TODO: array or separate field for two avatars?
+    private OrthographicCamera raycamera;
 
 	/** Whether or not the level is in debug more (showing off physics) */
 	private boolean debug;
@@ -106,6 +104,12 @@ public class GameLevel {
 	protected World world;
 	/** The boundary of the world */
 	protected Rectangle bounds;
+
+    private float units;
+    private Array<Enemy> enemies;
+    private Array<SecurityCamera> securityCameras;
+    private ObjectMap<ObstacleSprite, VisionCone> visions;
+    RayHandler rayHandler;
 
 	// TO FIX THE TIMESTEP
 	/** The maximum frames per second setting for this level */
@@ -160,6 +164,16 @@ public class GameLevel {
 	public Avatar getAvatar() {
 		return catActive ? avatarCat : avatarOctopus;
 	}
+
+    public Avatar getCat() {
+        return avatarCat;
+    }
+
+    public Avatar getOctopus() {
+        return avatarOctopus;
+    }
+
+
 
 	/**
 	 * Returns a reference to the exit door
@@ -257,7 +271,6 @@ public class GameLevel {
 		world = null;
 		bounds = new Rectangle(0, 0, 1, 1);
 		debug = false;
-		avatarLights = new PointLight[2];
 		catActive = true;
 	}
 
@@ -266,20 +279,21 @@ public class GameLevel {
 	 *
 	 * @param directory   the asset manager
 	 * @param levelFormat the JSON file defining the level
+	 * @param levelGlobals the JSON file defining configs global to every level
 	 */
-	public void populate(AssetDirectory directory, JsonValue levelFormat) {
+	public void populate(AssetDirectory directory, JsonValue levelFormat, JsonValue levelGlobals) {
 		float[] pSize = levelFormat.get("world_size").asFloatArray();
-		int[] gSize = levelFormat.get("screen_size").asIntArray();
+		int[] gSize = levelGlobals.get("screen_size").asIntArray();
 
 		world = new World(Vector2.Zero, false);
 		bounds = new Rectangle(0, 0, pSize[0], pSize[1]);
-		float units = gSize[1] / pSize[1];
+		units = gSize[1] / pSize[1];
 
         levelScaleX = gSize[0] / pSize[0];
         levelScaleY = gSize[1] / pSize[1];
 
 		// Compute the FPS
-		int[] fps = levelFormat.get("fps_range").asIntArray();
+		int[] fps = levelGlobals.get("fps_range").asIntArray();
 		maxFPS = fps[1];
 		minFPS = fps[0];
 		timeStep = 1.0f / maxFPS;
@@ -287,7 +301,7 @@ public class GameLevel {
 		maxTimePerFrame = timeStep * maxSteps;
 
 		// Walls
-		goalDoor = new Exit(directory, levelFormat.get("exit"), units);
+		goalDoor = new Exit(directory, levelFormat.get("exit"), levelGlobals.get("exit"), units);
 		activate(goalDoor);
 
 		JsonValue bounds = levelFormat.getChild("exterior");
@@ -306,19 +320,19 @@ public class GameLevel {
 
 		// Entities
 		JsonValue catData = levelFormat.get("avatarCat");
-		avatarCat = new Cat(directory, catData, units);
+		avatarCat = new Cat(directory, catData, levelGlobals.get("avatarCat"), units);
 		activate(avatarCat);
 
 		// Avatars
 		JsonValue octopusData = levelFormat.get("avatarOctopus");
-		avatarOctopus = new Octopus(directory, octopusData, units);
+		avatarOctopus = new Octopus(directory, octopusData, levelGlobals.get("avatarOctopus"), units);
 		activate(avatarOctopus);
 
 		// Enemies
 		this.enemies = new Array<>();
 		JsonValue guards = levelFormat.getChild("guards");
 		while (guards != null) {
-			enemies.add(new Guard(directory, guards, units));
+			enemies.add(new Guard(directory, guards, levelGlobals.get("guard"), units));
 			activate(enemies.peek());
 			guards = guards.next();
 		}
@@ -327,127 +341,48 @@ public class GameLevel {
         this.securityCameras = new Array<>();
         JsonValue cameras = levelFormat.getChild("cameras");
         while (cameras != null) {
-            SecurityCamera camera = new SecurityCamera(directory, cameras, units);
+            SecurityCamera camera = new SecurityCamera(directory, cameras, levelGlobals.get("camera"), units);
             activate(camera);
             securityCameras.add(camera);
             cameras = cameras.next();
         }
 
 		// Lights
-		if (levelFormat.has("ambientLight")) {
-			initializeRayHandler(levelFormat.get("ambientLight"));
-			populateLights(levelFormat.get("entityLights"));
-		}
+        this.visions = new ObjectMap<>();
+        JsonValue visionJson = levelFormat.get("visions");
+        initializeVisionCones(visionJson);
+
+        raycamera = new OrthographicCamera(gSize[0], gSize[1]);
+        raycamera.setToOrtho(false, gSize[0], gSize[1]);
+        rayHandler = new RayHandler(world, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        RayHandler.useDiffuseLight(true);
+        RayHandler.setGammaCorrection(true);
+        rayHandler.setAmbientLight(0.5f,0.5f,0.5f,0.5f);
 	}
 
-    /**
-     * Configures and instantiates a rayhandler.
-     * @param json containing the configuration settings.
-     */
-	public void initializeRayHandler(JsonValue json) {
-		raycamera = new OrthographicCamera(bounds.width, bounds.height);
-		raycamera.position.set(bounds.width / 2.0f, bounds.height / 2.0f, 0);
-		raycamera.update();
+    private void initializeVisionCones(JsonValue json){
+        int rayNum = json.getInt("rayNum");
+        float radius = json.getFloat("radius");
+        float[] color = json.get("color").asFloatArray();
+        float wideness = json.getFloat("wideness");
+        short mask = json.getShort("maskbit");
+        short category = json.getShort("categorybit");
+        Color c = new Color(color[0], color[1], color[2], color[3]);
 
-		RayHandler.setGammaCorrection(json.getBoolean("gamma"));
-		RayHandler.useDiffuseLight(json.getBoolean("diffuse"));
-		rayhandler = new RayHandler(world, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		rayhandler.setCombinedMatrix(raycamera);
+        for(SecurityCamera cam : securityCameras){
+            VisionCone vc = new VisionCone(rayNum, Vector2.Zero, radius, 0.0f, wideness, c, units, mask, category);
+            vc.attachToBody(cam.getObstacle().getBody(), 90.0f);
+            visions.put(cam, vc);
+        }
 
-		float[] ambient = json.get("ambientColor").asFloatArray();
-		rayhandler.setAmbientLight(ambient[0], ambient[1], ambient[2], ambient[3]);
-		int blur = json.getInt("blur");
-		rayhandler.setBlur(blur > 0);
-		rayhandler.setBlurNum(blur);
-		rayhandler.setLightShader(HardEdgeLightShader.createLightShader());
-	}
+        for(Enemy guard : enemies){
+            VisionCone vc = new VisionCone(rayNum, Vector2.Zero, radius, 0.0f, wideness, c, units, mask, category);
+            vc.attachToBody(guard.getObstacle().getBody(), 90.0f);
+            visions.put(guard, vc);
+        }
+    }
 
-	/**
-	 * 1. Create lights.
-	 * 2. Attach lights to entities.
-	 *
-	 * Modifies enemyLights and avatarLights field.
-	 *
-	 * @param json JsonValue of "entityLights" in level.json
-	 */
-	private void populateLights(JsonValue json) {
-		JsonValue light = json.get("security");
 
-		enemyLights = new ObjectMap<>();
-		for (Enemy guard : enemies) {
-			ConeLight cone = createConeLight(light);
-			cone.attachToBody(guard.getObstacle().getBody(), cone.getX(), cone.getY(), cone.getDirection());
-			enemyLights.put(guard, cone);
-		}
-
-		PointLight point;
-		light = json.get("player");
-
-		point = createPointLight(light);
-		point.setActive(catActive);
-		avatarLights[0] = point;
-		point.attachToBody(avatarCat.getObstacle().getBody(), point.getX(), point.getY(), point.getDirection());
-
-		point = createPointLight(light);
-		point.setActive(!catActive);
-		avatarLights[1] = point;
-		point.attachToBody(avatarOctopus.getObstacle().getBody(), point.getX(), point.getY(), point.getDirection());
-	}
-
-	/**
-	 * Helper fuction for populateLights.
-     * Returns PointLight
-     * @param light json that contains settings
-	 */
-	private PointLight createPointLight(JsonValue light) {
-		float[] color = light.get("color").asFloatArray();
-		float[] pos = light.get("pos").asFloatArray();
-		float dist = light.getFloat("distance");
-		int rays = light.getInt("rays");
-
-		PointLight point = new PointLight(rayhandler, rays, Color.WHITE, dist, pos[0], pos[1]);
-		point.setColor(color[0], color[1], color[2], color[3]);
-		point.setSoft(light.getBoolean("soft"));
-
-		// Create a filter to exclude see through items
-		Filter f = new Filter();
-		f.maskBits = bitStringToComplement(light.getString("exclude"));
-		point.setContactFilter(f);
-
-		return point;
-	}
-
-	/**
-	 * Helper function for populateLights
-     * Returns ConeLight.
-     * @param light json that contains settings.
-	 */
-	private ConeLight createConeLight(JsonValue light) {
-		float[] color = light.get("color").asFloatArray();
-		float[] pos = light.get("pos").asFloatArray();
-		float dist = light.getFloat("distance");
-		float face = light.getFloat("facing");
-		float angle = light.getFloat("angle");
-		int rays = light.getInt("rays");
-
-		ConeLight cone = new ConeLight(rayhandler, rays, Color.WHITE, dist, pos[0], pos[1], face, angle);
-		cone.setColor(color[0], color[1], color[2], color[3]);
-		cone.setSoft(light.getBoolean("soft"));
-
-		// Create a filter to exclude see through items
-		Filter f = new Filter();
-		f.maskBits = bitStringToComplement(light.getString("exclude"));
-		cone.setContactFilter(f);
-
-		return cone;
-	}
-
-	/** Handles the avatar-swapping logic */
-	public void swapActiveAvatar() {
-		avatarLights[catActive ? 0 : 1].setActive(false);
-		catActive = !catActive;
-		avatarLights[catActive ? 0 : 1].setActive(true);
-	}
 
 	/**
 	 * Disposes of all resources for this model.
@@ -460,23 +395,7 @@ public class GameLevel {
 			s.getObstacle().deactivatePhysics(world);
 		}
 
-		for (Enemy key : enemyLights.keys()) {
-			enemyLights.get(key).dispose();
-			enemyLights.remove(key);
-		}
-
-		avatarLights[0].remove();
-		avatarLights[1].remove();
-
-		if (rayhandler != null) {
-			rayhandler.dispose();
-			rayhandler = null;
-		}
-
-		if (enemyLights != null) {
-			enemyLights.clear();
-			enemyLights = null;
-		}
+        visions.clear();
 
 		sprites.clear();
 		if (world != null) {
@@ -523,10 +442,23 @@ public class GameLevel {
 	 */
 	public boolean update(float dt) {
 		if (fixedStep(dt)) {
-			if (rayhandler != null)
-            {
-				rayhandler.update();
-			}
+            for(ObstacleSprite key: visions.keys()){
+                VisionCone v = visions.get(key);
+                v.update(world);
+                if(v.contains(avatarCat.getPosition())){
+                    if(key instanceof Guard){
+                        ((Guard) key).setTarget(avatarCat.getPosition());
+                        ((Guard) key).setAgroed(true);
+                    }
+                } else {
+                    if(key instanceof Guard){
+                        ((Guard) key).setAgroed(false);
+                    }
+                }
+            }
+
+            rayHandler.setCombinedMatrix(raycamera);
+
 			avatarCat.update(dt);
 			avatarOctopus.update(dt);
 			return true;
@@ -559,6 +491,12 @@ public class GameLevel {
 		return stepped;
 	}
 
+    public void swapActiveAvatar() {
+//        avatarLights[catActive ? 0 : 1].setActive(false);
+        catActive = !catActive;
+//        avatarLights[catActive ? 0 : 1].setActive(true);
+    }
+
 	/**
 	 * Draws the level to the given game canvas
 	 *
@@ -568,17 +506,20 @@ public class GameLevel {
 	 * @param batch  the sprite batch to draw to
 	 * @param camera the drawing camera
 	 */
-	public void draw(SpriteBatch batch, Camera camera) {
+    public void draw(SpriteBatch batch, Camera camera) {
 		// Draw the sprites first (will be hidden by shadows)
-		batch.begin(camera);
+
+        for(VisionCone v : visions.values()){
+            v.draw(batch,camera);
+        }
+
+        batch.begin(camera);
 		for (ObstacleSprite obj : sprites) {
 			obj.draw(batch);
 		}
 		batch.end();
 
-		if (rayhandler != null) {
-			rayhandler.render();
-		}
+        rayHandler.render();
 
 		// Draw debugging on top of everything.
 		if (debug) {

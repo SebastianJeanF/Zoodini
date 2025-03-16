@@ -28,10 +28,8 @@ public class Guard extends Enemy {
      * The main purpose of this constructor is to set the initial capsule
      * orientation.
      */
-    public Guard(AssetDirectory directory, JsonValue json, float units) {
-        super(directory, json, units);
-
-
+    public Guard(AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
+        super(directory, json, globals, units);
 
         // Read patrol points from JSON if available.
         if (json.has("patrol")) {
@@ -68,8 +66,6 @@ public class Guard extends Enemy {
     public void setCameraAlerted(boolean value) {
         cameraAlerted = value;
     }
-
-    public
 
     /** The position that this guard should move to */
     Vector2 target = null;

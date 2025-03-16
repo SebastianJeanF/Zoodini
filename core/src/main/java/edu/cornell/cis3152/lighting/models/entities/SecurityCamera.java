@@ -16,34 +16,34 @@ public class SecurityCamera extends ObstacleSprite {
 
     private int startFrame;
 
-    public SecurityCamera(AssetDirectory directory, JsonValue json, float units) {
+    public SecurityCamera(AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
         float[] pos = json.get("pos").asFloatArray();
-        float radius = json.getFloat("radius");
+        float radius = globals.getFloat("radius");
         obstacle = new WheelObstacle(pos[0], pos[1], radius);
         obstacle.setName(json.name());
         obstacle.setFixedRotation(false);
 
         obstacle.setBodyType(BodyDef.BodyType.StaticBody);
-        obstacle.setDensity(json.getFloat("density"));
-        obstacle.setFriction(json.getFloat("friction"));
-        obstacle.setRestitution(json.getFloat("restitution"));
+        obstacle.setDensity(globals.getFloat("density"));
+        obstacle.setFriction(globals.getFloat("friction"));
+        obstacle.setRestitution(globals.getFloat("restitution"));
         obstacle.setPhysicsUnits(units);
 
-        short collideBits = GameLevel.bitStringToShort(json.getString("collide"));
-        short excludeBits = GameLevel.bitStringToComplement(json.getString("exclude"));
+        short collideBits = GameLevel.bitStringToShort(globals.getString("collide"));
+        short excludeBits = GameLevel.bitStringToComplement(globals.getString("exclude"));
         Filter filter = new Filter();
         filter.categoryBits = collideBits;
         filter.maskBits = excludeBits;
         obstacle.setFilterData(filter);
 
-        setDebugColor(ParserUtils.parseColor(json.get("debug"), Color.WHITE));
+        setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));
 
-        String key = json.getString("texture");
-        startFrame = json.getInt("startframe");
+        String key = globals.getString("texture");
+        startFrame = globals.getInt("startframe");
         sprite = directory.getEntry(key, SpriteSheet.class);
         sprite.setFrame(startFrame);
 
-        float r = json.getFloat("spriterad") * units;
+        float r = globals.getFloat("spriterad") * units;
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 
     }

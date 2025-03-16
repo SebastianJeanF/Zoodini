@@ -241,4 +241,5 @@ public class InputController {
 			vertical -= 1.0f;
 		}
 	}
+
 }

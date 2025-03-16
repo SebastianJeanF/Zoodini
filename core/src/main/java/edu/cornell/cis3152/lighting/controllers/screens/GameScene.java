@@ -21,10 +21,14 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import edu.cornell.cis3152.lighting.controllers.AIController;
 import edu.cornell.cis3152.lighting.controllers.InputController;
+import edu.cornell.cis3152.lighting.controllers.UIController;
 import edu.cornell.cis3152.lighting.models.entities.Avatar;
+import edu.cornell.cis3152.lighting.models.entities.Cat;
 import edu.cornell.cis3152.lighting.models.entities.Enemy;
 import edu.cornell.cis3152.lighting.models.GameLevel;
 import edu.cornell.cis3152.lighting.models.entities.Guard;
+import edu.cornell.cis3152.lighting.models.entities.Octopus;
+import edu.cornell.cis3152.lighting.models.nonentities.Exit;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.TextAlign;
@@ -50,6 +54,8 @@ public class GameScene implements Screen, ContactListener {
 	protected AssetDirectory directory;
 	/** The JSON defining the level model */
 	private JsonValue levelFormat;
+	/** The JSON defining the default entity configs */
+	private JsonValue levelGlobals;
 	/** The font for giving messages to the player */
 	protected BitmapFont displayFont;
 	/** The message to display */
@@ -67,6 +73,9 @@ public class GameScene implements Screen, ContactListener {
 	/** Listener that will update the player mode when we are done */
 	private ScreenListener listener;
 
+
+    private UIController ui;
+
 	/** Reference to the game level */
 	protected GameLevel level;
 
@@ -78,18 +87,18 @@ public class GameScene implements Screen, ContactListener {
 	private boolean failed;
 	/** Countdown active for winning or losing */
 	private int countdown;
-    /** Controller for guards and security cameras */
-    private AIController aiController;
+	/** Controller for guards and security cameras */
+	private AIController aiController;
 
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
 
-    // Camera movement fields
-    private Vector2 cameraTargetPosition;
-    private Vector2 cameraPreviousPosition;
-    private float cameraTransitionTimer;
-    private float cameraTransitionDuration;
-    private boolean inCameraTransition;
+	// Camera movement fields
+	private Vector2 cameraTargetPosition;
+	private Vector2 cameraPreviousPosition;
+	private float cameraTransitionTimer;
+	private float cameraTransitionDuration;
+	private boolean inCameraTransition;
 
 	/**
 	 * Returns true if the level is completed.
@@ -109,13 +118,17 @@ public class GameScene implements Screen, ContactListener {
 	 *
 	 * @param value whether the level is completed.
 	 */
-	public void setComplete(boolean value) {
+    private boolean octopusArrived = false;
+    private boolean catArrived = false;
+    public void setComplete(boolean value) {
 		if (value) {
 			BitmapFont font = directory.getEntry("display", BitmapFont.class);
-			message = new TextLayout("Victory!", font);
+            TextLayout message = new TextLayout("Victory!", font);
 			message.setAlignment(TextAlign.middleCenter);
 			message.setColor(Color.YELLOW);
 			message.layout();
+            ui.setFont(font);
+            ui.setMessage(message);
 			countdown = EXIT_COUNT;
 		}
 		complete = value;
@@ -140,13 +153,17 @@ public class GameScene implements Screen, ContactListener {
 	 * @param value whether the level is failed.
 	 */
 	public void setFailure(boolean value) {
-		if (value) {
-			message = new TextLayout("Failure", displayFont);
-			message.setAlignment(TextAlign.middleCenter);
-			message.layout();
-			countdown = EXIT_COUNT;
-		}
-		failed = value;
+        if (value) {
+            BitmapFont font = directory.getEntry("display", BitmapFont.class);
+            TextLayout message = new TextLayout("Failure!", font);
+            message.setAlignment(TextAlign.middleCenter);
+            message.setColor(Color.RED);
+            message.layout();
+            ui.setFont(font);
+            ui.setMessage(message);
+            countdown = EXIT_COUNT;
+        }
+        complete = value;
 	}
 
 	/**
@@ -170,7 +187,8 @@ public class GameScene implements Screen, ContactListener {
 
 		level = new GameLevel();
 		levelFormat = directory.getEntry("level1", JsonValue.class);
-		level.populate(directory, levelFormat);
+		levelGlobals = directory.getEntry("globals", JsonValue.class);
+		level.populate(directory, levelFormat, levelGlobals);
 		level.getWorld().setContactListener(this);
 
 		complete = false;
@@ -179,16 +197,18 @@ public class GameScene implements Screen, ContactListener {
 		countdown = -1;
 
 		camera = new OrthographicCamera();
-        System.out.println("");
+		System.out.println("");
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        // Initialize camera tracking variables
-        cameraTargetPosition = new Vector2();
-        cameraPreviousPosition = new Vector2();
-        cameraTransitionTimer = 0;
-        cameraTransitionDuration = directory.getEntry("constants", JsonValue.class).getFloat("CAMERA_INTERPOLATION_DURATION");
-        System.out.println(cameraTransitionDuration);
-        inCameraTransition = false;
+		// Initialize camera tracking variables
+		cameraTargetPosition = new Vector2();
+		cameraPreviousPosition = new Vector2();
+		cameraTransitionTimer = 0;
+		cameraTransitionDuration = directory.getEntry("constants", JsonValue.class)
+				.getFloat("CAMERA_INTERPOLATION_DURATION");
+		System.out.println(cameraTransitionDuration);
+		inCameraTransition = false;
 
+        ui = new UIController();
 
 		setComplete(false);
 		setFailure(false);
@@ -211,13 +231,16 @@ public class GameScene implements Screen, ContactListener {
 	public void reset() {
 		level.dispose();
 
+        catArrived = false;
+        octopusArrived = false;
+        ui.reset();
+
 		setComplete(false);
 		setFailure(false);
 		countdown = -1;
-		message = null;
 
 		// Reload the json each time
-		level.populate(directory, levelFormat);
+		level.populate(directory, levelFormat, levelGlobals);
 		level.getWorld().setContactListener(this);
 	}
 
@@ -282,26 +305,27 @@ public class GameScene implements Screen, ContactListener {
 		// Process actions in object model
 		InputController input = InputController.getInstance();
 
+
 		if (input.didSwap()) {
 			// stop active character movement
 			level.getAvatar().setMovement(0, 0);
 			level.getAvatar().applyForce();
-            // Save previous camera position before swapping
-            cameraPreviousPosition.set(cameraTargetPosition);
+			// Save previous camera position before swapping
+			cameraPreviousPosition.set(cameraTargetPosition);
 			// swap the active character
 			level.swapActiveAvatar();
 
-            // Start camera transition
-            cameraTransitionTimer = 0;
-            inCameraTransition = true;
+			// Start camera transition
+			cameraTransitionTimer = 0;
+			inCameraTransition = true;
 		}
 		Avatar avatar = level.getAvatar();
 
-        // Update camera target to active avatar's position
-        cameraTargetPosition.set(avatar.getPosition());
+		// Update camera target to active avatar's position
+		cameraTargetPosition.set(avatar.getPosition());
 
-        // Update camera position with interpolation
-        updateCamera(dt);
+		// Update camera position with interpolation
+		updateCamera(dt);
 
 		// Rotate the avatar to face the direction of movement
 		angleCache.set(input.getHorizontal(), input.getVertical());
@@ -315,15 +339,12 @@ public class GameScene implements Screen, ContactListener {
 		avatar.setMovement(angleCache.x, angleCache.y);
 		avatar.applyForce();
 
-        camera.translate(1f, 0, 0);
 
-//        camera.lookAt(camera.viewportHeight,camera.viewportWidth,0);
-//        camera.
+		camera.update();
+        ui.update();
 
-        camera.update();
-
-        // Update guards
-        updateGuards();
+		// Update guards
+		updateGuards();
 		// Turn the physics engine crank.
 		level.update(dt);
 	}
@@ -339,52 +360,47 @@ public class GameScene implements Screen, ContactListener {
 	public void draw() {
 		ScreenUtils.clear(0.39f, 0.58f, 0.93f, 1.0f);
 
-        // Set the camera's updated view
-        batch.setProjectionMatrix(camera.combined);
+		// Set the camera's updated view
+		batch.setProjectionMatrix(camera.combined);
 
 		level.draw(batch, camera);
 
 		// Final message
-		if (message != null) {
-			batch.begin(camera);
-			batch.setBlur(0.5f);
-			batch.drawText(message, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
-			batch.setBlur(0.0f);
-			batch.end();
-		}
+        ui.draw(batch);
+
 	}
 
-    /**
-     * Updates the camera position with interpolation when transitioning
-     */
-    private void updateCamera(float dt) {
-        if (inCameraTransition) {
-            // Update transition timer
-            cameraTransitionTimer += dt;
+	/**
+	 * Updates the camera position with interpolation when transitioning
+	 */
+	private void updateCamera(float dt) {
+		if (inCameraTransition) {
+			// Update transition timer
+			cameraTransitionTimer += dt;
 
-            if (cameraTransitionTimer >= cameraTransitionDuration) {
-                // Transition complete
-                inCameraTransition = false;
-                camera.position.set(cameraTargetPosition.x, cameraTargetPosition.y, 0);
-            } else {
-                // Calculate interpolated position
-                float alpha = cameraTransitionTimer / cameraTransitionDuration;
-                float x = Interpolation.smooth.apply(cameraPreviousPosition.x, cameraTargetPosition.x, alpha);
-                float y = Interpolation.smooth.apply(cameraPreviousPosition.y, cameraTargetPosition.y, alpha);
-                camera.position.set(x, y, 0);
-            }
-        } else {
-            // Just follow the target directly
-            camera.position.set(cameraTargetPosition.x, cameraTargetPosition.y, 0);
-        }
+			if (cameraTransitionTimer >= cameraTransitionDuration) {
+				// Transition complete
+				inCameraTransition = false;
+				camera.position.set(cameraTargetPosition.x, cameraTargetPosition.y, 0);
+			} else {
+				// Calculate interpolated position
+				float alpha = cameraTransitionTimer / cameraTransitionDuration;
+				float x = Interpolation.smooth.apply(cameraPreviousPosition.x, cameraTargetPosition.x, alpha);
+				float y = Interpolation.smooth.apply(cameraPreviousPosition.y, cameraTargetPosition.y, alpha);
+				camera.position.set(x, y, 0);
+			}
+		} else {
+			// Just follow the target directly
+			camera.position.set(cameraTargetPosition.x, cameraTargetPosition.y, 0);
+		}
 
-        // Apply scaling to match world units
-        camera.position.x *= level.getLevelScaleX();
-        camera.position.y *= level.getLevelScaleY();
+		// Apply scaling to match world units
+		camera.position.x *= level.getLevelScaleX();
+		camera.position.y *= level.getLevelScaleY();
 
-        // Update the camera
-        camera.update();
-    }
+		// Update the camera
+		camera.update();
+	}
 
 	/**
 	 * Called when the Screen is resized.
@@ -416,75 +432,67 @@ public class GameScene implements Screen, ContactListener {
 			draw();
 		}
 	}
-    void updateGuards() {
-        Array<Enemy> enemies = level.getEnemies();
-        for (Enemy enemy : enemies) {
-            if (!(enemy instanceof Guard))
-                continue;
 
-            Guard guard = (Guard) enemy;
-            // Check for meow alert (Gar) or inked alert (Otto)
+	void updateGuards() {
+		Array<Enemy> enemies = level.getEnemies();
+		for (Enemy enemy : enemies) {
+			if (!(enemy instanceof Guard))
+				continue;
 
-            // Reset meow alert when the guard reaches its target
-            if ((guard.isMeowed() && guard.getPosition().dst(guard.getTarget()) < 0.1f)
-            ) {
-                guard.setMeow(false);
-            }
+			Guard guard = (Guard) enemy;
+			// Check for meow alert (Gar) or inked alert (Otto)
 
-            // Check Field-of-view (FOV), making guard agroed if they see a player
+			// Reset meow alert when the guard reaches its target
+			if ((guard.isMeowed() && guard.getPosition().dst(guard.getTarget()) < 0.1f)) {
+				guard.setMeow(false);
+			}
 
-            if (guard.isMeowed()) {
+			// Check Field-of-view (FOV), making guard agroed if they see a player
 
-            }
+			if (guard.isMeowed()) {
 
-            guard.updatePatrol();
-            moveGuard(guard);
-        }
+			}
 
+			guard.updatePatrol();
+			moveGuard(guard);
+		}
 
+	}
 
-    }
+	void moveGuard(Guard guard) {
 
+		Vector2 guardPos = guard.getPosition();
 
+		Vector2 targetPos = level.getAvatar().getPosition();
 
+		if (!guard.isAgroed() && !guard.isMeowed() && guard.getTarget() != null) {
+			targetPos = guard.getTarget();
+		}
+		Vector2 direction = new Vector2(targetPos).sub(guardPos);
 
-    void moveGuard(Guard guard) {
+		if (direction.len() > 0) {
+			direction.nor().scl(guard.getForce());
+			if (guard.isMeowed()) {
+				direction.scl(0.5f);
+			} else if (guard.isAgroed()) {
+				direction.scl(1.1f);
+			} else if (guard.isCameraAlerted()) {
+				direction.scl(1.5f);
+			}
 
-        Vector2 guardPos = guard.getPosition();
+			guard.setMovement(direction.x, direction.y);
+			// Update guard orientation to face the target.
+			guard.setAngle(direction.angleRad());
+		}
 
-        Vector2 targetPos = level.getAvatar().getPosition();
+		// Update the guard's orientation to face the direction of movement.
+		Vector2 movement = guard.getMovement();
+		if (movement.len2() > 0.0001f) { // Only update if there is significant movement
+			guard.setAngle(movement.angleRad() - (float) Math.PI / 2);
+		}
+		guard.applyForce();
 
-        if (!guard.isAgroed() && !guard.isMeowed() && guard.getTarget() != null) {
-            targetPos = guard.getTarget();
-        }
-        Vector2 direction = new Vector2(targetPos).sub(guardPos);
-
-
-        if (direction.len() > 0) {
-            direction.nor().scl(guard.getForce());
-            if (guard.isMeowed()) {
-                direction.scl(0.5f);
-            }
-            else if (guard.isAgroed()){
-                direction.scl(1.1f);
-            }
-            else if (guard.isCameraAlerted()) {
-                direction.scl(1.5f);
-            }
-
-            guard.setMovement(direction.x, direction.y);
-            // Update guard orientation to face the target.
-            guard.setAngle(direction.angleRad());
-        }
-
-        // Update the guard's orientation to face the direction of movement.
-        Vector2 movement = guard.getMovement();
-        if (movement.len2() > 0.0001f) {  // Only update if there is significant movement
-            guard.setAngle(movement.angleRad() - (float)Math.PI/2);
-        }
-        guard.applyForce();
-
-    }
+	}
 
 	/**
 	 * Called when the Screen is paused.
@@ -551,25 +559,72 @@ public class GameScene implements Screen, ContactListener {
 		Object fd2 = fix2.getUserData();
 
 		try {
-			Obstacle bd1 = (Obstacle) body1.getUserData();
-			Obstacle bd2 = (Obstacle) body2.getUserData();
 
-			Obstacle avatar = level.getAvatar().getObstacle();
-			Obstacle door = level.getExit().getObstacle();
+            Obstacle o1 = (Obstacle) body1.getUserData();
+            Obstacle o2 = (Obstacle) body2.getUserData();
 
-			// Check for win condition
-			if ((bd1 == avatar && bd2 == door) ||
-					(bd1 == door && bd2 == avatar)) {
-				setComplete(true);
-			}
+            Obstacle cat = level.getCat().getObstacle();
+            Obstacle oct = level.getOctopus().getObstacle();
+            Obstacle exit = level.getExit().getObstacle();
+            Array<Enemy> guards = level.getEnemies();
+
+
+            for(Enemy guard : guards){
+                Obstacle enemy = guard.getObstacle();
+                if((o1 == cat && o2 == enemy) || (o2 == cat && o1 == enemy) || (o1 == oct && o2 == enemy) || (o2 == oct && o1 == enemy)){
+                    setFailure(true);
+                }
+            }
+
+            if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
+                catArrived = true;
+            }
+
+            if((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)){
+                octopusArrived = true;
+            }
+
+            if(catArrived && octopusArrived && !failed){
+                setComplete(true);
+            }
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	/** Unused ContactListener method */
 	public void endContact(Contact contact) {
+        Fixture fix1 = contact.getFixtureA();
+        Fixture fix2 = contact.getFixtureB();
+
+        Body body1 = fix1.getBody();
+        Body body2 = fix2.getBody();
+
+        Object fd1 = fix1.getUserData();
+        Object fd2 = fix2.getUserData();
+
+        try {
+
+            Obstacle o1 = (Obstacle) body1.getUserData();
+            Obstacle o2 = (Obstacle) body2.getUserData();
+
+            Obstacle cat = level.getCat().getObstacle();
+            Obstacle oct = level.getOctopus().getObstacle();
+            Obstacle exit = level.getExit().getObstacle();
+
+
+            if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
+                catArrived = false;
+            }
+
+            if((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)){
+                octopusArrived = false;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 	}
 
 	/** Unused ContactListener method */

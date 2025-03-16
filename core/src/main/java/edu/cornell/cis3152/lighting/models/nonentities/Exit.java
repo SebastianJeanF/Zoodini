@@ -35,39 +35,40 @@ public class Exit extends ObstacleSprite {
 	 * @param json      The JSON values defining this avatar
 	 * @param units     The physics units for this avatar
 	 */
-	public Exit(AssetDirectory directory, JsonValue json, float units) {
-		float[] pos = json.get( "pos" ).asFloatArray();
-		float[] size = json.get( "size" ).asFloatArray();
+	public Exit(AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
+		float[] pos = json.get("pos").asFloatArray();
+		float[] size = globals.get("size").asFloatArray();
 
-		obstacle = new BoxObstacle( pos[0], pos[1], size[0], size[1] );
-		obstacle.setName( json.name() );
-		obstacle.setSensor( true );
-		obstacle.setPhysicsUnits( units );
+		obstacle = new BoxObstacle(pos[0], pos[1], size[0], size[1]);
+		obstacle.setName(json.name());
+		obstacle.setSensor(true);
+		obstacle.setPhysicsUnits(units);
 
-		float w = size[0]*units;
-		float h = size[1]*units;
-		mesh = new SpriteMesh( -w/2,-h/2, w, h);
+		float w = size[0] * units;
+		float h = size[1] * units;
+		mesh = new SpriteMesh(-w / 2, -h / 2, w, h);
 
 		// Technically, we should do error checking here.
 		// A JSON field might accidentally be missing
-		obstacle.setBodyType( json.get( "bodytype" ).asString().equals( "static" ) ? BodyDef.BodyType.StaticBody : BodyDef.BodyType.DynamicBody );
-		obstacle.setDensity( json.get( "density" ).asFloat() );
-		obstacle.setFriction( json.get( "friction" ).asFloat() );
-		obstacle.setRestitution( json.get( "restitution" ).asFloat() );
+		obstacle.setBodyType(globals.get("bodytype").asString().equals("static") ? BodyDef.BodyType.StaticBody
+				: BodyDef.BodyType.DynamicBody);
+		obstacle.setDensity(globals.get("density").asFloat());
+		obstacle.setFriction(globals.get("friction").asFloat());
+		obstacle.setRestitution(globals.get("restitution").asFloat());
 
 		// Create the collision filter (used for light penetration)
-		short collideBits = GameLevel.bitStringToShort( json.get( "collide" ).asString() );
-		short excludeBits = GameLevel.bitStringToComplement( json.get( "exclude" ).asString() );
+		short collideBits = GameLevel.bitStringToShort(globals.get("collide").asString());
+		short excludeBits = GameLevel.bitStringToComplement(globals.get("exclude").asString());
 		Filter filter = new Filter();
 		filter.categoryBits = collideBits;
 		filter.maskBits = excludeBits;
-		obstacle.setFilterData( filter );
+		obstacle.setFilterData(filter);
 
-		setDebugColor( ParserUtils.parseColor( json.get( "debug" ), Color.WHITE ) );
+		setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));
 
 		// Now get the texture from the AssetManager singleton
-		String key = json.get( "texture" ).asString();
-		TextureRegion texture = new TextureRegion( directory.getEntry( key, Texture.class ) );
-		setTextureRegion( texture );
+		String key = globals.get("texture").asString();
+		TextureRegion texture = new TextureRegion(directory.getEntry(key, Texture.class));
+		setTextureRegion(texture);
 	}
 }
