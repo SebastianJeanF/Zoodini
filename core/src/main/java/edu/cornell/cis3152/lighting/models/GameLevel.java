@@ -47,6 +47,7 @@ import edu.cornell.cis3152.lighting.models.entities.SecurityCamera;
 import edu.cornell.cis3152.lighting.models.nonentities.Exit;
 import edu.cornell.cis3152.lighting.models.nonentities.ExteriorWall;
 import edu.cornell.cis3152.lighting.models.nonentities.InteriorWall;
+import edu.cornell.cis3152.lighting.utils.VisionCone;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
@@ -91,6 +92,9 @@ public class GameLevel {
     private Array<SecurityCamera> securityCameras;
 	private ObjectMap<Enemy, PositionalLight> enemyLights;
 	private PositionalLight[] avatarLights; // TODO: array or separate field for two avatars?
+
+
+    private VisionCone vc;
 
 	/** Whether or not the level is in debug more (showing off physics) */
 	private boolean debug;
@@ -339,6 +343,9 @@ public class GameLevel {
 			initializeRayHandler(levelFormat.get("ambientLight"));
 			populateLights(levelFormat.get("entityLights"));
 		}
+
+        vc = new VisionCone(120, Vector2.Zero, 50, 0, 120.0f, Color.GOLD, units, (short) 0b0100, (short) 0b0000);
+        vc.attachToBody(avatarCat.getObstacle().getBody(), avatarCat.getAngle() + 90.0f);
 	}
 
     /**
@@ -346,8 +353,8 @@ public class GameLevel {
      * @param json containing the configuration settings.
      */
 	public void initializeRayHandler(JsonValue json) {
-		raycamera = new OrthographicCamera(bounds.width, bounds.height);
-		raycamera.position.set(bounds.width / 2.0f, bounds.height / 2.0f, 0);
+		raycamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		raycamera.position.set(Gdx.graphics.getWidth() / 2.0f, Gdx.graphics.getHeight() / 2.0f, 0);
 		raycamera.update();
 
 		RayHandler.setGammaCorrection(json.getBoolean("gamma"));
@@ -406,7 +413,7 @@ public class GameLevel {
 		float dist = light.getFloat("distance");
 		int rays = light.getInt("rays");
 
-		PointLight point = new PointLight(rayhandler, rays, Color.WHITE, dist, pos[0], pos[1]);
+		PointLight point = new PointLight(rayhandler, rays, Color.WHITE, dist * getLevelScaleX(), pos[0], pos[1]);
 		point.setColor(color[0], color[1], color[2], color[3]);
 		point.setSoft(light.getBoolean("soft"));
 
@@ -431,7 +438,7 @@ public class GameLevel {
 		float angle = light.getFloat("angle");
 		int rays = light.getInt("rays");
 
-		ConeLight cone = new ConeLight(rayhandler, rays, Color.WHITE, dist, pos[0], pos[1], face, angle);
+		ConeLight cone = new ConeLight(rayhandler, rays, Color.WHITE, dist * 63, pos[0], pos[1], face, angle);
 		cone.setColor(color[0], color[1], color[2], color[3]);
 		cone.setSoft(light.getBoolean("soft"));
 
@@ -524,10 +531,16 @@ public class GameLevel {
 	 */
 	public boolean update(float dt) {
 		if (fixedStep(dt)) {
+            raycamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            rayhandler.setCombinedMatrix(raycamera);
 			if (rayhandler != null)
             {
 				rayhandler.update();
 			}
+            vc.update(world);
+
+            System.out.println(vc.contains(enemies.get(0).getPosition()));
+
 			avatarCat.update(dt);
 			avatarOctopus.update(dt);
 			return true;
@@ -571,14 +584,17 @@ public class GameLevel {
 	 */
 	public void draw(SpriteBatch batch, Camera camera) {
 		// Draw the sprites first (will be hidden by shadows)
-		batch.begin(camera);
+        vc.draw(batch, camera);
+
+        batch.begin(camera);
 		for (ObstacleSprite obj : sprites) {
 			obj.draw(batch);
 		}
 		batch.end();
 
 		if (rayhandler != null) {
-			rayhandler.render();
+            rayhandler.setCombinedMatrix(camera.combined);
+			rayhandler.updateAndRender();
 		}
 
 		// Draw debugging on top of everything.
