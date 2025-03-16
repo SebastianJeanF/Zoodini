@@ -351,12 +351,12 @@ public class GameScene implements Screen, ContactListener {
 		camera.update();
 
 		// Update guards
-//		updateGuards();
+
         guardToAIController.forEach((guard, controller) -> {
             controller.update();
             guard.think(controller.getNextTargetLocation(), controller.getMovementDirection());
-            System.out.println("here");
         });
+		updateGuards();
 
 		// Turn the physics engine crank.
 		level.update(dt);

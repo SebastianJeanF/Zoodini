@@ -42,12 +42,17 @@ public class GameGraph {
         this.startX = startX;
         this.startY = startY;
         this.initializeGraph(obstacles);
+
+        // TODO: See if there is a better heuristic for the A* algorithm
+        this.heuristic = new DistanceHeuristic();
     }
 
     /**
      * Gets the node at the specified world position.
      * Converts the world position to grid coordinates and returns the corresponding node.
      *
+     *
+     * @INVARIANT this.graph must be initialized
      * @param pos The world position to get the node for
      * @return The node at the specified position, or null if no node exists there
      */
@@ -60,14 +65,18 @@ public class GameGraph {
 
 
 
-        return x >= 0 && x < this.COLS && y >= 0 && y < this.ROWS? this.graph.getNodes().get(y * this.COLS + x) : null;
+        return x >= 0 && x < this.COLS && y >= 0 && y < this.ROWS
+            ? this.graph.getNodes().get(y * this.COLS + x)
+            : null;
     }
 
     /**
+     *
      * Generates edges between nodes in the pathfinding graph.
      * Connects nodes that are adjacent (orthogonally or diagonally) and not obstacles.
      * For diagonal connections, prevents corner-cutting through obstacles.
      *
+     * @INVARIANT this.graph must be initialized
      * @param nodes The array of nodes to process and generate connections for
      */
     public void addEdges(Array<Node> nodes) {
@@ -169,6 +178,9 @@ public class GameGraph {
             }
         }
 
+        this.graph = new Graph(nodes);
+        this.addEdges(nodes);
+
         for (Obstacle obs: obstacles) {
             Vector2 pos = obs.getPosition();
             Node node = getNode(pos);
@@ -177,12 +189,10 @@ public class GameGraph {
             }
         }
 
-        this.addEdges(nodes);
-        this.graph = new Graph(nodes);
 
         // TODO: Add walls to graph by reading game objects
 
-        addEdges(nodes);
+//        addEdges(nodes);
         this.aStarPathFinder = new IndexedAStarPathFinder<>(graph);
     }
 
@@ -204,6 +214,7 @@ public class GameGraph {
     /**
      * Finds the shortest path between two positions in the world using A*.
      *
+     * @INVARIANT this.heuristic must be initialized
      * @param currPos The starting position in world coordinates
      * @param targetPos The target position in world coordinates
      * @return A list of nodes representing the path from start to target, excluding the start node
@@ -219,6 +230,8 @@ public class GameGraph {
             System.err.println("Error: Start or end node is null.");
             return new ArrayList<>();
         }
+
+
         this.aStarPathFinder.searchNodePath(start, end, this.heuristic, graphPath);
 
         List<Node> path = new ArrayList<>();
