@@ -69,8 +69,6 @@ public class Guard extends Enemy {
         cameraAlerted = value;
     }
 
-    public
-
     /** The position that this guard should move to */
     Vector2 target = null;
 

@@ -432,8 +432,15 @@ public class GameLevel {
 	 */
 	public boolean update(float dt) {
 		if (fixedStep(dt)) {
-            for(VisionCone v : visions.values()){
+            for(ObstacleSprite key: visions.keys()){
+                VisionCone v = visions.get(key);
                 v.update(world);
+                if(v.contains(avatarCat.getPosition())){
+                    if(key instanceof Guard){
+                        ((Guard) key).setTarget(avatarCat.getPosition());
+                        ((Guard) key).setAgroed(true);
+                    }
+                }
             }
 
             rayHandler.setCombinedMatrix(raycamera);
