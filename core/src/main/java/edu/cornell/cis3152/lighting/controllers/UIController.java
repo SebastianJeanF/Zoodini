@@ -27,6 +27,11 @@ public class UIController {
         message = m;
     }
 
+    public void reset(){
+        message = null;
+        displayFont = null;
+    }
+
     public void update(){
         camera.update();
     }

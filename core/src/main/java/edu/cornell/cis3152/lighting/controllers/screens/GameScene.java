@@ -161,6 +161,7 @@ public class GameScene implements Screen, ContactListener {
             message.layout();
             ui.setFont(font);
             ui.setMessage(message);
+            countdown = EXIT_COUNT;
         }
         complete = value;
 	}
@@ -232,10 +233,11 @@ public class GameScene implements Screen, ContactListener {
 
         catArrived = false;
         octopusArrived = false;
+        ui.reset();
+
 		setComplete(false);
 		setFailure(false);
 		countdown = -1;
-		message = null;
 
 		// Reload the json each time
 		level.populate(directory, levelFormat, levelGlobals);
