@@ -37,6 +37,9 @@ import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
+import com.badlogic.gdx.utils.ObjectMap.Entries;
+import com.badlogic.gdx.utils.ObjectMap.Entry;
+import com.badlogic.gdx.utils.ObjectMap.Values;
 import edu.cornell.cis3152.lighting.utils.HardEdgeLightShader;
 import edu.cornell.cis3152.lighting.models.entities.Avatar;
 import edu.cornell.cis3152.lighting.models.entities.Cat;
@@ -102,8 +105,10 @@ public class GameLevel {
 	/** The boundary of the world */
 	protected Rectangle bounds;
 
+    private float units;
     private Array<Enemy> enemies;
     private Array<SecurityCamera> securityCameras;
+    private ObjectMap<ObstacleSprite, VisionCone> visions;
 
 	// TO FIX THE TIMESTEP
 	/** The maximum frames per second setting for this level */
@@ -271,7 +276,7 @@ public class GameLevel {
 
 		world = new World(Vector2.Zero, false);
 		bounds = new Rectangle(0, 0, pSize[0], pSize[1]);
-		float units = gSize[1] / pSize[1];
+		units = gSize[1] / pSize[1];
 
         levelScaleX = gSize[0] / pSize[0];
         levelScaleY = gSize[1] / pSize[1];
@@ -332,8 +337,32 @@ public class GameLevel {
         }
 
 		// Lights
-
+        this.visions = new ObjectMap<>();
+        JsonValue visionJson = levelFormat.get("visions");
+        initializeVisionCones(visionJson);
 	}
+
+    private void initializeVisionCones(JsonValue json){
+        int rayNum = json.getInt("rayNum");
+        float radius = json.getFloat("radius");
+        float[] color = json.get("color").asFloatArray();
+        float wideness = json.getFloat("wideness");
+        short mask = json.getShort("maskbit");
+        short category = json.getShort("categorybit");
+        Color c = new Color(color[0], color[1], color[2], color[3]);
+
+        for(SecurityCamera cam : securityCameras){
+            VisionCone vc = new VisionCone(rayNum, Vector2.Zero, radius, 0.0f, wideness, c, units, mask, category);
+            vc.attachToBody(cam.getObstacle().getBody(), 90.0f);
+            visions.put(cam, vc);
+        }
+
+        for(Enemy guard : enemies){
+            VisionCone vc = new VisionCone(rayNum, Vector2.Zero, radius, 0.0f, wideness, c, units, mask, category);
+            vc.attachToBody(guard.getObstacle().getBody(), 90.0f);
+            visions.put(guard, vc);
+        }
+    }
 
 
 
@@ -348,6 +377,7 @@ public class GameLevel {
 			s.getObstacle().deactivatePhysics(world);
 		}
 
+        visions.clear();
 
 		sprites.clear();
 		if (world != null) {
@@ -394,6 +424,9 @@ public class GameLevel {
 	 */
 	public boolean update(float dt) {
 		if (fixedStep(dt)) {
+            for(VisionCone v : visions.values()){
+                v.update(world);
+            }
 			avatarCat.update(dt);
 			avatarOctopus.update(dt);
 			return true;
@@ -437,6 +470,11 @@ public class GameLevel {
 	 */
 	public void draw(SpriteBatch batch, Camera camera) {
 		// Draw the sprites first (will be hidden by shadows)
+
+        for(VisionCone v : visions.values()){
+            v.draw(batch,camera);
+        }
+
         batch.begin(camera);
 		for (ObstacleSprite obj : sprites) {
 			obj.draw(batch);
