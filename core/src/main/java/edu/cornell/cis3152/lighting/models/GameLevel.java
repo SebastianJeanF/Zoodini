@@ -352,8 +352,8 @@ public class GameLevel {
      * @param json containing the configuration settings.
      */
 	public void initializeRayHandler(JsonValue json) {
-		raycamera = new OrthographicCamera(bounds.width, bounds.height);
-		raycamera.position.set(bounds.width / 2.0f, bounds.height / 2.0f, 0);
+		raycamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		raycamera.position.set(Gdx.graphics.getWidth() / 2.0f, Gdx.graphics.getHeight() / 2.0f, 0);
 		raycamera.update();
 
 		RayHandler.setGammaCorrection(json.getBoolean("gamma"));
@@ -437,7 +437,7 @@ public class GameLevel {
 		float angle = light.getFloat("angle");
 		int rays = light.getInt("rays");
 
-		ConeLight cone = new ConeLight(rayhandler, rays, Color.WHITE, dist, pos[0], pos[1], face, angle);
+		ConeLight cone = new ConeLight(rayhandler, rays, Color.WHITE, dist * 63, pos[0], pos[1], face, angle);
 		cone.setColor(color[0], color[1], color[2], color[3]);
 		cone.setSoft(light.getBoolean("soft"));
 
@@ -530,6 +530,8 @@ public class GameLevel {
 	 */
 	public boolean update(float dt) {
 		if (fixedStep(dt)) {
+            raycamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            rayhandler.setCombinedMatrix(raycamera);
 			if (rayhandler != null)
             {
 				rayhandler.update();
