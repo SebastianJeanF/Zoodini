@@ -406,6 +406,10 @@ public class GameLevel {
 		sprite.getObstacle().activatePhysics(world);
 	}
 
+    public PooledList<Obstacle> getObjects() {
+        return objects;
+    }
+
 	/**
 	 * Returns true if the object is in bounds.
 	 *

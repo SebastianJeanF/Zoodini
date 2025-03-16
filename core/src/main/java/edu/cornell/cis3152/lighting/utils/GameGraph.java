@@ -55,6 +55,11 @@ public class GameGraph {
         Vector2 graphIndex = this.worldToGraphIndex(pos);
         int x = MathUtils.clamp(Math.round(graphIndex.x), 0, this.COLS - 1);
         int y = MathUtils.clamp(Math.round(graphIndex.y), 0, this.ROWS - 1);
+
+        System.out.println("Graph Index: (" + x + ", " + y + ")");
+
+
+
         return x >= 0 && x < this.COLS && y >= 0 && y < this.ROWS? this.graph.getNodes().get(y * this.COLS + x) : null;
     }
 
@@ -204,9 +209,16 @@ public class GameGraph {
      * @return A list of nodes representing the path from start to target, excluding the start node
      */
     public List<Node> getPath(Vector2 currPos, Vector2 targetPos) {
+        System.out.println(currPos);
+        System.out.println(targetPos);
         GraphPath<Node> graphPath = new DefaultGraphPath<>();
         Node start = getNode(currPos);
         Node end = getNode(targetPos);
+        // Check if start or end node is null
+        if (start == null || end == null) {
+            System.err.println("Error: Start or end node is null.");
+            return new ArrayList<>();
+        }
         this.aStarPathFinder.searchNodePath(start, end, this.heuristic, graphPath);
 
         List<Node> path = new ArrayList<>();

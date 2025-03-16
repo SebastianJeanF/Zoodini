@@ -36,6 +36,8 @@ public class GuardAIController {
     /** Min distance from waypoint where the guard will recalculate to next waypoint*/
     private final float WAYPOINT_RADIUS = 1.0F;
 
+
+
     public GuardAIController(Guard guard, Avatar player, GameGraph gameGraph, int susDelay) {
         this.guard = guard;
         this.player = player;
@@ -78,7 +80,7 @@ public class GuardAIController {
 
 
 
-    private void changeStateIfApplicable() {
+    public void update() {
         ticks++;
         // Update suspicion level
         if (currState != GuardState.CHASE) { // Only update when not chasing
@@ -143,6 +145,7 @@ public class GuardAIController {
 
     private Vector2 getNextWaypointLocation(Vector2 targetLocation) {
         List<Node> path = gameGraph.getPath(guard.getPosition().cpy(), targetLocation.cpy());
+        System.out.println("path " + path);
         if (path.isEmpty()) {
             if (currState == GuardState.CHASE) {
                 return player.getPosition().cpy();
@@ -195,6 +198,19 @@ public class GuardAIController {
                 break;
             default:
                 break;
+        }
+    }
+
+    public Vector2 getNextTargetLocation() {
+        return nextTargetLocation;
+    }
+
+    public Vector2 getMovementDirection() {
+        this.setNextTargetLocation();
+        if (this.nextTargetLocation == null) {
+            return Vector2.Zero;
+        } else {
+            return this.nextTargetLocation.cpy().sub(guard.getPosition()).nor();
         }
     }
 

@@ -15,6 +15,11 @@ public class Guard extends Enemy {
     private int chaseTimer;
     private boolean cameraAlerted;
 
+    /** The position that this guard should move to */
+    Vector2 target = null;
+    Vector2 movementDirection = null;
+    Vector2 targetPosition = null;
+
     // --- Patrol Path Variables for Guard ---
     private Vector2[] patrolPoints;
     private int currentPatrolIndex = 0;
@@ -69,9 +74,6 @@ public class Guard extends Enemy {
         cameraAlerted = value;
     }
 
-    /** The position that this guard should move to */
-    Vector2 target = null;
-
     /** If a guard is "agroed", it is currently chasing a player */
     public boolean isAgroed() {
         return isChasing;
@@ -88,6 +90,11 @@ public class Guard extends Enemy {
     public void setTarget(Vector2 target) {
 
         this.target = target;
+    }
+
+    public void think(Vector2 movementDirection, Vector2 targetPosition) {
+        this.movementDirection = movementDirection;
+        this.targetPosition = targetPosition;
     }
 
     public void setAgroed(boolean agroed) {

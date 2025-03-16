@@ -20,18 +20,22 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import edu.cornell.cis3152.lighting.controllers.AIController;
+import edu.cornell.cis3152.lighting.controllers.GuardAIController;
 import edu.cornell.cis3152.lighting.controllers.InputController;
 import edu.cornell.cis3152.lighting.models.entities.Avatar;
 import edu.cornell.cis3152.lighting.models.entities.Enemy;
 import edu.cornell.cis3152.lighting.models.GameLevel;
 import edu.cornell.cis3152.lighting.models.entities.Guard;
+import edu.cornell.cis3152.lighting.utils.GameGraph;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.TextAlign;
 import edu.cornell.gdiac.graphics.TextLayout;
 import edu.cornell.gdiac.util.*;
 
+
 import edu.cornell.gdiac.physics2.*;
+import java.util.HashMap;
 
 /**
  * Gameplay controller for the game.
@@ -85,6 +89,12 @@ public class GameScene implements Screen, ContactListener {
 
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
+
+    /** The current level */
+    private final HashMap<Guard, GuardAIController> guardToAIController = new HashMap<>();
+
+    private GameGraph gameGraph;
+
 
 	// Camera movement fields
 	private Vector2 cameraTargetPosition;
@@ -195,6 +205,7 @@ public class GameScene implements Screen, ContactListener {
 
 		setComplete(false);
 		setFailure(false);
+        initializeAIControllers();
 	}
 
 	/**
@@ -204,6 +215,19 @@ public class GameScene implements Screen, ContactListener {
 		level.dispose();
 		level = null;
 	}
+
+    public void initializeAIControllers() {
+        this.gameGraph = new GameGraph(16, 16, level.getBounds().x, level.getBounds().y, level.getObjects());
+        Array<Enemy> enemies = level.getEnemies();
+        for (Enemy enemy : enemies) {
+            if (!(enemy instanceof Guard))
+                continue;
+
+            Guard guard = (Guard) enemy;
+            GuardAIController aiController = new GuardAIController(guard, level.getAvatar(), this.gameGraph, 60);
+            guardToAIController.put(guard, aiController);
+        }
+    }
 
 	/**
 	 * Resets the status of the game so that we can play again.
@@ -327,7 +351,13 @@ public class GameScene implements Screen, ContactListener {
 		camera.update();
 
 		// Update guards
-		updateGuards();
+//		updateGuards();
+        guardToAIController.forEach((guard, controller) -> {
+            controller.update();
+            guard.think(controller.getNextTargetLocation(), controller.getMovementDirection());
+            System.out.println("here");
+        });
+
 		// Turn the physics engine crank.
 		level.update(dt);
 	}
