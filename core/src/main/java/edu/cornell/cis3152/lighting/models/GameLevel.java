@@ -50,6 +50,7 @@ import edu.cornell.cis3152.lighting.models.entities.SecurityCamera;
 import edu.cornell.cis3152.lighting.models.nonentities.Exit;
 import edu.cornell.cis3152.lighting.models.nonentities.ExteriorWall;
 import edu.cornell.cis3152.lighting.models.nonentities.InteriorWall;
+import edu.cornell.cis3152.lighting.models.nonentities.Key;
 import edu.cornell.cis3152.lighting.utils.VisionCone;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
@@ -128,12 +129,24 @@ public class GameLevel {
     private float levelScaleX;
     private float levelScaleY;
 
+    /** Reference to the key (for pickup detection) */
+    private Key key;
+
     public float getLevelScaleX(){
         return levelScaleX;
     }
 
     public float getLevelScaleY(){
         return levelScaleY;
+    }
+
+    /**
+     * Returns a reference to the key
+     *
+     * @return a reference to the key
+     */
+    public Key getKey() {
+        return key;
     }
 
 	/**
@@ -303,6 +316,13 @@ public class GameLevel {
 		// Walls
 		goalDoor = new Exit(directory, levelFormat.get("exit"), levelGlobals.get("exit"), units);
 		activate(goalDoor);
+
+        // Create the key
+        if (levelFormat.has("key")) {
+            JsonValue keyData = levelFormat.get("key");
+            key = new Key(directory, keyData, levelGlobals.get("key"), units);
+            activate(key);
+        }
 
 		JsonValue bounds = levelFormat.getChild("exterior");
 		while (bounds != null) {

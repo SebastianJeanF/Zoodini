@@ -27,9 +27,37 @@ import edu.cornell.gdiac.physics2.*;
  * subclass.
  */
 public class Exit extends ObstacleSprite {
+    /** Whether this door is locked */
+    private boolean locked;
+    /** The texture to use when the door is locked */
+    private TextureRegion lockedTexture;
+    /** The texture to use when the door is unlocked */
+    private TextureRegion unlockedTexture;
+
+    /**
+     * Returns whether this door is locked.
+     *
+     * @return whether this door is locked
+     */
+    public boolean isLocked() {
+        return locked;
+    }
+
+    /**
+     * Sets whether this door is locked.
+     * Updates the texture accordingly.
+     *
+     * @param value whether this door is locked
+     */
+    public void setLocked(boolean value) {
+        locked = value;
+        setTextureRegion(locked ? lockedTexture : unlockedTexture);
+    }
+
+
 
 	/**
-	 * Creates a exit with the given settings
+	 * Creates a door with the given settings
 	 *
 	 * @param directory The asset directory (for textures, etc)
 	 * @param json      The JSON values defining this avatar
@@ -66,9 +94,18 @@ public class Exit extends ObstacleSprite {
 
 		setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));
 
-		// Now get the texture from the AssetManager singleton
-		String key = globals.get("texture").asString();
-		TextureRegion texture = new TextureRegion(directory.getEntry(key, Texture.class));
-		setTextureRegion(texture);
+        // Get textures for locked and unlocked states
+        String lockedKey = globals.has("locked_texture") ?
+            globals.get("locked_texture").asString() :
+            globals.get("texture").asString();
+        String unlockedKey = globals.get("texture").asString();
+
+
+        lockedTexture = new TextureRegion(directory.getEntry(lockedKey, Texture.class));
+        unlockedTexture = new TextureRegion(directory.getEntry(unlockedKey, Texture.class));
+
+        // Set initial state (locked by default)
+        locked = true;
+        setTextureRegion(lockedTexture);
 	}
 }
