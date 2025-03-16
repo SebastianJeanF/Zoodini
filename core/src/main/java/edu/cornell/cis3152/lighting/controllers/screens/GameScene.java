@@ -66,6 +66,11 @@ public class GameScene implements Screen, ContactListener {
 	/** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
 
+    /** Whether the player has collected the key */
+    private boolean keyCollected = false;
+    /** Timer for how long to display the key message */
+    private int keyMessageTimer = 0;
+
 	/** The orthographic camera */
 	private OrthographicCamera camera;
 	/** Reference to the game canvas */
@@ -233,6 +238,7 @@ public class GameScene implements Screen, ContactListener {
 
         catArrived = false;
         octopusArrived = false;
+        keyCollected = false;
         ui.reset();
 
 		setComplete(false);
@@ -342,6 +348,19 @@ public class GameScene implements Screen, ContactListener {
 
 		camera.update();
         ui.update();
+
+        // Update key message timer
+        if(keyMessageTimer > 0) {
+            keyMessageTimer--;
+            if(keyMessageTimer == 0) {
+                ui.setMessage(null); // Clear message when timer expires
+            }
+        }
+        // Deactivate collected key's physics body if needed
+        if (keyCollected && level.getKey() != null && level.getKey().getObstacle().isActive()) {
+            // This is the safe time to modify physics bodies
+            level.getKey().getObstacle().setActive(false);
+        }
 
 		// Update guards
 		updateGuards();
@@ -576,16 +595,44 @@ public class GameScene implements Screen, ContactListener {
                 }
             }
 
-            if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
-                catArrived = true;
+            // Handle exit collision (only if door is unlocked)
+            if(!level.getExit().isLocked()) {
+                if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
+                    catArrived = true;
+                }
+
+                if((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)){
+                    octopusArrived = true;
+                }
+
+                if(catArrived && octopusArrived && !failed){
+                    setComplete(true);
+                }
             }
 
-            if((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)){
-                octopusArrived = true;
-            }
+            // Handle key pickup
+            if(!keyCollected && level.getKey() != null) {
+                Obstacle keyObs = level.getKey().getObstacle();
+                if(((o1 == cat || o1 == oct) && o2 == keyObs) ||
+                    ((o2 == cat || o2 == oct) && o1 == keyObs)){
+                    keyCollected = true;
+                    level.getKey().setCollected(true);
 
-            if(catArrived && octopusArrived && !failed){
-                setComplete(true);
+                    // Display a message that key was collected
+                    BitmapFont font = directory.getEntry("display", BitmapFont.class);
+                    TextLayout message = new TextLayout("Key Collected!", font);
+                    message.setAlignment(TextAlign.middleCenter);
+                    message.setColor(Color.YELLOW);
+                    message.layout();
+                    ui.setFont(font);
+                    ui.setMessage(message);
+
+                    // Make the message disappear after a few seconds
+                    keyMessageTimer = 120; // 2 seconds at 60 fps
+
+                    // Unlock the door
+                    level.getExit().setLocked(false);
+                }
             }
 
 		} catch (Exception e) {
@@ -614,12 +661,14 @@ public class GameScene implements Screen, ContactListener {
             Obstacle exit = level.getExit().getObstacle();
 
 
-            if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
-                catArrived = false;
-            }
+            if(!level.getExit().isLocked()) {
+                if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
+                    catArrived = false;
+                }
 
-            if((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)){
-                octopusArrived = false;
+                if((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)){
+                    octopusArrived = false;
+                }
             }
 
         } catch (Exception e) {

@@ -27,7 +27,10 @@
                 }
             }
         },
-        "goal": "textures/helicopter.png"
+        "goal": "textures/helicopter.png",
+        "key": "textures/key.png",
+        "locked_door": "textures/locked_door.png",
+        "unlocked_door": "textures/unlocked_door.png"
   	},
   	"fonts": {
   		"display": {

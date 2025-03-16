@@ -79,18 +79,33 @@
         "friction": 0.0,
         "restitution": 0.0
     },
-    "exit": {
-        "size": [
-            1.25,
-            1.25
-        ],
-        "bodytype": "static",
-        "density": 0.0,
-        "friction": 0.0,
-        "restitution": 0.0,
-        "collide": "0010",
-        "exclude": "0000",
-        "texture": "goal",
-        "debug": "#ffff00C8"
-    }
+  "key": {
+    "size": [
+      0.75,
+      0.75
+    ],
+    "bodytype": "static",
+    "density": 0.0,
+    "friction": 0.0,
+    "restitution": 0.0,
+    "collide": "0010",
+    "exclude": "0000",
+    "texture": "key",
+    "debug": "#ffff00C8"
+  },
+  "exit": {
+    "size": [
+      1.25,
+      1.25
+    ],
+    "bodytype": "static",
+    "density": 0.0,
+    "friction": 0.0,
+    "restitution": 0.0,
+    "collide": "0010",
+    "exclude": "0000",
+    "texture": "unlocked_door",
+    "locked_texture": "locked_door",
+    "debug": "#ffff00C8"
+  }
 }
