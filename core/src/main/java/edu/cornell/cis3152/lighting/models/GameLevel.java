@@ -165,6 +165,16 @@ public class GameLevel {
 		return catActive ? avatarCat : avatarOctopus;
 	}
 
+    /**
+     * Returns a reference to the player avatar
+     *
+     * @return a reference to the player avatar
+     */
+    public Avatar getInactiveAvatar() {
+        return catActive ? avatarOctopus : avatarCat;
+    }
+
+
 	/**
 	 * Returns a reference to the exit door
 	 *

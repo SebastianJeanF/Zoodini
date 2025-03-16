@@ -143,8 +143,10 @@ public class GameScene implements Screen, ContactListener {
 	 */
 	public void setFailure(boolean value) {
 		if (value) {
-			message = new TextLayout("Failure", displayFont);
+            BitmapFont font = directory.getEntry("display", BitmapFont.class);
+			message = new TextLayout("Failure", font);
 			message.setAlignment(TextAlign.middleCenter);
+            message.setColor(Color.RED);
 			message.layout();
 			countdown = EXIT_COUNT;
 		}
@@ -558,7 +560,27 @@ public class GameScene implements Screen, ContactListener {
 					(bd1 == door && bd2 == avatar)) {
 				setComplete(true);
 			}
-		} catch (Exception e) {
+
+
+
+            // Check for failure condition
+            // You lose if one of the characters touches the guards
+            Array<Enemy> enemies = level.getEnemies();
+            for (Enemy enemy : enemies) {
+                Guard guard = (Guard) enemy;
+                Obstacle afkAvatar = level.getInactiveAvatar().getObstacle();
+
+                if ((bd1 == guard.getObstacle() && (bd2 == avatar || bd2 == afkAvatar)) ||
+                    (bd2 == guard.getObstacle() && (bd1 == avatar || bd1 == afkAvatar))) {
+                    setFailure(true);
+                }
+            }
+
+
+
+
+
+        } catch (Exception e) {
 			e.printStackTrace();
 		}
 
