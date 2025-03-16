@@ -171,6 +171,4 @@ public class AIController {
         }
         return movementToVector(Movement.NO_ACTION);
     }
-
-
 }
