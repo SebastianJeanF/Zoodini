@@ -96,7 +96,11 @@
           8.5
         ],
         [
-          8,
+          14,
+          8.5
+        ],
+        [
+          5,
           8.5
         ]
       ]
@@ -383,35 +387,11 @@
     },
     "maze7": {
       "pos": [
-        "3.0f",
+        "7.0f",
         "9.0f"
       ],
       "size": [
-        "5.75f",
-        "0.5f"
-      ],
-      "pad": [
-        "0.1f",
-        "0.1f"
-      ],
-      "bodytype": "static",
-      "density": 0.0,
-      "friction": 0.4,
-      "restitution": 0.1,
-      "collide": "0100",
-      "exclude": "0000",
-      "texture": "earth",
-      "debug": "#ffff00C8",
-      "tile": 128
-    },
-
-    "maze8": {
-      "pos": [
-        "11.0f",
-        "9.0f"
-      ],
-      "size": [
-        "5.0f",
+        "13.0f",
         "0.5f"
       ],
       "pad": [
