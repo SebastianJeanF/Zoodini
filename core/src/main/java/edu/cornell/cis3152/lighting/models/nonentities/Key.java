@@ -8,16 +8,18 @@ import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.utils.JsonValue;
 
 import edu.cornell.cis3152.lighting.models.GameLevel;
+import edu.cornell.cis3152.lighting.utils.ZoodiniSprite;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.assets.ParserUtils;
 import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.physics2.BoxObstacle;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
+import edu.cornell.gdiac.graphics.SpriteBatch;
 
 /**
  * A sensor obstacle representing a key that can be picked up.
  */
-public class Key extends ObstacleSprite {
+public class Key extends ZoodiniSprite {
 
     /** Whether this key has been collected by the player */
     private boolean collected;
@@ -86,4 +88,14 @@ public class Key extends ObstacleSprite {
 
         collected = false;
     }
+    /**
+     * Overrides the draw method to make the key invisible when collected
+     */
+    @Override
+    public void draw(SpriteBatch batch) {
+        if (!collected) {
+            super.draw(batch);
+        }
+    }
+
 }

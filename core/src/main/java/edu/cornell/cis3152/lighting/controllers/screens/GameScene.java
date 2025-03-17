@@ -12,24 +12,30 @@
  */
 package edu.cornell.cis3152.lighting.controllers.screens;
 
+import java.util.Arrays;
+
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
-import edu.cornell.cis3152.lighting.controllers.AIController;
 import edu.cornell.cis3152.lighting.controllers.GuardAIController;
 import edu.cornell.cis3152.lighting.controllers.InputController;
 import edu.cornell.cis3152.lighting.controllers.UIController;
 import edu.cornell.cis3152.lighting.models.entities.Avatar;
+import edu.cornell.cis3152.lighting.models.entities.Avatar.AvatarType;
 import edu.cornell.cis3152.lighting.models.entities.Cat;
 import edu.cornell.cis3152.lighting.models.entities.Enemy;
 import edu.cornell.cis3152.lighting.models.GameLevel;
 import edu.cornell.cis3152.lighting.models.entities.Guard;
 import edu.cornell.cis3152.lighting.utils.GameGraph;
 import edu.cornell.cis3152.lighting.models.entities.Octopus;
+import edu.cornell.cis3152.lighting.models.entities.SecurityCamera;
 import edu.cornell.cis3152.lighting.models.nonentities.Exit;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
@@ -74,6 +80,14 @@ public class GameScene implements Screen, ContactListener {
     private boolean keyCollected = false;
     /** Timer for how long to display the key message */
     private int keyMessageTimer = 0;
+    /** The character that collected the key */
+    private Avatar keyCollector = null;
+    /** Timer for how long the door has been unlocking */
+    private int unlockingTimer = 0;
+    /** Duration required to unlock the door (in frames) */
+    private static final int UNLOCK_DURATION = 180;
+    /** Whether the door is currently being unlocking */
+    private boolean isUnlocking = false;
 
 	/** The orthographic camera */
 	private OrthographicCamera camera;
@@ -96,8 +110,6 @@ public class GameScene implements Screen, ContactListener {
 	private boolean failed;
 	/** Countdown active for winning or losing */
 	private int countdown;
-	/** Controller for guards and security cameras */
-	private AIController aiController;
 
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
@@ -108,12 +120,16 @@ public class GameScene implements Screen, ContactListener {
     private GameGraph gameGraph;
 
 
+
 	// Camera movement fields
 	private Vector2 cameraTargetPosition;
 	private Vector2 cameraPreviousPosition;
 	private float cameraTransitionTimer;
 	private float cameraTransitionDuration;
 	private boolean inCameraTransition;
+
+	// general-purpose cache vector
+	private Vector2 cacheVec;
 
 	/**
 	 * Returns true if the level is completed.
@@ -212,7 +228,8 @@ public class GameScene implements Screen, ContactListener {
 		countdown = -1;
 
 		camera = new OrthographicCamera();
-		System.out.println("");
+		// System.out.println("");
+		// System.out.println("");
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		// Initialize camera tracking variables
 		cameraTargetPosition = new Vector2();
@@ -220,10 +237,10 @@ public class GameScene implements Screen, ContactListener {
 		cameraTransitionTimer = 0;
 		cameraTransitionDuration = directory.getEntry("constants", JsonValue.class)
 				.getFloat("CAMERA_INTERPOLATION_DURATION");
-		System.out.println(cameraTransitionDuration);
 		inCameraTransition = false;
 
         ui = new UIController();
+		cacheVec = new Vector2();
 
 		setComplete(false);
 		setFailure(false);
@@ -246,12 +263,11 @@ public class GameScene implements Screen, ContactListener {
                 continue;
 
             Guard guard = (Guard) enemy;
-            GuardAIController aiController = new GuardAIController(guard, level.getAvatar(), this.gameGraph, 60);
+            GuardAIController aiController = new GuardAIController(guard, level, this.gameGraph, 60);
             guardToAIController.put(guard, aiController);
         }
 
-        // gameGraph.printGrid();
-        // gameGraph.printGraph();
+        gameGraph.printGrid();
     }
 
 	/**
@@ -266,6 +282,9 @@ public class GameScene implements Screen, ContactListener {
         catArrived = false;
         octopusArrived = false;
         keyCollected = false;
+        keyCollector = null;
+        unlockingTimer = 0;
+        isUnlocking = false;
         ui.reset();
 
 		setComplete(false);
@@ -347,20 +366,63 @@ public class GameScene implements Screen, ContactListener {
 			level.getAvatar().applyForce();
 			// Save previous camera position before swapping
 			cameraPreviousPosition.set(cameraTargetPosition);
+			// Save previous camera position before swapping
+			cameraPreviousPosition.set(cameraTargetPosition);
 			// swap the active character
 			level.swapActiveAvatar();
 
 			// Start camera transition
 			cameraTransitionTimer = 0;
 			inCameraTransition = true;
+			// Start camera transition
+			cameraTransitionTimer = 0;
+			inCameraTransition = true;
 		}
+
 		Avatar avatar = level.getAvatar();
 
-		// Update camera target to active avatar's position
-		cameraTargetPosition.set(avatar.getPosition());
 
-		// Update camera position with interpolation
-		updateCamera(dt);
+        // flips the sprite if the avatar is moving left
+        if (!avatar.isFlipped() && input.getHorizontal() == -1f || avatar.isFlipped() && input.getHorizontal() == 1f) {
+            avatar.flipSprite();
+        }
+
+		if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
+			Octopus octopus = (Octopus) avatar;
+
+			if (input.isAbilityHeld()) {
+				octopus.setCurrentlyAiming(true);
+				Vector3 unprojected = camera.unproject(
+						new Vector3(input.getAiming().x, input.getAiming().y, 0));
+				cacheVec.set(unprojected.x / level.getLevelScaleX(),
+						unprojected.y / level.getLevelScaleY());
+
+				// TODO: max length should be a configurable value
+				float scale = Math.min(cacheVec.dst(avatar.getPosition()) * level.getLevelScaleX(), 250);
+				double dx = avatar.getPosition().x - cacheVec.x;
+				double dy = avatar.getPosition().y - cacheVec.y;
+				float angleRad = -((float) (Math.atan2(dx, dy) + Math.toRadians(90))); // scuffed math (TODO: fix?)
+				cacheVec.set((float) Math.toDegrees(Math.cos(angleRad)), (float) Math.toDegrees(Math.sin(angleRad)))
+						.nor().scl(scale);
+				octopus.setTarget(cacheVec);
+			}
+			if (octopus.isCurrentlyAiming() && !input.isAbilityHeld()) {
+				octopus.setCurrentlyAiming(false);
+				octopus.setDidFire(true);
+			}
+
+			if (octopus.didFire()) {
+				level.hideInkProjectile();
+				level.createInkProjectile();
+				octopus.setDidFire(false);
+			}
+
+			if ((level.getProjectile().getPosition().dst(avatar.getPosition()) * level.getLevelScaleX()) > (octopus
+					.getTarget().len())) {
+				level.getProjectile().setToHide(true);
+
+			}
+		}
 
 		// Rotate the avatar to face the direction of movement
 		angleCache.set(input.getHorizontal(), input.getVertical());
@@ -374,8 +436,12 @@ public class GameScene implements Screen, ContactListener {
 		avatar.setMovement(angleCache.x, angleCache.y);
 		avatar.applyForce();
 
-
+        // Update camera target to active avatar's position
+        cameraTargetPosition.set(avatar.getPosition());
+        // Update camera position with interpolation
+        updateCamera(dt);
 		camera.update();
+
         ui.update();
 
         // Update key message timer
@@ -385,63 +451,82 @@ public class GameScene implements Screen, ContactListener {
                 ui.setMessage(null); // Clear message when timer expires
             }
         }
+
+        // Update door unlocking progress
+        if(isUnlocking) {
+            unlockingTimer++;
+
+            // Update unlocking message percentage
+            if (unlockingTimer % 15 == 0) { // Update message every 1/4 second
+                BitmapFont font = directory.getEntry("display", BitmapFont.class);
+                TextLayout message = new TextLayout("Unlocking Door: " +
+                    Math.round((float) unlockingTimer / UNLOCK_DURATION * 100) + "%",
+                    font);
+                message.setAlignment(TextAlign.middleCenter);
+                message.setColor(Color.YELLOW);
+                message.layout();
+                ui.setFont(font);
+                ui.setMessage(message);
+            }
+            // Check if door is fully unlocked
+            if (unlockingTimer >= UNLOCK_DURATION) {
+                level.getExit().setLocked(false);
+                isUnlocking = false;
+
+                // Show door unlocked message
+                BitmapFont font = directory.getEntry("display", BitmapFont.class);
+                TextLayout message = new TextLayout("Door Unlocked!", font);
+                message.setAlignment(TextAlign.middleCenter);
+                message.setColor(Color.GREEN);
+                message.layout();
+                ui.setFont(font);
+                ui.setMessage(message);
+                keyMessageTimer = 120; // 2 seconds at 60 fps to show unlock message
+            }
+        }
+
+
         // Deactivate collected key's physics body if needed
         if (keyCollected && level.getKey() != null && level.getKey().getObstacle().isActive()) {
             // This is the safe time to modify physics bodies
             level.getKey().getObstacle().setActive(false);
         }
 
-		// Update guards
+        // Set meow guard flag
+        // TODO: Ideally, guards should only notice the meow the frame AFTER it happened,
+        // but this is good enough for now
+//        if (input.didAbility() && level.getAvatar() instanceof Cat ) {
+//            for (Enemy t : level.getEnemies()) {
+//                Guard guard = (Guard) t;
+//                float DISTRACT_DISTANCE = 5.0f;
+//                if (guard.getPosition().dst(avatar.getPosition()) < DISTRACT_DISTANCE) {
+////                    guard.setMeow(true);
+////                    guard.setTarget(avatar.getPosition());
+//                }
+//            }
+//        }
 
+		// Update guards
         guardToAIController.forEach((guard, controller) -> {
             controller.update();
-            guard.think(controller.getNextTargetLocation(), controller.getMovementDirection());
+            guard.think(controller.getMovementDirection(), controller.getNextTargetLocation());
         });
 
-        // Move guard
-        {
-            for (Enemy enemy : level.getEnemies()) {
-                if (!(enemy instanceof Guard)) {
-                    continue;
-                }
+		if (level.getProjectile().getToHide() == true) {
+			level.hideInkProjectile();
+			level.getProjectile().setToHide(false);
+		}
 
-                Guard guard = (Guard) enemy;
-                Vector2 guardPos = guard.getPosition();
-                Vector2 targetPos = level.getAvatar().getPosition();
-                Vector2 direction = guard.getMovementDirection();
-                System.out.println("Direction: " + direction);
-                if (direction == null) {
-                    System.out.println("This should not happen continously");
-                    return;
-                }
-                if (direction.len() > 0) {
-                    // Scale the direction vector by the guard's force
-                    direction.nor().scl(guard.getForce()*.2f);
+		Array<SecurityCamera> secCameras = level.getSecurityCameras();
+		for (int i = 0; i < secCameras.size; i++) {
+			secCameras.get(i).update(dt);
+		}
 
-                    // Tell Physics Engine where to move the guard
-                    guard.setMovement(direction);
-
-                    // Update guard orientation to face the target.
-                    guard.setAngle(direction.angleRad());
-                }
-
-
-                // Update the guard's orientation to face the direction of movement.
-//                Vector2 movement = guard.getMovement();
-//                if (movement.len2() > 0.0001f) { // Only update if there is significant movement
-//                    guard.setAngle(movement.angleRad() - (float) Math.PI / 2);
-//                }
-//
-
-                // Make Physics Engine calculate guard's movement for this frame
-                guard.applyForce();
-            }
-        }
-
-		// updateGuards();
+//		updateGuards();
 
 		// Turn the physics engine crank.
 		level.update(dt);
+        // System.out.print("\n\n");
 	}
 
 	/**
@@ -455,6 +540,8 @@ public class GameScene implements Screen, ContactListener {
 	public void draw() {
 		ScreenUtils.clear(0.39f, 0.58f, 0.93f, 1.0f);
 
+		// Set the camera's updated view
+		batch.setProjectionMatrix(camera.combined);
 		// Set the camera's updated view
 		batch.setProjectionMatrix(camera.combined);
 
@@ -528,6 +615,7 @@ public class GameScene implements Screen, ContactListener {
 		}
 	}
 
+
 	void updateGuards() {
 		Array<Enemy> enemies = level.getEnemies();
 		for (Enemy enemy : enemies) {
@@ -541,9 +629,9 @@ public class GameScene implements Screen, ContactListener {
 			if ((guard.isMeowed() && guard.getPosition().dst(guard.getTarget()) < 0.1f)) {
 				guard.setMeow(false);
 			}
-
 			// Check Field-of-view (FOV), making guard agroed if they see a player
 
+			moveGuard(guard);
 			if (guard.isMeowed()) {
 
 			}
@@ -554,16 +642,14 @@ public class GameScene implements Screen, ContactListener {
 
 	}
 
+
 	void moveGuard(Guard guard) {
 
-		Vector2 guardPos = guard.getPosition();
 
-		Vector2 targetPos = level.getAvatar().getPosition();
+        Vector2 direction = guard.getMovementDirection();
+        // System.out.print("Direction" + direction);
 
-		if (!guard.isAgroed() && !guard.isMeowed() && guard.getTarget() != null) {
-			targetPos = guard.getTarget();
-		}
-		Vector2 direction = new Vector2(targetPos).sub(guardPos);
+
 
 		if (direction.len() > 0) {
 			direction.nor().scl(guard.getForce());
@@ -576,14 +662,12 @@ public class GameScene implements Screen, ContactListener {
 			}
 
 			guard.setMovement(direction.x, direction.y);
-			// Update guard orientation to face the target.
-			guard.setAngle(direction.angleRad());
 		}
 
 		// Update the guard's orientation to face the direction of movement.
-		Vector2 movement = guard.getMovement();
+		Vector2 movement = guard.getMovementDirection();
 		if (movement.len2() > 0.0001f) { // Only update if there is significant movement
-			guard.setAngle(movement.angleRad() - (float) Math.PI / 2);
+			guard.setAngle(movement.angleRad() - (float) Math.PI/2);
 		}
 		guard.applyForce();
 
@@ -661,13 +745,67 @@ public class GameScene implements Screen, ContactListener {
             Obstacle cat = level.getCat().getObstacle();
             Obstacle oct = level.getOctopus().getObstacle();
             Obstacle exit = level.getExit().getObstacle();
+			Obstacle projectile = level.getProjectile().getObstacle();
             Array<Enemy> guards = level.getEnemies();
 
+			if ((o1 == projectile || o2 == projectile)) {
+				Array<SecurityCamera> secCameras = level.getSecurityCameras();
+				for (int i = 0; i < secCameras.size; i++) {
+					SecurityCamera cam = secCameras.get(i);
+					Obstacle camObstacle = secCameras.get(i).getObstacle();
+					if (o1 == camObstacle || o2 == camObstacle) {
+						cam.setDisabled(true);
+						break;
+					}
+				}
+				level.getProjectile().setToHide(true);
+			}
 
             for(Enemy guard : guards){
                 Obstacle enemy = guard.getObstacle();
                 if((o1 == cat && o2 == enemy) || (o2 == cat && o1 == enemy) || (o1 == oct && o2 == enemy) || (o2 == oct && o1 == enemy)){
                     setFailure(true);
+                }
+            }
+
+            // Handle key pickup
+            if(!keyCollected && level.getKey() != null) {
+                Obstacle keyObs = level.getKey().getObstacle();
+                if(((o1 == cat || o1 == oct) && o2 == keyObs) ||
+                    ((o2 == cat || o2 == oct) && o1 == keyObs)){
+                    keyCollected = true;
+                    level.getKey().setCollected(true);
+                    if (o1 == cat || o2 == cat){keyCollector = level.getCat();}
+                    else if (o1 == oct || o2 == oct){keyCollector = level.getOctopus();}
+
+                    // Display a message that key was collected
+                    BitmapFont font = directory.getEntry("display", BitmapFont.class);
+                    TextLayout message = new TextLayout("Key Collected!", font);
+                    message.setAlignment(TextAlign.middleCenter);
+                    message.setColor(Color.YELLOW);
+                    message.layout();
+                    ui.setFont(font);
+                    ui.setMessage(message);
+
+                    // Make the message disappear after a few seconds
+                    keyMessageTimer = 120; // 2 seconds at 60 fps
+                }
+            }
+            // Handle door unlocking
+            if(keyCollected && level.getExit().isLocked() && keyCollector != null) {
+                // Check if the key collector is standing on the door
+                if((o1 == keyCollector.getObstacle() && o2 == exit) ||
+                    (o2 == keyCollector.getObstacle() && o1 == exit)) {
+                    isUnlocking = true;
+
+                    // Display unlocking message
+                    BitmapFont font = directory.getEntry("display", BitmapFont.class);
+                    TextLayout message = new TextLayout("Unlocking Door: 0%", font);
+                    message.setAlignment(TextAlign.middleCenter);
+                    message.setColor(Color.YELLOW);
+                    message.layout();
+                    ui.setFont(font);
+                    ui.setMessage(message);
                 }
             }
 
@@ -685,32 +823,6 @@ public class GameScene implements Screen, ContactListener {
                     setComplete(true);
                 }
             }
-
-            // Handle key pickup
-            if(!keyCollected && level.getKey() != null) {
-                Obstacle keyObs = level.getKey().getObstacle();
-                if(((o1 == cat || o1 == oct) && o2 == keyObs) ||
-                    ((o2 == cat || o2 == oct) && o1 == keyObs)){
-                    keyCollected = true;
-                    level.getKey().setCollected(true);
-
-                    // Display a message that key was collected
-                    BitmapFont font = directory.getEntry("display", BitmapFont.class);
-                    TextLayout message = new TextLayout("Key Collected!", font);
-                    message.setAlignment(TextAlign.middleCenter);
-                    message.setColor(Color.YELLOW);
-                    message.layout();
-                    ui.setFont(font);
-                    ui.setMessage(message);
-
-                    // Make the message disappear after a few seconds
-                    keyMessageTimer = 120; // 2 seconds at 60 fps
-
-                    // Unlock the door
-                    level.getExit().setLocked(false);
-                }
-            }
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -736,6 +848,25 @@ public class GameScene implements Screen, ContactListener {
             Obstacle oct = level.getOctopus().getObstacle();
             Obstacle exit = level.getExit().getObstacle();
 
+            // Handle door unlocking cancellation
+            if(isUnlocking && keyCollector != null) {
+                // Check if the key collector left the door
+                if((o1 == keyCollector.getObstacle() && o2 == exit) ||
+                    (o2 == keyCollector.getObstacle() && o1 == exit)) {
+                    isUnlocking = false;
+                    unlockingTimer = 0;
+
+                    // Display message that unlocking was interrupted
+                    BitmapFont font = directory.getEntry("display", BitmapFont.class);
+                    TextLayout message = new TextLayout("Unlocking Interrupted!", font);
+                    message.setAlignment(TextAlign.middleCenter);
+                    message.setColor(Color.RED);
+                    message.layout();
+                    ui.setFont(font);
+                    ui.setMessage(message);
+                    keyMessageTimer = 60; // 1 second at 60 fps
+                }
+            }
 
             if(!level.getExit().isLocked()) {
                 if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
