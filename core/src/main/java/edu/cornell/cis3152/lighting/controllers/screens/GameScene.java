@@ -312,6 +312,7 @@ public class GameScene implements Screen, ContactListener {
 
 		if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
 			Octopus octopus = (Octopus) avatar;
+
 			if (input.isAbilityHeld()) {
 				octopus.setCurrentlyAiming(true);
 				Vector3 unprojected = camera.unproject(
@@ -334,17 +335,13 @@ public class GameScene implements Screen, ContactListener {
 			}
 
 			if (octopus.didFire()) {
-				// TODO: need to create a new projectile here
 				level.hideInkProjectile();
 				level.createInkProjectile();
 				octopus.setDidFire(false);
 			}
 
-			System.out.println(octopus.getTarget().len());
-			// System.out.println(level.getProjectile().getPosition().dst(avatar.getPosition()) * level.getLevelScaleX());
-			if ((level.getProjectile().getPosition().dst(avatar.getPosition())
-					* level.getLevelScaleX()) > (octopus.getTarget().len() * level.getLevelScaleX())) {
-				System.out.println("FUCK");
+			if ((level.getProjectile().getPosition().dst(avatar.getPosition()) * level.getLevelScaleX()) > (octopus
+					.getTarget().len())) {
 				level.getProjectile().setToHide(true);
 
 			}
@@ -621,11 +618,11 @@ public class GameScene implements Screen, ContactListener {
 					Obstacle o = secCameras.get(i).getObstacle();
 					if (bd1 == o || bd2 == o) {
 						// TODO: disable the camera HERE
-						contact.setEnabled(false);
-						level.getProjectile().setToHide(true);
-						return;
+						break;
 					}
 				}
+				contact.setEnabled(false);
+				level.getProjectile().setToHide(true);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

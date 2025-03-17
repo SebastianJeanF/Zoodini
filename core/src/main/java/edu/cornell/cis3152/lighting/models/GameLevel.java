@@ -38,6 +38,7 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
 import edu.cornell.cis3152.lighting.utils.HardEdgeLightShader;
+import edu.cornell.cis3152.lighting.utils.ZoodiniSprite;
 import edu.cornell.cis3152.lighting.controllers.InputController;
 import edu.cornell.cis3152.lighting.models.entities.Avatar;
 import edu.cornell.cis3152.lighting.models.entities.Cat;
@@ -100,7 +101,7 @@ public class GameLevel {
 	private boolean debug;
 
 	/** All the object sprites in the world. */
-	protected PooledList<ObstacleSprite> sprites = new PooledList<ObstacleSprite>();
+	protected PooledList<ZoodiniSprite> sprites = new PooledList<ZoodiniSprite>();
 
 	/** All the objects in the world. */
 	protected PooledList<Obstacle> objects = new PooledList<>();
@@ -356,6 +357,7 @@ public class GameLevel {
 		JsonValue projectileData = levelFormat.get("ink");
 		inkProjectile = new InkProjectile(directory, projectileData, units);
 		activate(inkProjectile);
+		inkProjectile.setDrawingEnabled(false);
 		inkProjectile.getObstacle().setActive(false);
 	}
 
@@ -512,7 +514,7 @@ public class GameLevel {
 	 *
 	 * @param obj The object to add
 	 */
-	protected void activate(ObstacleSprite sprite) {
+	protected void activate(ZoodiniSprite sprite) {
 		assert inBounds(sprite.getObstacle()) : "Object is not in bounds";
 		sprites.add(sprite);
 		objects.add(sprite.getObstacle());
@@ -537,16 +539,16 @@ public class GameLevel {
 	public void createInkProjectile() {
 		inkProjectile.setPosition(this.getAvatar().getPosition());
 		inkProjectile.getObstacle().setActive(true);
+		inkProjectile.setDrawingEnabled(true);
 		Octopus o = (Octopus) getAvatar();
 		Vector2 facing = o.getTarget().nor();
 		inkProjectile.setMovement(facing.x, facing.y);
 		inkProjectile.applyForce();
-		sprites.add(inkProjectile);
 	}
 
 	public void hideInkProjectile() {
 		inkProjectile.getObstacle().setActive(false);
-		sprites.remove(inkProjectile);
+		inkProjectile.setDrawingEnabled(false);
 	}
 
 	/**
@@ -608,8 +610,10 @@ public class GameLevel {
 	public void draw(SpriteBatch batch, Camera camera) {
 		// Draw the sprites first (will be hidden by shadows)
 		batch.begin(camera);
-		for (ObstacleSprite obj : sprites) {
-			obj.draw(batch);
+		for (ZoodiniSprite obj : sprites) {
+			if (obj.isDrawingEnabled()) {
+				obj.draw(batch);
+			}
 		}
 
 		Avatar avatar = getAvatar();

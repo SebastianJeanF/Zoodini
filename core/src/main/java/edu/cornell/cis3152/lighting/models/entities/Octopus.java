@@ -31,7 +31,7 @@ public class Octopus extends Avatar {
     }
 
     public Vector2 getTarget() {
-        return target;
+        return target.cpy();
     }
 
     public void setTarget(Vector2 aimVector) {
