@@ -5,6 +5,72 @@
 			"wrapU": "repeated",
 			"wrapV": "repeated"
     	},
+      "dude-idle": {
+        "file": 	"textures/walking.png",
+        "wrap":  	false,
+        "sprites":	{
+          "animation" : {
+            "size" : 4,
+            "rows" : 1,
+            "cols" : 4
+          }
+        }
+      },
+      "dude-walk": {
+        "file": 	"textures/walking.png",
+        "wrap":  	false,
+        "sprites":	{
+          "animation" : {
+            "size" : 4,
+            "rows" : 1,
+            "cols" : 4
+          }
+        }
+      },
+        "cat-idle": {
+            "file": 	"textures/cat_idle.png",
+            "wrap":  	false,
+            "sprites":	{
+            "animation" : {
+                "size" : 8,
+                "rows" : 2,
+                "cols" : 4
+            }
+            }
+        },
+      "cat-walk": {
+        "file": 	"textures/cat_walk.png",
+        "wrap":  	false,
+        "sprites":	{
+          "animation" : {
+            "size" : 4,
+            "rows" : 1,
+            "cols" : 4
+          }
+        }
+      },
+      "octopus-idle": {
+        "file": 	"textures/octopus_idle.png",
+        "wrap":  	false,
+        "sprites":	{
+          "animation" : {
+            "size" : 4,
+            "rows" : 1,
+            "cols" : 4
+          }
+        }
+      },
+      "octopus-walk": {
+        "file": 	"textures/otto_walk.png",
+        "wrap":  	false,
+        "sprites":	{
+          "animation" : {
+            "size" : 4,
+            "rows" : 1,
+            "cols" : 4
+          }
+        }
+      },
 		"ink-projectile": {
             "file":  "textures/ink_projectile.png",
             "wrap":   false,
@@ -16,17 +82,6 @@
                 }
             }
         },
-    	"dude": {
-    		"file": 	"textures/walking.png",
-    		"wrap":  	false,
-    		"sprites":	{
-				"walking" : {
-					"size" : 4,
-					"rows" : 1,
-					"cols" : 4
-				}
-    		}
-    	},
         "security-camera": {
             "file":  "textures/security_camera.png",
             "wrap":   false,

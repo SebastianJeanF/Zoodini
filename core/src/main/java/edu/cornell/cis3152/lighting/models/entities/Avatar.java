@@ -20,9 +20,13 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
 import edu.cornell.cis3152.lighting.models.GameLevel;
+import edu.cornell.cis3152.lighting.utils.animation.Animation;
+import edu.cornell.cis3152.lighting.utils.animation.AnimationController;
+import edu.cornell.cis3152.lighting.utils.animation.AnimationState;
 import edu.cornell.cis3152.lighting.utils.ZoodiniSprite;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.assets.ParserUtils;
+import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
@@ -42,15 +46,11 @@ public class Avatar extends ZoodiniSprite {
 
 	/** The current horizontal movement of the character */
 	private Vector2 movement = new Vector2();
-	/** Whether or not to animate the current frame */
-	private boolean animate = false;
 
 	/** How many frames until we can walk again */
 	private int walkCool;
 	/** The standard number of frames to wait until we can walk again */
 	private int walkLimit;
-	/** The initial starting frame of this sprite */
-	private int startFrame;
 
 	/** The rotational center of the filmstrip */
 	private Vector2 center;
@@ -64,8 +64,11 @@ public class Avatar extends ZoodiniSprite {
 		ENEMY
 	}
 
-	private AvatarType avatarType;
+	private final AvatarType avatarType;
 
+    private boolean flipped = false;
+
+    private final AnimationController animationController;
 	/**
 	 * Returns the avatar type.
 	 *
@@ -104,17 +107,6 @@ public class Avatar extends ZoodiniSprite {
 	 */
 	public Vector2 getMovement() {
 		return movement;
-	}
-
-	/**
-	 * Sets the directional movement of this character.
-	 *
-	 * This is the result of input times the avatar force.
-	 *
-	 * @param value the directional movement of this character.
-	 */
-	public void setMovement(Vector2 value) {
-		setMovement(value.x, value.y);
 	}
 
 	/**
@@ -191,41 +183,18 @@ public class Avatar extends ZoodiniSprite {
 		maxspeed = value;
 	}
 
-	/**
-	 * Returns the current animation frame of this avatar.
-	 *
-	 * @return the current animation frame of this avatar.
-	 */
-	public float getFrame() {
-		return sprite.getFrame();
-	}
-
-	/**
-	 * Sets the animation frame of this avatar.
-	 *
-	 * @param value animation frame of this avatar.
-	 */
-	public void setFrame(int value) {
-		sprite.setFrame(value);
-	}
-
-	/**
-	 * Returns the cooldown limit between walk animations
-	 *
-	 * @return the cooldown limit between walk animations
-	 */
-	public int getWalkLimit() {
-		return walkLimit;
-	}
-
-	/**
-	 * Sets the cooldown limit between walk animations
-	 *
-	 * @param value the cooldown limit between walk animations
-	 */
-	public void setWalkLimit(int value) {
-		walkLimit = value;
-	}
+    /**
+     * Returns whether the sprite is flipped horizontally
+     */
+    public boolean isFlipped() {
+        return flipped;
+    }
+    /**
+     * flips the sprite horizontally for when user moves left
+     */
+    public void flipSprite() {
+        flipped = !flipped;
+    }
 
 	/**
 	 * Creates a new avatar with from the given settings
@@ -257,7 +226,6 @@ public class Avatar extends ZoodiniSprite {
 		setForce(globals.getFloat("force"));
 		setDamping(globals.getFloat("damping"));
 		setMaxSpeed(globals.getFloat("maxspeed"));
-		setWalkLimit(globals.getInt("walklimit"));
 
 		// Create the collision filter (used for light penetration)
 		short collideBits = GameLevel.bitStringToShort(globals.getString("collide"));
@@ -269,16 +237,54 @@ public class Avatar extends ZoodiniSprite {
 
 		setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));
 
-		String key = globals.getString("texture");
-		startFrame = globals.getInt("startframe");
-		sprite = directory.getEntry(key, SpriteSheet.class);
-		sprite.setFrame(startFrame);
+        // Initialize animation controller
+        animationController = new AnimationController(AnimationState.IDLE);
+        // Load animations from JSON
+        setupAnimations(directory, globals);
 
-		float r = globals.getFloat("spriterad") * units;
+        float r = globals.getFloat("spriterad") * units;
 		mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 	}
 
-	/**
+    private void setupAnimations(AssetDirectory directory, JsonValue globals) {
+        JsonValue anims = globals.get("animations");
+        JsonValue startFrames = globals.get("startFrames");
+        if (anims != null) {
+            JsonValue frameDelays = globals.get("frameDelays");
+            addAnimation(directory, anims, "walk", AnimationState.WALK, frameDelays, true, startFrames.getInt("walk", 0));
+            addAnimation(directory, anims, "idle", AnimationState.IDLE, frameDelays, true, startFrames.getInt("idle", 0));
+        }
+
+        assert anims != null;
+        sprite = directory.getEntry(anims.getString("idle"), SpriteSheet.class);
+        sprite.setFrame(startFrames.getInt("idle", 0));
+    }
+
+    private void addAnimation(
+        AssetDirectory directory,
+        JsonValue anims, String name,
+        AnimationState state,
+        JsonValue frameDelays,
+        boolean loop,
+        int startFrame
+    ) {
+        String animKey = anims.getString(name, null);
+        int frameDelay = frameDelays.getInt(name, 1);
+
+        if (animKey != null) {
+            SpriteSheet animSheet = directory.getEntry(animKey, SpriteSheet.class);
+            Animation anim = new Animation(
+                animSheet,
+                startFrame,
+                animSheet.getSize() - 1,
+                frameDelay,
+                loop
+            );
+            animationController.addAnimation(state, anim);
+        }
+    }
+
+    /**
 	 * Applies the force to the body of this avatar
 	 *
 	 * This method should be called after the force attribute is set.
@@ -296,11 +302,16 @@ public class Avatar extends ZoodiniSprite {
 		if (getMovement().len2() > 0f) {
 			forceCache.set(getMovement());
 			obstacle.getBody().applyForce(forceCache, obstacle.getPosition(), true);
-			animate = true;
+            animationController.setState(AnimationState.WALK);
 		} else {
-			animate = false;
+            animationController.setState(AnimationState.IDLE);
 		}
 	}
+
+    // Method to manually set animation state (for attacks, jumps, etc.)
+    public void setAnimationState(AnimationState state) {
+        animationController.setState(state);
+    }
 
 	/**
 	 * Updates the object's physics state (NOT GAME LOGIC).
@@ -310,22 +321,39 @@ public class Avatar extends ZoodiniSprite {
 	 * @param dt number of seconds since last animation frame
 	 */
 	public void update(float dt) {
-		// Animate if necessary
-		if (animate && walkCool == 0) {
-			if (sprite != null) {
-				int next = (sprite.getFrame() + 1) % sprite.getSize();
-				sprite.setFrame(next);
-			}
-			walkCool = walkLimit;
-		} else if (walkCool > 0) {
-			walkCool--;
-		} else if (!animate) {
-			if (sprite != null) {
-				sprite.setFrame(startFrame);
-			}
-			walkCool = 0;
-		}
+        // Update animation controller
+        animationController.update();
 
-		obstacle.update(dt);
+        // This is the key fix - update the sprite reference itself
+        SpriteSheet currentSheet = animationController.getCurrentSpriteSheet();
+        if (currentSheet != null) {
+            sprite = currentSheet;  // Switch to the current animation's spritesheet
+        }
+
+        // Now setting the frame will work correctly
+        if (sprite != null) {
+            sprite.setFrame(animationController.getCurrentFrame());
+        }
+
+        obstacle.update(dt);
 	}
+
+    @Override
+    public void draw(SpriteBatch batch) {
+        if (this.obstacle != null && this.mesh != null) {
+            float x = this.obstacle.getX();
+            float y = this.obstacle.getY();
+            float a = this.obstacle.getAngle();
+            float u = this.obstacle.getPhysicsUnits();
+            this.transform.idt();
+            this.transform.preRotate((float)((double)(a * 180.0F) / Math.PI));
+            this.transform.preTranslate(x * u, y * u);
+            if (flipped) {
+                this.transform.scale(-1.0F, 1.0F);
+            }
+            batch.setTextureRegion(this.sprite);
+            batch.drawMesh(this.mesh, this.transform, false);
+            batch.setTexture(null);
+        }
+    }
 }

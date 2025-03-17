@@ -237,15 +237,6 @@ public class GameScene implements Screen, ContactListener {
 		cameraTransitionTimer = 0;
 		cameraTransitionDuration = directory.getEntry("constants", JsonValue.class)
 				.getFloat("CAMERA_INTERPOLATION_DURATION");
-		// System.out.println(cameraTransitionDuration);
-		inCameraTransition = false;
-		// Initialize camera tracking variables
-		cameraTargetPosition = new Vector2();
-		cameraPreviousPosition = new Vector2();
-		cameraTransitionTimer = 0;
-		cameraTransitionDuration = directory.getEntry("constants", JsonValue.class)
-				.getFloat("CAMERA_INTERPOLATION_DURATION");
-		// System.out.println(cameraTransitionDuration);
 		inCameraTransition = false;
 
         ui = new UIController();
@@ -387,7 +378,14 @@ public class GameScene implements Screen, ContactListener {
 			cameraTransitionTimer = 0;
 			inCameraTransition = true;
 		}
+
 		Avatar avatar = level.getAvatar();
+
+
+        // flips the sprite if the avatar is moving left
+        if (!avatar.isFlipped() && input.getHorizontal() == -1f || avatar.isFlipped() && input.getHorizontal() == 1f) {
+            avatar.flipSprite();
+        }
 
 		if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
 			Octopus octopus = (Octopus) avatar;
@@ -426,16 +424,6 @@ public class GameScene implements Screen, ContactListener {
 			}
 		}
 
-		// Update camera target to active avatar's position
-		cameraTargetPosition.set(avatar.getPosition());
-		// Update camera target to active avatar's position
-		cameraTargetPosition.set(avatar.getPosition());
-
-		// Update camera position with interpolation
-		updateCamera(dt);
-		// Update camera position with interpolation
-		updateCamera(dt);
-
 		// Rotate the avatar to face the direction of movement
 		angleCache.set(input.getHorizontal(), input.getVertical());
 		if (angleCache.len2() > 0.0f) {
@@ -448,8 +436,12 @@ public class GameScene implements Screen, ContactListener {
 		avatar.setMovement(angleCache.x, angleCache.y);
 		avatar.applyForce();
 
-
+        // Update camera target to active avatar's position
+        cameraTargetPosition.set(avatar.getPosition());
+        // Update camera position with interpolation
+        updateCamera(dt);
 		camera.update();
+
         ui.update();
 
         // Update key message timer
