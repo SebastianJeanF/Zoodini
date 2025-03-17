@@ -87,6 +87,29 @@ public class GameGraph {
     }
 
 
+    public void printGraph() {
+        Array<Node> nodes = this.graph.getNodes();
+        StringBuilder graphVisual = new StringBuilder();
+
+        for (Node node : nodes) {
+            graphVisual.append("Node index: ").append(node.index)
+                .append(", Grid coordinates: (").append(node.getTileCoords().x)
+                .append(",").append(node.getTileCoords().y)
+                .append("), Is obstacle: ").append(node.isObstacle()).append("\n");
+
+            for (Connection<Node> edge : node.edges) {
+                Node toNode = edge.getToNode();
+                graphVisual.append("  Edge to node index: ").append(toNode.index)
+                    .append(", Grid coordinates: (").append(toNode.getTileCoords().x)
+                    .append(",").append(toNode.getTileCoords().y)
+                    .append("), Cost: ").append(edge.getCost()).append("\n");
+            }
+        }
+
+        System.out.println(graphVisual.toString());
+    }
+
+
 //    public void printGrid() {
 //        Array<Node> nodes = this.graph.getNodes();
 //
@@ -123,6 +146,33 @@ public class GameGraph {
         return x >= 0 && x < this.COLS && y >= 0 && y < this.ROWS
             ? this.graph.getNodes().get(y * this.COLS + x)
             : null;
+    }
+
+    public boolean isObstacle(Vector2 pos) {
+        Node node = getNode(pos);
+        return node != null && node.isObstacle();
+    }
+
+    private Node findNearestNonObstacleNode(Vector2 pos) {
+        Node targetNode = this.getNode(pos);
+        if (targetNode == null || !targetNode.isObstacle) {
+            return targetNode;
+        }
+
+        float minDistance = Float.MAX_VALUE;
+        Node nearestNode = null;
+
+        for (Node node : this.graph.getNodes()) {
+            if (!node.isObstacle) {
+                float distance = node.getWorldPosition().dst(pos);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestNode = node;
+                }
+            }
+        }
+
+        return nearestNode;
     }
 
     /**
@@ -248,7 +298,6 @@ public class GameGraph {
 
         this.graph = new Graph(nodes);
 
-        System.out.println("Obstacle list size: " + obstacles.size());
         for (ObstacleSprite obs : obstacles) {
             if (!(obs instanceof InteriorWall)) {
                 continue;
@@ -257,7 +306,6 @@ public class GameGraph {
             float width = ((InteriorWall) obs).getWidth();
             float height = ((InteriorWall) obs).getHeight();
             Vector2 size = new Vector2(width, height);
-            System.out.println("Obstacle world position: " + pos + ", size: " + size);
 
             // Calculate the range of tiles covered by the obstacle
             int startX = MathUtils.floor((pos.x - size.x / 2) / TERRAIN_TILE_SIZE);
@@ -270,32 +318,13 @@ public class GameGraph {
                 for (int y = startY; y < endY; y++) {
                     Node node = getNode(new Vector2(x * TERRAIN_TILE_SIZE, y * TERRAIN_TILE_SIZE));
                     if (node != null) {
-                        System.out.println("Node index: " + node.index + ", Grid coordinates: (" +
-                            node.getTileCoords().x + "," + node.getTileCoords().y + ")");
                         node.isObstacle = true;
                     }
                 }
             }
         }
 
-//        System.out.println("Obstable list size: " + obstacles.size());
-//        for (Obstacle obs: obstacles) {
-//            Vector2 pos = obs.getPosition();
-//            System.out.println("Obstacle world position: " + pos);
-//            Node node = getNode(pos);
-//            if (node != null) {
-//                System.out.println("Node index: " + node.index + ", Grid coordinates: (" +
-//                    node.getTileCoords().x + "," + node.getTileCoords().y + ")");
-//                node.isObstacle = true;
-//            }
-//        }
-
         this.addEdges(nodes);
-
-
-        // TODO: Add walls to graph by reading game objects
-
-//        addEdges(nodes);
         this.aStarPathFinder = new IndexedAStarPathFinder<>(graph);
     }
 
@@ -309,8 +338,6 @@ public class GameGraph {
      * @return A list of nodes representing the path from start to target, excluding the start node
      */
     public List<Node> getPath(Vector2 currPos, Vector2 targetPos) {
-//        System.out.println(currPos);
-//        System.out.println(targetPos);
         GraphPath<Node> graphPath = new DefaultGraphPath<>();
         Node start = getNode(currPos);
         Node end = getNode(targetPos);
@@ -318,6 +345,22 @@ public class GameGraph {
         if (start == null || end == null) {
             System.err.println("Error: Start or end node is null.");
             return new ArrayList<>();
+        }
+
+        if (start.isObstacle) {
+            System.out.println("Start node is an obstacle.");
+            start = findNearestNonObstacleNode(targetPos);
+            if (start.isObstacle) {
+                System.out.println("No non-obstacle node found near start.");
+            }
+        }
+
+        if (end.isObstacle) {
+            System.out.println("End node is an obstacle.");
+            end = findNearestNonObstacleNode(targetPos);
+            if (end.isObstacle) {
+                System.out.println("No non-obstacle node found near end.");
+            }
         }
 
 
@@ -329,7 +372,20 @@ public class GameGraph {
                 path.add(node);
             }
         }
+
         return path;
+    }
+
+    public void printPath(List<Node> path) {
+        if (path.isEmpty()) {
+            System.out.println("No path found.");
+            return;
+        }
+        System.out.println("Printing path");
+        for (Node node : path) {
+            System.out.println("Node index: " + node.index + ", Grid coordinates: (" +
+                node.getTileCoords().x + "," + node.getTileCoords().y + ")");
+        }
     }
 
     /**

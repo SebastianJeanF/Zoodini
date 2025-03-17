@@ -250,7 +250,8 @@ public class GameScene implements Screen, ContactListener {
             guardToAIController.put(guard, aiController);
         }
 
-        gameGraph.printGrid();
+        // gameGraph.printGrid();
+        // gameGraph.printGraph();
     }
 
 	/**
@@ -408,6 +409,7 @@ public class GameScene implements Screen, ContactListener {
                 Vector2 guardPos = guard.getPosition();
                 Vector2 targetPos = level.getAvatar().getPosition();
                 Vector2 direction = guard.getMovementDirection();
+                System.out.println("Direction: " + direction);
                 if (direction == null) {
                     System.out.println("This should not happen continously");
                     return;
@@ -436,7 +438,7 @@ public class GameScene implements Screen, ContactListener {
             }
         }
 
-//		updateGuards();
+		// updateGuards();
 
 		// Turn the physics engine crank.
 		level.update(dt);
@@ -546,8 +548,8 @@ public class GameScene implements Screen, ContactListener {
 
 			}
 
-			guard.updatePatrol();
-			moveGuard(guard);
+			// guard.updatePatrol();
+			// moveGuard(guard);
 		}
 
 	}

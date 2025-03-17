@@ -144,26 +144,28 @@ public class GuardAIController {
     }
 
     private Vector2 getNextWaypointLocation(Vector2 targetLocation) {
+        System.out.println("Guard position: " + guard.getPosition());
+        System.out.println("Target position: " + targetLocation);
         List<Node> path = gameGraph.getPath(guard.getPosition().cpy(), targetLocation.cpy());
-//        System.out.println("path " + path);
+         gameGraph.printPath(path);
 
         if (path.isEmpty()) {
             if (currState == GuardState.CHASE) {
                 return player.getPosition().cpy();
             }
             return guard.getPosition().cpy();
-        }
+        } else {
+            int pathIdx = 0;
+            Vector2 nextStep = path.get(pathIdx).getWorldPosition().cpy();
+            final float MIN_STEP_DISTANCE = 5.0F;
 
-        int pathIdx = 0;
-        Vector2 nextStep = path.get(pathIdx).getWorldPosition().cpy();
-        final float MIN_STEP_DISTANCE = 5.0F;
-
-        // Skip steps that are too close to the guard to prevent jittering
-        while (nextStep.dst(guard.getPosition().cpy()) < MIN_STEP_DISTANCE && pathIdx < path.size() - 1) {
-            pathIdx++;
-            nextStep = path.get(pathIdx).getWorldPosition().cpy();
+            // Skip steps that are too close to the guard to prevent jittering
+            while (nextStep.dst(guard.getPosition().cpy()) < MIN_STEP_DISTANCE && pathIdx < path.size() - 1) {
+                pathIdx++;
+                nextStep = path.get(pathIdx).getWorldPosition().cpy();
+            }
+            return nextStep;
         }
-        return nextStep;
     }
 
     private void setNextTargetLocation() {
