@@ -239,7 +239,7 @@ public class GameScene implements Screen, ContactListener {
 	}
 
     public void initializeAIControllers() {
-        this.gameGraph = new GameGraph(16, 16, level.getBounds().x, level.getBounds().y, level.getObjects());
+        this.gameGraph = new GameGraph(12, 16, level.getBounds().x, level.getBounds().y, level.getSprites());
         Array<Enemy> enemies = level.getEnemies();
         for (Enemy enemy : enemies) {
             if (!(enemy instanceof Guard))
@@ -412,7 +412,7 @@ public class GameScene implements Screen, ContactListener {
 
 
 
-		updateGuards();
+//		updateGuards();
 
 		// Turn the physics engine crank.
 		level.update(dt);

@@ -6,8 +6,10 @@ import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.*;
+import edu.cornell.cis3152.lighting.models.nonentities.InteriorWall;
 import edu.cornell.gdiac.physics2.Obstacle;
 
+import edu.cornell.gdiac.physics2.ObstacleSprite;
 import java.lang.StringBuilder;
 import java.util.*;
 
@@ -38,7 +40,7 @@ public class GameGraph {
      * @param startY The y-coordinate of the bottom-left corner of the grid in world coordinates
      * @param obstacles A list of obstacle objects that should be considered impassable
      */
-    public GameGraph(int rows, int cols, float startX, float startY, List<Obstacle> obstacles) {
+    public GameGraph(int rows, int cols, float startX, float startY, List<ObstacleSprite> obstacles) {
         this.ROWS = rows;
         this.COLS = cols;
         this.startX = startX;
@@ -85,6 +87,23 @@ public class GameGraph {
     }
 
 
+//    public void printGrid() {
+//        Array<Node> nodes = this.graph.getNodes();
+//
+//        // Print rows in the same order as construction
+//        for (int row = 0; row < ROWS; row++) {
+//            System.out.printf("%2d: ", row);
+//            StringBuilder line = new StringBuilder();
+//            for (int col = 0; col < COLS; col++) {
+//                int index = row * COLS + col;
+//                Node node = nodes.get(index);
+//                line.append(node.isObstacle() ? "X " : ". ");
+//            }
+//            System.out.println(line);
+//        }
+//    }
+
+
     /**
      * Gets the node at the specified world position.
      * Converts the world position to grid coordinates and returns the corresponding node.
@@ -104,6 +123,20 @@ public class GameGraph {
         return x >= 0 && x < this.COLS && y >= 0 && y < this.ROWS
             ? this.graph.getNodes().get(y * this.COLS + x)
             : null;
+    }
+
+    /**
+     * Converts a world position to a graph index position.
+     * This translates the game world coordinates to the internal grid coordinates.
+     *
+     * @param pos The world position to convert
+     * @return A Vector2 containing the corresponding grid coordinates
+     */
+    public Vector2 worldToGraphIndex(Vector2 pos) {
+        Vector2 roundedPos = pos.cpy().set((float)Math.round(pos.x), (float)Math.round(pos.y));
+        Vector2 integerPoint = roundedPos.sub(this.startX, this.startY).scl(1.0F / this.TERRAIN_TILE_SIZE);
+        integerPoint.set((float)Math.round(integerPoint.x), (float)Math.round(integerPoint.y));
+        return integerPoint;
     }
 
     /**
@@ -202,28 +235,62 @@ public class GameGraph {
      *
      * @param obstacles A list of obstacle objects to mark as impassable
      */
-    private void initializeGraph(List<Obstacle> obstacles) {
+    private void initializeGraph(List<ObstacleSprite> obstacles) {
         Array<Node> nodes = new Array<>();
         int index = 0;
 
         for (int r = 0; r < ROWS; r++) {
             for(int c = 0; c < COLS; c++) {
-                Node n = new Node(new Vector2(c, r), false);
+                Node n = new Node(new Vector2(c, r), false, index++);
                 nodes.add(n);
-                index++;
             }
         }
 
         this.graph = new Graph(nodes);
-        this.addEdges(nodes);
 
-        for (Obstacle obs: obstacles) {
-            Vector2 pos = obs.getPosition();
-            Node node = getNode(pos);
-            if (node != null) {
-                node.isObstacle = true;
+        System.out.println("Obstacle list size: " + obstacles.size());
+        for (ObstacleSprite obs : obstacles) {
+            if (!(obs instanceof InteriorWall)) {
+                continue;
+            }
+            Vector2 pos = ((InteriorWall) obs).getPosition();
+            float width = ((InteriorWall) obs).getWidth();
+            float height = ((InteriorWall) obs).getHeight();
+            Vector2 size = new Vector2(width, height);
+            System.out.println("Obstacle world position: " + pos + ", size: " + size);
+
+            // Calculate the range of tiles covered by the obstacle
+            int startX = MathUtils.floor((pos.x - size.x / 2) / TERRAIN_TILE_SIZE);
+            int endX = MathUtils.ceil((pos.x + size.x / 2) / TERRAIN_TILE_SIZE);
+            int startY = MathUtils.floor((pos.y - size.y / 2) / TERRAIN_TILE_SIZE);
+            int endY = MathUtils.ceil((pos.y + size.y / 2) / TERRAIN_TILE_SIZE);
+
+            // Mark all nodes within the obstacle's area as obstacles
+            for (int x = startX; x < endX; x++) {
+                for (int y = startY; y < endY; y++) {
+                    Node node = getNode(new Vector2(x * TERRAIN_TILE_SIZE, y * TERRAIN_TILE_SIZE));
+                    if (node != null) {
+                        System.out.println("Node index: " + node.index + ", Grid coordinates: (" +
+                            node.getTileCoords().x + "," + node.getTileCoords().y + ")");
+                        node.isObstacle = true;
+                    }
+                }
             }
         }
+
+//        System.out.println("Obstable list size: " + obstacles.size());
+//        for (Obstacle obs: obstacles) {
+//            Vector2 pos = obs.getPosition();
+//            System.out.println("Obstacle world position: " + pos);
+//            Node node = getNode(pos);
+//            if (node != null) {
+//                System.out.println("Node index: " + node.index + ", Grid coordinates: (" +
+//                    node.getTileCoords().x + "," + node.getTileCoords().y + ")");
+//                node.isObstacle = true;
+//            }
+//        }
+
+        this.addEdges(nodes);
 
 
         // TODO: Add walls to graph by reading game objects
@@ -232,20 +299,6 @@ public class GameGraph {
         this.aStarPathFinder = new IndexedAStarPathFinder<>(graph);
     }
 
-
-    /**
-     * Converts a world position to a graph index position.
-     * This translates the game world coordinates to the internal grid coordinates.
-     *
-     * @param pos The world position to convert
-     * @return A Vector2 containing the corresponding grid coordinates
-     */
-    public Vector2 worldToGraphIndex(Vector2 pos) {
-        Vector2 roundedPos = pos.cpy().set(Math.round(pos.x), Math.round(pos.y));
-        Vector2 integerPoint = roundedPos.sub(this.startX, this.startY).scl(1.0F / TERRAIN_TILE_SIZE);
-        integerPoint.set(Math.round(integerPoint.x), Math.round(integerPoint.y));
-        return integerPoint;
-    }
 
     /**
      * Finds the shortest path between two positions in the world using A*.
@@ -331,7 +384,7 @@ public class GameGraph {
          * @return The index of the node
          */
         public int getIndex(Node node) {
-            return nodes.indexOf(node, true);
+            return node.index;
         }
 
         /**
@@ -370,6 +423,7 @@ public class GameGraph {
     public class Node {
         private Vector2 tileCoords;
         private boolean isObstacle;
+        private int index;
         public Array<Connection<Node>> edges = new Array<>();
 
         /**
@@ -378,9 +432,10 @@ public class GameGraph {
          * @param tileCoords The coordinates of this node in the grid
          * @param isObstacle Whether this node represents an impassable obstacle
          */
-        public Node(Vector2 tileCoords, boolean isObstacle) {
+        public Node(Vector2 tileCoords, boolean isObstacle, int index) {
             this.tileCoords = tileCoords;
             this.isObstacle = isObstacle;
+            this.index = index;
         }
 
         /**
