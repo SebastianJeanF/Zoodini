@@ -35,6 +35,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.*;
 
 import edu.cornell.cis3152.lighting.utils.HardEdgeLightShader;
@@ -53,6 +54,11 @@ import edu.cornell.cis3152.lighting.models.nonentities.InkProjectile;
 import edu.cornell.cis3152.lighting.models.nonentities.InteriorWall;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
+import edu.cornell.gdiac.math.Path2;
+import edu.cornell.gdiac.math.PathExtruder;
+import edu.cornell.gdiac.math.PathFactory;
+import edu.cornell.gdiac.math.Poly2;
+import edu.cornell.gdiac.math.PolyFactory;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.physics2.*;
 
@@ -657,18 +663,20 @@ public class GameLevel {
 	private void drawOctopusReticle(SpriteBatch batch, Camera camera) {
 		Octopus octopus = (Octopus) getAvatar();
 		batch.setTexture(null);
-		batch.setColor(Color.PURPLE);
+		batch.setColor(Color.BLACK);
 		float x = octopus.getObstacle().getX();
 		float y = octopus.getObstacle().getY();
 		float u = octopus.getObstacle().getPhysicsUnits();
 
 		Vector2 target = octopus.getTarget();
-		// TODO: fix the centering on this and stuff
-		Rectangle rect = new Rectangle(x, y - 2, target.len(), 2);
+
+		// TODO: a couple of magic numbers here need to be config values I think
+		Path2 reticlePath = new PathFactory().makeCircle(target.x, target.y, 25);
+		PathExtruder extruder = new PathExtruder(reticlePath);
+		extruder.calculate(3);
 		Affine2 transform = new Affine2();
-		transform.preRotate(target.angleDeg());
 		transform.preTranslate(x * u, y * u);
-		batch.fill(rect, transform);
+		batch.draw((TextureRegion) null, extruder.getPolygon(), transform);
 		batch.setColor(Color.WHITE);
 	}
 

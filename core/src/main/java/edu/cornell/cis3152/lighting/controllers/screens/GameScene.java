@@ -321,7 +321,7 @@ public class GameScene implements Screen, ContactListener {
 						unprojected.y / level.getLevelScaleY());
 
 				// TODO: max length should be a configurable value
-				float scale = Math.min(cacheVec.dst(avatar.getPosition()) * level.getLevelScaleX(), 200);
+				float scale = Math.min(cacheVec.dst(avatar.getPosition()) * level.getLevelScaleX(), 250);
 				double dx = avatar.getPosition().x - cacheVec.x;
 				double dy = avatar.getPosition().y - cacheVec.y;
 				float angleRad = -((float) (Math.atan2(dx, dy) + Math.toRadians(90))); // scuffed math (TODO: fix?)
