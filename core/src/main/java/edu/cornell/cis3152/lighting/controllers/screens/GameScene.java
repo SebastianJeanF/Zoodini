@@ -74,6 +74,14 @@ public class GameScene implements Screen, ContactListener {
     private boolean keyCollected = false;
     /** Timer for how long to display the key message */
     private int keyMessageTimer = 0;
+    /** The character that collected the key */
+    private Avatar keyCollector = null;
+    /** Timer for how long the door has been unlocking */
+    private int unlockingTimer = 0;
+    /** Duration required to unlock the door (in frames) */
+    private static final int UNLOCK_DURATION = 180;
+    /** Whether the door is currently being unlocking */
+    private boolean isUnlocking = false;
 
 	/** The orthographic camera */
 	private OrthographicCamera camera;
@@ -265,6 +273,9 @@ public class GameScene implements Screen, ContactListener {
         catArrived = false;
         octopusArrived = false;
         keyCollected = false;
+        keyCollector = null;
+        unlockingTimer = 0;
+        isUnlocking = false;
         ui.reset();
 
 		setComplete(false);
@@ -384,6 +395,41 @@ public class GameScene implements Screen, ContactListener {
                 ui.setMessage(null); // Clear message when timer expires
             }
         }
+
+        // Update door unlocking progress
+        if(isUnlocking) {
+            unlockingTimer++;
+
+            // Update unlocking message percentage
+            if (unlockingTimer % 15 == 0) { // Update message every 1/4 second
+                BitmapFont font = directory.getEntry("display", BitmapFont.class);
+                TextLayout message = new TextLayout("Unlocking Door: " +
+                    Math.round((float) unlockingTimer / UNLOCK_DURATION * 100) + "%",
+                    font);
+                message.setAlignment(TextAlign.middleCenter);
+                message.setColor(Color.YELLOW);
+                message.layout();
+                ui.setFont(font);
+                ui.setMessage(message);
+            }
+            // Check if door is fully unlocked
+            if (unlockingTimer >= UNLOCK_DURATION) {
+                level.getExit().setLocked(false);
+                isUnlocking = false;
+
+                // Show door unlocked message
+                BitmapFont font = directory.getEntry("display", BitmapFont.class);
+                TextLayout message = new TextLayout("Door Unlocked!", font);
+                message.setAlignment(TextAlign.middleCenter);
+                message.setColor(Color.GREEN);
+                message.layout();
+                ui.setFont(font);
+                ui.setMessage(message);
+                keyMessageTimer = 120; // 2 seconds at 60 fps to show unlock message
+            }
+        }
+
+
         // Deactivate collected key's physics body if needed
         if (keyCollected && level.getKey() != null && level.getKey().getObstacle().isActive()) {
             // This is the safe time to modify physics bodies
@@ -637,21 +683,6 @@ public class GameScene implements Screen, ContactListener {
                 }
             }
 
-            // Handle exit collision (only if door is unlocked)
-            if(!level.getExit().isLocked()) {
-                if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
-                    catArrived = true;
-                }
-
-                if((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)){
-                    octopusArrived = true;
-                }
-
-                if(catArrived && octopusArrived && !failed){
-                    setComplete(true);
-                }
-            }
-
             // Handle key pickup
             if(!keyCollected && level.getKey() != null) {
                 Obstacle keyObs = level.getKey().getObstacle();
@@ -659,6 +690,8 @@ public class GameScene implements Screen, ContactListener {
                     ((o2 == cat || o2 == oct) && o1 == keyObs)){
                     keyCollected = true;
                     level.getKey().setCollected(true);
+                    if (o1 == cat || o2 == cat){keyCollector = level.getCat();}
+                    else if (o1 == oct || o2 == oct){keyCollector = level.getOctopus();}
 
                     // Display a message that key was collected
                     BitmapFont font = directory.getEntry("display", BitmapFont.class);
@@ -671,9 +704,38 @@ public class GameScene implements Screen, ContactListener {
 
                     // Make the message disappear after a few seconds
                     keyMessageTimer = 120; // 2 seconds at 60 fps
+                }
+            }
+            // Handle door unlocking
+            if(keyCollected && level.getExit().isLocked() && keyCollector != null) {
+                // Check if the key collector is standing on the door
+                if((o1 == keyCollector.getObstacle() && o2 == exit) ||
+                    (o2 == keyCollector.getObstacle() && o1 == exit)) {
+                    isUnlocking = true;
 
-                    // Unlock the door
-                    level.getExit().setLocked(false);
+                    // Display unlocking message
+                    BitmapFont font = directory.getEntry("display", BitmapFont.class);
+                    TextLayout message = new TextLayout("Unlocking Door: 0%", font);
+                    message.setAlignment(TextAlign.middleCenter);
+                    message.setColor(Color.YELLOW);
+                    message.layout();
+                    ui.setFont(font);
+                    ui.setMessage(message);
+                }
+            }
+
+            // Handle exit collision (only if door is unlocked)
+            if(!level.getExit().isLocked()) {
+                if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
+                    catArrived = true;
+                }
+
+                if((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)){
+                    octopusArrived = true;
+                }
+
+                if(catArrived && octopusArrived && !failed){
+                    setComplete(true);
                 }
             }
 
@@ -702,6 +764,25 @@ public class GameScene implements Screen, ContactListener {
             Obstacle oct = level.getOctopus().getObstacle();
             Obstacle exit = level.getExit().getObstacle();
 
+            // Handle door unlocking cancellation
+            if(isUnlocking && keyCollector != null) {
+                // Check if the key collector left the door
+                if((o1 == keyCollector.getObstacle() && o2 == exit) ||
+                    (o2 == keyCollector.getObstacle() && o1 == exit)) {
+                    isUnlocking = false;
+                    unlockingTimer = 0;
+
+                    // Display message that unlocking was interrupted
+                    BitmapFont font = directory.getEntry("display", BitmapFont.class);
+                    TextLayout message = new TextLayout("Unlocking Interrupted!", font);
+                    message.setAlignment(TextAlign.middleCenter);
+                    message.setColor(Color.RED);
+                    message.layout();
+                    ui.setFont(font);
+                    ui.setMessage(message);
+                    keyMessageTimer = 60; // 1 second at 60 fps
+                }
+            }
 
             if(!level.getExit().isLocked()) {
                 if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
