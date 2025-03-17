@@ -24,7 +24,6 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
-import edu.cornell.cis3152.lighting.controllers.AIController;
 import edu.cornell.cis3152.lighting.controllers.GuardAIController;
 import edu.cornell.cis3152.lighting.controllers.InputController;
 import edu.cornell.cis3152.lighting.controllers.UIController;
@@ -111,8 +110,6 @@ public class GameScene implements Screen, ContactListener {
 	private boolean failed;
 	/** Countdown active for winning or losing */
 	private int countdown;
-	/** Controller for guards and security cameras */
-	private AIController aiController;
 
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
@@ -758,7 +755,6 @@ public class GameScene implements Screen, ContactListener {
 						break;
 					}
 				}
-				contact.setEnabled(false);
 				level.getProjectile().setToHide(true);
 			}
 
