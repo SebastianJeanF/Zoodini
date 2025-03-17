@@ -544,6 +544,9 @@ public class GameLevel {
             for (Enemy e : enemies) {
                 e.update(dt);
             }
+            for (SecurityCamera c : securityCameras) {
+                c.update(dt);
+            }
             inkProjectile.update(dt);
         }
     }
