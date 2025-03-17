@@ -143,4 +143,9 @@ public class Guard extends Enemy {
     public void setChaseTimer(int value) {
         chaseTimer = value;
     }
+
+
+    public void update(float dt) {
+        applyForce();
+    }
 }

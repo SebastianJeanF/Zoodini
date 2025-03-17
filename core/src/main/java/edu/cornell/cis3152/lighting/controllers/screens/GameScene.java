@@ -436,7 +436,7 @@ public class GameScene implements Screen, ContactListener {
             }
         }
 
-		updateGuards();
+//		updateGuards();
 
 		// Turn the physics engine crank.
 		level.update(dt);
