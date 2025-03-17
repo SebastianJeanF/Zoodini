@@ -2,9 +2,8 @@ package edu.cornell.cis3152.lighting.models.entities;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.JsonValue;
-
-import edu.cornell.cis3152.lighting.models.entities.Avatar;
 import edu.cornell.gdiac.assets.AssetDirectory;
+import edu.cornell.gdiac.graphics.SpriteMesh;
 
 /**
  * Player avatar for the plaform game.
@@ -13,6 +12,9 @@ import edu.cornell.gdiac.assets.AssetDirectory;
  * by reading the JSON value.
  */
 public class Octopus extends Avatar {
+    /// Whether or not this Otto instance has triggered the blind action
+    private boolean inked;
+    private final float OCTOPUS_IMAGE_SCALE = 1.25f;
     /// Whether this Octopus is currently aiming at a target
     private boolean currentlyAiming;
 
@@ -21,6 +23,8 @@ public class Octopus extends Avatar {
 
     /// Whether this Octopus has fired an ink projectile
     private boolean didFire;
+
+
 
     public boolean didFire() {
         return didFire;
@@ -36,6 +40,15 @@ public class Octopus extends Avatar {
 
     public void setTarget(Vector2 aimVector) {
         this.target.set(aimVector);
+    }
+
+    /**
+     * Gets the current value of <code>inked</code>.
+     *
+     * @return Whether this Otto instance has inked
+     */
+    public boolean getInked() {
+        return inked;
     }
 
     /**
@@ -58,6 +71,14 @@ public class Octopus extends Avatar {
 
     public Octopus(AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
         super(AvatarType.OCTOPUS, directory, json, globals, units);
+        float r = globals.getFloat("spriterad") * OCTOPUS_IMAGE_SCALE * units;
+        mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
         target = new Vector2();
+    }
+
+    @Override
+    public void update(float dt){
+        super.update(dt);
+        setAngle(0);
     }
 }

@@ -50,4 +50,10 @@ public class Cat extends Avatar {
     public Cat(AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
         super(AvatarType.CAT, directory, json, globals, units);
     }
+
+    @Override
+    public void update(float dt){
+        super.update(dt);
+        setAngle(0);
+    }
 }

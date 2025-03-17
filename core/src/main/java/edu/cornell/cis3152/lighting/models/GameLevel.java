@@ -421,7 +421,7 @@ public class GameLevel {
 
         for(SecurityCamera cam : securityCameras){
             VisionCone vc = new VisionCone(rayNum, Vector2.Zero, radius, 0.0f, wideness, c, units, mask, category);
-            vc.attachToBody(cam.getObstacle().getBody(), 90.0f);
+            vc.attachToBody(cam.getObstacle().getBody(), 180.0f);
             visions.put(cam, vc);
         }
 
@@ -505,15 +505,15 @@ public class GameLevel {
 	}
 
 	/**
-	 * Updates all of the models in the level.
-	 *
-	 * This is borderline controller functionality. However, we have to do this
-	 * because
-	 * of how tightly coupled everything is.
-	 *
-	 * @param dt the time passed since the last frame
-	 */
-	public boolean update(float dt) {
+     * Updates all of the models in the level.
+     * <p>
+     * This is borderline controller functionality. However, we have to do this
+     * because
+     * of how tightly coupled everything is.
+     *
+     * @param dt the time passed since the last frame
+     */
+	public void update(float dt) {
 		if (fixedStep(dt)) {
             for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry: visions.entries()){
                 VisionCone v = entry.value;
@@ -549,11 +549,12 @@ public class GameLevel {
 
 			avatarCat.update(dt);
 			avatarOctopus.update(dt);
-			inkProjectile.update(dt);
-			return true;
-		}
-		return false;
-	}
+            for (Enemy e : enemies) {
+                e.update(dt);
+            }
+            inkProjectile.update(dt);
+        }
+    }
 
 	/**
 	 * Fixes the physics frame rate to be in sync with the animation framerate
