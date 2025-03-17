@@ -94,7 +94,7 @@
             }
         },
         "goal": "textures/helicopter.png",
-        "key": "textures/key.png",
+        "key": "textures/key-sprite.png",
         "locked_door": "textures/locked_door.png",
         "unlocked_door": "textures/panda-sprite.png"
   	},

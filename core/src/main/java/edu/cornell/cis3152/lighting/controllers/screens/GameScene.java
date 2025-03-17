@@ -430,9 +430,6 @@ public class GameScene implements Screen, ContactListener {
             // Start camera transition
             cameraTransitionTimer = 0;
             inCameraTransition = true;
-            // Start camera transition
-            cameraTransitionTimer = 0;
-            inCameraTransition = true;
         }
     }
 

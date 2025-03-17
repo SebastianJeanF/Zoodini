@@ -37,13 +37,7 @@ import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.*;
-
-import com.badlogic.gdx.utils.ObjectMap.Entries;
-import com.badlogic.gdx.utils.ObjectMap.Entry;
-import com.badlogic.gdx.utils.ObjectMap.Values;
-import edu.cornell.cis3152.lighting.utils.HardEdgeLightShader;
 import edu.cornell.cis3152.lighting.utils.ZoodiniSprite;
-import edu.cornell.cis3152.lighting.controllers.InputController;
 import edu.cornell.cis3152.lighting.models.entities.Avatar;
 import edu.cornell.cis3152.lighting.models.entities.Cat;
 import edu.cornell.cis3152.lighting.models.entities.Enemy;
@@ -62,8 +56,6 @@ import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.math.Path2;
 import edu.cornell.gdiac.math.PathExtruder;
 import edu.cornell.gdiac.math.PathFactory;
-import edu.cornell.gdiac.math.Poly2;
-import edu.cornell.gdiac.math.PolyFactory;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.physics2.*;
 
