@@ -14,6 +14,7 @@ public class Guard extends Enemy {
     private boolean meowed;
     private int chaseTimer;
     private boolean cameraAlerted;
+    private Avatar aggroTarget;
 
     /** The position that this guard should move to */
     Vector2 target = null;
@@ -49,7 +50,7 @@ public class Guard extends Enemy {
         } else {
             // Fallback to default patrol points if none are provided in JSON.
             patrolPoints = new Vector2[] {
-                    new Vector2(10.5f, 8),
+                    new Vector2(4f, 8),
                     new Vector2(14, 8)
             };
         }
@@ -132,6 +133,14 @@ public class Guard extends Enemy {
      * */
     public boolean isMeowed() {
         return meowed;
+    }
+
+    public Avatar getAggroTarget() {
+        return aggroTarget;
+    }
+
+    public void setAggroTarget(Avatar target) {
+        aggroTarget = target;
     }
 
     /** This timer is used to determine how long a guard should chase a player

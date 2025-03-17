@@ -37,6 +37,7 @@ import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.*;
+import edu.cornell.cis3152.lighting.models.nonentities.*;
 import edu.cornell.cis3152.lighting.utils.ZoodiniSprite;
 import edu.cornell.cis3152.lighting.models.entities.Avatar;
 import edu.cornell.cis3152.lighting.models.entities.Cat;
@@ -45,11 +46,6 @@ import edu.cornell.cis3152.lighting.models.entities.Guard;
 import edu.cornell.cis3152.lighting.models.entities.Octopus;
 import edu.cornell.cis3152.lighting.models.entities.SecurityCamera;
 import edu.cornell.cis3152.lighting.models.entities.Avatar.AvatarType;
-import edu.cornell.cis3152.lighting.models.nonentities.Exit;
-import edu.cornell.cis3152.lighting.models.nonentities.ExteriorWall;
-import edu.cornell.cis3152.lighting.models.nonentities.InkProjectile;
-import edu.cornell.cis3152.lighting.models.nonentities.InteriorWall;
-import edu.cornell.cis3152.lighting.models.nonentities.Key;
 import edu.cornell.cis3152.lighting.utils.VisionCone;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
@@ -88,7 +84,10 @@ public class GameLevel {
 	private boolean catActive;
 
 	/** Reference to the goalDoor (for collision detection) */
-	private Exit goalDoor;
+	private Door goalDoor;
+
+    /** Reference to the exit (for collision detection) */
+    private Exit exit;
 
     private OrthographicCamera raycamera;
 
@@ -195,13 +194,22 @@ public class GameLevel {
 
 
 	/**
-	 * Returns a reference to the exit door
+	 * Returns a reference to the door
 	 *
-	 * @return a reference to the exit door
+	 * @return a reference to the door
 	 */
-	public Exit getExit() {
+	public Door getDoor() {
 		return goalDoor;
 	}
+
+    /**
+     * Returns a reference to the exit area
+     *
+     * @return a reference to the exit area
+     */
+    public Exit getExit() {
+        return exit;
+    }
 
 	public Array<SecurityCamera> getSecurityCameras() {
 		return securityCameras;
@@ -328,8 +336,11 @@ public class GameLevel {
 		maxTimePerFrame = timeStep * maxSteps;
 
 		// Walls
-		goalDoor = new Exit(directory, levelFormat.get("exit"), levelGlobals.get("exit"), units);
+		goalDoor = new Door(directory, levelFormat.get("door"), levelGlobals.get("door"), units);
 		activate(goalDoor);
+
+        exit = new Exit(directory, levelFormat.get("exit"), levelGlobals.get("exit"), units);
+        activate(exit);
 
         // Create the key
         if (levelFormat.has("key")) {
@@ -515,6 +526,7 @@ public class GameLevel {
                     if(key instanceof Guard){
                         ((Guard) key).setTarget(avatarCat.getPosition()); // TODO: this line might not be needed
                         ((Guard) key).setAgroed(true);
+                        ((Guard) key).setAggroTarget(avatarCat);
                     } else if(key instanceof SecurityCamera){
                         SecurityCamera camera = (SecurityCamera)key;
                         if(!camera.isDisabled()) {
@@ -523,6 +535,7 @@ public class GameLevel {
                                 if(e instanceof Guard) {
                                     Guard guard = (Guard)e;
                                     guard.setTarget(avatarCat.getPosition());
+                                    guard.setAggroTarget(avatarCat);
                                     guard.setCameraAlerted(true);
                                 }
                             }
@@ -533,6 +546,7 @@ public class GameLevel {
                     if(key instanceof Guard){
                         ((Guard) key).setTarget(avatarOctopus.getPosition()); // TODO: this line might not be needed
                         ((Guard) key).setAgroed(true);
+                        ((Guard) key).setAggroTarget(avatarOctopus);
                     } else if(key instanceof SecurityCamera){
                         SecurityCamera camera = (SecurityCamera)key;
                         if(!camera.isDisabled()) {
@@ -541,6 +555,7 @@ public class GameLevel {
                                 if(e instanceof Guard) {
                                     Guard guard = (Guard)e;
                                     guard.setTarget(avatarOctopus.getPosition());
+                                    guard.setAggroTarget(avatarOctopus);
                                     guard.setCameraAlerted(true);
                                 }
                             }
@@ -554,18 +569,6 @@ public class GameLevel {
                     if(key instanceof Guard){
                         ((Guard) key).setAgroed(false);
                     }
-                }
-
-                // TODO: this makes the guard instantly lose agro
-                // if the player is not in the vision cone.
-                // We want the guard to keep chasing the player for a
-                // little while after the player leaves the vision cone,
-                // so this should eventually be removed
-                else {
-//
-//                    if(key instanceof Guard){
-//                        ((Guard) key).setAgroed(false);
-//                    }
                 }
             }
 

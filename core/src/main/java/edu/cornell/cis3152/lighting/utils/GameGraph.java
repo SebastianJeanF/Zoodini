@@ -29,7 +29,7 @@ public class GameGraph {
     /** The y-coordinate of the bottom-left corner of the grid in world coordinates */
     private final float startY;
     /** The size of each tile in the grid */
-    private final float TERRAIN_TILE_SIZE = 1.0f;
+    private final float TERRAIN_TILE_SIZE = 1f;
 
     /**
      * Constructs a new GameGraph with the specified dimensions and obstacles.
@@ -354,7 +354,7 @@ public class GameGraph {
         }
 
         if (start.isObstacle) {
-            System.out.println("Start node is an obstacle.");
+//            System.out.println("Start node is an obstacle.");
             start = findNearestNonObstacleNode(targetPos);
             if (start.isObstacle) {
                 System.out.println("No non-obstacle node found near start.");
@@ -362,7 +362,7 @@ public class GameGraph {
         }
 
         if (end.isObstacle) {
-            System.out.println("End node is an obstacle.");
+//            System.out.println("End node is an obstacle.");
             end = findNearestNonObstacleNode(targetPos);
             if (end.isObstacle) {
                 System.out.println("No non-obstacle node found near end.");

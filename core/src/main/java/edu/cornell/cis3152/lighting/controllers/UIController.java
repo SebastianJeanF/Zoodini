@@ -41,9 +41,9 @@ public class UIController {
         batch.begin(camera);
 
         if(message != null) {
-            batch.setBlur(0.5f);
+            batch.flush();
             batch.drawText(message, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
-            batch.setBlur(0.0f);
+            batch.flush();
         }
 
         batch.end();

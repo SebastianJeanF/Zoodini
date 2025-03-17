@@ -42,6 +42,7 @@ public class GuardAIController {
     private final float WAYPOINT_RADIUS = 1.0F;
 
     private final int DEAGRRO_PERIOD = 60;
+    private final int ALERT_DEAGRRO_PERIOD = 300;
     private int deAggroTimer = DEAGRRO_PERIOD;
 
 
@@ -125,10 +126,14 @@ public class GuardAIController {
 //                if (checkPlayerIsSpotted()) {
                 if (isMaxSuspicion() || guard.isCameraAlerted()) {
                     currState = GuardState.CHASE;
-                    deAggroTimer = DEAGRRO_PERIOD;
+                    deAggroTimer = guard.isCameraAlerted()
+                        ? ALERT_DEAGRRO_PERIOD
+                        : DEAGRRO_PERIOD;
+
                 }
                 else if (tempDistract) {
                     currState = GuardState.DISTRACTED;
+                    guard.setMeow(true);
                 }
                 break;
             case CHASE:
@@ -144,13 +149,24 @@ public class GuardAIController {
                     currState = GuardState.PATROL;
                 } else if (isMaxSuspicion() || guard.isCameraAlerted()) {
                     currState = GuardState.CHASE;
-                    deAggroTimer = DEAGRRO_PERIOD;
+                    deAggroTimer = guard.isCameraAlerted()
+                        ? ALERT_DEAGRRO_PERIOD
+                        : DEAGRRO_PERIOD;
                 }
                 break;
             case DISTRACTED:
-                if (guard.getPosition().dst(distractPosition) <= WAYPOINT_RADIUS) {
-                    currState = GuardState.PATROL;
+                if (isMaxSuspicion() || guard.isCameraAlerted()) {
+                    currState = GuardState.CHASE;
+                    deAggroTimer = guard.isCameraAlerted()
+                        ? ALERT_DEAGRRO_PERIOD
+                        : DEAGRRO_PERIOD;
+                    guard.setMeow(false);
                 }
+                else if (guard.getPosition().dst(distractPosition) <= WAYPOINT_RADIUS) {
+                    currState = GuardState.PATROL;
+                    guard.setMeow(false);
+                }
+
                 break;
             default: // Should not happen
                 break;
@@ -219,7 +235,8 @@ public class GuardAIController {
                 tempDistract = didDistractionOccur();
 
                 if (isMaxSuspicion() || guard.isCameraAlerted()) { // suspicion level above threshold
-                    targetPlayer = getActivePlayer();
+//                    targetPlayer = getActivePlayer();
+                    targetPlayer = guard.getAggroTarget();
                     nextTargetLocation = getNextWaypointLocation(targetPlayer.getPosition());
                 }
                 else if (tempDistract) { // distraction occurred
@@ -250,6 +267,13 @@ public class GuardAIController {
                 if (waypoints.length == 0) {
                     return;
                 }
+                if (isMaxSuspicion() || guard.isCameraAlerted()) { // suspicion level above threshold
+//                    targetPlayer = getActivePlayer();
+                    targetPlayer = guard.getAggroTarget();
+                    nextTargetLocation = getNextWaypointLocation(targetPlayer.getPosition());
+                    return;
+                }
+
                 // Find nearest waypoint to return to
                 Vector2 nearestWaypoint = findNearestWaypoint();
                 this.nextTargetLocation = getNextWaypointLocation(nearestWaypoint);
@@ -258,6 +282,14 @@ public class GuardAIController {
 //                // System.out.print("distraction position: " + distractPosition);
                 Vector2 tmp = getNextWaypointLocation(distractPosition);
 //                // System.out.print("Next waypoint: " + tmp);
+
+                if (isMaxSuspicion() || guard.isCameraAlerted()) { // suspicion level above threshold
+//                    targetPlayer = getActivePlayer();
+                    targetPlayer = guard.getAggroTarget();
+                    nextTargetLocation = getNextWaypointLocation(targetPlayer.getPosition());
+                    return;
+                }
+
                 this.nextTargetLocation = tmp;
                 break;
             default:

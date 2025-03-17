@@ -466,7 +466,7 @@ public class GameScene implements Screen, ContactListener {
             }
             // Check if door is fully unlocked
             if (unlockingTimer >= UNLOCK_DURATION) {
-                level.getExit().setLocked(false);
+                level.getDoor().setLocked(false);
                 isUnlocking = false;
 
                 // Show door unlocked message
@@ -563,7 +563,7 @@ public class GameScene implements Screen, ContactListener {
 
 		level.draw(batch, camera);
 
-		// Final message
+        // Final message
         ui.draw(batch);
 
 	}
@@ -642,9 +642,11 @@ public class GameScene implements Screen, ContactListener {
 			// Check for meow alert (Gar) or inked alert (Otto)
 
 			// Reset meow alert when the guard reaches its target
-			if ((guard.isMeowed() && guard.getPosition().dst(guard.getTarget()) < 0.1f)) {
-				guard.setMeow(false);
-			}
+//			if ((guard.isMeowed() && guard.getPosition().dst(guard.getTarget()) < 0.1f)) {
+//				guard.setMeow(false);
+//			}
+
+
 			// Check Field-of-view (FOV), making guard agroed if they see a player
 
 			moveGuard(guard);
@@ -754,7 +756,10 @@ public class GameScene implements Screen, ContactListener {
 		Object fd1 = fix1.getUserData();
 		Object fd2 = fix2.getUserData();
 
-		try {
+        boolean gameOver = countdown != -1;
+        if (gameOver) return;
+
+        try {
 
             Obstacle o1 = (Obstacle) body1.getUserData();
             Obstacle o2 = (Obstacle) body2.getUserData();
@@ -762,6 +767,7 @@ public class GameScene implements Screen, ContactListener {
             Obstacle cat = level.getCat().getObstacle();
             Obstacle oct = level.getOctopus().getObstacle();
             Obstacle exit = level.getExit().getObstacle();
+            Obstacle door = level.getDoor().getObstacle();
 			Obstacle projectile = level.getProjectile().getObstacle();
             Array<Enemy> guards = level.getEnemies();
 
@@ -777,6 +783,7 @@ public class GameScene implements Screen, ContactListener {
 				}
 				level.getProjectile().setToHide(true);
 			}
+
 
             for(Enemy guard : guards){
                 Obstacle enemy = guard.getObstacle();
@@ -808,11 +815,12 @@ public class GameScene implements Screen, ContactListener {
                     keyMessageTimer = 120; // 2 seconds at 60 fps
                 }
             }
+
             // Handle door unlocking
-            if(keyCollected && level.getExit().isLocked() && keyCollector != null) {
+            if(keyCollected && level.getDoor().isLocked() && keyCollector != null) {
                 // Check if the key collector is standing on the door
-                if((o1 == keyCollector.getObstacle() && o2 == exit) ||
-                    (o2 == keyCollector.getObstacle() && o1 == exit)) {
+                if((o1 == keyCollector.getObstacle() && o2 == door) ||
+                    (o2 == keyCollector.getObstacle() && o1 == door)) {
                     isUnlocking = true;
 
                     // Display unlocking message
@@ -827,19 +835,21 @@ public class GameScene implements Screen, ContactListener {
             }
 
             // Handle exit collision (only if door is unlocked)
-            if(!level.getExit().isLocked()) {
-                if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
-                    catArrived = true;
-                }
-
-                if((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)){
-                    octopusArrived = true;
-                }
-
-                if(catArrived && octopusArrived && !failed){
-                    setComplete(true);
-                }
+            if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
+                System.out.println("Cat arrived");
+                catArrived = true;
             }
+
+            if((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)){
+                System.out.println("Otto arrived");
+                octopusArrived = true;
+            }
+
+            if(catArrived && octopusArrived && !failed){
+                setComplete(true);
+            }
+
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -864,12 +874,14 @@ public class GameScene implements Screen, ContactListener {
             Obstacle cat = level.getCat().getObstacle();
             Obstacle oct = level.getOctopus().getObstacle();
             Obstacle exit = level.getExit().getObstacle();
+            Obstacle door = level.getDoor().getObstacle();
+
 
             // Handle door unlocking cancellation
             if(isUnlocking && keyCollector != null) {
                 // Check if the key collector left the door
-                if((o1 == keyCollector.getObstacle() && o2 == exit) ||
-                    (o2 == keyCollector.getObstacle() && o1 == exit)) {
+                if((o1 == keyCollector.getObstacle() && o2 == door) ||
+                    (o2 == keyCollector.getObstacle() && o1 == door)) {
                     isUnlocking = false;
                     unlockingTimer = 0;
 
@@ -885,15 +897,15 @@ public class GameScene implements Screen, ContactListener {
                 }
             }
 
-            if(!level.getExit().isLocked()) {
-                if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
-                    catArrived = true;
-                }
 
-                if((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)){
-                    octopusArrived = true;
-                }
+            if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
+                catArrived = false;
             }
+
+            if((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)){
+                octopusArrived = false;
+            }
+
 
         } catch (Exception e) {
             e.printStackTrace();
