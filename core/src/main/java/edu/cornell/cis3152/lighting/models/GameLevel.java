@@ -471,13 +471,27 @@ public class GameLevel {
                 v.update(world);
                 if(v.contains(avatarCat.getPosition())){
                     if(key instanceof Guard){
-                        ((Guard) key).setTarget(avatarCat.getPosition());
+                        ((Guard) key).setTarget(avatarCat.getPosition()); // TODO: this line might not be needed
                         ((Guard) key).setAgroed(true);
                     }
-                } else {
+                }
+                else if (v.contains(avatarOctopus.getPosition())){
                     if(key instanceof Guard){
-                        ((Guard) key).setAgroed(false);
+                        ((Guard) key).setTarget(avatarOctopus.getPosition()); // TODO: this line might not be needed
+                        ((Guard) key).setAgroed(true);
                     }
+                }
+
+                // TODO: this makes the guard instantly lose agro
+                // if the player is not in the vision cone.
+                // We want the guard to keep chasing the player for a
+                // little while after the player leaves the vision cone,
+                // so this should eventually be removed
+                else {
+//
+//                    if(key instanceof Guard){
+//                        ((Guard) key).setAgroed(false);
+//                    }
                 }
             }
 

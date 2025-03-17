@@ -99,7 +99,7 @@ public class GameGraph {
         int x = MathUtils.clamp(Math.round(graphIndex.x), 0, this.COLS - 1);
         int y = MathUtils.clamp(Math.round(graphIndex.y), 0, this.ROWS - 1);
 
-//        System.out.println("Graph Index: (" + x + ", " + y + ")");
+        System.out.println("Graph Index: (" + x + ", " + y + ")");
 
         return x >= 0 && x < this.COLS && y >= 0 && y < this.ROWS
             ? this.graph.getNodes().get(y * this.COLS + x)
@@ -261,6 +261,8 @@ public class GameGraph {
         GraphPath<Node> graphPath = new DefaultGraphPath<>();
         Node start = getNode(currPos);
         Node end = getNode(targetPos);
+
+        System.out.println("Graph's target: "+ end.getWorldPosition());
         // Check if start or end node is null
         if (start == null || end == null) {
             System.err.println("Error: Start or end node is null.");
@@ -275,7 +277,9 @@ public class GameGraph {
             if (!node.equals(start)) {
                 path.add(node);
             }
+            System.out.print(node.getWorldPosition() + " ");
         }
+        System.out.print("\n");
         return path;
     }
 

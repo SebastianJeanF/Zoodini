@@ -246,7 +246,7 @@ public class GameScene implements Screen, ContactListener {
                 continue;
 
             Guard guard = (Guard) enemy;
-            GuardAIController aiController = new GuardAIController(guard, level.getAvatar(), this.gameGraph, 60);
+            GuardAIController aiController = new GuardAIController(guard, level, this.gameGraph, 60);
             guardToAIController.put(guard, aiController);
         }
 
@@ -390,56 +390,33 @@ public class GameScene implements Screen, ContactListener {
             level.getKey().getObstacle().setActive(false);
         }
 
-		// Update guards
+        // Set meow guard flag
+        // TODO: Ideally, guards should only notice the meow the frame AFTER it happened,
+        // but this is good enough for now
+//        if (input.didAbility() && level.getAvatar() instanceof Cat ) {
+//            for (Enemy t : level.getEnemies()) {
+//                Guard guard = (Guard) t;
+//                float DISTRACT_DISTANCE = 5.0f;
+//                if (guard.getPosition().dst(avatar.getPosition()) < DISTRACT_DISTANCE) {
+////                    guard.setMeow(true);
+////                    guard.setTarget(avatar.getPosition());
+//                }
+//            }
+//        }
 
+		// Update guards
         guardToAIController.forEach((guard, controller) -> {
             controller.update();
-            guard.think(controller.getNextTargetLocation(), controller.getMovementDirection());
+            guard.think(controller.getMovementDirection(), controller.getNextTargetLocation());
         });
 
-        // Move guard
-        {
-            for (Enemy enemy : level.getEnemies()) {
-                if (!(enemy instanceof Guard)) {
-                    continue;
-                }
 
-                Guard guard = (Guard) enemy;
-                Vector2 guardPos = guard.getPosition();
-                Vector2 targetPos = level.getAvatar().getPosition();
-                Vector2 direction = guard.getMovementDirection();
-                if (direction == null) {
-                    System.out.println("This should not happen continously");
-                    return;
-                }
-                if (direction.len() > 0) {
-                    // Scale the direction vector by the guard's force
-                    direction.nor().scl(guard.getForce()*.2f);
-
-                    // Tell Physics Engine where to move the guard
-                    guard.setMovement(direction);
-
-                    // Update guard orientation to face the target.
-                    guard.setAngle(direction.angleRad());
-                }
-
-
-                // Update the guard's orientation to face the direction of movement.
-//                Vector2 movement = guard.getMovement();
-//                if (movement.len2() > 0.0001f) { // Only update if there is significant movement
-//                    guard.setAngle(movement.angleRad() - (float) Math.PI / 2);
-//                }
-//
-
-                // Make Physics Engine calculate guard's movement for this frame
-                guard.applyForce();
-            }
-        }
 
 		updateGuards();
 
 		// Turn the physics engine crank.
 		level.update(dt);
+        System.out.print("\n\n");
 	}
 
 	/**
@@ -542,11 +519,7 @@ public class GameScene implements Screen, ContactListener {
 
 			// Check Field-of-view (FOV), making guard agroed if they see a player
 
-			if (guard.isMeowed()) {
 
-			}
-
-			guard.updatePatrol();
 			moveGuard(guard);
 		}
 
@@ -554,14 +527,11 @@ public class GameScene implements Screen, ContactListener {
 
 	void moveGuard(Guard guard) {
 
-		Vector2 guardPos = guard.getPosition();
 
-		Vector2 targetPos = level.getAvatar().getPosition();
+        Vector2 direction = guard.getMovementDirection();
+        System.out.print("Direction" + direction);
 
-		if (!guard.isAgroed() && !guard.isMeowed() && guard.getTarget() != null) {
-			targetPos = guard.getTarget();
-		}
-		Vector2 direction = new Vector2(targetPos).sub(guardPos);
+
 
 		if (direction.len() > 0) {
 			direction.nor().scl(guard.getForce());
@@ -574,14 +544,12 @@ public class GameScene implements Screen, ContactListener {
 			}
 
 			guard.setMovement(direction.x, direction.y);
-			// Update guard orientation to face the target.
-			guard.setAngle(direction.angleRad());
 		}
 
 		// Update the guard's orientation to face the direction of movement.
-		Vector2 movement = guard.getMovement();
+		Vector2 movement = guard.getMovementDirection();
 		if (movement.len2() > 0.0001f) { // Only update if there is significant movement
-			guard.setAngle(movement.angleRad() - (float) Math.PI / 2);
+			guard.setAngle(movement.angleRad() - (float) Math.PI/2);
 		}
 		guard.applyForce();
 
