@@ -55,7 +55,7 @@ public class Guard extends Enemy {
         }
 
         currentPatrolIndex = 0;
-
+        cameraAlerted = false;
         isChasing = false;
         meowed = false;
         chaseTimer = 0;
@@ -112,18 +112,18 @@ public class Guard extends Enemy {
         this.meowed = meowed;
     }
 
-    public void updatePatrol() {
-        if (patrolPoints == null || patrolPoints.length <= 0 || isAgroed() || isMeowed()) {
-            return;
-        }
-
-        Vector2 patrolTarget = patrolPoints[currentPatrolIndex];
-        if (getPosition().dst(patrolTarget) < PATROL_THRESHOLD) {
-            currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.length;
-            patrolTarget = patrolPoints[currentPatrolIndex];
-        }
-        setTarget(patrolTarget);
-    }
+//    public void updatePatrol() {
+//        if (patrolPoints == null || patrolPoints.length <= 0 || isAgroed() || isMeowed()) {
+//            return;
+//        }
+//
+//        Vector2 patrolTarget = patrolPoints[currentPatrolIndex];
+//        if (getPosition().dst(patrolTarget) < PATROL_THRESHOLD) {
+//            currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.length;
+//            patrolTarget = patrolPoints[currentPatrolIndex];
+//        }
+//        setTarget(patrolTarget);
+//    }
 
     /** If a guard is "meowed", it is currently patrolling to the spot of the meow,
      * but they are not chasing a player. When either alerted by a security camera,

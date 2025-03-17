@@ -21,6 +21,8 @@ public class SecurityCamera extends ZoodiniSprite {
     private int disabledTime;
     private int disabledTimeRemaining;
 
+    private float angle;
+
     public boolean isDisabled() {
         return isDisabled;
     }
@@ -29,9 +31,14 @@ public class SecurityCamera extends ZoodiniSprite {
         this.isDisabled = isDisabled;
     }
 
+    public float getAngle() {
+        return angle;
+    }
+
     public SecurityCamera(AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
         float[] pos = json.get("pos").asFloatArray();
         float radius = globals.getFloat("radius");
+        angle = json.get("angle").asFloat();
         obstacle = new WheelObstacle(pos[0], pos[1], radius);
         obstacle.setName(json.name());
         obstacle.setFixedRotation(false);

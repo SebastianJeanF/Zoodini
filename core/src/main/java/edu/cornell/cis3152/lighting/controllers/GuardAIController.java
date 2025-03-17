@@ -1,6 +1,7 @@
 package edu.cornell.cis3152.lighting.controllers;
 
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import edu.cornell.cis3152.lighting.models.GameLevel;
 import edu.cornell.cis3152.lighting.models.entities.Avatar;
@@ -37,11 +38,11 @@ public class GuardAIController {
     /** Cooldown in ticks for the guard to become neutral again */
     private int susTicks;
 
-
-    /** Min distance from target where the guard will de-agro */
-    private final float PLAYER_DEAGRO_RADIUS = 5.0F;
     /** Min distance from waypoint where the guard will recalculate to next waypoint*/
     private final float WAYPOINT_RADIUS = 1.0F;
+
+    private final int DEAGRRO_PERIOD = 100;
+    private int deAggroTimer = DEAGRRO_PERIOD;
 
 
     // TODO: May or may not refactor to remove input controller as argument
@@ -64,11 +65,8 @@ public class GuardAIController {
 
     private boolean didDistractionOccur() {
         InputController input = InputController.getInstance();
-        if (input.didAbility()) {
-            // // System.out.println("Ability detected");
-        }
         // // System.out.print(".");
-        return input.didAbility();
+        return input.didAbility() && getActivePlayer().getAvatarType() == Avatar.AvatarType.CAT;
     }
 
 
@@ -104,24 +102,30 @@ public class GuardAIController {
 
     public void update() {
         ticks++;
-        // System.out.println("Guard state: " + currState);
-
         // Update suspicion level
         if (currState != GuardState.CHASE) { // Only update when not chasing
             if (this.guard.isAgroed()) { // In guard's line of sight
-                susTicks = Math.max(susTicks + 1, SUS_DELAY); // Increase suspicion
+                susTicks = Math.max(susTicks + 3, SUS_DELAY); // Increase suspicion
             } else {
-                susTicks = Math.min(susTicks - 1, 0); // Decrease suspicion
+                susTicks = Math.max(susTicks - 1, 0); // Decrease suspicion
+            }
+        } else {
+            if (!this.guard.isAgroed()) { // not in guard's line of sight
+                deAggroTimer = Math.max(deAggroTimer - 1, 0); // decrease suspicion
             }
         }
 
         setNextTargetLocation();
 
+
+
         switch(this.currState) {
             case PATROL:
                 // If player is spotted, change state to chase
-                if (checkPlayerIsSpotted()) {
+//                if (checkPlayerIsSpotted()) {
+                if (isMaxSuspicion() || guard.isCameraAlerted()) {
                     currState = GuardState.CHASE;
+                    deAggroTimer = DEAGRRO_PERIOD;
                 }
                 else if (tempDistract) {
                     currState = GuardState.DISTRACTED;
@@ -129,22 +133,18 @@ public class GuardAIController {
                 break;
             case CHASE:
                 // If guard reaches its target, change state to return
-                if (checkDeAgroed()) {
+                if (checkDeAggroed()) {
                     currState = GuardState.RETURN;
-                    guard.setAgroed(false);
+                    guard.setCameraAlerted(false);
                 }
                 break;
             case RETURN:
-                // TODO: Make guard distract-able in this state
-
-                // If guard spots player while returning, change state to chase
-                if (checkPlayerIsSpotted()) {
-                    currState = GuardState.CHASE;
-                }
-
-                // If guard reaches a waypoint, change state to patrol
-                else if (hasReachedPatrolPath()) {
+                // If guard reaches its target, change state to patrol
+                if (hasReachedPatrolPath()) {
                     currState = GuardState.PATROL;
+                } else if (isMaxSuspicion() || guard.isCameraAlerted()) {
+                    currState = GuardState.CHASE;
+                    deAggroTimer = DEAGRRO_PERIOD;
                 }
                 break;
             case DISTRACTED:
@@ -167,12 +167,14 @@ public class GuardAIController {
     }
 
     private boolean isMaxSuspicion() {
+
         return this.susTicks >= SUS_DELAY;
     }
 
-    private boolean checkDeAgroed() {
+    private boolean checkDeAggroed() {
         // System.out.println("Is Deagroed: " + distanceFromGuard(targetPlayer.getPosition()));
-        return distanceFromGuard(targetPlayer.getPosition()) >= PLAYER_DEAGRO_RADIUS;
+//        return distanceFromGuard(targetPlayer.getPosition()) >= PLAYER_DEAGRO_RADIUS;
+        return deAggroTimer <= 0;
     }
 
     private float distanceFromGuard(Vector2 target) {
@@ -216,7 +218,7 @@ public class GuardAIController {
             case PATROL:
                 tempDistract = didDistractionOccur();
 
-                if (isMaxSuspicion()) { // suspicion level above threshold
+                if (isMaxSuspicion() || guard.isCameraAlerted()) { // suspicion level above threshold
                     targetPlayer = getActivePlayer();
                     nextTargetLocation = getNextWaypointLocation(targetPlayer.getPosition());
                 }

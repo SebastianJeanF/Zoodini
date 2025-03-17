@@ -402,7 +402,7 @@ public class GameLevel {
 		inkProjectile.getObstacle().setActive(false);
 	}
 
-    private void initializeVisionCones(JsonValue json){
+    private void initializeVisionCones(JsonValue json) {
         int rayNum = json.getInt("rayNum");
         float radius = json.getFloat("radius");
         float[] color = json.get("color").asFloatArray();
@@ -410,10 +410,10 @@ public class GameLevel {
         short mask = json.getShort("maskbit");
         short category = json.getShort("categorybit");
         Color c = new Color(color[0], color[1], color[2], color[3]);
-
         for(SecurityCamera cam : securityCameras){
             VisionCone vc = new VisionCone(rayNum, Vector2.Zero, radius, 0.0f, wideness, c, units, mask, category);
-            vc.attachToBody(cam.getObstacle().getBody(), 180.0f);
+            float angle = cam.getAngle();
+            vc.attachToBody(cam.getObstacle().getBody(), angle);
             visions.put(cam, vc);
         }
 
@@ -515,12 +515,44 @@ public class GameLevel {
                     if(key instanceof Guard){
                         ((Guard) key).setTarget(avatarCat.getPosition()); // TODO: this line might not be needed
                         ((Guard) key).setAgroed(true);
+                    } else if(key instanceof SecurityCamera){
+                        SecurityCamera camera = (SecurityCamera)key;
+                        if(!camera.isDisabled()) {
+                            // Alert all guards when camera sees either player
+                            for(Enemy e : enemies) {
+                                if(e instanceof Guard) {
+                                    Guard guard = (Guard)e;
+                                    guard.setTarget(avatarCat.getPosition());
+                                    guard.setCameraAlerted(true);
+                                }
+                            }
+                        }
                     }
                 }
                 else if (v.contains(avatarOctopus.getPosition())){
                     if(key instanceof Guard){
                         ((Guard) key).setTarget(avatarOctopus.getPosition()); // TODO: this line might not be needed
                         ((Guard) key).setAgroed(true);
+                    } else if(key instanceof SecurityCamera){
+                        SecurityCamera camera = (SecurityCamera)key;
+                        if(!camera.isDisabled()) {
+                            // Alert all guards when camera sees either player
+                            for(Enemy e : enemies) {
+                                if(e instanceof Guard) {
+                                    Guard guard = (Guard)e;
+                                    guard.setTarget(avatarOctopus.getPosition());
+                                    guard.setCameraAlerted(true);
+                                }
+                            }
+                        }
+                    }
+                } else if (!v.contains(avatarCat.getPosition())){
+                    if(key instanceof Guard){
+                        ((Guard) key).setAgroed(false);
+                    }
+                } else if (!v.contains(avatarOctopus.getPosition())){
+                    if(key instanceof Guard){
+                        ((Guard) key).setAgroed(false);
                     }
                 }
 

@@ -253,15 +253,14 @@ public class GameScene implements Screen, ContactListener {
         this.gameGraph = new GameGraph(12, 16, level.getBounds().x, level.getBounds().y, level.getSprites());
         Array<Enemy> enemies = level.getEnemies();
         for (Enemy enemy : enemies) {
-            if (!(enemy instanceof Guard))
+            if (!(enemy instanceof Guard guard))
                 continue;
 
-            Guard guard = (Guard) enemy;
-            GuardAIController aiController = new GuardAIController(guard, level, this.gameGraph, 60);
+            GuardAIController aiController = new GuardAIController(guard, level, this.gameGraph, 5);
             guardToAIController.put(guard, aiController);
         }
 
-        gameGraph.printGrid();
+//        gameGraph.printGrid();
     }
 
 	/**
@@ -672,10 +671,11 @@ public class GameScene implements Screen, ContactListener {
 			direction.nor().scl(guard.getForce());
 			if (guard.isMeowed()) {
 				direction.scl(0.5f);
-			} else if (guard.isAgroed()) {
-				direction.scl(1.1f);
 			} else if (guard.isCameraAlerted()) {
-				direction.scl(1.5f);
+                direction.scl(2.5f);
+            }
+            else if (guard.isAgroed()) {
+				direction.scl(2f);
 			}
 
 			guard.setMovement(direction.x, direction.y);
@@ -887,11 +887,11 @@ public class GameScene implements Screen, ContactListener {
 
             if(!level.getExit().isLocked()) {
                 if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
-                    catArrived = false;
+                    catArrived = true;
                 }
 
                 if((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)){
-                    octopusArrived = false;
+                    octopusArrived = true;
                 }
             }
 
