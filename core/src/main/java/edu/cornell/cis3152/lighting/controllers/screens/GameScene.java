@@ -525,6 +525,11 @@ public class GameScene implements Screen, ContactListener {
 			level.getProjectile().setToHide(false);
 		}
 
+		Array<SecurityCamera> secCameras = level.getSecurityCameras();
+		for (int i = 0; i < secCameras.size; i++) {
+			secCameras.get(i).update(dt);
+		}
+
 //		updateGuards();
 
 		// Turn the physics engine crank.
@@ -748,10 +753,10 @@ public class GameScene implements Screen, ContactListener {
 			if ((o1 == projectile || o2 == projectile)) {
 				Array<SecurityCamera> secCameras = level.getSecurityCameras();
 				for (int i = 0; i < secCameras.size; i++) {
-					Obstacle cam = secCameras.get(i).getObstacle();
-					if (o1 == cam || o2 == cam) {
-						System.out.println("detected collision with camera");
-						// TODO: disable the camera HERE
+					SecurityCamera cam = secCameras.get(i);
+					Obstacle camObstacle = secCameras.get(i).getObstacle();
+					if (o1 == camObstacle || o2 == camObstacle) {
+						cam.setDisabled(true);
 						break;
 					}
 				}

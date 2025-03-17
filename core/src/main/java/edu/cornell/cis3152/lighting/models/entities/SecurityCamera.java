@@ -17,6 +17,18 @@ public class SecurityCamera extends ZoodiniSprite {
 
     private int startFrame;
 
+    private boolean isDisabled;
+    private int disabledTime;
+    private int disabledTimeRemaining;
+
+    public boolean isDisabled() {
+        return isDisabled;
+    }
+
+    public void setDisabled(boolean isDisabled) {
+        this.isDisabled = isDisabled;
+    }
+
     public SecurityCamera(AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
         float[] pos = json.get("pos").asFloatArray();
         float radius = globals.getFloat("radius");
@@ -47,7 +59,22 @@ public class SecurityCamera extends ZoodiniSprite {
         float r = globals.getFloat("spriterad") * units;
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 
+        disabledTime = disabledTimeRemaining = globals.getInt("disabledTime");
+
+        isDisabled = false;
     }
 
+    @Override
+    public void update(float dt) {
+        super.update(dt);
 
+        if (isDisabled()) {
+            disabledTimeRemaining--;
+        }
+
+        if (disabledTimeRemaining < 0) {
+            isDisabled = false;
+            disabledTimeRemaining = disabledTime;
+        }
+    }
 }
