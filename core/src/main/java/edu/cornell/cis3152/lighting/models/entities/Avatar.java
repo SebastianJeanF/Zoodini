@@ -23,6 +23,7 @@ import edu.cornell.cis3152.lighting.models.GameLevel;
 import edu.cornell.cis3152.lighting.utils.animation.Animation;
 import edu.cornell.cis3152.lighting.utils.animation.AnimationController;
 import edu.cornell.cis3152.lighting.utils.animation.AnimationState;
+import edu.cornell.cis3152.lighting.utils.ZoodiniSprite;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.assets.ParserUtils;
 import edu.cornell.gdiac.graphics.SpriteBatch;
@@ -34,7 +35,7 @@ import edu.cornell.gdiac.physics2.WheelObstacle;
 /**
  * Player avatar for the lighting demo.
  */
-public class Avatar extends ObstacleSprite {
+public class Avatar extends ZoodiniSprite {
 	// Physics constants
 	/** The factor to multiply by the input */
 	private float force;
@@ -58,8 +59,8 @@ public class Avatar extends ObstacleSprite {
 	private Vector2 forceCache = new Vector2();
 
 	public enum AvatarType {
-		GAR,
-		OTTO,
+		CAT,
+		OCTOPUS,
 		ENEMY
 	}
 
@@ -302,14 +303,8 @@ public class Avatar extends ObstacleSprite {
 			forceCache.set(getMovement());
 			obstacle.getBody().applyForce(forceCache, obstacle.getPosition(), true);
             animationController.setState(AnimationState.WALK);
-            if (avatarType == AvatarType.GAR) {
-                System.out.println("GAR WALKING");
-            }
 		} else {
             animationController.setState(AnimationState.IDLE);
-            if (avatarType == AvatarType.GAR) {
-                System.out.println("GAR IDLE");
-            }
 		}
 	}
 
@@ -326,21 +321,6 @@ public class Avatar extends ObstacleSprite {
 	 * @param dt number of seconds since last animation frame
 	 */
 	public void update(float dt) {
-//		// Animate if necessary
-//		if (animate && walkCool == 0) {
-//			if (sprite != null) {
-//				int next = (sprite.getFrame() + 1) % sprite.getSize();
-//				sprite.setFrame(next);
-//			}
-//			walkCool = walkLimit;
-//		} else if (walkCool > 0) {
-//			walkCool--;
-//		} else if (!animate) {
-//			if (sprite != null) {
-//				sprite.setFrame(startFrame);
-//			}
-//			walkCool = 0;
-//		}
         // Update animation controller
         animationController.update();
 

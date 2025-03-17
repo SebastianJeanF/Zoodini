@@ -22,6 +22,7 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 
 import edu.cornell.cis3152.lighting.models.GameLevel;
+import edu.cornell.cis3152.lighting.utils.ZoodiniSprite;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.assets.ParserUtils;
 import edu.cornell.gdiac.graphics.SpriteMesh;
@@ -35,11 +36,18 @@ import edu.cornell.gdiac.physics2.ObstacleSprite;
  * This class is largely just a constructor. Everything else is provided by the
  * subclass.
  */
-public class InteriorWall extends ObstacleSprite {
+public class InteriorWall extends ZoodiniSprite {
 	/** The texture anchor upon region initialization */
 	protected Vector2 anchor;
 	/** The padding (in physics units) to increase the sprite beyond the physics body */
 	protected Vector2 padding;
+
+    public float width;
+    public float height;
+
+    public float posX;
+    public float posY;
+
 
 	/**
 	 * Create a new interior wall with the given settings
@@ -52,6 +60,12 @@ public class InteriorWall extends ObstacleSprite {
 
 		float[] pos  = json.get("pos").asFloatArray();
 		float[] size = json.get("size").asFloatArray();
+
+        this.width = size[0];
+        this.height = size[1];
+        this.posX = pos[0];
+        this.posY = pos[1];
+
 		obstacle = new BoxObstacle(pos[0],pos[1],size[0],size[1]);
 		obstacle.setName( json.name() );
 
@@ -87,4 +101,15 @@ public class InteriorWall extends ObstacleSprite {
 		mesh = new SpriteMesh(poly, tile, tile);
 	}
 
+    public float getHeight() {
+        return height;
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public Vector2 getPosition() {
+        return new Vector2(posX, posY);
+    }
 }

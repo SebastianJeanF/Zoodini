@@ -6,7 +6,11 @@ import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.*;
+import edu.cornell.cis3152.lighting.models.nonentities.InteriorWall;
 import edu.cornell.gdiac.physics2.Obstacle;
+
+import edu.cornell.gdiac.physics2.ObstacleSprite;
+import java.lang.StringBuilder;
 import java.util.*;
 
 public class GameGraph {
@@ -36,18 +40,76 @@ public class GameGraph {
      * @param startY The y-coordinate of the bottom-left corner of the grid in world coordinates
      * @param obstacles A list of obstacle objects that should be considered impassable
      */
-    public GameGraph(int rows, int cols, float startX, float startY, List<Obstacle> obstacles) {
+    public GameGraph(int rows, int cols, float startX, float startY, List<ZoodiniSprite> obstacles) {
         this.ROWS = rows;
         this.COLS = cols;
         this.startX = startX;
         this.startY = startY;
         this.initializeGraph(obstacles);
+
+        this.heuristic = new DistanceHeuristic();
     }
+
+    /**
+     * Prints a grid representation of the game graph to standard output.
+     *
+     * Each cell in the grid corresponds to a node in the game graph.
+     * A cell is represented as "X" if the node is an obstacle, or "." if it is passable.
+     * The grid is printed row by row, with the top row corresponding to the highest y-coordinate,
+     * so that the output visually represents the game world's layout.
+     *
+     * Preconditions:
+     * - The graph must be properly initialized and contain a list of nodes in row-major order.
+     * - The number of nodes in the graph must equal ROWS * COLS.
+     *
+     * Postconditions:
+     * - A textual grid is printed to the console that represents the navigability of each node.
+     *
+     * Invariants:
+     * - Each node's obstacle status is not modified during the printing process.
+     */
+    public void printGrid() {
+        // Get the list of nodes from the graph
+        Array<Node> nodes = this.graph.getNodes();
+
+        // Loop through rows in reverse order (so that the highest y values appear at the top)
+        for (int row = ROWS - 1; row >= 0; row--) {
+            StringBuilder line = new StringBuilder();
+            // Loop through columns
+            for (int col = 0; col < COLS; col++) {
+                int index = row * COLS + col;
+                Node node = nodes.get(index);
+                // Use "X" for obstacles and "." for passable nodes
+                line.append(node.isObstacle() ? "X " : ". ");
+            }
+            // System.out.println(line);
+        }
+    }
+
+
+//    public void printGrid() {
+//        Array<Node> nodes = this.graph.getNodes();
+//
+//        // Print rows in the same order as construction
+//        for (int row = 0; row < ROWS; row++) {
+//            System.out.printf("%2d: ", row);
+//            StringBuilder line = new StringBuilder();
+//            for (int col = 0; col < COLS; col++) {
+//                int index = row * COLS + col;
+//                Node node = nodes.get(index);
+//                line.append(node.isObstacle() ? "X " : ". ");
+//            }
+//            System.out.println(line);
+//        }
+//    }
+
 
     /**
      * Gets the node at the specified world position.
      * Converts the world position to grid coordinates and returns the corresponding node.
      *
+     *
+     * @INVARIANT this.graph must be initialized
      * @param pos The world position to get the node for
      * @return The node at the specified position, or null if no node exists there
      */
@@ -55,14 +117,35 @@ public class GameGraph {
         Vector2 graphIndex = this.worldToGraphIndex(pos);
         int x = MathUtils.clamp(Math.round(graphIndex.x), 0, this.COLS - 1);
         int y = MathUtils.clamp(Math.round(graphIndex.y), 0, this.ROWS - 1);
-        return x >= 0 && x < this.COLS && y >= 0 && y < this.ROWS? this.graph.getNodes().get(y * this.COLS + x) : null;
+
+        // System.out.println("Graph Index: (" + x + ", " + y + ")");
+
+        return x >= 0 && x < this.COLS && y >= 0 && y < this.ROWS
+            ? this.graph.getNodes().get(y * this.COLS + x)
+            : null;
     }
 
     /**
+     * Converts a world position to a graph index position.
+     * This translates the game world coordinates to the internal grid coordinates.
+     *
+     * @param pos The world position to convert
+     * @return A Vector2 containing the corresponding grid coordinates
+     */
+    public Vector2 worldToGraphIndex(Vector2 pos) {
+        Vector2 roundedPos = pos.cpy().set((float)Math.round(pos.x), (float)Math.round(pos.y));
+        Vector2 integerPoint = roundedPos.sub(this.startX, this.startY).scl(1.0F / this.TERRAIN_TILE_SIZE);
+        integerPoint.set((float)Math.round(integerPoint.x), (float)Math.round(integerPoint.y));
+        return integerPoint;
+    }
+
+    /**
+     *
      * Generates edges between nodes in the pathfinding graph.
      * Connects nodes that are adjacent (orthogonally or diagonally) and not obstacles.
      * For diagonal connections, prevents corner-cutting through obstacles.
      *
+     * @INVARIANT this.graph must be initialized
      * @param nodes The array of nodes to process and generate connections for
      */
     public void addEdges(Array<Node> nodes) {
@@ -152,61 +235,94 @@ public class GameGraph {
      *
      * @param obstacles A list of obstacle objects to mark as impassable
      */
-    private void initializeGraph(List<Obstacle> obstacles) {
+    private void initializeGraph(List<ZoodiniSprite> obstacles) {
         Array<Node> nodes = new Array<>();
         int index = 0;
 
         for (int r = 0; r < ROWS; r++) {
             for(int c = 0; c < COLS; c++) {
-                Node n = new Node(new Vector2(c, r), false);
+                Node n = new Node(new Vector2(c, r), false, index++);
                 nodes.add(n);
-                index++;
             }
         }
 
-        for (Obstacle obs: obstacles) {
-            Vector2 pos = obs.getPosition();
-            Node node = getNode(pos);
-            if (node != null) {
-                node.isObstacle = true;
+        this.graph = new Graph(nodes);
+
+        // System.out.println("Obstacle list size: " + obstacles.size());
+        for (ObstacleSprite obs : obstacles) {
+            if (!(obs instanceof InteriorWall)) {
+                continue;
+            }
+            Vector2 pos = ((InteriorWall) obs).getPosition();
+            float width = ((InteriorWall) obs).getWidth();
+            float height = ((InteriorWall) obs).getHeight();
+            Vector2 size = new Vector2(width, height);
+            // System.out.println("Obstacle world position: " + pos + ", size: " + size);
+
+            // Calculate the range of tiles covered by the obstacle
+            int startX = MathUtils.floor((pos.x - size.x / 2) / TERRAIN_TILE_SIZE);
+            int endX = MathUtils.ceil((pos.x + size.x / 2) / TERRAIN_TILE_SIZE);
+            int startY = MathUtils.floor((pos.y - size.y / 2) / TERRAIN_TILE_SIZE);
+            int endY = MathUtils.ceil((pos.y + size.y / 2) / TERRAIN_TILE_SIZE);
+
+            // Mark all nodes within the obstacle's area as obstacles
+            for (int x = startX; x < endX; x++) {
+                for (int y = startY; y < endY; y++) {
+                    Node node = getNode(new Vector2(x * TERRAIN_TILE_SIZE, y * TERRAIN_TILE_SIZE));
+                    if (node != null) {
+                        // System.out.println("Node index: " + node.index + ", Grid coordinates: (" +
+                        //     node.getTileCoords().x + "," + node.getTileCoords().y + ")");
+                        node.isObstacle = true;
+                    }
+                }
             }
         }
+
+//        System.out.println("Obstable list size: " + obstacles.size());
+//        for (Obstacle obs: obstacles) {
+//            Vector2 pos = obs.getPosition();
+//            System.out.println("Obstacle world position: " + pos);
+//            Node node = getNode(pos);
+//            if (node != null) {
+//                System.out.println("Node index: " + node.index + ", Grid coordinates: (" +
+//                    node.getTileCoords().x + "," + node.getTileCoords().y + ")");
+//                node.isObstacle = true;
+//            }
+//        }
 
         this.addEdges(nodes);
-        this.graph = new Graph(nodes);
+
 
         // TODO: Add walls to graph by reading game objects
 
-        addEdges(nodes);
+//        addEdges(nodes);
         this.aStarPathFinder = new IndexedAStarPathFinder<>(graph);
     }
 
 
     /**
-     * Converts a world position to a graph index position.
-     * This translates the game world coordinates to the internal grid coordinates.
-     *
-     * @param pos The world position to convert
-     * @return A Vector2 containing the corresponding grid coordinates
-     */
-    public Vector2 worldToGraphIndex(Vector2 pos) {
-        Vector2 roundedPos = pos.cpy().set(Math.round(pos.x), Math.round(pos.y));
-        Vector2 integerPoint = roundedPos.sub(this.startX, this.startY).scl(1.0F / TERRAIN_TILE_SIZE);
-        integerPoint.set(Math.round(integerPoint.x), Math.round(integerPoint.y));
-        return integerPoint;
-    }
-
-    /**
      * Finds the shortest path between two positions in the world using A*.
      *
+     * @INVARIANT this.heuristic must be initialized
      * @param currPos The starting position in world coordinates
      * @param targetPos The target position in world coordinates
      * @return A list of nodes representing the path from start to target, excluding the start node
      */
     public List<Node> getPath(Vector2 currPos, Vector2 targetPos) {
+//        System.out.println(currPos);
+//        System.out.println(targetPos);
         GraphPath<Node> graphPath = new DefaultGraphPath<>();
         Node start = getNode(currPos);
         Node end = getNode(targetPos);
+
+        // System.out.println("Graph's target: "+ end.getWorldPosition());
+        // Check if start or end node is null
+        if (start == null || end == null) {
+            // System.err.println("Error: Start or end node is null.");
+            return new ArrayList<>();
+        }
+
+
         this.aStarPathFinder.searchNodePath(start, end, this.heuristic, graphPath);
 
         List<Node> path = new ArrayList<>();
@@ -214,7 +330,9 @@ public class GameGraph {
             if (!node.equals(start)) {
                 path.add(node);
             }
+            // System.out.print(node.getWorldPosition() + " ");
         }
+        // System.out.print("\n");
         return path;
     }
 
@@ -266,7 +384,7 @@ public class GameGraph {
          * @return The index of the node
          */
         public int getIndex(Node node) {
-            return nodes.indexOf(node, true);
+            return node.index;
         }
 
         /**
@@ -305,6 +423,7 @@ public class GameGraph {
     public class Node {
         private Vector2 tileCoords;
         private boolean isObstacle;
+        private int index;
         public Array<Connection<Node>> edges = new Array<>();
 
         /**
@@ -313,9 +432,10 @@ public class GameGraph {
          * @param tileCoords The coordinates of this node in the grid
          * @param isObstacle Whether this node represents an impassable obstacle
          */
-        public Node(Vector2 tileCoords, boolean isObstacle) {
+        public Node(Vector2 tileCoords, boolean isObstacle, int index) {
             this.tileCoords = tileCoords;
             this.isObstacle = isObstacle;
+            this.index = index;
         }
 
         /**

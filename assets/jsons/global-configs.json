@@ -74,7 +74,7 @@
         "density": 1.0,
         "friction": 0.0,
         "restitution": 0.0,
-        "force": 20.0,
+        "force": 15.0,
         "damping": 10.0,
         "maxspeed": 5.0,
         "collide": "0001",
@@ -98,7 +98,7 @@
         "spriterad": 0.6,
         "angle": 90,
         "startframe": 0,
-        "collide": "0001",
+        "collide": "0101",
         "exclude": "0000",
         "texture": "security-camera.camera",
         "debug": "#ffffffC0",
@@ -106,18 +106,45 @@
         "friction": 0.0,
         "restitution": 0.0
     },
-    "exit": {
-        "size": [
-            1.25,
-            1.25
-        ],
-        "bodytype": "static",
-        "density": 0.0,
-        "friction": 0.0,
-        "restitution": 0.0,
-        "collide": "0010",
-        "exclude": "0000",
-        "texture": "goal",
-        "debug": "#ffff00C8"
-    }
+  "key": {
+    "size": [
+      0.75,
+      0.75
+    ],
+    "bodytype": "static",
+    "density": 0.0,
+    "friction": 0.0,
+    "restitution": 0.0,
+    "collide": "0010",
+    "exclude": "0000",
+    "texture": "key",
+    "debug": "#ffff00C8"
+  },
+  "exit": {
+    "size": [
+      1.25,
+      1.25
+    ],
+    "bodytype": "static",
+    "density": 0.0,
+    "friction": 0.0,
+    "restitution": 0.0,
+    "collide": "0010",
+    "exclude": "0000",
+    "texture": "unlocked_door",
+    "locked_texture": "locked_door",
+    "debug": "#ffff00C8"
+  },
+  "ink": {
+    "radius":       0.2,
+    "spriterad":    0.2,
+    "startframe":   0,
+    "collide":      "0010",
+    "exclude":      "0001",
+    "texture":      "ink-projectile.ink",
+    "debug":        "#ffffffC0",
+    "density":      1.0,
+    "friction":     0.0,
+    "restitution":  0.0
+  },
 }

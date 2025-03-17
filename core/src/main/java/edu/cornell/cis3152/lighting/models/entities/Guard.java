@@ -15,6 +15,11 @@ public class Guard extends Enemy {
     private int chaseTimer;
     private boolean cameraAlerted;
 
+    /** The position that this guard should move to */
+    Vector2 target = null;
+    Vector2 movementDirection = null;
+    Vector2 targetPosition = null;
+
     // --- Patrol Path Variables for Guard ---
     private Vector2[] patrolPoints;
     private int currentPatrolIndex = 0;
@@ -30,8 +35,6 @@ public class Guard extends Enemy {
      */
     public Guard(AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
         super(directory, json, globals, units);
-
-
 
         // Read patrol points from JSON if available.
         if (json.has("patrol")) {
@@ -69,9 +72,6 @@ public class Guard extends Enemy {
         cameraAlerted = value;
     }
 
-    /** The position that this guard should move to */
-    Vector2 target = null;
-
     /** If a guard is "agroed", it is currently chasing a player */
     public boolean isAgroed() {
         return isChasing;
@@ -80,14 +80,28 @@ public class Guard extends Enemy {
     /** The value of target is only valid if guard is agroed or is "meowed" */
     public Vector2 getTarget() {
         if (meowed == true) {
-            System.out.print("Guard is getting meow target");
+            // System.out.print("Guard is getting meow target");
         }
         return target;
+    }
+
+    /** Get current movement direction of guard.
+     *
+     * @INVARIANT: Must call guard.think() to get the most recent movement direction
+     * @return The current movement direction of the guard
+     */
+    public Vector2 getMovementDirection() {
+        return movementDirection;
     }
 
     public void setTarget(Vector2 target) {
 
         this.target = target;
+    }
+
+    public void think(Vector2 movementDirection, Vector2 targetPosition) {
+        this.movementDirection = movementDirection;
+        this.targetPosition = targetPosition;
     }
 
     public void setAgroed(boolean agroed) {
@@ -128,5 +142,10 @@ public class Guard extends Enemy {
 
     public void setChaseTimer(int value) {
         chaseTimer = value;
+    }
+
+
+    public void update(float dt) {
+        applyForce();
     }
 }

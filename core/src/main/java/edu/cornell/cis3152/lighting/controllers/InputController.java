@@ -13,7 +13,7 @@
 package edu.cornell.cis3152.lighting.controllers;
 
 import com.badlogic.gdx.*;
-
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import edu.cornell.gdiac.util.Controllers;
 import edu.cornell.gdiac.util.XBoxController;
@@ -61,10 +61,18 @@ public class InputController {
 	private boolean swapPressed;
 	private boolean swapPrevious;
 
+    /** Whether the ability button was pressed. */
+    private boolean abilityPressed;
+    private boolean abilityPrevious;
+
+
 	/** How much did we move horizontally? */
 	private float horizontal;
 	/** How much did we move vertically? */
 	private float vertical;
+
+	/** Where are we targeting? */
+	private Vector2 aiming;
 
 	/** An X-Box controller (if it is connected) */
 	XBoxController xbox;
@@ -146,6 +154,28 @@ public class InputController {
 	}
 
 	/**
+	 * Returns true if the ability button was pressed.
+	 * 
+	 * @return true if the ability button was pressed
+	 */
+	public boolean didAbility() {
+		return abilityPressed && !abilityPrevious;
+	}
+
+	/**
+	 * Returns true if the ability button is currently held down.
+	 * 
+	 * @return true if the ability button is currently hold
+	 */
+	public boolean isAbilityHeld() {
+		return abilityPressed;
+	}
+
+	public Vector2 getAiming() {
+		return aiming;
+	}
+
+	/**
 	 * Creates a new input controller
 	 *
 	 * The input controller attempts to connect to the X-Box controller at device 0,
@@ -159,6 +189,7 @@ public class InputController {
 		} else {
 			xbox = null;
 		}
+		aiming = new Vector2();
 	}
 
 	/**
@@ -173,6 +204,7 @@ public class InputController {
 		nextPrevious = nextPressed;
 		prevPrevious = prevPressed;
 		swapPrevious = swapPressed;
+        abilityPrevious = abilityPressed;
 
 		// Check to see if a GamePad is connected
 		if (xbox != null && xbox.isConnected()) {
@@ -223,6 +255,7 @@ public class InputController {
 		nextPressed = (secondary && nextPressed) || (Gdx.input.isKeyPressed(Input.Keys.N));
 		exitPressed = (secondary && exitPressed) || (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));
 		swapPressed = (secondary && swapPressed) || (Gdx.input.isKeyPressed(Input.Keys.SPACE));
+        abilityPressed = (secondary && abilityPressed) || (Gdx.input.isKeyPressed(Input.Keys.E));
 
 		// Directional controls
 		horizontal = (secondary ? horizontal : 0.0f);
@@ -240,6 +273,8 @@ public class InputController {
 		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
 			vertical -= 1.0f;
 		}
+
+		aiming.set(Gdx.input.getX(), Gdx.input.getY());
 	}
 
 }
