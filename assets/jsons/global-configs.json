@@ -74,7 +74,7 @@
         "density": 1.0,
         "friction": 0.0,
         "restitution": 0.0,
-        "force": 10.0,
+        "force": 7.0,
         "damping": 10.0,
         "maxspeed": 5.0,
         "collide": "0001",
