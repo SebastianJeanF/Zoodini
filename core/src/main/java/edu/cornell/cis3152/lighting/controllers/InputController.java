@@ -13,7 +13,7 @@
 package edu.cornell.cis3152.lighting.controllers;
 
 import com.badlogic.gdx.*;
-
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import edu.cornell.gdiac.util.Controllers;
 import edu.cornell.gdiac.util.XBoxController;
@@ -70,6 +70,9 @@ public class InputController {
 	private float horizontal;
 	/** How much did we move vertically? */
 	private float vertical;
+
+	/** Where are we targeting? */
+	private Vector2 aiming;
 
 	/** An X-Box controller (if it is connected) */
 	XBoxController xbox;
@@ -150,16 +153,27 @@ public class InputController {
 		return swapPressed && !swapPrevious;
 	}
 
-    /**
-     * Returns true if the ability button was pressed.
-     *
-     * @return true if the ability button was pressed.
-     */
+	/**
+	 * Returns true if the ability button was pressed.
+	 * 
+	 * @return true if the ability button was pressed
+	 */
+	public boolean didAbility() {
+		return abilityPressed && !abilityPrevious;
+	}
 
-    public boolean didAbility() {
-        return abilityPressed && !abilityPrevious;
-    }
+	/**
+	 * Returns true if the ability button is currently held down.
+	 * 
+	 * @return true if the ability button is currently hold
+	 */
+	public boolean isAbilityHeld() {
+		return abilityPressed;
+	}
 
+	public Vector2 getAiming() {
+		return aiming;
+	}
 
 	/**
 	 * Creates a new input controller
@@ -175,6 +189,7 @@ public class InputController {
 		} else {
 			xbox = null;
 		}
+		aiming = new Vector2();
 	}
 
 	/**
@@ -258,6 +273,8 @@ public class InputController {
 		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
 			vertical -= 1.0f;
 		}
+
+		aiming.set(Gdx.input.getX(), Gdx.input.getY());
 	}
 
 }

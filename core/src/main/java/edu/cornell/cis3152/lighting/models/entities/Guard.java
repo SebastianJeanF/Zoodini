@@ -80,7 +80,7 @@ public class Guard extends Enemy {
     /** The value of target is only valid if guard is agroed or is "meowed" */
     public Vector2 getTarget() {
         if (meowed == true) {
-            System.out.print("Guard is getting meow target");
+            // System.out.print("Guard is getting meow target");
         }
         return target;
     }

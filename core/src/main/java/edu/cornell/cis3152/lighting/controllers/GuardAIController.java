@@ -65,9 +65,9 @@ public class GuardAIController {
     private boolean didDistractionOccur() {
         InputController input = InputController.getInstance();
         if (input.didAbility()) {
-            System.out.println("Ability detected");
+            // // System.out.println("Ability detected");
         }
-        System.out.print(".");
+        // // System.out.print(".");
         return input.didAbility();
     }
 
@@ -104,7 +104,7 @@ public class GuardAIController {
 
     public void update() {
         ticks++;
-        System.out.println("Guard state: " + currState);
+        // System.out.println("Guard state: " + currState);
 
         // Update suspicion level
         if (currState != GuardState.CHASE) { // Only update when not chasing
@@ -171,7 +171,7 @@ public class GuardAIController {
     }
 
     private boolean checkDeAgroed() {
-        System.out.println("Is Deagroed: " + distanceFromGuard(targetPlayer.getPosition()));
+        // System.out.println("Is Deagroed: " + distanceFromGuard(targetPlayer.getPosition()));
         return distanceFromGuard(targetPlayer.getPosition()) >= PLAYER_DEAGRO_RADIUS;
     }
 
@@ -184,10 +184,10 @@ public class GuardAIController {
     }
 
     private Vector2 getNextWaypointLocation(Vector2 targetLocation) {
-        System.out.println("Target Location: " + targetLocation.x + ", " + targetLocation.y);
-//        System.out.println("Target location")
+        // System.out.println("Target Location: " + targetLocation.x + ", " + targetLocation.y);
+//        // System.out.println("Target location")
         List<Node> path = gameGraph.getPath(guard.getPosition().cpy(), targetLocation.cpy());
-//        System.out.println("path " + path);
+//        // System.out.println("path " + path);
 
         if (path.isEmpty()) {
             if (currState == GuardState.CHASE) {
@@ -199,14 +199,14 @@ public class GuardAIController {
         int pathIdx = 0;
         Vector2 nextStep = path.get(pathIdx).getWorldPosition().cpy();
         final float MIN_STEP_DISTANCE = 5.0F;
-        System.out.println("First next step: " + nextStep.x + ", " + nextStep.y);
+        // System.out.println("First next step: " + nextStep.x + ", " + nextStep.y);
 
         // Skip steps that are too close to the guard to prevent jittering
         while (nextStep.dst(guard.getPosition().cpy()) < MIN_STEP_DISTANCE && pathIdx < path.size() - 1) {
             pathIdx++;
             nextStep = path.get(pathIdx).getWorldPosition().cpy();
         }
-        System.out.println("Next step: " + nextStep.x + ", " + nextStep.y);
+        // System.out.println("Next step: " + nextStep.x + ", " + nextStep.y);
         return nextStep;
     }
 
@@ -222,7 +222,7 @@ public class GuardAIController {
                 }
                 else if (tempDistract) { // distraction occurred
                     distractPosition.set(getActivePlayer().getPosition());
-                    System.out.println("Distract position: " + distractPosition);
+                    // System.out.println("Distract position: " + distractPosition);
                     nextTargetLocation = getNextWaypointLocation(distractPosition);
                 }
                 else { // continue to patrol
@@ -253,9 +253,9 @@ public class GuardAIController {
                 this.nextTargetLocation = getNextWaypointLocation(nearestWaypoint);
                 break;
             case DISTRACTED:
-//                System.out.print("distraction position: " + distractPosition);
+//                // System.out.print("distraction position: " + distractPosition);
                 Vector2 tmp = getNextWaypointLocation(distractPosition);
-//                System.out.print("Next waypoint: " + tmp);
+//                // System.out.print("Next waypoint: " + tmp);
                 this.nextTargetLocation = tmp;
                 break;
             default:

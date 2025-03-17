@@ -12,24 +12,31 @@
  */
 package edu.cornell.cis3152.lighting.controllers.screens;
 
+import java.util.Arrays;
+
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import edu.cornell.cis3152.lighting.controllers.AIController;
 import edu.cornell.cis3152.lighting.controllers.GuardAIController;
 import edu.cornell.cis3152.lighting.controllers.InputController;
 import edu.cornell.cis3152.lighting.controllers.UIController;
 import edu.cornell.cis3152.lighting.models.entities.Avatar;
+import edu.cornell.cis3152.lighting.models.entities.Avatar.AvatarType;
 import edu.cornell.cis3152.lighting.models.entities.Cat;
 import edu.cornell.cis3152.lighting.models.entities.Enemy;
 import edu.cornell.cis3152.lighting.models.GameLevel;
 import edu.cornell.cis3152.lighting.models.entities.Guard;
 import edu.cornell.cis3152.lighting.utils.GameGraph;
 import edu.cornell.cis3152.lighting.models.entities.Octopus;
+import edu.cornell.cis3152.lighting.models.entities.SecurityCamera;
 import edu.cornell.cis3152.lighting.models.nonentities.Exit;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
@@ -116,12 +123,16 @@ public class GameScene implements Screen, ContactListener {
     private GameGraph gameGraph;
 
 
+
 	// Camera movement fields
 	private Vector2 cameraTargetPosition;
 	private Vector2 cameraPreviousPosition;
 	private float cameraTransitionTimer;
 	private float cameraTransitionDuration;
 	private boolean inCameraTransition;
+
+	// general-purpose cache vector
+	private Vector2 cacheVec;
 
 	/**
 	 * Returns true if the level is completed.
@@ -220,7 +231,8 @@ public class GameScene implements Screen, ContactListener {
 		countdown = -1;
 
 		camera = new OrthographicCamera();
-		System.out.println("");
+		// System.out.println("");
+		// System.out.println("");
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		// Initialize camera tracking variables
 		cameraTargetPosition = new Vector2();
@@ -228,10 +240,19 @@ public class GameScene implements Screen, ContactListener {
 		cameraTransitionTimer = 0;
 		cameraTransitionDuration = directory.getEntry("constants", JsonValue.class)
 				.getFloat("CAMERA_INTERPOLATION_DURATION");
-		System.out.println(cameraTransitionDuration);
+		// System.out.println(cameraTransitionDuration);
+		inCameraTransition = false;
+		// Initialize camera tracking variables
+		cameraTargetPosition = new Vector2();
+		cameraPreviousPosition = new Vector2();
+		cameraTransitionTimer = 0;
+		cameraTransitionDuration = directory.getEntry("constants", JsonValue.class)
+				.getFloat("CAMERA_INTERPOLATION_DURATION");
+		// System.out.println(cameraTransitionDuration);
 		inCameraTransition = false;
 
         ui = new UIController();
+		cacheVec = new Vector2();
 
 		setComplete(false);
 		setFailure(false);
@@ -357,18 +378,64 @@ public class GameScene implements Screen, ContactListener {
 			level.getAvatar().applyForce();
 			// Save previous camera position before swapping
 			cameraPreviousPosition.set(cameraTargetPosition);
+			// Save previous camera position before swapping
+			cameraPreviousPosition.set(cameraTargetPosition);
 			// swap the active character
 			level.swapActiveAvatar();
 
 			// Start camera transition
 			cameraTransitionTimer = 0;
 			inCameraTransition = true;
+			// Start camera transition
+			cameraTransitionTimer = 0;
+			inCameraTransition = true;
 		}
 		Avatar avatar = level.getAvatar();
 
+		if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
+			Octopus octopus = (Octopus) avatar;
+
+			if (input.isAbilityHeld()) {
+				octopus.setCurrentlyAiming(true);
+				Vector3 unprojected = camera.unproject(
+						new Vector3(input.getAiming().x, input.getAiming().y, 0));
+				cacheVec.set(unprojected.x / level.getLevelScaleX(),
+						unprojected.y / level.getLevelScaleY());
+
+				// TODO: max length should be a configurable value
+				float scale = Math.min(cacheVec.dst(avatar.getPosition()) * level.getLevelScaleX(), 250);
+				double dx = avatar.getPosition().x - cacheVec.x;
+				double dy = avatar.getPosition().y - cacheVec.y;
+				float angleRad = -((float) (Math.atan2(dx, dy) + Math.toRadians(90))); // scuffed math (TODO: fix?)
+				cacheVec.set((float) Math.toDegrees(Math.cos(angleRad)), (float) Math.toDegrees(Math.sin(angleRad)))
+						.nor().scl(scale);
+				octopus.setTarget(cacheVec);
+			}
+			if (octopus.isCurrentlyAiming() && !input.isAbilityHeld()) {
+				octopus.setCurrentlyAiming(false);
+				octopus.setDidFire(true);
+			}
+
+			if (octopus.didFire()) {
+				level.hideInkProjectile();
+				level.createInkProjectile();
+				octopus.setDidFire(false);
+			}
+
+			if ((level.getProjectile().getPosition().dst(avatar.getPosition()) * level.getLevelScaleX()) > (octopus
+					.getTarget().len())) {
+				level.getProjectile().setToHide(true);
+
+			}
+		}
+
+		// Update camera target to active avatar's position
+		cameraTargetPosition.set(avatar.getPosition());
 		// Update camera target to active avatar's position
 		cameraTargetPosition.set(avatar.getPosition());
 
+		// Update camera position with interpolation
+		updateCamera(dt);
 		// Update camera position with interpolation
 		updateCamera(dt);
 
@@ -456,13 +523,16 @@ public class GameScene implements Screen, ContactListener {
             guard.think(controller.getMovementDirection(), controller.getNextTargetLocation());
         });
 
-
+		if (level.getProjectile().getToHide() == true) {
+			level.hideInkProjectile();
+			level.getProjectile().setToHide(false);
+		}
 
 //		updateGuards();
 
 		// Turn the physics engine crank.
 		level.update(dt);
-        System.out.print("\n\n");
+        // System.out.print("\n\n");
 	}
 
 	/**
@@ -476,6 +546,8 @@ public class GameScene implements Screen, ContactListener {
 	public void draw() {
 		ScreenUtils.clear(0.39f, 0.58f, 0.93f, 1.0f);
 
+		// Set the camera's updated view
+		batch.setProjectionMatrix(camera.combined);
 		// Set the camera's updated view
 		batch.setProjectionMatrix(camera.combined);
 
@@ -549,6 +621,7 @@ public class GameScene implements Screen, ContactListener {
 		}
 	}
 
+
 	void updateGuards() {
 		Array<Enemy> enemies = level.getEnemies();
 		for (Enemy enemy : enemies) {
@@ -562,20 +635,19 @@ public class GameScene implements Screen, ContactListener {
 			if ((guard.isMeowed() && guard.getPosition().dst(guard.getTarget()) < 0.1f)) {
 				guard.setMeow(false);
 			}
-
 			// Check Field-of-view (FOV), making guard agroed if they see a player
-
 
 			moveGuard(guard);
 		}
 
 	}
 
+
 	void moveGuard(Guard guard) {
 
 
         Vector2 direction = guard.getMovementDirection();
-        System.out.print("Direction" + direction);
+        // System.out.print("Direction" + direction);
 
 
 
@@ -673,8 +745,22 @@ public class GameScene implements Screen, ContactListener {
             Obstacle cat = level.getCat().getObstacle();
             Obstacle oct = level.getOctopus().getObstacle();
             Obstacle exit = level.getExit().getObstacle();
+			Obstacle projectile = level.getProjectile().getObstacle();
             Array<Enemy> guards = level.getEnemies();
 
+			if ((o1 == projectile || o2 == projectile)) {
+				Array<SecurityCamera> secCameras = level.getSecurityCameras();
+				for (int i = 0; i < secCameras.size; i++) {
+					Obstacle cam = secCameras.get(i).getObstacle();
+					if (o1 == cam || o2 == cam) {
+						System.out.println("detected collision with camera");
+						// TODO: disable the camera HERE
+						break;
+					}
+				}
+				contact.setEnabled(false);
+				level.getProjectile().setToHide(true);
+			}
 
             for(Enemy guard : guards){
                 Obstacle enemy = guard.getObstacle();
@@ -738,7 +824,6 @@ public class GameScene implements Screen, ContactListener {
                     setComplete(true);
                 }
             }
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

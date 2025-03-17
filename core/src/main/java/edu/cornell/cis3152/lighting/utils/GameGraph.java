@@ -40,7 +40,7 @@ public class GameGraph {
      * @param startY The y-coordinate of the bottom-left corner of the grid in world coordinates
      * @param obstacles A list of obstacle objects that should be considered impassable
      */
-    public GameGraph(int rows, int cols, float startX, float startY, List<ObstacleSprite> obstacles) {
+    public GameGraph(int rows, int cols, float startX, float startY, List<ZoodiniSprite> obstacles) {
         this.ROWS = rows;
         this.COLS = cols;
         this.startX = startX;
@@ -82,7 +82,7 @@ public class GameGraph {
                 // Use "X" for obstacles and "." for passable nodes
                 line.append(node.isObstacle() ? "X " : ". ");
             }
-            System.out.println(line);
+            // System.out.println(line);
         }
     }
 
@@ -118,7 +118,7 @@ public class GameGraph {
         int x = MathUtils.clamp(Math.round(graphIndex.x), 0, this.COLS - 1);
         int y = MathUtils.clamp(Math.round(graphIndex.y), 0, this.ROWS - 1);
 
-        System.out.println("Graph Index: (" + x + ", " + y + ")");
+        // System.out.println("Graph Index: (" + x + ", " + y + ")");
 
         return x >= 0 && x < this.COLS && y >= 0 && y < this.ROWS
             ? this.graph.getNodes().get(y * this.COLS + x)
@@ -235,7 +235,7 @@ public class GameGraph {
      *
      * @param obstacles A list of obstacle objects to mark as impassable
      */
-    private void initializeGraph(List<ObstacleSprite> obstacles) {
+    private void initializeGraph(List<ZoodiniSprite> obstacles) {
         Array<Node> nodes = new Array<>();
         int index = 0;
 
@@ -248,7 +248,7 @@ public class GameGraph {
 
         this.graph = new Graph(nodes);
 
-        System.out.println("Obstacle list size: " + obstacles.size());
+        // System.out.println("Obstacle list size: " + obstacles.size());
         for (ObstacleSprite obs : obstacles) {
             if (!(obs instanceof InteriorWall)) {
                 continue;
@@ -257,7 +257,7 @@ public class GameGraph {
             float width = ((InteriorWall) obs).getWidth();
             float height = ((InteriorWall) obs).getHeight();
             Vector2 size = new Vector2(width, height);
-            System.out.println("Obstacle world position: " + pos + ", size: " + size);
+            // System.out.println("Obstacle world position: " + pos + ", size: " + size);
 
             // Calculate the range of tiles covered by the obstacle
             int startX = MathUtils.floor((pos.x - size.x / 2) / TERRAIN_TILE_SIZE);
@@ -270,8 +270,8 @@ public class GameGraph {
                 for (int y = startY; y < endY; y++) {
                     Node node = getNode(new Vector2(x * TERRAIN_TILE_SIZE, y * TERRAIN_TILE_SIZE));
                     if (node != null) {
-                        System.out.println("Node index: " + node.index + ", Grid coordinates: (" +
-                            node.getTileCoords().x + "," + node.getTileCoords().y + ")");
+                        // System.out.println("Node index: " + node.index + ", Grid coordinates: (" +
+                        //     node.getTileCoords().x + "," + node.getTileCoords().y + ")");
                         node.isObstacle = true;
                     }
                 }
@@ -315,10 +315,10 @@ public class GameGraph {
         Node start = getNode(currPos);
         Node end = getNode(targetPos);
 
-        System.out.println("Graph's target: "+ end.getWorldPosition());
+        // System.out.println("Graph's target: "+ end.getWorldPosition());
         // Check if start or end node is null
         if (start == null || end == null) {
-            System.err.println("Error: Start or end node is null.");
+            // System.err.println("Error: Start or end node is null.");
             return new ArrayList<>();
         }
 
@@ -330,9 +330,9 @@ public class GameGraph {
             if (!node.equals(start)) {
                 path.add(node);
             }
-            System.out.print(node.getWorldPosition() + " ");
+            // System.out.print(node.getWorldPosition() + " ");
         }
-        System.out.print("\n");
+        // System.out.print("\n");
         return path;
     }
 

@@ -282,8 +282,8 @@ public class Grid {
 
     public void printGrid() {
         boolean gFlag = false;
-        System.out.println(width);
-        System.out.println(height);
+        // System.out.println(width);
+        // System.out.println(height);
         for (int j = height - 1; j >= 0; j--) {
             String[] row = new String[width];
             for (int i = 0; i < width; i++) {
@@ -294,9 +294,9 @@ public class Grid {
                     row[i] = grid[i][j].wall ? "X" : "O";
                 }
             }
-            System.out.println(String.join(" ", row));
+            // System.out.println(String.join(" ", row));
         }
-        System.out.println("Goal: " + gFlag);
+        // System.out.println("Goal: " + gFlag);
     }
 
     public boolean isGoalSet() {

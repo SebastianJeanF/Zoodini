@@ -20,6 +20,7 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
 import edu.cornell.cis3152.lighting.models.GameLevel;
+import edu.cornell.cis3152.lighting.utils.ZoodiniSprite;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.assets.ParserUtils;
 import edu.cornell.gdiac.graphics.SpriteMesh;
@@ -30,7 +31,7 @@ import edu.cornell.gdiac.physics2.WheelObstacle;
 /**
  * Player avatar for the lighting demo.
  */
-public class Avatar extends ObstacleSprite {
+public class Avatar extends ZoodiniSprite {
 	// Physics constants
 	/** The factor to multiply by the input */
 	private float force;
@@ -58,8 +59,8 @@ public class Avatar extends ObstacleSprite {
 	private Vector2 forceCache = new Vector2();
 
 	public enum AvatarType {
-		GAR,
-		OTTO,
+		CAT,
+		OCTOPUS,
 		ENEMY
 	}
 

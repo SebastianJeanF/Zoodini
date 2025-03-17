@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 
 import edu.cornell.cis3152.lighting.models.GameLevel;
+import edu.cornell.cis3152.lighting.utils.ZoodiniSprite;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.assets.ParserUtils;
 import edu.cornell.gdiac.graphics.SpriteMesh;
@@ -26,7 +27,7 @@ import edu.cornell.gdiac.physics2.*;
  * This class is largely just a constructor. Everything else is provided by the
  * subclass.
  */
-public class Exit extends ObstacleSprite {
+public class Exit extends ZoodiniSprite {
     /** Whether this door is locked */
     private boolean locked;
     /** The texture to use when the door is locked */

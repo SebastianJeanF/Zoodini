@@ -5,6 +5,17 @@
 			"wrapU": "repeated",
 			"wrapV": "repeated"
     	},
+		"ink-projectile": {
+            "file":  "textures/ink_projectile.png",
+            "wrap":   false,
+            "sprites":  {
+                "ink" : {
+                  "size" : 1,
+                  "rows" : 1,
+                  "cols" : 1
+                }
+            }
+        },
     	"dude": {
     		"file": 	"textures/walking.png",
     		"wrap":  	false,

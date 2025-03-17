@@ -35,26 +35,35 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.*;
 
 import com.badlogic.gdx.utils.ObjectMap.Entries;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.ObjectMap.Values;
 import edu.cornell.cis3152.lighting.utils.HardEdgeLightShader;
+import edu.cornell.cis3152.lighting.utils.ZoodiniSprite;
+import edu.cornell.cis3152.lighting.controllers.InputController;
 import edu.cornell.cis3152.lighting.models.entities.Avatar;
 import edu.cornell.cis3152.lighting.models.entities.Cat;
 import edu.cornell.cis3152.lighting.models.entities.Enemy;
 import edu.cornell.cis3152.lighting.models.entities.Guard;
 import edu.cornell.cis3152.lighting.models.entities.Octopus;
 import edu.cornell.cis3152.lighting.models.entities.SecurityCamera;
+import edu.cornell.cis3152.lighting.models.entities.Avatar.AvatarType;
 import edu.cornell.cis3152.lighting.models.nonentities.Exit;
 import edu.cornell.cis3152.lighting.models.nonentities.ExteriorWall;
+import edu.cornell.cis3152.lighting.models.nonentities.InkProjectile;
 import edu.cornell.cis3152.lighting.models.nonentities.InteriorWall;
 import edu.cornell.cis3152.lighting.models.nonentities.Key;
 import edu.cornell.cis3152.lighting.utils.VisionCone;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
-import edu.cornell.gdiac.physics2.ObstacleSprite;
+import edu.cornell.gdiac.math.Path2;
+import edu.cornell.gdiac.math.PathExtruder;
+import edu.cornell.gdiac.math.PathFactory;
+import edu.cornell.gdiac.math.Poly2;
+import edu.cornell.gdiac.math.PolyFactory;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.physics2.*;
 
@@ -91,14 +100,19 @@ public class GameLevel {
 
     private OrthographicCamera raycamera;
 
+	private ObjectMap<Enemy, PositionalLight> enemyLights;
+	private PositionalLight[] avatarLights; // TODO: array or separate field for two avatars?
+	// ink projectile (there should only ever be one!!!)
+	private InkProjectile inkProjectile;
+
 	/** Whether or not the level is in debug more (showing off physics) */
 	private boolean debug;
 
 	/** All the object sprites in the world. */
-	protected PooledList<ObstacleSprite> sprites = new PooledList<ObstacleSprite>();
+	protected PooledList<ZoodiniSprite> sprites = new PooledList<ZoodiniSprite>();
 
-    /** All the objects in the world. */
-    protected PooledList<Obstacle> objects = new PooledList<>();
+	/** All the objects in the world. */
+	protected PooledList<Obstacle> objects = new PooledList<>();
 
 	// LET THE TIGHT COUPLING BEGIN
 	/** The Box2D world */
@@ -132,13 +146,13 @@ public class GameLevel {
     /** Reference to the key (for pickup detection) */
     private Key key;
 
-    public float getLevelScaleX(){
-        return levelScaleX;
-    }
+	public float getLevelScaleX() {
+		return levelScaleX;
+	}
 
-    public float getLevelScaleY(){
-        return levelScaleY;
-    }
+	public float getLevelScaleY() {
+		return levelScaleY;
+	}
 
     /**
      * Returns a reference to the key
@@ -197,14 +211,22 @@ public class GameLevel {
 		return goalDoor;
 	}
 
-    /**
-     * Returns a reference to the enemies
-     *
-     * @return a reference to the enemies
-     */
-    public Array<Enemy> getEnemies(){
-        return enemies;
-    }
+	public Array<SecurityCamera> getSecurityCameras() {
+		return securityCameras;
+	}
+
+	/**
+	 * Returns a reference to the enemies
+	 *
+	 * @return a reference to the enemies
+	 */
+	public Array<Enemy> getEnemies() {
+		return enemies;
+	}
+
+	public InkProjectile getProjectile() {
+		return inkProjectile;
+	}
 
 	/**
 	 * Returns whether this level is currently in debug node
@@ -302,8 +324,8 @@ public class GameLevel {
 		bounds = new Rectangle(0, 0, pSize[0], pSize[1]);
 		units = gSize[1] / pSize[1];
 
-        levelScaleX = gSize[0] / pSize[0];
-        levelScaleY = gSize[1] / pSize[1];
+		levelScaleX = gSize[0] / pSize[0];
+		levelScaleY = gSize[1] / pSize[1];
 
 		// Compute the FPS
 		int[] fps = levelGlobals.get("fps_range").asIntArray();
@@ -378,6 +400,14 @@ public class GameLevel {
         RayHandler.useDiffuseLight(true);
         RayHandler.setGammaCorrection(true);
         rayHandler.setAmbientLight(0.5f,0.5f,0.5f,0.5f);
+
+		// Initialize an ink projectile (but do not add it to the physics world, we only
+		// do that on demand)
+		JsonValue projectileData = levelGlobals.get("ink");
+		inkProjectile = new InkProjectile(directory, projectileData, units);
+		activate(inkProjectile);
+		inkProjectile.setDrawingEnabled(false);
+		inkProjectile.getObstacle().setActive(false);
 	}
 
     private void initializeVisionCones(JsonValue json){
@@ -427,12 +457,12 @@ public class GameLevel {
 	/**
 	 * Immediately adds the object to the physics world
 	 *
-	 * param obj The object to add
+	 * @param obj The object to add
 	 */
-	protected void activate(ObstacleSprite sprite) {
+	protected void activate(ZoodiniSprite sprite) {
 		assert inBounds(sprite.getObstacle()) : "Object is not in bounds";
 		sprites.add(sprite);
-        objects.add(sprite.getObstacle());
+		objects.add(sprite.getObstacle());
 		sprite.getObstacle().activatePhysics(world);
 	}
 
@@ -440,7 +470,7 @@ public class GameLevel {
         return objects;
     }
 
-    public PooledList<ObstacleSprite> getSprites() {
+    public PooledList<ZoodiniSprite> getSprites() {
         return sprites;
     }
 
@@ -457,6 +487,21 @@ public class GameLevel {
 		boolean horiz = (bounds.x <= obj.getX() && obj.getX() <= bounds.x + bounds.width);
 		boolean vert = (bounds.y <= obj.getY() && obj.getY() <= bounds.y + bounds.height);
 		return horiz && vert;
+	}
+
+	public void createInkProjectile() {
+		inkProjectile.setPosition(this.getAvatar().getPosition());
+		inkProjectile.getObstacle().setActive(true);
+		inkProjectile.setDrawingEnabled(true);
+		Octopus o = (Octopus) getAvatar();
+		Vector2 facing = o.getTarget().nor();
+		inkProjectile.setMovement(facing.x, facing.y);
+		inkProjectile.applyForce();
+	}
+
+	public void hideInkProjectile() {
+		inkProjectile.getObstacle().setActive(false);
+		inkProjectile.setDrawingEnabled(false);
 	}
 
 	/**
@@ -503,6 +548,7 @@ public class GameLevel {
 
 			avatarCat.update(dt);
 			avatarOctopus.update(dt);
+			inkProjectile.update(dt);
 			return true;
 		}
 		return false;
@@ -556,9 +602,20 @@ public class GameLevel {
         }
 
         batch.begin(camera);
-		for (ObstacleSprite obj : sprites) {
-			obj.draw(batch);
+		for (ZoodiniSprite obj : sprites) {
+			if (obj.isDrawingEnabled()) {
+				obj.draw(batch);
+			}
 		}
+
+		Avatar avatar = getAvatar();
+		if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
+			Octopus octopus = (Octopus) avatar;
+			if (octopus.isCurrentlyAiming()) {
+				drawOctopusReticle(batch, camera);
+			}
+		}
+
 		batch.end();
 
         rayHandler.render();
@@ -571,6 +628,40 @@ public class GameLevel {
 			}
 			batch.end();
 		}
+	}
+
+	/**
+	 * Draws a reticle on the screen to indicate aiming direction.
+	 *
+	 * <p>
+	 * This method retrieves the player's avatar and calculates the aiming position
+	 * relative to the game world using the camera's unprojection. It then
+	 * determines the direction from the avatar to the aiming position and draws a
+	 * purple reticle using a rotated rectangle.
+	 * </p>
+	 *
+	 * @param batch  the sprite batch used for rendering
+	 * @param camera the camera used to unproject screen coordinates to world
+	 *               coordinates
+	 */
+	private void drawOctopusReticle(SpriteBatch batch, Camera camera) {
+		Octopus octopus = (Octopus) getAvatar();
+		batch.setTexture(null);
+		batch.setColor(Color.BLACK);
+		float x = octopus.getObstacle().getX();
+		float y = octopus.getObstacle().getY();
+		float u = octopus.getObstacle().getPhysicsUnits();
+
+		Vector2 target = octopus.getTarget();
+
+		// TODO: a couple of magic numbers here need to be config values I think
+		Path2 reticlePath = new PathFactory().makeCircle(target.x, target.y, 25);
+		PathExtruder extruder = new PathExtruder(reticlePath);
+		extruder.calculate(3);
+		Affine2 transform = new Affine2();
+		transform.preTranslate(x * u, y * u);
+		batch.draw((TextureRegion) null, extruder.getPolygon(), transform);
+		batch.setColor(Color.WHITE);
 	}
 
 	/**

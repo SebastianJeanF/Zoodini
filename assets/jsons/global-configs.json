@@ -107,5 +107,17 @@
     "texture": "unlocked_door",
     "locked_texture": "locked_door",
     "debug": "#ffff00C8"
-  }
+  },
+  "ink": {
+    "radius":       0.2,
+    "spriterad":    0.2,
+    "startframe":   0,
+    "collide":      "0010",
+    "exclude":      "0001",
+    "texture":      "ink-projectile.ink",
+    "debug":        "#ffffffC0",
+    "density":      1.0,
+    "friction":     0.0,
+    "restitution":  0.0
+  },
 }

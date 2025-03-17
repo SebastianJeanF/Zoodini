@@ -5,6 +5,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.cis3152.lighting.models.GameLevel;
+import edu.cornell.cis3152.lighting.utils.ZoodiniSprite;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.assets.ParserUtils;
 import edu.cornell.gdiac.graphics.SpriteMesh;
@@ -12,7 +13,7 @@ import edu.cornell.gdiac.graphics.SpriteSheet;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.physics2.WheelObstacle;
 
-public class SecurityCamera extends ObstacleSprite {
+public class SecurityCamera extends ZoodiniSprite {
 
     private int startFrame;
 
