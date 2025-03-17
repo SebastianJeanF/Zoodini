@@ -359,35 +359,157 @@ public class GameScene implements Screen, ContactListener {
 		// Process actions in object model
 		InputController input = InputController.getInstance();
 
+        onSwap(input);
 
-		if (input.didSwap()) {
-			// stop active character movement
-			level.getAvatar().setMovement(0, 0);
-			level.getAvatar().applyForce();
-			// Save previous camera position before swapping
-			cameraPreviousPosition.set(cameraTargetPosition);
-			// Save previous camera position before swapping
-			cameraPreviousPosition.set(cameraTargetPosition);
-			// swap the active character
-			level.swapActiveAvatar();
+        Avatar avatar = level.getAvatar();
 
-			// Start camera transition
-			cameraTransitionTimer = 0;
-			inCameraTransition = true;
-			// Start camera transition
-			cameraTransitionTimer = 0;
-			inCameraTransition = true;
-		}
+        checkFlipSprite(avatar, input);
 
-		Avatar avatar = level.getAvatar();
+        updateOctopusInkAim(avatar, input);
 
+        rotateEntities(input, avatar);
 
-        // flips the sprite if the avatar is moving left
-        if (!avatar.isFlipped() && input.getHorizontal() == -1f || avatar.isFlipped() && input.getHorizontal() == 1f) {
-            avatar.flipSprite();
+        moveEntities(avatar);
+
+        // Update camera target to active avatar's position
+        cameraTargetPosition.set(avatar.getPosition());
+        // Update camera position with interpolation
+        updateCamera(dt);
+
+        ui.update();
+
+        // Update key message timer
+        if(keyMessageTimer > 0) {
+            keyMessageTimer--;
+            if(keyMessageTimer == 0) {
+                ui.setMessage(null); // Clear message when timer expires
+            }
         }
 
-		if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
+        updateDoorUnlocking();
+
+        checkDeactivateKeyOnCollect();
+
+        // Set meow guard flag
+        // TODO: Ideally, guards should only notice the meow the frame AFTER it happened,
+        // but this is good enough for now
+//        if (input.didAbility() && level.getAvatar() instanceof Cat ) {
+//            for (Enemy t : level.getEnemies()) {
+//                Guard guard = (Guard) t;
+//                float DISTRACT_DISTANCE = 5.0f;
+//                if (guard.getPosition().dst(avatar.getPosition()) < DISTRACT_DISTANCE) {
+////                    guard.setMeow(true);
+////                    guard.setTarget(avatar.getPosition());
+//                }
+//            }
+//        }
+
+		// Update guards
+        updateGuardAI();
+
+        updateInkProjectile();
+
+        // Turn the physics engine crank.
+		level.update(dt);
+	}
+
+    private void checkDeactivateKeyOnCollect() {
+        // Deactivate collected key's physics body if needed
+        if (keyCollected && level.getKey() != null && level.getKey().getObstacle().isActive()) {
+            // This is the safe time to modify physics bodies
+            level.getKey().getObstacle().setActive(false);
+        }
+    }
+
+    private void onSwap(InputController input) {
+        if (input.didSwap()) {
+            // stop active character movement
+            level.getAvatar().setMovement(0, 0);
+            level.getAvatar().applyForce();
+            // Save previous camera position before swapping
+            cameraPreviousPosition.set(cameraTargetPosition);
+            // Save previous camera position before swapping
+            cameraPreviousPosition.set(cameraTargetPosition);
+            // swap the active character
+            level.swapActiveAvatar();
+
+            // Start camera transition
+            cameraTransitionTimer = 0;
+            inCameraTransition = true;
+            // Start camera transition
+            cameraTransitionTimer = 0;
+            inCameraTransition = true;
+        }
+    }
+
+    private void updateGuardAI() {
+        guardToAIController.forEach((guard, controller) -> {
+            controller.update();
+            guard.think(controller.getMovementDirection(), controller.getNextTargetLocation());
+        });
+    }
+
+    private void updateInkProjectile() {
+        if (level.getProjectile().getToHide()) {
+            level.hideInkProjectile();
+            level.getProjectile().setToHide(false);
+        }
+    }
+
+    private void updateDoorUnlocking() {
+        // Update door unlocking progress
+        if(isUnlocking) {
+            unlockingTimer++;
+
+            // Update unlocking message percentage
+            if (unlockingTimer % 15 == 0) { // Update message every 1/4 second
+                BitmapFont font = directory.getEntry("display", BitmapFont.class);
+                TextLayout message = new TextLayout("Unlocking Door: " +
+                    Math.round((float) unlockingTimer / UNLOCK_DURATION * 100) + "%",
+                    font);
+                message.setAlignment(TextAlign.middleCenter);
+                message.setColor(Color.YELLOW);
+                message.layout();
+                ui.setFont(font);
+                ui.setMessage(message);
+            }
+            // Check if door is fully unlocked
+            if (unlockingTimer >= UNLOCK_DURATION) {
+                level.getExit().setLocked(false);
+                isUnlocking = false;
+
+                // Show door unlocked message
+                BitmapFont font = directory.getEntry("display", BitmapFont.class);
+                TextLayout message = new TextLayout("Door Unlocked!", font);
+                message.setAlignment(TextAlign.middleCenter);
+                message.setColor(Color.GREEN);
+                message.layout();
+                ui.setFont(font);
+                ui.setMessage(message);
+                keyMessageTimer = 120; // 2 seconds at 60 fps to show unlock message
+            }
+        }
+    }
+
+    private void moveEntities(Avatar avatar) {
+        angleCache.scl(avatar.getForce());
+        avatar.setMovement(angleCache.x, angleCache.y);
+        avatar.applyForce();
+    }
+
+    private void rotateEntities(InputController input, Avatar avatar) {
+        // Rotate the avatar to face the direction of movement
+        angleCache.set(input.getHorizontal(), input.getVertical());
+        if (angleCache.len2() > 0.0f) {
+            float angle = angleCache.angleDeg();
+            // Convert to radians with up as 0
+            angle = (float) Math.PI * (angle - 90.0f) / 180.0f;
+            avatar.getObstacle().setAngle(angle);
+        }
+    }
+
+    private void updateOctopusInkAim(Avatar avatar, InputController input) {
+        if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
 			Octopus octopus = (Octopus) avatar;
 
 			if (input.isAbilityHeld()) {
@@ -423,108 +545,16 @@ public class GameScene implements Screen, ContactListener {
 
 			}
 		}
+    }
 
-		// Rotate the avatar to face the direction of movement
-		angleCache.set(input.getHorizontal(), input.getVertical());
-		if (angleCache.len2() > 0.0f) {
-			float angle = angleCache.angleDeg();
-			// Convert to radians with up as 0
-			angle = (float) Math.PI * (angle - 90.0f) / 180.0f;
-			avatar.getObstacle().setAngle(angle);
-		}
-		angleCache.scl(avatar.getForce());
-		avatar.setMovement(angleCache.x, angleCache.y);
-		avatar.applyForce();
-
-        // Update camera target to active avatar's position
-        cameraTargetPosition.set(avatar.getPosition());
-        // Update camera position with interpolation
-        updateCamera(dt);
-		camera.update();
-
-        ui.update();
-
-        // Update key message timer
-        if(keyMessageTimer > 0) {
-            keyMessageTimer--;
-            if(keyMessageTimer == 0) {
-                ui.setMessage(null); // Clear message when timer expires
-            }
+    private static void checkFlipSprite(Avatar avatar, InputController input) {
+        // flips the sprite if the avatar is moving left
+        if (!avatar.isFlipped() && input.getHorizontal() == -1f || avatar.isFlipped() && input.getHorizontal() == 1f) {
+            avatar.flipSprite();
         }
+    }
 
-        // Update door unlocking progress
-        if(isUnlocking) {
-            unlockingTimer++;
-
-            // Update unlocking message percentage
-            if (unlockingTimer % 15 == 0) { // Update message every 1/4 second
-                BitmapFont font = directory.getEntry("display", BitmapFont.class);
-                TextLayout message = new TextLayout("Unlocking Door: " +
-                    Math.round((float) unlockingTimer / UNLOCK_DURATION * 100) + "%",
-                    font);
-                message.setAlignment(TextAlign.middleCenter);
-                message.setColor(Color.YELLOW);
-                message.layout();
-                ui.setFont(font);
-                ui.setMessage(message);
-            }
-            // Check if door is fully unlocked
-            if (unlockingTimer >= UNLOCK_DURATION) {
-                level.getExit().setLocked(false);
-                isUnlocking = false;
-
-                // Show door unlocked message
-                BitmapFont font = directory.getEntry("display", BitmapFont.class);
-                TextLayout message = new TextLayout("Door Unlocked!", font);
-                message.setAlignment(TextAlign.middleCenter);
-                message.setColor(Color.GREEN);
-                message.layout();
-                ui.setFont(font);
-                ui.setMessage(message);
-                keyMessageTimer = 120; // 2 seconds at 60 fps to show unlock message
-            }
-        }
-
-
-        // Deactivate collected key's physics body if needed
-        if (keyCollected && level.getKey() != null && level.getKey().getObstacle().isActive()) {
-            // This is the safe time to modify physics bodies
-            level.getKey().getObstacle().setActive(false);
-        }
-
-        // Set meow guard flag
-        // TODO: Ideally, guards should only notice the meow the frame AFTER it happened,
-        // but this is good enough for now
-//        if (input.didAbility() && level.getAvatar() instanceof Cat ) {
-//            for (Enemy t : level.getEnemies()) {
-//                Guard guard = (Guard) t;
-//                float DISTRACT_DISTANCE = 5.0f;
-//                if (guard.getPosition().dst(avatar.getPosition()) < DISTRACT_DISTANCE) {
-////                    guard.setMeow(true);
-////                    guard.setTarget(avatar.getPosition());
-//                }
-//            }
-//        }
-
-		// Update guards
-        guardToAIController.forEach((guard, controller) -> {
-            controller.update();
-            guard.think(controller.getMovementDirection(), controller.getNextTargetLocation());
-        });
-
-		if (level.getProjectile().getToHide() == true) {
-			level.hideInkProjectile();
-			level.getProjectile().setToHide(false);
-		}
-
-//		updateGuards();
-
-		// Turn the physics engine crank.
-		level.update(dt);
-        // System.out.print("\n\n");
-	}
-
-	/**
+    /**
 	 * Draw the physics objects to the canvas
 	 *
 	 * For simple worlds, this method is enough by itself. It will need
