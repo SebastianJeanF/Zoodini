@@ -96,7 +96,7 @@
         "goal": "textures/helicopter.png",
         "key": "textures/key.png",
         "locked_door": "textures/locked_door.png",
-        "unlocked_door": "textures/unlocked_door.png"
+        "unlocked_door": "textures/panda-sprite.png"
   	},
   	"fonts": {
   		"display": {
