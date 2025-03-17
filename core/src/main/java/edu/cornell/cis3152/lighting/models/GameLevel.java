@@ -37,10 +37,6 @@ import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
-import com.badlogic.gdx.utils.ObjectMap.Entries;
-import com.badlogic.gdx.utils.ObjectMap.Entry;
-import com.badlogic.gdx.utils.ObjectMap.Values;
-import edu.cornell.cis3152.lighting.utils.HardEdgeLightShader;
 import edu.cornell.cis3152.lighting.models.entities.Avatar;
 import edu.cornell.cis3152.lighting.models.entities.Cat;
 import edu.cornell.cis3152.lighting.models.entities.Enemy;
@@ -361,7 +357,7 @@ public class GameLevel {
 
         for(SecurityCamera cam : securityCameras){
             VisionCone vc = new VisionCone(rayNum, Vector2.Zero, radius, 0.0f, wideness, c, units, mask, category);
-            vc.attachToBody(cam.getObstacle().getBody(), 90.0f);
+            vc.attachToBody(cam.getObstacle().getBody(), 180.0f);
             visions.put(cam, vc);
         }
 
@@ -422,15 +418,15 @@ public class GameLevel {
 	}
 
 	/**
-	 * Updates all of the models in the level.
-	 *
-	 * This is borderline controller functionality. However, we have to do this
-	 * because
-	 * of how tightly coupled everything is.
-	 *
-	 * @param dt the time passed since the last frame
-	 */
-	public boolean update(float dt) {
+     * Updates all of the models in the level.
+     * <p>
+     * This is borderline controller functionality. However, we have to do this
+     * because
+     * of how tightly coupled everything is.
+     *
+     * @param dt the time passed since the last frame
+     */
+	public void update(float dt) {
 		if (fixedStep(dt)) {
             for(ObstacleSprite key: visions.keys()){
                 VisionCone v = visions.get(key);
@@ -447,10 +443,11 @@ public class GameLevel {
 
 			avatarCat.update(dt);
 			avatarOctopus.update(dt);
-			return true;
-		}
-		return false;
-	}
+            for (Enemy e : enemies) {
+                e.update(dt);
+            }
+        }
+    }
 
 	/**
 	 * Fixes the physics frame rate to be in sync with the animation framerate

@@ -4,6 +4,8 @@ import com.badlogic.gdx.utils.JsonValue;
 
 import edu.cornell.cis3152.lighting.models.entities.Avatar;
 import edu.cornell.gdiac.assets.AssetDirectory;
+import edu.cornell.gdiac.graphics.SpriteBatch;
+import edu.cornell.gdiac.graphics.SpriteMesh;
 
 /**
  * Player avatar for the plaform game.
@@ -14,8 +16,7 @@ import edu.cornell.gdiac.assets.AssetDirectory;
 public class Octopus extends Avatar {
     /// Whether or not this Otto instance has triggered the blind action
     private boolean inked;
-    private float flipScale = 1.0f;
-
+    private final float OCTOPUS_IMAGE_SCALE = 1.25f;
     /**
      * Gets the current value of <code>inked</code>.
      *
@@ -34,11 +35,15 @@ public class Octopus extends Avatar {
         inked = value;
     }
 
-    public void setFlipScale(float scale) {
-        flipScale = scale;
-    }
-
     public Octopus(AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
         super(AvatarType.OTTO, directory, json, globals, units);
+        float r = globals.getFloat("spriterad") * OCTOPUS_IMAGE_SCALE * units;
+        mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
+    }
+
+    @Override
+    public void update(float dt){
+        super.update(dt);
+        setAngle(0);
     }
 }

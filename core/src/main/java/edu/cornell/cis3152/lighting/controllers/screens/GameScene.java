@@ -299,13 +299,19 @@ public class GameScene implements Screen, ContactListener {
 			cameraTransitionTimer = 0;
 			inCameraTransition = true;
 		}
+
 		Avatar avatar = level.getAvatar();
 
-		// Update camera target to active avatar's position
-		cameraTargetPosition.set(avatar.getPosition());
+        // Update camera target to active avatar's position
+        cameraTargetPosition.set(avatar.getPosition());
 
-		// Update camera position with interpolation
-		updateCamera(dt);
+        // Update camera position with interpolation
+        updateCamera(dt);
+
+        // flips the sprite if the avatar is moving left
+        if (!avatar.isFlipped() && input.getHorizontal() == -1f || avatar.isFlipped() && input.getHorizontal() == 1f) {
+            avatar.flipSprite();
+        }
 
 		// Rotate the avatar to face the direction of movement
 		angleCache.set(input.getHorizontal(), input.getVertical());
@@ -318,13 +324,6 @@ public class GameScene implements Screen, ContactListener {
 		angleCache.scl(avatar.getForce());
 		avatar.setMovement(angleCache.x, angleCache.y);
 		avatar.applyForce();
-
-		camera.translate(1f, 0, 0);
-
-		// camera.lookAt(camera.viewportHeight,camera.viewportWidth,0);
-		// camera.
-
-		camera.update();
 
 		// Update guards
 		updateGuards();
