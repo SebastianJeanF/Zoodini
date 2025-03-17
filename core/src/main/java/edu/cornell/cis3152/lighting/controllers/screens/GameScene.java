@@ -400,6 +400,7 @@ public class GameScene implements Screen, ContactListener {
 
 		// Update guards
         updateGuardAI();
+        updateGuards();
 
         updateInkProjectile();
 
@@ -648,6 +649,12 @@ public class GameScene implements Screen, ContactListener {
 			// Check Field-of-view (FOV), making guard agroed if they see a player
 
 			moveGuard(guard);
+			if (guard.isMeowed()) {
+
+			}
+
+			// guard.updatePatrol();
+			// moveGuard(guard);
 		}
 
 	}

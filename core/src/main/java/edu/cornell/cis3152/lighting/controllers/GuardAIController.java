@@ -198,7 +198,7 @@ public class GuardAIController {
 
         int pathIdx = 0;
         Vector2 nextStep = path.get(pathIdx).getWorldPosition().cpy();
-        final float MIN_STEP_DISTANCE = 5.0F;
+        final float MIN_STEP_DISTANCE = 1.0F;
         // System.out.println("First next step: " + nextStep.x + ", " + nextStep.y);
 
         // Skip steps that are too close to the guard to prevent jittering
