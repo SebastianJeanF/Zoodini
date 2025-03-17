@@ -12,12 +12,8 @@
  */
 package edu.cornell.cis3152.lighting.controllers.screens;
 
-import java.util.Arrays;
-
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -29,14 +25,12 @@ import edu.cornell.cis3152.lighting.controllers.InputController;
 import edu.cornell.cis3152.lighting.controllers.UIController;
 import edu.cornell.cis3152.lighting.models.entities.Avatar;
 import edu.cornell.cis3152.lighting.models.entities.Avatar.AvatarType;
-import edu.cornell.cis3152.lighting.models.entities.Cat;
 import edu.cornell.cis3152.lighting.models.entities.Enemy;
 import edu.cornell.cis3152.lighting.models.GameLevel;
 import edu.cornell.cis3152.lighting.models.entities.Guard;
 import edu.cornell.cis3152.lighting.utils.GameGraph;
 import edu.cornell.cis3152.lighting.models.entities.Octopus;
 import edu.cornell.cis3152.lighting.models.entities.SecurityCamera;
-import edu.cornell.cis3152.lighting.models.nonentities.Exit;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.TextAlign;
@@ -770,10 +764,10 @@ public class GameScene implements Screen, ContactListener {
 			if ((o1 == projectile || o2 == projectile)) {
 				Array<SecurityCamera> secCameras = level.getSecurityCameras();
 				for (int i = 0; i < secCameras.size; i++) {
-					Obstacle cam = secCameras.get(i).getObstacle();
-					if (o1 == cam || o2 == cam) {
-						System.out.println("detected collision with camera");
-						// TODO: disable the camera HERE
+					SecurityCamera cam = secCameras.get(i);
+					Obstacle camObstacle = secCameras.get(i).getObstacle();
+					if (o1 == camObstacle || o2 == camObstacle) {
+						cam.setDisabled(true);
 						break;
 					}
 				}

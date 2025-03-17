@@ -123,7 +123,7 @@ public class GameLevel {
     private float units;
     private Array<Enemy> enemies;
     private Array<SecurityCamera> securityCameras;
-    private ObjectMap<ObstacleSprite, VisionCone> visions;
+    private ObjectMap<ZoodiniSprite, VisionCone> visions;
     RayHandler rayHandler;
 
 	// TO FIX THE TIMESTEP
@@ -515,8 +515,9 @@ public class GameLevel {
      */
 	public void update(float dt) {
 		if (fixedStep(dt)) {
-            for(ObstacleSprite key: visions.keys()){
-                VisionCone v = visions.get(key);
+            for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry: visions.entries()){
+                VisionCone v = entry.value;
+				ZoodiniSprite key = entry.key;
                 v.update(world);
                 if(v.contains(avatarCat.getPosition())){
                     if(key instanceof Guard){
@@ -598,8 +599,11 @@ public class GameLevel {
     public void draw(SpriteBatch batch, Camera camera) {
 		// Draw the sprites first (will be hidden by shadows)
 
-        for(VisionCone v : visions.values()){
-            v.draw(batch,camera);
+        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
+			if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
+				continue;
+			}
+            entry.value.draw(batch,camera);
         }
 
         batch.begin(camera);
