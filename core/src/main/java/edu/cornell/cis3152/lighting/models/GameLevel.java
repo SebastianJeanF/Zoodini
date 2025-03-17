@@ -440,6 +440,10 @@ public class GameLevel {
         return objects;
     }
 
+    public PooledList<ObstacleSprite> getSprites() {
+        return sprites;
+    }
+
 	/**
 	 * Returns true if the object is in bounds.
 	 *
