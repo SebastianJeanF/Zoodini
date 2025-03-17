@@ -400,6 +400,7 @@ public class GameScene implements Screen, ContactListener {
 
 		// Update guards
         updateGuardAI();
+        updateGuards();
 
         updateInkProjectile();
 
