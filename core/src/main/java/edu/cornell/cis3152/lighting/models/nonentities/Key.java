@@ -13,6 +13,7 @@ import edu.cornell.gdiac.assets.ParserUtils;
 import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.physics2.BoxObstacle;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
+import edu.cornell.gdiac.graphics.SpriteBatch;
 
 /**
  * A sensor obstacle representing a key that can be picked up.
@@ -86,4 +87,14 @@ public class Key extends ObstacleSprite {
 
         collected = false;
     }
+    /**
+     * Overrides the draw method to make the key invisible when collected
+     */
+    @Override
+    public void draw(SpriteBatch batch) {
+        if (!collected) {
+            super.draw(batch);
+        }
+    }
+
 }
