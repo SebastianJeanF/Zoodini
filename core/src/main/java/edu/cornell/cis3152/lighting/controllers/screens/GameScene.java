@@ -522,7 +522,7 @@ public class GameScene implements Screen, ContactListener {
 			secCameras.get(i).update(dt);
 		}
 
-//		updateGuards();
+		updateGuards();
 
 		// Turn the physics engine crank.
 		level.update(dt);
