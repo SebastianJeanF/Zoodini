@@ -49,7 +49,7 @@ public class Guard extends Enemy {
         } else {
             // Fallback to default patrol points if none are provided in JSON.
             patrolPoints = new Vector2[] {
-                    new Vector2(1, 8),
+                    new Vector2(10.5f, 8),
                     new Vector2(14, 8)
             };
         }

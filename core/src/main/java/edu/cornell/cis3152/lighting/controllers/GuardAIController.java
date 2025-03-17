@@ -41,7 +41,7 @@ public class GuardAIController {
     /** Min distance from waypoint where the guard will recalculate to next waypoint*/
     private final float WAYPOINT_RADIUS = 1.0F;
 
-    private final int DEAGRRO_PERIOD = 100;
+    private final int DEAGRRO_PERIOD = 60;
     private int deAggroTimer = DEAGRRO_PERIOD;
 
 
