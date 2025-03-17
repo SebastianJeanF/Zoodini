@@ -71,7 +71,7 @@
         "spriterad": 0.6,
         "angle": 90,
         "startframe": 0,
-        "collide": "0001",
+        "collide": "0101",
         "exclude": "0000",
         "texture": "security-camera.camera",
         "debug": "#ffffffC0",
