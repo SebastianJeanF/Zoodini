@@ -113,14 +113,16 @@ public class GameGraph {
     }
 
 
-    public void drawGraphDebug(ShapeRenderer shapeRenderer , OrthographicCamera camera) {
+    public void drawGraphDebug(ShapeRenderer shapeRenderer , OrthographicCamera camera,
+                               Vector2 nextTargetLocation) {
         shapeRenderer.setProjectionMatrix(camera.combined);
 
 
         // Assume each node represents a 1x1 unit area (based on TERRAIN_TILE_SIZE)
         final float SCALE = 62.5f; // I got this number through trial and error lol
         float tileSize = 1.0f * SCALE;
-        System.out.print("Number of nodes: " + graph.nodes.size + "\n");
+//        System.out.print("Number of nodes: " + graph.nodes.size + "\n");
+
         // Iterate over all nodes in the game graph
         for (GameGraph.Node node : graph.nodes) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -130,6 +132,10 @@ public class GameGraph {
             // Draw a rectangle outline for the node
             shapeRenderer.setColor(Color.WHITE);
             shapeRenderer.rect(pos.x, pos.y, tileSize, tileSize);
+
+            shapeRenderer.setColor(Color.RED);
+            shapeRenderer.rect(nextTargetLocation.x * SCALE, nextTargetLocation.y * SCALE, tileSize, tileSize);
+
 
             // Draw the edges (connections) from this node
             shapeRenderer.setColor(Color.GREEN);

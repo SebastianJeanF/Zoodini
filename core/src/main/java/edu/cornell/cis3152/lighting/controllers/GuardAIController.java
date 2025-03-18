@@ -314,7 +314,7 @@ public class GuardAIController {
     }
 
     public void drawGraphDebug(ShapeRenderer shapeRenderer , OrthographicCamera camera) {
-        gameGraph.drawGraphDebug(shapeRenderer, camera);
+        gameGraph.drawGraphDebug(shapeRenderer, camera, nextTargetLocation);
     }
 
 
