@@ -13,6 +13,8 @@
 package edu.cornell.cis3152.lighting.controllers.screens;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.ai.pfa.Connection;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
@@ -544,7 +546,8 @@ public class GameScene implements Screen, ContactListener {
             avatar.flipSprite();
         }
     }
-
+    // In your GameScene class (or a dedicated debug-drawing class)
+    private ShapeRenderer shapeRenderer = new ShapeRenderer();
     /**
 	 * Draw the physics objects to the canvas
 	 *
@@ -566,9 +569,15 @@ public class GameScene implements Screen, ContactListener {
         // Final message
         ui.draw(batch);
 
+        // Draw the graph of one of the guards
+        guardToAIController.values().stream().findFirst().ifPresent(
+            controller -> controller.drawGraphDebug(shapeRenderer, camera));
 	}
 
-	/**
+
+
+
+    /**
 	 * Updates the camera position with interpolation when transitioning
 	 */
 	private void updateCamera(float dt) {

@@ -2,6 +2,9 @@ package edu.cornell.cis3152.lighting.controllers;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ai.pfa.Connection;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import edu.cornell.cis3152.lighting.models.GameLevel;
 import edu.cornell.cis3152.lighting.models.entities.Avatar;
@@ -309,6 +312,11 @@ public class GuardAIController {
             return this.nextTargetLocation.cpy().sub(guard.getPosition()).nor();
         }
     }
+
+    public void drawGraphDebug(ShapeRenderer shapeRenderer , OrthographicCamera camera) {
+        gameGraph.drawGraphDebug(shapeRenderer, camera);
+    }
+
 
     private static enum GuardState {
         /** Guard is patrolling without target*/
