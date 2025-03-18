@@ -3,6 +3,7 @@ package edu.cornell.cis3152.lighting.utils;
 import com.badlogic.gdx.ai.pfa.*;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
@@ -114,28 +115,35 @@ public class GameGraph {
 
     public void drawGraphDebug(ShapeRenderer shapeRenderer , OrthographicCamera camera) {
         shapeRenderer.setProjectionMatrix(camera.combined);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+
 
         // Assume each node represents a 1x1 unit area (based on TERRAIN_TILE_SIZE)
-        float tileSize = 1.0f;
+        final float SCALE = 62.5f; // I got this number through trial and error lol
+        float tileSize = 1.0f * SCALE;
         System.out.print("Number of nodes: " + graph.nodes.size + "\n");
         // Iterate over all nodes in the game graph
         for (GameGraph.Node node : graph.nodes) {
-            Vector2 pos = node.getWorldPosition();
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            Vector2 pos = node.getWorldPosition().cpy().scl(SCALE);
+
+//            System.out.print("X, Y Position: " + pos.x + ", " + pos.y + "\n");
             // Draw a rectangle outline for the node
+            shapeRenderer.setColor(Color.WHITE);
             shapeRenderer.rect(pos.x, pos.y, tileSize, tileSize);
 
             // Draw the edges (connections) from this node
+            shapeRenderer.setColor(Color.GREEN);
             for (Connection<Node> connection : node.edges) {
-                Vector2 targetPos = connection.getToNode().getWorldPosition();
+                Vector2 targetPos = connection.getToNode().getWorldPosition().cpy().scl(SCALE);
                 // Draw a line from the center of the node to the center of the target node
                 shapeRenderer.line(
                     pos.x + tileSize / 2, pos.y + tileSize / 2,
                     targetPos.x + tileSize / 2, targetPos.y + tileSize / 2
                 );
             }
+            shapeRenderer.end();
+
         }
-        shapeRenderer.end();
     }
 
 
