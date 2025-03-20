@@ -131,6 +131,8 @@ public class GameLevel {
 	/** The amount of time that has passed without updating the frame */
 	protected float physicsTimeLeft;
 
+    /** The scale of the level (world to pixel coordinates conversion)
+     * EX) For every 1 world unit in the X direction, there are levelScaleX pixels */
     private float levelScaleX;
     private float levelScaleY;
 
@@ -157,7 +159,7 @@ public class GameLevel {
 	/**
 	 * Returns the bounding rectangle for the physics world
 	 *
-	 * The size of the rectangle is in physics, coordinates, not screen coordinates
+	 * The size of the rectangle is in physics/world coordinates, not screen/pixel coordinates
 	 *
 	 * @return the bounding rectangle for the physics world
 	 */
@@ -326,6 +328,7 @@ public class GameLevel {
 
 		levelScaleX = gSize[0] / pSize[0];
 		levelScaleY = gSize[1] / pSize[1];
+        System.out.println("Level scale: " + levelScaleX + ", " + levelScaleY);
 
 		// Compute the FPS
 		int[] fps = levelGlobals.get("fps_range").asIntArray();
