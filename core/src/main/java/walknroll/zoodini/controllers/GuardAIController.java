@@ -131,7 +131,6 @@ public class GuardAIController {
                     deAggroTimer = guard.isCameraAlerted()
                         ? ALERT_DEAGRRO_PERIOD
                         : DEAGRRO_PERIOD;
-
                 }
                 else if (tempDistract) {
                     currState = GuardState.DISTRACTED;
