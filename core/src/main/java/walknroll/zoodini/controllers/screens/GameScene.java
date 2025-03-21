@@ -271,7 +271,7 @@ public class GameScene implements Screen, ContactListener {
 
     public void initializeAIControllers() {
         // TODO: Make numRows and numCols dynamically generated based on level
-        final float tileSizePhys = 0.5f; // Units are physics/world units
+        final float tileSizePhys = 1f; // Units are physics/world units
         final int numRows = 12 * MathUtils.ceil(1/ tileSizePhys);
         final int numCols = 16 * MathUtils.ceil(1/tileSizePhys);
 
@@ -601,11 +601,6 @@ public class GameScene implements Screen, ContactListener {
         guardToAIController.values().stream().findFirst().ifPresent(
             controller -> controller.drawGraphDebug(batch, camera, pixelTexture));
 
-        for (Enemy enemy : level.getEnemies()) {
-            if (enemy instanceof Guard guard) {
-                guard.drawSusLevelBar(batch);
-            }
-        }
 	}
 
 

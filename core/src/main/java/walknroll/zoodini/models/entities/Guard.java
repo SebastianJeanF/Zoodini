@@ -35,11 +35,17 @@ public class Guard extends Enemy {
     private float susLevel;
     private float maxSusLevel;
 
+    private final float DEAGRRO_PERIOD = 60F;
+    private final float ALERT_DEAGRRO_PERIOD = 300F;
+    private float deAggroTimer;
+
     private static final float BAR_WIDTH = 50.0f;
     private static final float BAR_HEIGHT = 5.0f;
     private static final float BAR_OFFSET_Y = 10.0f;
+    private static final float AGGRO_BAR_OFFSET_Y = 20.0f;
 
-    private Texture barTexture;
+    private Texture susBarTexture;
+    private Texture deAggroBarTexture;
 
 
     /**
@@ -76,17 +82,29 @@ public class Guard extends Enemy {
         chaseTimer = 0;
         susLevel = 0F;
         maxSusLevel = 100F;
+        deAggroTimer = 0F;
 
-        // Create a green bar texture
-//        Pixmap pixmap = new Pixmap((int) BAR_WIDTH, (int) BAR_HEIGHT, Pixmap.Format.RGBA8888);
-//        pixmap.setColor(Color.GREEN);
-//        pixmap.fill();
-//        barTexture = new Texture(pixmap);
-//        pixmap.dispose();
+        // sus-bar texture
+        Pixmap pixmap = new Pixmap((int) BAR_WIDTH, (int) BAR_HEIGHT, Pixmap.Format.RGBA8888);
+        pixmap.setColor(Color.GREEN);
+        pixmap.fill();
+        susBarTexture = new Texture(pixmap);
+        pixmap.dispose();
+
+        // Aggro-bar texture
+        pixmap = new Pixmap((int) BAR_WIDTH, (int) BAR_HEIGHT, Pixmap.Format.RGBA8888);
+        pixmap.setColor(Color.RED);
+        pixmap.fill();
+        deAggroBarTexture = new Texture(pixmap);
+        pixmap.dispose();
     }
 
-    public void setSusLevel(float susLevel) {
-        this.susLevel = MathUtils.clamp(susLevel, 0.0F, 100.0F);
+    public void setMaxSusLevel() {
+        this.susLevel = this.maxSusLevel;
+    }
+
+    public void setMinSusLevel() {
+        this.susLevel = 0.0F;
     }
 
     public float getSusLevel() {
@@ -105,8 +123,24 @@ public class Guard extends Enemy {
         return susLevel == 0.0F;
     }
 
+    public boolean checkDeAggroed() {
+        return deAggroTimer <= 0;
+    }
+
+    public void deltaDeAggroTimer(float delta) {
+        this.deAggroTimer = MathUtils.clamp(deAggroTimer + delta, 0.0F, DEAGRRO_PERIOD);
+    }
+
+    public void startDeAggroTimer() {
+        this.deAggroTimer = isCameraAlerted() ? ALERT_DEAGRRO_PERIOD : DEAGRRO_PERIOD;
+    }
+
+
+
+
+
     public void drawSusLevelBar(SpriteBatch batch) {
-        if (barTexture == null) {
+        if (susBarTexture == null) {
             System.err.println("Error: barTexture is null");
             return;
         }
@@ -116,11 +150,15 @@ public class Guard extends Enemy {
         float susPercentage = susLevel / maxSusLevel;
         float barWidth = BAR_WIDTH * susPercentage;
 
-        Vector2 position = getPosition();
-        float barX = position.x - BAR_WIDTH / 2;
-        float barY = position.y + BAR_OFFSET_Y;
+        Vector2 position = this.getPosition();
+        float barX = position.x;
+        float barY = position.y;
 
-        batch.draw(barTexture, barX, barY, barWidth, BAR_HEIGHT);
+        batch.draw(susBarTexture, barX * 62.5f, barY * 62.5f + BAR_OFFSET_Y, barWidth, BAR_HEIGHT);
+
+        float deAggroPercentage = deAggroTimer / DEAGRRO_PERIOD;
+        barWidth = BAR_WIDTH * deAggroPercentage;
+        batch.draw(deAggroBarTexture, barX * 62.5f, barY * 62.5f + AGGRO_BAR_OFFSET_Y, barWidth, BAR_HEIGHT);
     }
 
 
@@ -218,5 +256,11 @@ public class Guard extends Enemy {
 
     public void update(float dt) {
         applyForce();
+    }
+
+    @Override
+    public void draw(SpriteBatch batch) {
+        super.draw(batch);
+        drawSusLevelBar(batch);
     }
 }

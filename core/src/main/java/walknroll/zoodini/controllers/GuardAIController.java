@@ -44,9 +44,6 @@ public class GuardAIController {
     /** Min distance from waypoint where the guard will recalculate to next waypoint*/
     private final float WAYPOINT_RADIUS = 0.25F;
 
-    private final int DEAGRRO_PERIOD = 60;
-    private final int ALERT_DEAGRRO_PERIOD = 300;
-    private int deAggroTimer = DEAGRRO_PERIOD;
 
 
     // TODO: May or may not refactor to remove input controller as argument
@@ -113,7 +110,7 @@ public class GuardAIController {
             }
         } else {
             if (!this.guard.isAgroed()) { // not in guard's line of sight
-                deAggroTimer = Math.max(deAggroTimer - 1, 0); // decrease suspicion
+                guard.deltaDeAggroTimer(-1); // decrease deAggroTimer
             }
         }
 
@@ -127,9 +124,10 @@ public class GuardAIController {
 //                if (checkPlayerIsSpotted()) {
                 if (guard.isMaxSusLevel() || guard.isCameraAlerted()) {
                     currState = GuardState.CHASE;
-                    deAggroTimer = guard.isCameraAlerted()
-                        ? ALERT_DEAGRRO_PERIOD
-                        : DEAGRRO_PERIOD;
+                    guard.startDeAggroTimer();
+                    if (guard.isCameraAlerted()) {
+                        guard.setMaxSusLevel();
+                    }
 
                 }
                 else if (tempDistract) {
@@ -139,7 +137,7 @@ public class GuardAIController {
                 break;
             case CHASE:
                 // If guard reaches its target, change state to return
-                if (checkDeAggroed()) {
+                if (guard.checkDeAggroed()) {
                     currState = GuardState.RETURN;
                     guard.setCameraAlerted(false);
                 }
@@ -150,17 +148,16 @@ public class GuardAIController {
                     currState = GuardState.PATROL;
                 } else if (guard.isMaxSusLevel() || guard.isCameraAlerted()) {
                     currState = GuardState.CHASE;
-                    deAggroTimer = guard.isCameraAlerted()
-                        ? ALERT_DEAGRRO_PERIOD
-                        : DEAGRRO_PERIOD;
+                    guard.startDeAggroTimer();
+                }
+                if (guard.isCameraAlerted()) {
+                    guard.setMaxSusLevel();
                 }
                 break;
             case DISTRACTED:
                 if (guard.isMaxSusLevel() || guard.isCameraAlerted()) {
                     currState = GuardState.CHASE;
-                    deAggroTimer = guard.isCameraAlerted()
-                        ? ALERT_DEAGRRO_PERIOD
-                        : DEAGRRO_PERIOD;
+                    guard.startDeAggroTimer();
                     guard.setMeow(false);
                 }
                 else if (guard.getPosition().dst(distractPosition) <= WAYPOINT_RADIUS) {
@@ -181,12 +178,6 @@ public class GuardAIController {
     private boolean checkPlayerIsSpotted() {
         // TODO: Replace with real guard.isAgroed() method
         return this.guard.isAgroed() && guard.isMaxSusLevel();
-    }
-
-    private boolean checkDeAggroed() {
-        // System.out.println("Is Deagroed: " + distanceFromGuard(targetPlayer.getPosition()));
-//        return distanceFromGuard(targetPlayer.getPosition()) >= PLAYER_DEAGRO_RADIUS;
-        return deAggroTimer <= 0;
     }
 
     private float distanceFromGuard(Vector2 target) {
