@@ -2,6 +2,9 @@ package walknroll.zoodini.controllers;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ai.pfa.Connection;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
 import walknroll.zoodini.models.GameLevel;
@@ -311,6 +314,11 @@ public class GuardAIController {
             return this.nextTargetLocation.cpy().sub(guard.getPosition()).nor();
         }
     }
+
+    public void drawGraphDebug(ShapeRenderer shapeRenderer , OrthographicCamera camera) {
+        gameGraph.drawGraphDebug(shapeRenderer, camera, nextTargetLocation);
+    }
+
 
     private static enum GuardState {
         /** Guard is patrolling without target*/

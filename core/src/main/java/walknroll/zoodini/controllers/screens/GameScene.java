@@ -13,7 +13,10 @@
 package walknroll.zoodini.controllers.screens;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.ai.pfa.Connection;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -250,7 +253,15 @@ public class GameScene implements Screen, ContactListener {
 	}
 
     public void initializeAIControllers() {
-        this.gameGraph = new GameGraph(12, 16, level.getBounds().x, level.getBounds().y, level.getSprites());
+        // TODO: Make numRows and numCols dynamically generated based on level
+        final float tileSizePhys = .5f; // Units are physics/world units
+        final int numRows = 12 * MathUtils.ceil(1/ tileSizePhys);
+        final int numCols = 16 * MathUtils.ceil(1/tileSizePhys);
+
+
+        this.gameGraph = new GameGraph(tileSizePhys, numRows,  numCols, level.getBounds().x, level.getBounds().y, level.getSprites());
+
+//        this.gameGraph = new GameGraph(tileSizePhys, numRows,  numCols, level.getBounds().x, level.getBounds().y, level.getSprites());
         Array<Enemy> enemies = level.getEnemies();
         for (Enemy enemy : enemies) {
             if (!(enemy instanceof Guard guard))
@@ -262,6 +273,8 @@ public class GameScene implements Screen, ContactListener {
 
 //        gameGraph.printGrid();
     }
+
+
 
 	/**
 	 * Resets the status of the game so that we can play again.
@@ -544,7 +557,8 @@ public class GameScene implements Screen, ContactListener {
             avatar.flipSprite();
         }
     }
-
+    // In your GameScene class (or a dedicated debug-drawing class)
+    private ShapeRenderer shapeRenderer = new ShapeRenderer();
     /**
 	 * Draw the physics objects to the canvas
 	 *
@@ -566,9 +580,15 @@ public class GameScene implements Screen, ContactListener {
         // Final message
         ui.draw(batch);
 
+//         Draw the graph of one of the guards
+//        guardToAIController.values().stream().findFirst().ifPresent(
+//            controller -> controller.drawGraphDebug(shapeRenderer, camera));
 	}
 
-	/**
+
+
+
+    /**
 	 * Updates the camera position with interpolation when transitioning
 	 */
 	private void updateCamera(float dt) {

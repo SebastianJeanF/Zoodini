@@ -3,6 +3,9 @@ package walknroll.zoodini.utils;
 import com.badlogic.gdx.ai.pfa.*;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.*;
@@ -27,29 +30,35 @@ public class GameGraph {
     /** The A* pathfinder used to find paths in the graph */
     private IndexedAStarPathFinder<Node> aStarPathFinder;
     /** The x-coordinate of the bottom-left corner of the grid in world coordinates */
-    private final float startX;
+    private final float startXWorld;
     /** The y-coordinate of the bottom-left corner of the grid in world coordinates */
-    private final float startY;
-    /** The size of each tile in the grid */
-    private final float TERRAIN_TILE_SIZE = 1f;
+    private final float startYWorld;
+
+    /** The size of each tile in the grid, in world units.
+     * EX) 1 tile unit equals TERRAIN_TILE_SIZE world units */
+    private final float TERRAIN_TILE_SIZE;
 
     /**
      * Constructs a new GameGraph with the specified dimensions and obstacles.
      *
      * @param rows The number of rows in the grid
      * @param cols The number of columns in the grid
-     * @param startX The x-coordinate of the bottom-left corner of the grid in world coordinates
-     * @param startY The y-coordinate of the bottom-left corner of the grid in world coordinates
+     * @param startXWorld The x-coordinate of the bottom-left corner of the grid in world coordinates
+     * @param startYWorld The y-coordinate of the bottom-left corner of the grid in world coordinates
      * @param obstacles A list of obstacle objects that should be considered impassable
      */
-    public GameGraph(int rows, int cols, float startX, float startY, List<ZoodiniSprite> obstacles) {
+    public GameGraph(float tileSize, int rows, int cols,  float startXWorld, float startYWorld, List<ZoodiniSprite> obstacles ) {
         this.ROWS = rows;
         this.COLS = cols;
-        this.startX = startX;
-        this.startY = startY;
-        this.initializeGraph(obstacles);
+        this.startXWorld = startXWorld;
+        this.startYWorld = startYWorld;
+        this.TERRAIN_TILE_SIZE = tileSize;
+
 
         this.heuristic = new DistanceHeuristic();
+
+        // After all variables are initialized, then initialize the graph
+        this.initializeGraph(obstacles);
     }
 
     /**
@@ -84,7 +93,7 @@ public class GameGraph {
                 // Use "X" for obstacles and "." for passable nodes
                 line.append(node.isObstacle() ? "X " : ". ");
             }
-            System.out.println(line);
+            // System.out.println(line);
         }
     }
 
@@ -111,6 +120,133 @@ public class GameGraph {
         System.out.println(graphVisual.toString());
     }
 
+//
+//    public void drawGraphDebug(ShapeRenderer shapeRenderer , OrthographicCamera camera,
+//                               Vector2 nextTargetLocation) {
+//        shapeRenderer.setProjectionMatrix(camera.combined);
+//
+//
+//        // Assume each node represents a 1x1 unit area (based on TERRAIN_TILE_SIZE)
+//        final float WORLD_TO_PX_SCALE = 62.5f; // I got this number through trial and error lol
+//        float tileSizePx = TERRAIN_TILE_SIZE * WORLD_TO_PX_SCALE;
+////        System.out.print("Number of nodes: " + graph.nodes.size + "\n");
+//
+//        // Iterate over all nodes in the game graph
+//        for (GameGraph.Node node : graph.nodes) {
+//            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+//            Vector2 pos = node.getWorldPosition()
+//                .cpy()
+//                .scl(WORLD_TO_PX_SCALE)
+//                .sub(tileSizePx/2, tileSizePx/2);
+//
+////            System.out.print("X, Y Position: " + pos.x + ", " + pos.y + "\n");
+//            // Draw a rectangle outline for the node
+//            shapeRenderer.setColor(Color.WHITE);
+//            shapeRenderer.rect(pos.x, pos.y, tileSizePx, tileSizePx);
+//
+//            shapeRenderer.setColor(Color.RED);
+//            shapeRenderer.rect(nextTargetLocation.x * WORLD_TO_PX_SCALE, nextTargetLocation.y * WORLD_TO_PX_SCALE, tileSizePx, tileSizePx);
+//
+//
+//            // Draw the edges (connections) from this node
+//            shapeRenderer.setColor(Color.GREEN);
+//            for (Connection<Node> connection : node.edges) {
+//                Vector2 targetPos = connection.getToNode().getWorldPosition()
+//                    .cpy()
+//                    .scl(WORLD_TO_PX_SCALE)
+//                    .sub(tileSizePx/2, tileSizePx/2);
+//
+//                // Draw a line from the center of the node to the center of the target node
+//                shapeRenderer.line(
+//                    pos.x + tileSizePx / 2, pos.y + tileSizePx / 2,
+//                    targetPos.x + tileSizePx / 2, targetPos.y + tileSizePx/ 2
+//                );
+//            }
+//            shapeRenderer.end();
+//
+//        }
+//    }
+
+
+
+    public void drawGraphDebug(ShapeRenderer shapeRenderer , OrthographicCamera camera,
+                               Vector2 nextTargetLocation) {
+        shapeRenderer.setProjectionMatrix(camera.combined);
+
+
+        // Assume each node represents a 1x1 unit area (based on TERRAIN_TILE_SIZE)
+        final float WORLD_TO_PX_SCALE = 62.5f; // I got this number through trial and error lol
+        float tileSizePx = TERRAIN_TILE_SIZE * WORLD_TO_PX_SCALE;
+//        System.out.print("Number of nodes: " + graph.nodes.size + "\n");
+
+        // Iterate over all nodes in the game graph
+        for (GameGraph.Node node : graph.nodes) {
+            if (node.isObstacle()) {
+                continue;
+            }
+
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            Vector2 pos = node.getWorldPosition()
+                .cpy()
+                .scl(WORLD_TO_PX_SCALE);
+//                .sub(tileSizePx/2, tileSizePx/2);
+
+//            System.out.print("X, Y Position: " + pos.x + ", " + pos.y + "\n");
+            // Draw a rectangle outline for the node
+            Color gridColor = node.isObstacle() ? Color.ORANGE : Color.WHITE;
+            shapeRenderer.setColor(gridColor);
+            shapeRenderer.rect(pos.x, pos.y, tileSizePx, tileSizePx);
+
+            // Draw the guard's target grid spot
+            shapeRenderer.setColor(Color.RED);
+            shapeRenderer.rect(nextTargetLocation.x * WORLD_TO_PX_SCALE, nextTargetLocation.y * WORLD_TO_PX_SCALE, tileSizePx, tileSizePx);
+
+
+            // Draw the edges (connections) from this node
+//            shapeRenderer.setColor(Color.GREEN);
+//            for (Connection<Node> connection : node.edges) {
+//                Vector2 targetPos = connection.getToNode().getWorldPosition()
+//                    .cpy()
+//                    .scl(WORLD_TO_PX_SCALE)
+//                    .sub(tileSizePx/2, tileSizePx/2);
+//
+//                // Draw a line from the center of the node to the center of the target node
+//                shapeRenderer.line(
+//                    pos.x + tileSizePx / 2, pos.y + tileSizePx / 2,
+//                    targetPos.x + tileSizePx / 2, targetPos.y + tileSizePx/ 2
+//                );
+//            }
+
+
+            shapeRenderer.end();
+        }
+        for (GameGraph.Node node : graph.nodes) {
+            if (!node.isObstacle()) {
+                continue;
+            }
+
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            Vector2 pos = node.getWorldPosition()
+                .cpy()
+                .scl(WORLD_TO_PX_SCALE);
+//                .sub(tileSizePx/2, tileSizePx/2);
+
+//            System.out.print("X, Y Position: " + pos.x + ", " + pos.y + "\n");
+            // Draw a rectangle outline for the node
+            shapeRenderer.setColor( Color.ORANGE);
+            shapeRenderer.rect(pos.x, pos.y, tileSizePx, tileSizePx);
+
+            // Draw the guard's target grid spot
+            shapeRenderer.setColor(Color.RED);
+            shapeRenderer.rect(nextTargetLocation.x * WORLD_TO_PX_SCALE, nextTargetLocation.y * WORLD_TO_PX_SCALE, tileSizePx, tileSizePx);
+
+
+            shapeRenderer.end();
+        }
+
+
+    }
+
 
 //    public void printGrid() {
 //        Array<Node> nodes = this.graph.getNodes();
@@ -135,11 +271,11 @@ public class GameGraph {
      *
      *
      * @INVARIANT this.graph must be initialized
-     * @param pos The world position to get the node for
+     * @param posWorld The world position to get the node for
      * @return The node at the specified position, or null if no node exists there
      */
-    private Node getNode(Vector2 pos) {
-        Vector2 graphIndex = this.worldToGraphIndex(pos);
+    private Node getNode(Vector2 posWorld) {
+        Vector2 graphIndex = this.worldToGraphIndex(posWorld);
         int x = MathUtils.clamp(Math.round(graphIndex.x), 0, this.COLS - 1);
         int y = MathUtils.clamp(Math.round(graphIndex.y), 0, this.ROWS - 1);
 
@@ -150,8 +286,8 @@ public class GameGraph {
             : null;
     }
 
-    public boolean isObstacle(Vector2 pos) {
-        Node node = getNode(pos);
+    public boolean atObstacle(Vector2 posWorld) {
+        Node node = getNode(posWorld);
         return node != null && node.isObstacle();
     }
 
@@ -178,17 +314,25 @@ public class GameGraph {
     }
 
     /**
-     * Converts a world position to a graph index position.
+     * Converts a world position to the nearest graph index position.
      * This translates the game world coordinates to the internal grid coordinates.
      *
-     * @param pos The world position to convert
+     * @param posWorld The world position to convert
      * @return A Vector2 containing the corresponding grid coordinates
      */
-    public Vector2 worldToGraphIndex(Vector2 pos) {
-        Vector2 roundedPos = pos.cpy().set((float)Math.round(pos.x), (float)Math.round(pos.y));
-        Vector2 integerPoint = roundedPos.sub(this.startX, this.startY).scl(1.0F / this.TERRAIN_TILE_SIZE);
-        integerPoint.set((float)Math.round(integerPoint.x), (float)Math.round(integerPoint.y));
-        return integerPoint;
+    public Vector2 worldToGraphIndex(Vector2 posWorld) {
+
+        // This converts the world position to the exact grid coordinates
+        Vector2 graphIndex = posWorld.sub(this.startXWorld, this.startYWorld)
+                .scl(1.0F / this.TERRAIN_TILE_SIZE);
+
+        graphIndex.set((float)Math.round(graphIndex.x), (float)Math.round( graphIndex.y));
+
+//        Vector2 roundedPosWorld = posWorld.cpy().set((float)Math.round(posWorld.x), (float)Math.round(posWorld.y));
+
+        // Calculate the x, y grid coordinates/indices
+
+        return  graphIndex;
     }
 
     /**
@@ -288,6 +432,7 @@ public class GameGraph {
      * @param obstacles A list of obstacle objects to mark as impassable
      */
     private void initializeGraph(List<ZoodiniSprite> obstacles) {
+        final float paddingWorld = 0.0f; // Padding around obstacles to prevent corner-cutting
         Array<Node> nodes = new Array<>();
         int index = 0;
 
@@ -305,9 +450,10 @@ public class GameGraph {
             if (!(obs instanceof InteriorWall)) {
                 continue;
             }
-            Vector2 pos = ((InteriorWall) obs).getPosition();
-            float width = ((InteriorWall) obs).getWidth();
-            float height = ((InteriorWall) obs).getHeight();
+            InteriorWall wall = (InteriorWall) obs;
+            Vector2 pos = wall.getPosition();
+            float width = wall.getWidth() + paddingWorld;
+            float height = wall.getHeight() + paddingWorld;
             Vector2 size = new Vector2(width, height);
             // System.out.println("Obstacle world position: " + pos + ", size: " + size);
 
@@ -316,6 +462,12 @@ public class GameGraph {
             int endX = MathUtils.ceil((pos.x + size.x / 2) / TERRAIN_TILE_SIZE);
             int startY = MathUtils.floor((pos.y - size.y / 2) / TERRAIN_TILE_SIZE);
             int endY = MathUtils.ceil((pos.y + size.y / 2) / TERRAIN_TILE_SIZE);
+
+//            int startX = MathUtils.floor((pos.x - size.x / 2) / TERRAIN_TILE_SIZE);
+//            int endX = MathUtils.ceil((pos.x + size.x / 2) / TERRAIN_TILE_SIZE);
+//            int startY = MathUtils.floor((pos.y - size.y / 2) / TERRAIN_TILE_SIZE);
+//            int endY = MathUtils.ceil((pos.y + size.y / 2) / TERRAIN_TILE_SIZE);
+//
 
             // Mark all nodes within the obstacle's area as obstacles
             for (int x = startX; x < endX; x++) {
@@ -339,15 +491,17 @@ public class GameGraph {
      * Finds the shortest path between two positions in the world using A*.
      *
      * @INVARIANT this.heuristic must be initialized
-     * @param currPos The starting position in world coordinates
-     * @param targetPos The target position in world coordinates
+     * @param currPosWorld The starting position in world coordinates
+     * @param targetPosWorld The target position in world coordinates
      * @return A list of nodes representing the path from start to target, excluding the start node
      */
-    public List<Node> getPath(Vector2 currPos, Vector2 targetPos) {
+    public List<Node> getPath(Vector2 currPosWorld, Vector2 targetPosWorld) {
         GraphPath<Node> graphPath = new DefaultGraphPath<>();
-        Node start = getNode(currPos);
-        Node end = getNode(targetPos);
+        Node start = getNode(currPosWorld);
+        Node end = getNode(targetPosWorld);
 
+
+        System.out.println("Current guard Position: " + currPosWorld);
         // System.out.println("Graph's target: "+ end.getWorldPosition());
         // Check if start or end node is null
         if (start == null || end == null) {
@@ -356,8 +510,11 @@ public class GameGraph {
         }
 
         if (start.isObstacle) {
-//            System.out.println("Start node is an obstacle.");
-            start = findNearestNonObstacleNode(targetPos);
+            System.out.println("Start node is an obstacle.");
+            System.out.println("Start node position in grid: (" + start.getTileCoords().x + "," + start.getTileCoords().y + ")");
+            start = findNearestNonObstacleNode(currPosWorld);
+            System.out.println("New start node position in grid: (" + start.getTileCoords().x + "," + start.getTileCoords().y + ")");
+
             if (start.isObstacle) {
                 System.out.println("No non-obstacle node found near start.");
             }
@@ -365,7 +522,7 @@ public class GameGraph {
 
         if (end.isObstacle) {
 //            System.out.println("End node is an obstacle.");
-            end = findNearestNonObstacleNode(targetPos);
+            end = findNearestNonObstacleNode(targetPosWorld);
             if (end.isObstacle) {
                 System.out.println("No non-obstacle node found near end.");
             }
@@ -374,14 +531,19 @@ public class GameGraph {
 
         this.aStarPathFinder.searchNodePath(start, end, this.heuristic, graphPath);
 
+
+        // Print out the path + calculate path
         List<Node> path = new ArrayList<>();
+        System.out.print("PATH: ");
         for (Node node : graphPath) {
             if (!node.equals(start)) {
                 path.add(node);
             }
-            // System.out.print(node.getWorldPosition() + " ");
+             System.out.print(node.getWorldPosition() + " ");
         }
-        // System.out.print("\n");
+         System.out.print("\n\n");
+
+
         return path;
     }
 
@@ -520,13 +682,16 @@ public class GameGraph {
 
         /**
          * Converts the node's grid coordinates to world coordinates.
+         * Note that this returns the world coordinate of the
+         * [BOTTOM LEFT] corner of the grid tile.
          *
          * @return The position of this node in world coordinates
          */
         public Vector2 getWorldPosition() {
             return new Vector2(
-                this.tileCoords.x * TERRAIN_TILE_SIZE + GameGraph.this.startX,
-                this.tileCoords.y * TERRAIN_TILE_SIZE + GameGraph.this.startY);
+                // Converting tile coord/indices to world coordinates
+                this.tileCoords.x * TERRAIN_TILE_SIZE + GameGraph.this.startXWorld,
+                this.tileCoords.y * TERRAIN_TILE_SIZE + GameGraph.this.startYWorld);
         }
     }
 
