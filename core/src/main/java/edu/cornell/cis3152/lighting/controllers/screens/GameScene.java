@@ -254,7 +254,7 @@ public class GameScene implements Screen, ContactListener {
 
     public void initializeAIControllers() {
         // TODO: Make numRows and numCols dynamically generated based on level
-        final float tileSizePhys = 1f; // Units are physics/world units
+        final float tileSizePhys = .5f; // Units are physics/world units
         final int numRows = 12 * MathUtils.ceil(1/ tileSizePhys);
         final int numCols = 16 * MathUtils.ceil(1/tileSizePhys);
 
@@ -580,7 +580,7 @@ public class GameScene implements Screen, ContactListener {
         // Final message
         ui.draw(batch);
 
-        // Draw the graph of one of the guards
+//         Draw the graph of one of the guards
         guardToAIController.values().stream().findFirst().ifPresent(
             controller -> controller.drawGraphDebug(shapeRenderer, camera));
 	}
