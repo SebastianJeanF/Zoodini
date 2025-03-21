@@ -82,7 +82,7 @@ public class GameGraph {
                 // Use "X" for obstacles and "." for passable nodes
                 line.append(node.isObstacle() ? "X " : ". ");
             }
-            // System.out.println(line);
+            System.out.println(line);
         }
     }
 

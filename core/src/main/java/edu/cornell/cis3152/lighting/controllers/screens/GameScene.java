@@ -239,6 +239,7 @@ public class GameScene implements Screen, ContactListener {
 		setComplete(false);
 		setFailure(false);
         initializeAIControllers();
+        System.out.println("here");
 	}
 
 	/**
