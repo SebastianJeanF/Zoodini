@@ -16,8 +16,8 @@
  */
 package edu.cornell.cis3152.lighting.lwjgl3;
 
-import edu.cornell.cis3152.lighting.GDXRoot;
 import edu.cornell.gdiac.backend.*;
+import walknroll.zoodini.GDXRoot;
 
 
 /**
