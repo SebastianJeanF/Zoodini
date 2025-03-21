@@ -4,9 +4,11 @@ package walknroll.zoodini.controllers;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
+
+import edu.cornell.gdiac.graphics.SpriteBatch;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Guard;
@@ -38,13 +40,9 @@ public class GuardAIController {
 
     private Vector2 nextTargetLocation;
 
-    /** Delay in ticks for the guard to become suspicious */
-    private final int SUS_DELAY;
-    /** Cooldown in ticks for the guard to become neutral again */
-    private int susTicks;
 
     /** Min distance from waypoint where the guard will recalculate to next waypoint*/
-    private final float WAYPOINT_RADIUS = 1.0F;
+    private final float WAYPOINT_RADIUS = 0.25F;
 
     private final int DEAGRRO_PERIOD = 60;
     private final int ALERT_DEAGRRO_PERIOD = 300;
@@ -60,8 +58,6 @@ public class GuardAIController {
         this.currentWaypointIndex = 0;
         this.gameGraph = gameGraph;
         this.ticks = 0L;
-        this.SUS_DELAY = susDelay;
-        this.susTicks = 0;
         this.distractPosition = new Vector2(0, 0);
     }
 
@@ -111,9 +107,9 @@ public class GuardAIController {
         // Update suspicion level
         if (currState != GuardState.CHASE) { // Only update when not chasing
             if (this.guard.isAgroed()) { // In guard's line of sight
-                susTicks = Math.max(susTicks + 3, SUS_DELAY); // Increase suspicion
+                guard.deltaSusLevel(3); // Increase suspicion
             } else {
-                susTicks = Math.max(susTicks - 1, 0); // Decrease suspicion
+                guard.deltaSusLevel(-1); // Decrease suspicion
             }
         } else {
             if (!this.guard.isAgroed()) { // not in guard's line of sight
@@ -129,7 +125,7 @@ public class GuardAIController {
             case PATROL:
                 // If player is spotted, change state to chase
 //                if (checkPlayerIsSpotted()) {
-                if (isMaxSuspicion() || guard.isCameraAlerted()) {
+                if (guard.isMaxSusLevel() || guard.isCameraAlerted()) {
                     currState = GuardState.CHASE;
                     deAggroTimer = guard.isCameraAlerted()
                         ? ALERT_DEAGRRO_PERIOD
@@ -152,7 +148,7 @@ public class GuardAIController {
                 // If guard reaches its target, change state to patrol
                 if (hasReachedPatrolPath()) {
                     currState = GuardState.PATROL;
-                } else if (isMaxSuspicion() || guard.isCameraAlerted()) {
+                } else if (guard.isMaxSusLevel() || guard.isCameraAlerted()) {
                     currState = GuardState.CHASE;
                     deAggroTimer = guard.isCameraAlerted()
                         ? ALERT_DEAGRRO_PERIOD
@@ -160,7 +156,7 @@ public class GuardAIController {
                 }
                 break;
             case DISTRACTED:
-                if (isMaxSuspicion() || guard.isCameraAlerted()) {
+                if (guard.isMaxSusLevel() || guard.isCameraAlerted()) {
                     currState = GuardState.CHASE;
                     deAggroTimer = guard.isCameraAlerted()
                         ? ALERT_DEAGRRO_PERIOD
@@ -184,12 +180,7 @@ public class GuardAIController {
 
     private boolean checkPlayerIsSpotted() {
         // TODO: Replace with real guard.isAgroed() method
-        return this.guard.isAgroed() && isMaxSuspicion();
-    }
-
-    private boolean isMaxSuspicion() {
-
-        return this.susTicks >= SUS_DELAY;
+        return this.guard.isAgroed() && guard.isMaxSusLevel();
     }
 
     private boolean checkDeAggroed() {
@@ -221,7 +212,7 @@ public class GuardAIController {
 
         int pathIdx = 0;
         Vector2 nextStep = path.get(pathIdx).getWorldPosition().cpy();
-        final float MIN_STEP_DISTANCE = 1.0F;
+        final float MIN_STEP_DISTANCE = 0.5F;
         // System.out.println("First next step: " + nextStep.x + ", " + nextStep.y);
 
         // Skip steps that are too close to the guard to prevent jittering
@@ -239,8 +230,7 @@ public class GuardAIController {
             case PATROL:
                 tempDistract = didDistractionOccur();
 
-                if (isMaxSuspicion() || guard.isCameraAlerted()) { // suspicion level above threshold
-//                    targetPlayer = getActivePlayer();
+                if (guard.isMaxSusLevel() || guard.isCameraAlerted()) { // suspicion level above threshold
                     targetPlayer = guard.getAggroTarget();
                     nextTargetLocation = getNextWaypointLocation(targetPlayer.getPosition());
                 }
@@ -272,7 +262,7 @@ public class GuardAIController {
                 if (waypoints.length == 0) {
                     return;
                 }
-                if (isMaxSuspicion() || guard.isCameraAlerted()) { // suspicion level above threshold
+                if (guard.isMaxSusLevel() || guard.isCameraAlerted()) { // suspicion level above threshold
 //                    targetPlayer = getActivePlayer();
                     targetPlayer = guard.getAggroTarget();
                     nextTargetLocation = getNextWaypointLocation(targetPlayer.getPosition());
@@ -288,7 +278,7 @@ public class GuardAIController {
                 Vector2 tmp = getNextWaypointLocation(distractPosition);
 //                // System.out.print("Next waypoint: " + tmp);
 
-                if (isMaxSuspicion() || guard.isCameraAlerted()) { // suspicion level above threshold
+                if (guard.isMaxSusLevel() || guard.isCameraAlerted()) { // suspicion level above threshold
 //                    targetPlayer = getActivePlayer();
                     targetPlayer = guard.getAggroTarget();
                     nextTargetLocation = getNextWaypointLocation(targetPlayer.getPosition());
@@ -315,8 +305,8 @@ public class GuardAIController {
         }
     }
 
-    public void drawGraphDebug(ShapeRenderer shapeRenderer , OrthographicCamera camera) {
-        gameGraph.drawGraphDebug(shapeRenderer, camera, nextTargetLocation);
+    public void drawGraphDebug(SpriteBatch batch , OrthographicCamera camera, Texture texture) {
+        gameGraph.drawGraphDebug(batch, camera, nextTargetLocation, texture);
     }
 
 

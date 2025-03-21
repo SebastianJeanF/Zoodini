@@ -1,7 +1,12 @@
 package walknroll.zoodini.models.entities;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import edu.cornell.gdiac.graphics.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.graphics.Pixmap;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import walknroll.zoodini.models.entities.Enemy;
@@ -27,6 +32,14 @@ public class Guard extends Enemy {
     private int currentPatrolIndex = 0;
     private static final float PATROL_THRESHOLD = 0.5f; // Distance to switch patrol points
 
+    private float susLevel;
+    private float maxSusLevel;
+
+    private static final float BAR_WIDTH = 50.0f;
+    private static final float BAR_HEIGHT = 5.0f;
+    private static final float BAR_OFFSET_Y = 10.0f;
+
+    private Texture barTexture;
 
 
     /**
@@ -61,7 +74,55 @@ public class Guard extends Enemy {
         isChasing = false;
         meowed = false;
         chaseTimer = 0;
+        susLevel = 0F;
+        maxSusLevel = 100F;
+
+        // Create a green bar texture
+//        Pixmap pixmap = new Pixmap((int) BAR_WIDTH, (int) BAR_HEIGHT, Pixmap.Format.RGBA8888);
+//        pixmap.setColor(Color.GREEN);
+//        pixmap.fill();
+//        barTexture = new Texture(pixmap);
+//        pixmap.dispose();
     }
+
+    public void setSusLevel(float susLevel) {
+        this.susLevel = MathUtils.clamp(susLevel, 0.0F, 100.0F);
+    }
+
+    public float getSusLevel() {
+        return susLevel;
+    }
+
+    public void deltaSusLevel(float delta) {
+        this.susLevel = MathUtils.clamp(susLevel + delta, 0.0F, 100.0F);
+    }
+
+    public boolean isMaxSusLevel() {
+        return susLevel == maxSusLevel;
+    }
+
+    public boolean isMinSusLevel() {
+        return susLevel == 0.0F;
+    }
+
+    public void drawSusLevelBar(SpriteBatch batch) {
+        if (barTexture == null) {
+            System.err.println("Error: barTexture is null");
+            return;
+        }
+
+        System.out.println("Drawing sus level bar");
+
+        float susPercentage = susLevel / maxSusLevel;
+        float barWidth = BAR_WIDTH * susPercentage;
+
+        Vector2 position = getPosition();
+        float barX = position.x - BAR_WIDTH / 2;
+        float barY = position.y + BAR_OFFSET_Y;
+
+        batch.draw(barTexture, barX, barY, barWidth, BAR_HEIGHT);
+    }
+
 
     public Vector2[] getPatrolPoints() {
         return patrolPoints;

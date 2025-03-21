@@ -5,7 +5,10 @@ import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+
+import edu.cornell.gdiac.graphics.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.*;
@@ -37,6 +40,7 @@ public class GameGraph {
     /** The size of each tile in the grid, in world units.
      * EX) 1 tile unit equals TERRAIN_TILE_SIZE world units */
     private final float TERRAIN_TILE_SIZE;
+
 
     /**
      * Constructs a new GameGraph with the specified dimensions and obstacles.
@@ -169,15 +173,92 @@ public class GameGraph {
 
 
 
-    public void drawGraphDebug(ShapeRenderer shapeRenderer , OrthographicCamera camera,
-                               Vector2 nextTargetLocation) {
-        shapeRenderer.setProjectionMatrix(camera.combined);
+//    public void drawGraphDebug(ShapeRenderer shapeRenderer , OrthographicCamera camera,
+//                               Vector2 nextTargetLocation) {
+//        shapeRenderer.setProjectionMatrix(camera.combined);
+//
+//
+//        // Assume each node represents a 1x1 unit area (based on TERRAIN_TILE_SIZE)
+//        final float WORLD_TO_PX_SCALE = 62.5f; // I got this number through trial and error lol
+//        float tileSizePx = TERRAIN_TILE_SIZE * WORLD_TO_PX_SCALE;
+////        System.out.print("Number of nodes: " + graph.nodes.size + "\n");
+//
+//        // Iterate over all nodes in the game graph
+//        for (GameGraph.Node node : graph.nodes) {
+//            if (node.isObstacle()) {
+//                continue;
+//            }
+//
+//            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+//            Vector2 pos = node.getWorldPosition()
+//                .cpy()
+//                .scl(WORLD_TO_PX_SCALE);
+////                .sub(tileSizePx/2, tileSizePx/2);
+//
+////            System.out.print("X, Y Position: " + pos.x + ", " + pos.y + "\n");
+//            // Draw a rectangle outline for the node
+//            Color gridColor = node.isObstacle() ? Color.ORANGE : Color.WHITE;
+//            shapeRenderer.setColor(gridColor);
+//            shapeRenderer.rect(pos.x, pos.y, tileSizePx, tileSizePx);
+//
+//            // Draw the guard's target grid spot
+//            shapeRenderer.setColor(Color.RED);
+//            shapeRenderer.rect(nextTargetLocation.x * WORLD_TO_PX_SCALE, nextTargetLocation.y * WORLD_TO_PX_SCALE, tileSizePx, tileSizePx);
+//
+//
+//            // Draw the edges (connections) from this node
+////            shapeRenderer.setColor(Color.GREEN);
+////            for (Connection<Node> connection : node.edges) {
+////                Vector2 targetPos = connection.getToNode().getWorldPosition()
+////                    .cpy()
+////                    .scl(WORLD_TO_PX_SCALE)
+////                    .sub(tileSizePx/2, tileSizePx/2);
+////
+////                // Draw a line from the center of the node to the center of the target node
+////                shapeRenderer.line(
+////                    pos.x + tileSizePx / 2, pos.y + tileSizePx / 2,
+////                    targetPos.x + tileSizePx / 2, targetPos.y + tileSizePx/ 2
+////                );
+////            }
+//
+//
+//            shapeRenderer.end();
+//        }
+//        for (GameGraph.Node node : graph.nodes) {
+//            if (!node.isObstacle()) {
+//                continue;
+//            }
+//
+//            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+//            Vector2 pos = node.getWorldPosition()
+//                .cpy()
+//                .scl(WORLD_TO_PX_SCALE);
+////                .sub(tileSizePx/2, tileSizePx/2);
+//
+////            System.out.print("X, Y Position: " + pos.x + ", " + pos.y + "\n");
+//            // Draw a rectangle outline for the node
+//            shapeRenderer.setColor( Color.ORANGE);
+//            shapeRenderer.rect(pos.x, pos.y, tileSizePx, tileSizePx);
+//
+//            // Draw the guard's target grid spot
+//            shapeRenderer.setColor(Color.RED);
+//            shapeRenderer.rect(nextTargetLocation.x * WORLD_TO_PX_SCALE, nextTargetLocation.y * WORLD_TO_PX_SCALE, tileSizePx, tileSizePx);
+//
+//
+//            shapeRenderer.end();
+//        }
+//
+//
+//    }
 
+    public void drawGraphDebug(SpriteBatch batch, OrthographicCamera camera,
+        Vector2 nextTargetLocation, Texture pixelTexture) {
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
 
         // Assume each node represents a 1x1 unit area (based on TERRAIN_TILE_SIZE)
-        final float WORLD_TO_PX_SCALE = 62.5f; // I got this number through trial and error lol
+        final float WORLD_TO_PX_SCALE = 62.5f;
         float tileSizePx = TERRAIN_TILE_SIZE * WORLD_TO_PX_SCALE;
-//        System.out.print("Number of nodes: " + graph.nodes.size + "\n");
 
         // Iterate over all nodes in the game graph
         for (GameGraph.Node node : graph.nodes) {
@@ -185,67 +266,63 @@ public class GameGraph {
                 continue;
             }
 
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             Vector2 pos = node.getWorldPosition()
                 .cpy()
                 .scl(WORLD_TO_PX_SCALE);
-//                .sub(tileSizePx/2, tileSizePx/2);
 
-//            System.out.print("X, Y Position: " + pos.x + ", " + pos.y + "\n");
-            // Draw a rectangle outline for the node
-            Color gridColor = node.isObstacle() ? Color.ORANGE : Color.WHITE;
-            shapeRenderer.setColor(gridColor);
-            shapeRenderer.rect(pos.x, pos.y, tileSizePx, tileSizePx);
+            // Draw a rectangle outline for the node using a white pixel
+            batch.setColor(Color.WHITE);
 
-            // Draw the guard's target grid spot
-            shapeRenderer.setColor(Color.RED);
-            shapeRenderer.rect(nextTargetLocation.x * WORLD_TO_PX_SCALE, nextTargetLocation.y * WORLD_TO_PX_SCALE, tileSizePx, tileSizePx);
-
-
-            // Draw the edges (connections) from this node
-//            shapeRenderer.setColor(Color.GREEN);
-//            for (Connection<Node> connection : node.edges) {
-//                Vector2 targetPos = connection.getToNode().getWorldPosition()
-//                    .cpy()
-//                    .scl(WORLD_TO_PX_SCALE)
-//                    .sub(tileSizePx/2, tileSizePx/2);
-//
-//                // Draw a line from the center of the node to the center of the target node
-//                shapeRenderer.line(
-//                    pos.x + tileSizePx / 2, pos.y + tileSizePx / 2,
-//                    targetPos.x + tileSizePx / 2, targetPos.y + tileSizePx/ 2
-//                );
-//            }
-
-
-            shapeRenderer.end();
+            // Draw top edge
+            batch.draw(pixelTexture, pos.x, pos.y, tileSizePx, 1);
+            // Draw bottom edge
+            batch.draw(pixelTexture, pos.x, pos.y + tileSizePx, tileSizePx, 1);
+            // Draw left edge
+            batch.draw(pixelTexture, pos.x, pos.y, 1, tileSizePx);
+            // Draw right edge
+            batch.draw(pixelTexture, pos.x + tileSizePx, pos.y, 1, tileSizePx);
         }
+
+        // Draw obstacle nodes
         for (GameGraph.Node node : graph.nodes) {
             if (!node.isObstacle()) {
                 continue;
             }
 
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             Vector2 pos = node.getWorldPosition()
                 .cpy()
                 .scl(WORLD_TO_PX_SCALE);
-//                .sub(tileSizePx/2, tileSizePx/2);
 
-//            System.out.print("X, Y Position: " + pos.x + ", " + pos.y + "\n");
-            // Draw a rectangle outline for the node
-            shapeRenderer.setColor( Color.ORANGE);
-            shapeRenderer.rect(pos.x, pos.y, tileSizePx, tileSizePx);
+            // Draw a rectangle outline for the obstacle using an orange pixel
+            batch.setColor(Color.ORANGE);
 
-            // Draw the guard's target grid spot
-            shapeRenderer.setColor(Color.RED);
-            shapeRenderer.rect(nextTargetLocation.x * WORLD_TO_PX_SCALE, nextTargetLocation.y * WORLD_TO_PX_SCALE, tileSizePx, tileSizePx);
-
-
-            shapeRenderer.end();
+            // Draw top edge
+            batch.draw(pixelTexture, pos.x, pos.y, tileSizePx, 1);
+            // Draw bottom edge
+            batch.draw(pixelTexture, pos.x, pos.y + tileSizePx, tileSizePx, 1);
+            // Draw left edge
+            batch.draw(pixelTexture, pos.x, pos.y, 1, tileSizePx);
+            // Draw right edge
+            batch.draw(pixelTexture, pos.x + tileSizePx, pos.y, 1, tileSizePx);
         }
 
+        // Draw the guard's target grid spot
+        batch.setColor(Color.RED);
+        Vector2 targetPos = nextTargetLocation.cpy().scl(WORLD_TO_PX_SCALE);
+
+        // Draw top edge
+        batch.draw(pixelTexture, targetPos.x, targetPos.y, tileSizePx, 1);
+        // Draw bottom edge
+        batch.draw(pixelTexture, targetPos.x, targetPos.y + tileSizePx, tileSizePx, 1);
+        // Draw left edge
+        batch.draw(pixelTexture, targetPos.x, targetPos.y, 1, tileSizePx);
+        // Draw right edge
+        batch.draw(pixelTexture, targetPos.x + tileSizePx, targetPos.y, 1, tileSizePx);
+
+        batch.end();
 
     }
+
 
 
 //    public void printGrid() {
@@ -323,7 +400,7 @@ public class GameGraph {
     public Vector2 worldToGraphIndex(Vector2 posWorld) {
 
         // This converts the world position to the exact grid coordinates
-        Vector2 graphIndex = posWorld.sub(this.startXWorld, this.startYWorld)
+        Vector2 graphIndex = posWorld.cpy().sub(this.startXWorld, this.startYWorld)
                 .scl(1.0F / this.TERRAIN_TILE_SIZE);
 
         graphIndex.set((float)Math.round(graphIndex.x), (float)Math.round( graphIndex.y));

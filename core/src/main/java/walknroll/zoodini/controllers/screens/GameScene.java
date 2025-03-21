@@ -14,7 +14,6 @@ package walknroll.zoodini.controllers.screens;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.ai.pfa.Connection;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.*;
@@ -114,6 +113,8 @@ public class GameScene implements Screen, ContactListener {
     private final HashMap<Guard, GuardAIController> guardToAIController = new HashMap<>();
 
     private GameGraph gameGraph;
+
+    private Texture pixelTexture;
 
 
 
@@ -242,6 +243,8 @@ public class GameScene implements Screen, ContactListener {
 		setFailure(false);
         initializeAIControllers();
         System.out.println("here");
+
+        this.pixelTexture = createPixelTexture();
 	}
 
 	/**
@@ -250,11 +253,25 @@ public class GameScene implements Screen, ContactListener {
 	public void dispose() {
 		level.dispose();
 		level = null;
+        if (pixelTexture != null) {
+            pixelTexture.dispose();
+            pixelTexture = null;
+        }
 	}
+
+    // Create a 1x1 white pixel texture to use for drawing shapes
+    private Texture createPixelTexture() {
+        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmap.setColor(Color.WHITE);
+        pixmap.fill();
+        Texture pixelTexture = new Texture(pixmap);
+        pixmap.dispose();
+        return pixelTexture;
+    }
 
     public void initializeAIControllers() {
         // TODO: Make numRows and numCols dynamically generated based on level
-        final float tileSizePhys = .5f; // Units are physics/world units
+        final float tileSizePhys = 0.5f; // Units are physics/world units
         final int numRows = 12 * MathUtils.ceil(1/ tileSizePhys);
         final int numCols = 16 * MathUtils.ceil(1/tileSizePhys);
 
@@ -558,7 +575,7 @@ public class GameScene implements Screen, ContactListener {
         }
     }
     // In your GameScene class (or a dedicated debug-drawing class)
-    private ShapeRenderer shapeRenderer = new ShapeRenderer();
+//    private ShapeRenderer shapeRenderer = new ShapeRenderer();
     /**
 	 * Draw the physics objects to the canvas
 	 *
@@ -580,9 +597,15 @@ public class GameScene implements Screen, ContactListener {
         // Final message
         ui.draw(batch);
 
-//         Draw the graph of one of the guards
-//        guardToAIController.values().stream().findFirst().ifPresent(
-//            controller -> controller.drawGraphDebug(shapeRenderer, camera));
+        // Draw the graph of one of the guards
+        guardToAIController.values().stream().findFirst().ifPresent(
+            controller -> controller.drawGraphDebug(batch, camera, pixelTexture));
+
+        for (Enemy enemy : level.getEnemies()) {
+            if (enemy instanceof Guard guard) {
+                guard.drawSusLevelBar(batch);
+            }
+        }
 	}
 
 
