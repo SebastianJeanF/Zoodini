@@ -105,10 +105,6 @@ public class VisionCone implements RayCastCallback{
             poly.indices.items[idx++] = (short)(numRays);
         }
 
-//        poly.indices.items[idx++] = (short)(numRays - 1);
-//        poly.indices.items[idx++] = (short) (numRays);
-//        poly.indices.items[idx++] = (short) 0;
-
         ShortArray var11 = poly.indices;
         var11.size += 3 * numRays;
 

@@ -14,6 +14,7 @@ package walknroll.zoodini.controllers.screens;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
@@ -26,11 +27,15 @@ import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.TextAlign;
 import edu.cornell.gdiac.graphics.TextLayout;
+import edu.cornell.gdiac.math.Poly2;
+import edu.cornell.gdiac.math.PolyFactory;
 import edu.cornell.gdiac.util.*;
 import java.util.logging.Level;
 import walknroll.zoodini.controllers.GuardAIController;
 import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.controllers.UIController;
+import walknroll.zoodini.controllers.aitools.TileGraph;
+import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Enemy;
@@ -42,6 +47,7 @@ import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.utils.GameGraph;
 import edu.cornell.gdiac.physics2.*;
 import java.util.HashMap;
+import walknroll.zoodini.utils.VisionCone;
 
 /**
  * Gameplay controller for the game.
@@ -84,8 +90,11 @@ public class GameScene implements Screen, ContactListener {
     /** The current level */
     private final HashMap<Guard, GuardAIController> guardToAIController = new HashMap<>();
 
-    /** */
+    /** Specialized renderer for rendering tiles */
     private OrthogonalTiledMapRenderer mapRenderer;
+
+    private TileGraph<TileNode> graph;
+
     private Box2DDebugRenderer debugRenderer;
 
     private GameGraph gameGraph;
@@ -166,6 +175,8 @@ public class GameScene implements Screen, ContactListener {
         mapRenderer.setView(camera);
 
         debugRenderer = new Box2DDebugRenderer();
+
+        graph = new TileGraph<>(level.getMap(), false);
 
 		setComplete(false);
 		setFailure(false);
@@ -352,8 +363,9 @@ public class GameScene implements Screen, ContactListener {
         mapRenderer.render();
 
         debugRenderer.render(level.getWorld(), camera.combined);
-    }
+        graph.draw(batch, camera, 32.0f);
 
+    }
 
     /**
      * Dispose of all (non-static) resources allocated to this mode.

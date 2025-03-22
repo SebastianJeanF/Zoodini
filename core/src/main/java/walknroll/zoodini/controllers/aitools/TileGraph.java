@@ -3,8 +3,15 @@ package walknroll.zoodini.controllers.aitools;
 
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.utils.Array;
+import edu.cornell.gdiac.graphics.SpriteBatch;
+import edu.cornell.gdiac.math.Poly2;
+import edu.cornell.gdiac.math.PolyFactory;
 
 public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
 
@@ -18,10 +25,10 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
 
     /**
      * Constructs a TileGraph from a TileMapTileLayer
-     * @param layer
      * @param diagonal whether diagonal movement is allowed
      */
-    public TileGraph(TiledMapTileLayer layer, boolean diagonal){
+    public TileGraph(TiledMap map, boolean diagonal){
+        TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("Tile Layer 1");
         WIDTH = layer.getWidth();
         HEIGHT = layer.getHeight();
         this.nodes = new Array<TileNode>(WIDTH * HEIGHT);
@@ -85,5 +92,26 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
     @Override
     public Array<Connection<TileNode>> getConnections(TileNode fromNode) {
         return fromNode.getConnections();
+    }
+
+    Affine2 cache = new Affine2();
+    PolyFactory pf = new PolyFactory();
+    Color c = Color.WHITE;
+    public void draw(SpriteBatch batch, Camera camera, float units){
+        batch.begin(camera);
+
+        cache.idt();
+        cache.scale(units,units);
+        for(TileNode node : nodes){
+            if(node.isWall){
+                c = Color.RED;
+            } else {
+                c = Color.GREEN;
+            }
+            Poly2 polygon = pf.makeNgon(node.x, node.y, 0.25f, 10);
+            batch.setColor(c);
+            batch.fill(polygon, cache);
+        }
+        batch.end();
     }
 }

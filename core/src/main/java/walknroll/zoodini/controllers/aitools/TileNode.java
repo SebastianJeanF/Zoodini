@@ -1,6 +1,8 @@
 package walknroll.zoodini.controllers.aitools;
 
 import com.badlogic.gdx.ai.pfa.Connection;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.utils.Array;
 
@@ -23,7 +25,9 @@ public class TileNode{
         this.cell = cell;
         this.connections = connections;
         this.mapHeight = mapHeight;
-        this.isWall = false; //TODO: set isWall based on the Cell
+        if(cell != null) {
+            this.isWall = true;
+        } //TODO: set isWall based on the Cell
     }
 
     //TODO: is there a better way to let nodes know the height of map?
