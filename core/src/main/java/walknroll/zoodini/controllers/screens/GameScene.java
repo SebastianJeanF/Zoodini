@@ -354,13 +354,12 @@ public class GameScene implements Screen, ContactListener {
         // Set the camera's updated view
         batch.setProjectionMatrix(camera.combined);
 
+        mapRenderer.setView(camera);
+        mapRenderer.render();
         level.draw(batch, camera);
 
         // Final message
         ui.draw(batch);
-
-        mapRenderer.setView(camera);
-        mapRenderer.render();
 
         debugRenderer.render(level.getWorld(), camera.combined);
         graph.draw(batch, camera, 32.0f);

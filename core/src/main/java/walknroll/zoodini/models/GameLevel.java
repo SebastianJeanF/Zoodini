@@ -167,7 +167,7 @@ public class GameLevel {
 
 		world = new World(Vector2.Zero, false);
         tiledMap = new TmxMapLoader().load(levelFormat.get("map").getString("file"));
-        TiledMapTileLayer layer = ((TiledMapTileLayer) tiledMap.getLayers().get(0));
+        TiledMapTileLayer layer = ((TiledMapTileLayer) tiledMap.getLayers().get("Floors"));
         units = layer.getTileWidth();
         int width = layer.getWidth(); //30
         int height = layer.getHeight(); //20

@@ -28,7 +28,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
      * @param diagonal whether diagonal movement is allowed
      */
     public TileGraph(TiledMap map, boolean diagonal){
-        TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("Tile Layer 1");
+        TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("Walls");
         WIDTH = layer.getWidth();
         HEIGHT = layer.getHeight();
         this.nodes = new Array<TileNode>(WIDTH * HEIGHT);
@@ -103,12 +103,13 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         cache.idt();
         cache.scale(units,units);
         for(TileNode node : nodes){
+            //TODO: Some colors are not working idk why
             if(node.isWall){
-                c = Color.RED;
+                c = Color.BLUE;
             } else {
-                c = Color.GREEN;
+                c = Color.GOLD;
             }
-            Poly2 polygon = pf.makeNgon(node.x, node.y, 0.25f, 10);
+            Poly2 polygon = pf.makeNgon(node.x, node.y, 0.1f, 10);
             batch.setColor(c);
             batch.fill(polygon, cache);
         }
