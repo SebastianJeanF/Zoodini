@@ -13,6 +13,7 @@
 package walknroll.zoodini.controllers.screens;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
@@ -26,6 +27,7 @@ import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.TextAlign;
 import edu.cornell.gdiac.graphics.TextLayout;
 import edu.cornell.gdiac.util.*;
+import java.util.logging.Level;
 import walknroll.zoodini.controllers.GuardAIController;
 import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.controllers.UIController;
@@ -36,6 +38,7 @@ import walknroll.zoodini.models.entities.Guard;
 import walknroll.zoodini.models.entities.Octopus;
 import walknroll.zoodini.models.entities.SecurityCamera;
 import walknroll.zoodini.models.entities.Avatar.AvatarType;
+import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.utils.GameGraph;
 import edu.cornell.gdiac.physics2.*;
 import java.util.HashMap;
@@ -59,15 +62,33 @@ public class GameScene implements Screen, ContactListener {
 	private JsonValue levelFormat;
 	/** The JSON defining the default entity configs */
 	private JsonValue levelGlobals;
-	/** The font for giving messages to the player */
-	protected BitmapFont displayFont;
-	/** The message to display */
-	protected TextLayout message;
 
 	/** Exit code for quitting the game */
 	public static final int EXIT_QUIT = 0;
 	/** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
+
+	/** The orthographic camera */
+	private OrthographicCamera camera;
+
+	/** Reference to the game canvas */
+	protected SpriteBatch batch;
+	/** Listener that will update the player mode when we are done */
+	private ScreenListener listener;
+    /** All the UI elements belong to this */
+    private UIController ui;
+	/** Reference to the game level */
+	protected GameLevel level;
+	/** Mark set to handle more sophisticated collision callbacks */
+	protected ObjectSet<Fixture> sensorFixtures;
+    /** The current level */
+    private final HashMap<Guard, GuardAIController> guardToAIController = new HashMap<>();
+
+    /** */
+    private OrthogonalTiledMapRenderer mapRenderer;
+    private Box2DDebugRenderer debugRenderer;
+
+    private GameGraph gameGraph;
 
     /** Whether the player has collected the key */
     private boolean keyCollected = false;
@@ -82,37 +103,16 @@ public class GameScene implements Screen, ContactListener {
     /** Whether the door is currently being unlocking */
     private boolean isUnlocking = false;
 
-	/** The orthographic camera */
-	private OrthographicCamera camera;
-	/** Reference to the game canvas */
-	protected SpriteBatch batch;
-	/** Listener that will update the player mode when we are done */
-	private ScreenListener listener;
 
-
-    private UIController ui;
-
-	/** Reference to the game level */
-	protected GameLevel level;
-
-	/** Whether or not this is an active controller */
-	private boolean active;
-	/** Whether we have completed this level */
-	private boolean complete;
-	/** Whether we have failed at this world (and need a reset) */
-	private boolean failed;
-	/** Countdown active for winning or losing */
-	private int countdown;
-
-	/** Mark set to handle more sophisticated collision callbacks */
-	protected ObjectSet<Fixture> sensorFixtures;
-
-    /** The current level */
-    private final HashMap<Guard, GuardAIController> guardToAIController = new HashMap<>();
-
-    private GameGraph gameGraph;
-
-
+    // Win/lose related fields
+    /** Whether or not this is an active controller */
+    private boolean active;
+    /** Whether we have completed this level */
+    private boolean complete;
+    /** Whether we have failed at this world (and need a reset) */
+    private boolean failed;
+    /** Countdown active for winning or losing */
+    private int countdown;
 
 	// Camera movement fields
 	private Vector2 cameraTargetPosition;
@@ -124,80 +124,6 @@ public class GameScene implements Screen, ContactListener {
 	// general-purpose cache vector
 	private Vector2 cacheVec;
 
-	/**
-	 * Returns true if the level is completed.
-	 *
-	 * If true, the level will advance after a countdown
-	 *
-	 * @return true if the level is completed.
-	 */
-	public boolean isComplete() {
-		return complete;
-	}
-
-	/**
-	 * Sets whether the level is completed.
-	 *
-	 * If true, the level will advance after a countdown
-	 *
-	 * @param value whether the level is completed.
-	 */
-    private boolean octopusArrived = false;
-    private boolean catArrived = false;
-    public void setComplete(boolean value) {
-		if (value) {
-			BitmapFont font = directory.getEntry("display", BitmapFont.class);
-            TextLayout message = new TextLayout("Victory!", font);
-			message.setAlignment(TextAlign.middleCenter);
-			message.setColor(Color.YELLOW);
-			message.layout();
-            ui.setFont(font);
-            ui.setMessage(message);
-			countdown = EXIT_COUNT;
-		}
-		complete = value;
-	}
-
-	/**
-	 * Returns true if the level is failed.
-	 *
-	 * If true, the level will reset after a countdown
-	 *
-	 * @return true if the level is failed.
-	 */
-	public boolean isFailure() {
-		return failed;
-	}
-
-	/**
-	 * Sets whether the level is failed.
-	 *
-	 * If true, the level will reset after a countdown
-	 *
-	 * @param value whether the level is failed.
-	 */
-	public void setFailure(boolean value) {
-        if (value) {
-            BitmapFont font = directory.getEntry("display", BitmapFont.class);
-            TextLayout message = new TextLayout("Failure!", font);
-            message.setAlignment(TextAlign.middleCenter);
-            message.setColor(Color.RED);
-            message.layout();
-            ui.setFont(font);
-            ui.setMessage(message);
-            countdown = EXIT_COUNT;
-        }
-        complete = value;
-	}
-
-	/**
-	 * Returns true if this is the active screen
-	 *
-	 * @return true if this is the active screen
-	 */
-	public boolean isActive() {
-		return active;
-	}
 
 	/**
 	 * Creates a new game world
@@ -211,7 +137,7 @@ public class GameScene implements Screen, ContactListener {
 
 		level = new GameLevel();
 		levelFormat = directory.getEntry("level1", JsonValue.class);
-		levelGlobals = directory.getEntry("globals", JsonValue.class);
+        levelGlobals = directory.getEntry("globals", JsonValue.class);
 		level.populate(directory, levelFormat, levelGlobals);
 		level.getWorld().setContactListener(this);
 
@@ -221,9 +147,8 @@ public class GameScene implements Screen, ContactListener {
 		countdown = -1;
 
 		camera = new OrthographicCamera();
-		// System.out.println("");
-		// System.out.println("");
-		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		camera.setToOrtho(false, level.getTileSize() * 15,  level.getTileSize() * 10);
+
 		// Initialize camera tracking variables
 		cameraTargetPosition = new Vector2();
 		cameraPreviousPosition = new Vector2();
@@ -233,43 +158,31 @@ public class GameScene implements Screen, ContactListener {
 		inCameraTransition = false;
 
         ui = new UIController();
+        ui.setFont(directory.getEntry("display", BitmapFont.class));
+        ui.init();
 		cacheVec = new Vector2();
+
+        mapRenderer = new OrthogonalTiledMapRenderer(level.getMap(), 1.0f);
+        mapRenderer.setView(camera);
+
+        debugRenderer = new Box2DDebugRenderer();
 
 		setComplete(false);
 		setFailure(false);
         initializeAIControllers();
 	}
 
-	/**
-	 * Dispose of all (non-static) resources allocated to this mode.
-	 */
-	public void dispose() {
-		level.dispose();
-		level = null;
-	}
 
-    public void initializeAIControllers() {
-        this.gameGraph = new GameGraph(12, 16, level.getBounds().x, level.getBounds().y, level.getSprites());
-        Array<Enemy> enemies = level.getEnemies();
-        for (Enemy enemy : enemies) {
-            if (!(enemy instanceof Guard guard))
-                continue;
+    //-----------------Main logic--------------------------//
 
-            GuardAIController aiController = new GuardAIController(guard, level, this.gameGraph, 5);
-            guardToAIController.put(guard, aiController);
-        }
-
-//        gameGraph.printGrid();
-    }
-
-	/**
-	 * Resets the status of the game so that we can play again.
-	 *
-	 * This method disposes of the level and creates a new one. It will
-	 * reread from the JSON file, allowing us to make changes on the fly.
-	 */
-	public void reset() {
-		level.dispose();
+    /**
+     * Resets the status of the game so that we can play again.
+     *
+     * This method disposes of the level and creates a new one. It will
+     * reread from the JSON file, allowing us to make changes on the fly.
+     */
+    public void reset() {
+        level.dispose();
 
         catArrived = false;
         octopusArrived = false;
@@ -279,92 +192,113 @@ public class GameScene implements Screen, ContactListener {
         isUnlocking = false;
         ui.reset();
 
-		setComplete(false);
-		setFailure(false);
-		countdown = -1;
-		message = null;
+        setComplete(false);
+        setFailure(false);
+        countdown = -1;
 
-		// Reload the json each time
-		level.populate(directory, levelFormat, levelGlobals);
-		level.getWorld().setContactListener(this);
+        // Reload the json each time
+        level.populate(directory, levelFormat, levelGlobals);
+        level.getWorld().setContactListener(this);
         initializeAIControllers();
-	}
+    }
 
-	/**
-	 * Returns whether to process the update loop
-	 *
-	 * At the start of the update loop, we check if it is time
-	 * to switch to a new game mode. If not, the update proceeds
-	 * normally.
-	 *
-	 * @param delta Number of seconds since last animation frame
-	 *
-	 * @return whether to process the update loop
-	 */
-	public boolean preUpdate(float dt) {
-		InputController input = InputController.getInstance();
-		input.sync();
 
-		if (listener == null) {
-			return true;
-		}
+    /**
+     * Called when the Screen should render itself.
+     *
+     * We defer to the other methods update() and draw(). However, it is VERY
+     * important
+     * that we only quit AFTER a draw.
+     *
+     * @param delta Number of seconds since last animation frame
+     */
+    public void render(float delta) {
+        if (active) {
+            if (preUpdate(delta)) {
+                update(delta);
+            }
+            draw();
+        }
+    }
 
-		// Toggle debug
-		if (input.didDebug()) {
-			level.setDebug(!level.getDebug());
-		}
+    /**
+     * Returns whether to process the update loop
+     *
+     * At the start of the update loop, we check if it is time
+     * to switch to a new game mode. If not, the update proceeds
+     * normally.
+     *
+     * @param dt Number of seconds since last animation frame
+     *
+     * @return whether to process the update loop
+     */
+    public boolean preUpdate(float dt) {
+        InputController input = InputController.getInstance();
+        input.sync();
 
-		// Handle resets
-		if (input.didReset()) {
-			reset();
-		}
+        if (listener == null) {
+            return true;
+        }
 
-		// Now it is time to maybe switch screens.
-		if (input.didExit()) {
-			listener.exitScreen(this, EXIT_QUIT);
-			return false;
-		} else if (countdown > 0) {
-			countdown--;
-		} else if (countdown == 0) {
-			reset();
-		}
+        // Toggle debug
+        if (input.didDebug()) {
+            level.setDebug(!level.getDebug());
+        }
 
-		return true;
-	}
+        // Handle resets
+        if (input.didReset()) {
+            reset();
+        }
 
-	private Vector2 angleCache = new Vector2();
+        // Now it is time to maybe switch screens.
+        if (input.didExit()) {
+            listener.exitScreen(this, EXIT_QUIT);
+            return false;
+        } else if (countdown > 0) {
+            countdown--;
+        } else if (countdown == 0) {
+            reset();
+        }
 
-	/**
-	 * The core gameplay loop of this world.
-	 *
-	 * This method contains the specific update code for this mini-game. It does
-	 * not handle collisions, as those are managed by the parent class
-	 * WorldController.
-	 * This method is called after input is read, but before collisions are
-	 * resolved.
-	 * The very last thing that it should do is apply forces to the appropriate
-	 * objects.
-	 *
-	 * @param delta Number of seconds since last animation frame
-	 */
-	public void update(float dt) {
-		// Process actions in object model
-		InputController input = InputController.getInstance();
+        return true;
+    }
+
+    private Vector2 angleCache = new Vector2();
+
+
+    /**
+     * The core gameplay loop of this world.
+     *
+     * This method contains the specific update code for this mini-game. It does
+     * not handle collisions, as those are managed by the parent class
+     * WorldController.
+     * This method is called after input is read, but before collisions are
+     * resolved.
+     * The very last thing that it should do is apply forces to the appropriate
+     * objects.
+     *
+     * @param dt Number of seconds since last animation frame
+     */
+    public void update(float dt) {
+        // Process actions in object model
+        InputController input = InputController.getInstance();
 
         onSwap(input);
 
         Avatar avatar = level.getAvatar();
 
-        checkFlipSprite(avatar, input);
+        if(avatar != null) {
+            checkFlipSprite(avatar, input);
 
-        updateOctopusInkAim(avatar, input);
+            updateOctopusInkAim(avatar, input);
 
-        rotateEntities(input, avatar);
+            rotateEntities(input, avatar);
 
-        moveEntities(avatar);
+            moveEntities(avatar);
 
-        // Update camera target to active avatar's position
-        cameraTargetPosition.set(avatar.getPosition());
+            // Update camera target to active avatar's position
+            cameraTargetPosition.set(avatar.getPosition());
+        }
         // Update camera position with interpolation
         updateCamera(dt);
 
@@ -374,7 +308,7 @@ public class GameScene implements Screen, ContactListener {
         if(keyMessageTimer > 0) {
             keyMessageTimer--;
             if(keyMessageTimer == 0) {
-                ui.setMessage(null); // Clear message when timer expires
+                ui.hideMessage(UIController.KEY_TIMER); // Clear message when timer expires
             }
         }
 
@@ -382,29 +316,71 @@ public class GameScene implements Screen, ContactListener {
 
         checkDeactivateKeyOnCollect();
 
-        // Set meow guard flag
-        // TODO: Ideally, guards should only notice the meow the frame AFTER it happened,
-        // but this is good enough for now
-//        if (input.didAbility() && level.getAvatar() instanceof Cat ) {
-//            for (Enemy t : level.getEnemies()) {
-//                Guard guard = (Guard) t;
-//                float DISTRACT_DISTANCE = 5.0f;
-//                if (guard.getPosition().dst(avatar.getPosition()) < DISTRACT_DISTANCE) {
-////                    guard.setMeow(true);
-////                    guard.setTarget(avatar.getPosition());
-//                }
-//            }
-//        }
-
-		// Update guards
+        // Update guards
         updateGuardAI();
         updateGuards();
 
         updateInkProjectile();
 
         // Turn the physics engine crank.
-		level.update(dt);
-	}
+        level.update(dt);
+    }
+
+
+    /**
+     * Draw the physics objects to the canvas
+     *
+     * For simple worlds, this method is enough by itself. It will need
+     * to be overriden if the world needs fancy backgrounds or the like.
+     *
+     * The method draws all objects in the order that they were added.
+     */
+    public void draw() {
+        ScreenUtils.clear(0.39f, 0.58f, 0.93f, 1.0f);
+
+        // Set the camera's updated view
+        batch.setProjectionMatrix(camera.combined);
+        // Set the camera's updated view
+        batch.setProjectionMatrix(camera.combined);
+
+        level.draw(batch, camera);
+
+        // Final message
+        ui.draw(batch);
+
+        mapRenderer.setView(camera);
+        mapRenderer.render();
+
+        debugRenderer.render(level.getWorld(), camera.combined);
+    }
+
+
+    /**
+     * Dispose of all (non-static) resources allocated to this mode.
+     */
+    public void dispose() {
+        level.dispose();
+        level = null;
+    }
+
+
+    //-----------------Helper Methods--------------------//
+
+    public void initializeAIControllers() {
+        this.gameGraph = new GameGraph(12, 16, level.getBounds().x, level.getBounds().y, level.getSprites());
+        Array<Enemy> enemies = level.getEnemies();
+        if(enemies != null) {
+            for (Enemy enemy : enemies) {
+                if (!(enemy instanceof Guard guard))
+                    continue;
+
+                GuardAIController aiController = new GuardAIController(guard, level, this.gameGraph,
+                    5);
+                guardToAIController.put(guard, aiController);
+            }
+        }
+    }
+
 
     private void checkDeactivateKeyOnCollect() {
         // Deactivate collected key's physics body if needed
@@ -440,9 +416,12 @@ public class GameScene implements Screen, ContactListener {
     }
 
     private void updateInkProjectile() {
-        if (level.getProjectile().getToHide()) {
-            level.hideInkProjectile();
-            level.getProjectile().setToHide(false);
+        InkProjectile projectile = level.getProjectile();
+        if(projectile != null) {
+            if (projectile.getToHide()) {
+                level.hideInkProjectile();
+                projectile.setToHide(false);
+            }
         }
     }
 
@@ -453,15 +432,8 @@ public class GameScene implements Screen, ContactListener {
 
             // Update unlocking message percentage
             if (unlockingTimer % 15 == 0) { // Update message every 1/4 second
-                BitmapFont font = directory.getEntry("display", BitmapFont.class);
-                TextLayout message = new TextLayout("Unlocking Door: " +
-                    Math.round((float) unlockingTimer / UNLOCK_DURATION * 100) + "%",
-                    font);
-                message.setAlignment(TextAlign.middleCenter);
-                message.setColor(Color.YELLOW);
-                message.layout();
-                ui.setFont(font);
-                ui.setMessage(message);
+                ui.keyTimer.setText("Unlocking Door: " + Math.round((float) unlockingTimer / UNLOCK_DURATION * 100) + "%");
+                ui.setCenterMessage(UIController.KEY_TIMER);
             }
             // Check if door is fully unlocked
             if (unlockingTimer >= UNLOCK_DURATION) {
@@ -469,13 +441,7 @@ public class GameScene implements Screen, ContactListener {
                 isUnlocking = false;
 
                 // Show door unlocked message
-                BitmapFont font = directory.getEntry("display", BitmapFont.class);
-                TextLayout message = new TextLayout("Door Unlocked!", font);
-                message.setAlignment(TextAlign.middleCenter);
-                message.setColor(Color.GREEN);
-                message.layout();
-                ui.setFont(font);
-                ui.setMessage(message);
+                ui.setCenterMessage(UIController.UNLOCKED);
                 keyMessageTimer = 120; // 2 seconds at 60 fps to show unlock message
             }
         }
@@ -506,11 +472,11 @@ public class GameScene implements Screen, ContactListener {
 				octopus.setCurrentlyAiming(true);
 				Vector3 unprojected = camera.unproject(
 						new Vector3(input.getAiming().x, input.getAiming().y, 0));
-				cacheVec.set(unprojected.x / level.getLevelScaleX(),
-						unprojected.y / level.getLevelScaleY());
+				cacheVec.set(unprojected.x / level.getTileSize(),
+						unprojected.y / level.getTileSize());
 
 				// TODO: max length should be a configurable value
-				float scale = Math.min(cacheVec.dst(avatar.getPosition()) * level.getLevelScaleX(), 250);
+				float scale = Math.min(cacheVec.dst(avatar.getPosition()) * level.getTileSize(), 250);
 				double dx = avatar.getPosition().x - cacheVec.x;
 				double dy = avatar.getPosition().y - cacheVec.y;
 				float angleRad = -((float) (Math.atan2(dx, dy) + Math.toRadians(90))); // scuffed math (TODO: fix?)
@@ -529,11 +495,14 @@ public class GameScene implements Screen, ContactListener {
 				octopus.setDidFire(false);
 			}
 
-			if ((level.getProjectile().getPosition().dst(avatar.getPosition()) * level.getLevelScaleX()) > (octopus
-					.getTarget().len())) {
-				level.getProjectile().setToHide(true);
+            if(level.getProjectile() != null) {
+                if ((level.getProjectile().getPosition().dst(avatar.getPosition())
+                    * level.getTileSize()) > (octopus
+                    .getTarget().len())) {
+                    level.getProjectile().setToHide(true);
 
-			}
+                }
+            }
 		}
     }
 
@@ -544,28 +513,6 @@ public class GameScene implements Screen, ContactListener {
         }
     }
 
-    /**
-	 * Draw the physics objects to the canvas
-	 *
-	 * For simple worlds, this method is enough by itself. It will need
-	 * to be overriden if the world needs fancy backgrounds or the like.
-	 *
-	 * The method draws all objects in the order that they were added.
-	 */
-	public void draw() {
-		ScreenUtils.clear(0.39f, 0.58f, 0.93f, 1.0f);
-
-		// Set the camera's updated view
-		batch.setProjectionMatrix(camera.combined);
-		// Set the camera's updated view
-		batch.setProjectionMatrix(camera.combined);
-
-		level.draw(batch, camera);
-
-        // Final message
-        ui.draw(batch);
-
-	}
 
 	/**
 	 * Updates the camera position with interpolation when transitioning
@@ -592,81 +539,46 @@ public class GameScene implements Screen, ContactListener {
 		}
 
 		// Apply scaling to match world units
-		camera.position.x *= level.getLevelScaleX();
-		camera.position.y *= level.getLevelScaleY();
+		camera.position.x *= level.getTileSize();
+		camera.position.y *= level.getTileSize();
 
 		// Update the camera
 		camera.update();
 	}
 
-	/**
-	 * Called when the Screen is resized.
-	 *
-	 * This can happen at any point during a non-paused state but will never happen
-	 * before a call to show().
-	 *
-	 * @param width  The new width in pixels
-	 * @param height The new height in pixels
-	 */
-	public void resize(int width, int height) {
-		// IGNORE FOR NOW
-	}
-
-	/**
-	 * Called when the Screen should render itself.
-	 *
-	 * We defer to the other methods update() and draw(). However, it is VERY
-	 * important
-	 * that we only quit AFTER a draw.
-	 *
-	 * @param delta Number of seconds since last animation frame
-	 */
-	public void render(float delta) {
-		if (active) {
-			if (preUpdate(delta)) {
-				update(delta);
-			}
-			draw();
-		}
-	}
-
 
 	void updateGuards() {
 		Array<Enemy> enemies = level.getEnemies();
-		for (Enemy enemy : enemies) {
-			if (!(enemy instanceof Guard))
-				continue;
+        if(enemies != null) {
+            for (Enemy enemy : enemies) {
+                if (!(enemy instanceof Guard))
+                    continue;
 
-			Guard guard = (Guard) enemy;
-			// Check for meow alert (Gar) or inked alert (Otto)
+                Guard guard = (Guard) enemy;
+                // Check for meow alert (Gar) or inked alert (Otto)
 
-			// Reset meow alert when the guard reaches its target
+                // Reset meow alert when the guard reaches its target
 //			if ((guard.isMeowed() && guard.getPosition().dst(guard.getTarget()) < 0.1f)) {
 //				guard.setMeow(false);
 //			}
 
+                // Check Field-of-view (FOV), making guard agroed if they see a player
 
-			// Check Field-of-view (FOV), making guard agroed if they see a player
+                moveGuard(guard);
+                if (guard.isMeowed()) {
 
-			moveGuard(guard);
-			if (guard.isMeowed()) {
+                }
 
-			}
-
-			// guard.updatePatrol();
-			// moveGuard(guard);
-		}
-
+                // guard.updatePatrol();
+                // moveGuard(guard);
+            }
+        }
 	}
 
 
 	void moveGuard(Guard guard) {
-
-
         Vector2 direction = guard.getMovementDirection();
         // System.out.print("Direction" + direction);
-
-
 
 		if (direction.len() > 0) {
 			direction.nor().scl(guard.getForce());
@@ -688,8 +600,21 @@ public class GameScene implements Screen, ContactListener {
 			guard.setAngle(movement.angleRad() - (float) Math.PI/2);
 		}
 		guard.applyForce();
-
 	}
+
+
+    /**
+     * Called when the Screen is resized.
+     *
+     * This can happen at any point during a non-paused state but will never happen
+     * before a call to show().
+     *
+     * @param width  The new width in pixels
+     * @param height The new height in pixels
+     */
+    public void resize(int width, int height) {
+        // IGNORE FOR NOW
+    }
 
 	/**
 	 * Called when the Screen is paused.
@@ -802,14 +727,7 @@ public class GameScene implements Screen, ContactListener {
                     else if (o1 == oct || o2 == oct){keyCollector = level.getOctopus();}
 
                     // Display a message that key was collected
-                    BitmapFont font = directory.getEntry("display", BitmapFont.class);
-                    TextLayout message = new TextLayout("Key Collected!", font);
-                    message.setAlignment(TextAlign.middleCenter);
-                    message.setColor(Color.YELLOW);
-                    message.layout();
-                    ui.setFont(font);
-                    ui.setMessage(message);
-
+                    ui.setCenterMessage(UIController.KEY_COLLECTED);
                     // Make the message disappear after a few seconds
                     keyMessageTimer = 120; // 2 seconds at 60 fps
                 }
@@ -823,24 +741,17 @@ public class GameScene implements Screen, ContactListener {
                     isUnlocking = true;
 
                     // Display unlocking message
-                    BitmapFont font = directory.getEntry("display", BitmapFont.class);
-                    TextLayout message = new TextLayout("Unlocking Door: 0%", font);
-                    message.setAlignment(TextAlign.middleCenter);
-                    message.setColor(Color.YELLOW);
-                    message.layout();
-                    ui.setFont(font);
-                    ui.setMessage(message);
+                    ui.keyTimer.setText("Unlocking Door: " + 0 + "%");
+                    ui.setCenterMessage(UIController.KEY_TIMER);
                 }
             }
 
             // Handle exit collision (only if door is unlocked)
             if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
-                System.out.println("Cat arrived");
                 catArrived = true;
             }
 
             if((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)){
-                System.out.println("Otto arrived");
                 octopusArrived = true;
             }
 
@@ -885,13 +796,8 @@ public class GameScene implements Screen, ContactListener {
                     unlockingTimer = 0;
 
                     // Display message that unlocking was interrupted
-                    BitmapFont font = directory.getEntry("display", BitmapFont.class);
-                    TextLayout message = new TextLayout("Unlocking Interrupted!", font);
-                    message.setAlignment(TextAlign.middleCenter);
-                    message.setColor(Color.RED);
-                    message.layout();
-                    ui.setFont(font);
-                    ui.setMessage(message);
+                    ui.setCenterMessage(UIController.INTERRUPTED);
+
                     keyMessageTimer = 60; // 1 second at 60 fps
                 }
             }
@@ -918,4 +824,69 @@ public class GameScene implements Screen, ContactListener {
 	/** Unused ContactListener method */
 	public void preSolve(Contact contact, Manifold oldManifold) {
 	}
+
+    /**
+     * Returns true if the level is completed.
+     *
+     * If true, the level will advance after a countdown
+     *
+     * @return true if the level is completed.
+     */
+    public boolean isComplete() {
+        return complete;
+    }
+
+    /**
+     * Sets whether the level is completed.
+     *
+     * If true, the level will advance after a countdown
+     *
+     * @param value whether the level is completed.
+     */
+    private boolean octopusArrived = false;
+    private boolean catArrived = false;
+    public void setComplete(boolean value) {
+        if (value) {
+            ui.showMessage(UIController.VICTORY);
+            ui.hideMessage(UIController.FAILURE);
+            countdown = EXIT_COUNT;
+        }
+        complete = value;
+    }
+
+    /**
+     * Returns true if the level is failed.
+     *
+     * If true, the level will reset after a countdown
+     *
+     * @return true if the level is failed.
+     */
+    public boolean isFailure() {
+        return failed;
+    }
+
+    /**
+     * Sets whether the level is failed.
+     *
+     * If true, the level will reset after a countdown
+     *
+     * @param value whether the level is failed.
+     */
+    public void setFailure(boolean value) {
+        if (value) {
+            ui.showMessage(UIController.FAILURE);
+            ui.hideMessage(UIController.VICTORY);
+            countdown = EXIT_COUNT;
+        }
+        complete = value;
+    }
+
+    /**
+     * Returns true if this is the active screen
+     *
+     * @return true if this is the active screen
+     */
+    public boolean isActive() {
+        return active;
+    }
 }
