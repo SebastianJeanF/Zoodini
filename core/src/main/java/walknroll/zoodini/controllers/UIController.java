@@ -74,7 +74,7 @@ public class UIController {
         interrupted = new TextLayout("Unlocking Interrupted!", displayFont);
         interrupted.setAlignment(TextAlign.middleCenter);
         interrupted.setColor(Color.YELLOW);
-
+        
 
 
         messages = new Array<>();

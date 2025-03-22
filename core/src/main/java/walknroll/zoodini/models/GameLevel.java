@@ -183,34 +183,20 @@ public class GameLevel {
 		maxSteps = 1.0f + (float) maxFPS / minFPS;
 		maxTimePerFrame = timeStep * maxSteps;
 
-//		// Walls
-//		goalDoor = new Door(directory, levelFormat.get("door"), levelGlobals.get("door"), units);
-//		activate(goalDoor);
-//
-//        exit = new Exit(directory, levelFormat.get("exit"), levelGlobals.get("exit"), units);
-//        activate(exit);
-//
-//        // Create the key
-//        if (levelFormat.has("key")) {
-//            JsonValue keyData = levelFormat.get("key");
-//            key = new Key(directory, keyData, levelGlobals.get("key"), units);
-//            activate(key);
-//        }
-//
-//		JsonValue bounds = levelFormat.getChild("exterior");
-//		while (bounds != null) {
-//			ExteriorWall obj = new ExteriorWall(directory, bounds, units);
-//			activate(obj);
-//			bounds = bounds.next();
-//		}
-//
-//		JsonValue walls = levelFormat.getChild("interior");
-//		while (walls != null) {
-//			InteriorWall obj = new InteriorWall(directory, walls, units);
-//			activate(obj);
-//			walls = walls.next();
-//		}
-//
+		// Walls
+		goalDoor = new Door(directory, levelFormat.get("door"), levelGlobals.get("door"), units);
+		activate(goalDoor);
+
+        exit = new Exit(directory, levelFormat.get("exit"), levelGlobals.get("exit"), units);
+        activate(exit);
+
+        // Create the key
+        if (levelFormat.has("key")) {
+            JsonValue keyData = levelFormat.get("key");
+            key = new Key(directory, keyData, levelGlobals.get("key"), units);
+            activate(key);
+        }
+
 		JsonValue catData = levelFormat.get("avatarCat");
 		avatarCat = new Cat(directory, catData, levelGlobals.get("avatarCat"), units);
 		activate(avatarCat);
@@ -221,43 +207,40 @@ public class GameLevel {
 		activate(avatarOctopus);
 //
 //		// Enemies
-//		this.enemies = new Array<>();
-//		JsonValue guards = levelFormat.getChild("guards");
-//		while (guards != null) {
-//			enemies.add(new Guard(directory, guards, levelGlobals.get("guard"), units));
-//			activate(enemies.peek());
-//			guards = guards.next();
-//		}
-//
-//        // Security Cameras
-//       this.securityCameras = new Array<>();
-//        JsonValue cameras = levelFormat.getChild("cameras");
-//        while (cameras != null) {
-//            SecurityCamera camera = new SecurityCamera(directory, cameras, levelGlobals.get("camera"), units);
-//            activate(camera);
-//            securityCameras.add(camera);
-//            cameras = cameras.next();
-//        }
-//
-//		// Lights
-//          this.visions = new ObjectMap<>();
-//        JsonValue visionJson = levelFormat.get("visions");
-//        initializeVisionCones(visionJson);
-//
+		JsonValue guards = levelFormat.getChild("guards");
+		while (guards != null) {
+			enemies.add(new Guard(directory, guards, levelGlobals.get("guard"), units));
+			activate(enemies.peek());
+			guards = guards.next();
+		}
+
+        // Security Cameras
+        JsonValue cameras = levelFormat.getChild("cameras");
+        while (cameras != null) {
+            SecurityCamera camera = new SecurityCamera(directory, cameras, levelGlobals.get("camera"), units);
+            activate(camera);
+            securityCameras.add(camera);
+            cameras = cameras.next();
+        }
+
+		// Lights
+        JsonValue visionJson = levelFormat.get("visions");
+        initializeVisionCones(visionJson);
+
 //        raycamera = new OrthographicCamera(gSize[0], gSize[1]);
 //        raycamera.setToOrtho(false, gSize[0], gSize[1]);
 //        rayHandler = new RayHandler(world, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 //        RayHandler.useDiffuseLight(true);
 //        RayHandler.setGammaCorrection(true);
 //        rayHandler.setAmbientLight(0.5f,0.5f,0.5f,0.5f);
-//
-//		// Initialize an ink projectile (but do not add it to the physics world, we only
-//		// do that on demand)
-//		JsonValue projectileData = levelGlobals.get("ink");
-//		inkProjectile = new InkProjectile(directory, projectileData, units);
-//		activate(inkProjectile);
-//		inkProjectile.setDrawingEnabled(false);
-//		inkProjectile.getObstacle().setActive(false);
+
+		// Initialize an ink projectile (but do not add it to the physics world, we only
+		// do that on demand)
+		JsonValue projectileData = levelGlobals.get("ink");
+		inkProjectile = new InkProjectile(directory, projectileData, units);
+		activate(inkProjectile);
+		inkProjectile.setDrawingEnabled(false);
+		inkProjectile.getObstacle().setActive(false);
 	}
 
     private void initializeVisionCones(JsonValue json) {
@@ -293,7 +276,7 @@ public class GameLevel {
             if (mapObject instanceof RectangleMapObject)
             {
                 RectangleMapObject rectangleObject = (RectangleMapObject) mapObject;
-                Rectangle rectangle = rectangleObject.getRectangle();
+                Rectangle rectangle = rectangleObject.getRectangle(); //in pixels
                 Obstacle obstacle =
                     new BoxObstacle(
                         // in meters
