@@ -61,6 +61,9 @@ import walknroll.zoodini.utils.VisionCone;
  * singleton asset manager to manage the various assets.
  */
 public class GameScene implements Screen, ContactListener {
+
+    private boolean debug = false;
+
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
 	protected AssetDirectory directory;
@@ -90,12 +93,7 @@ public class GameScene implements Screen, ContactListener {
     /** The current level */
     private final HashMap<Guard, GuardAIController> guardToAIController = new HashMap<>();
 
-    /** Specialized renderer for rendering tiles */
-    private OrthogonalTiledMapRenderer mapRenderer;
-
     private TileGraph<TileNode> graph;
-
-    private Box2DDebugRenderer debugRenderer;
 
     private GameGraph gameGraph;
 
@@ -131,7 +129,7 @@ public class GameScene implements Screen, ContactListener {
 	private boolean inCameraTransition;
 
 	// general-purpose cache vector
-	private Vector2 cacheVec;
+	private Vector2 cacheVec = new Vector2();
 
 
 	/**
@@ -156,7 +154,8 @@ public class GameScene implements Screen, ContactListener {
 		countdown = -1;
 
 		camera = new OrthographicCamera();
-		camera.setToOrtho(false, level.getTileSize() * 15,  level.getTileSize() * 10);
+        //30m, 20m is the map dimension. 1 tile = 1m
+		camera.setToOrtho(false, level.getTileSize() * 30,  level.getTileSize() * 20);
 
 		// Initialize camera tracking variables
 		cameraTargetPosition = new Vector2();
@@ -166,15 +165,11 @@ public class GameScene implements Screen, ContactListener {
 				.getFloat("CAMERA_INTERPOLATION_DURATION");
 		inCameraTransition = false;
 
+
+        //UI controller is not working as intended. Someone fix plz
         ui = new UIController();
         ui.setFont(directory.getEntry("display", BitmapFont.class));
         ui.init();
-		cacheVec = new Vector2();
-
-        mapRenderer = new OrthogonalTiledMapRenderer(level.getMap(), 1.0f);
-        mapRenderer.setView(camera);
-
-        debugRenderer = new Box2DDebugRenderer();
 
         graph = new TileGraph<>(level.getMap(), false);
 
@@ -274,9 +269,6 @@ public class GameScene implements Screen, ContactListener {
         return true;
     }
 
-    private Vector2 angleCache = new Vector2();
-
-
     /**
      * The core gameplay loop of this world.
      *
@@ -291,7 +283,8 @@ public class GameScene implements Screen, ContactListener {
      * @param dt Number of seconds since last animation frame
      */
     public void update(float dt) {
-        // Process actions in object model
+        //TODO: what is the proper sequence of method calls here?
+
         InputController input = InputController.getInstance();
 
         onSwap(input);
@@ -354,16 +347,14 @@ public class GameScene implements Screen, ContactListener {
         // Set the camera's updated view
         batch.setProjectionMatrix(camera.combined);
 
-        mapRenderer.setView(camera);
-        mapRenderer.render();
         level.draw(batch, camera);
 
         // Final message
         ui.draw(batch);
 
-        debugRenderer.render(level.getWorld(), camera.combined);
-        graph.draw(batch, camera, 32.0f);
-
+        if(debug) {
+            graph.draw(batch, camera, 32.0f);
+        }
     }
 
     /**
@@ -458,6 +449,7 @@ public class GameScene implements Screen, ContactListener {
         }
     }
 
+    private Vector2 angleCache = new Vector2();
     private void moveEntities(Avatar avatar) {
         angleCache.scl(avatar.getForce());
         avatar.setMovement(angleCache.x, angleCache.y);

@@ -39,6 +39,7 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.utils.*;
@@ -84,6 +85,9 @@ public class GameLevel {
 	public static final int WORLD_VELOC = 6;
 	/** Number of position iterations for the constrain solvers */
 	public static final int WORLD_POSIT = 2;
+
+    /** Specialized renderer for rendering tiles */
+    private OrthogonalTiledMapRenderer mapRenderer;
 
 	// Physics objects for the game
 	/** Reference to the cat avatar */
@@ -167,6 +171,8 @@ public class GameLevel {
 
 		world = new World(Vector2.Zero, false);
         tiledMap = new TmxMapLoader().load(levelFormat.get("map").getString("file"));
+        mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
+
         TiledMapTileLayer layer = ((TiledMapTileLayer) tiledMap.getLayers().get("Floors"));
         units = layer.getTileWidth();
         int width = layer.getWidth(); //30
@@ -451,6 +457,9 @@ public class GameLevel {
 	 */
     public void draw(SpriteBatch batch, Camera camera) {
 		// Draw the sprites first (will be hidden by shadows)
+
+        mapRenderer.setView((OrthographicCamera) camera);
+        mapRenderer.render();
 
         for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
 			if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
