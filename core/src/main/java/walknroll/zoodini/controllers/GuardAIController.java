@@ -109,7 +109,8 @@ public class GuardAIController {
                 guard.deltaSusLevel(-1); // Decrease suspicion
             }
         } else {
-            if (!this.guard.isAgroed()) { // not in guard's line of sight
+            // not in guard's line of sight and not under camera
+            if (!this.guard.isAgroed() && !targetPlayer.isUnderCamera()) {
                 guard.deltaDeAggroTimer(-1); // decrease deAggroTimer
             }
         }

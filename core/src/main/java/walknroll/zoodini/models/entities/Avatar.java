@@ -58,6 +58,8 @@ public class Avatar extends ZoodiniSprite {
 	/** Cache for internal force calculations */
 	private Vector2 forceCache = new Vector2();
 
+    private boolean underCamera;
+
 	public enum AvatarType {
 		CAT,
 		OCTOPUS,
@@ -244,6 +246,8 @@ public class Avatar extends ZoodiniSprite {
 
         float r = globals.getFloat("spriterad") * units;
 		mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
+
+        underCamera = false;
 	}
 
     private void setupAnimations(AssetDirectory directory, JsonValue globals) {
@@ -355,5 +359,13 @@ public class Avatar extends ZoodiniSprite {
             batch.drawMesh(this.mesh, this.transform, false);
             batch.setTexture(null);
         }
+    }
+
+    public void setUnderCamera(boolean underCamera) {
+        this.underCamera = underCamera;
+    }
+
+    public boolean isUnderCamera() {
+        return underCamera;
     }
 }

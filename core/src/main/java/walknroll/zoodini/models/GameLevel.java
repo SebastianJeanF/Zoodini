@@ -541,6 +541,8 @@ public class GameLevel {
                                     guard.setTarget(avatarCat.getPosition());
                                     guard.setAggroTarget(avatarCat);
                                     guard.setCameraAlerted(true);
+				                    guard.setUnderCamera(true);
+                                    avatarCat.setUnderCamera(true);
                                 }
                             }
                         }
@@ -561,6 +563,8 @@ public class GameLevel {
                                     guard.setTarget(avatarOctopus.getPosition());
                                     guard.setAggroTarget(avatarOctopus);
                                     guard.setCameraAlerted(true);
+				                    guard.setUnderCamera(true);
+                                    avatarOctopus.setUnderCamera(true);
                                 }
                             }
                         }
@@ -568,10 +572,13 @@ public class GameLevel {
                 } else if (!v.contains(avatarCat.getPosition())){
                     if(key instanceof Guard){
                         ((Guard) key).setAgroed(false);
+			((Guard) key).setUnderCamera(false);
+
                     }
                 } else if (!v.contains(avatarOctopus.getPosition())){
                     if(key instanceof Guard){
                         ((Guard) key).setAgroed(false);
+			((Guard) key).setUnderCamera(false);
                     }
                 }
             }

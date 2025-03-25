@@ -135,10 +135,6 @@ public class Guard extends Enemy {
         this.deAggroTimer = isCameraAlerted() ? ALERT_DEAGRRO_PERIOD : DEAGRRO_PERIOD;
     }
 
-
-
-
-
     public void drawSusLevelBar(SpriteBatch batch) {
         if (susBarTexture == null) {
             System.err.println("Error: barTexture is null");
