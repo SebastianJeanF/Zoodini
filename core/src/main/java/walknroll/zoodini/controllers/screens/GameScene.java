@@ -379,6 +379,7 @@ public class GameScene implements Screen, ContactListener {
 	 * @param delta Number of seconds since last animation frame
 	 */
 	public void update(float dt) {
+        System.out.println("here");
 		// Process actions in object model
 		InputController input = InputController.getInstance();
 
