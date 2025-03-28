@@ -17,6 +17,10 @@ import walknroll.zoodini.utils.GameGraph.Node;
 
 import java.util.List;
 
+/**
+ * Controller class that manages the AI behavior for guard entities.
+ * Handles guard patrolling, chasing, returning to patrol, and responding to distractions.
+ */
 public class GuardAIController {
     /** Guard identifier for this AI controller */
     private final Guard guard;
@@ -46,8 +50,14 @@ public class GuardAIController {
 
 
 
-    // TODO: May or may not refactor to remove input controller as argument
-    public GuardAIController(Guard guard, GameLevel level, GameGraph gameGraph, int susDelay) {
+    /**
+     * Constructs a new GuardAIController for a specific guard.
+     *
+     * @param guard The guard entity that this controller will manage
+     * @param level The game level containing relevant game state information
+     * @param gameGraph The graph representation of the level for pathfinding
+     */
+    public GuardAIController(Guard guard, GameLevel level, GameGraph gameGraph) {
         this.guard = guard;
         this.level = level;
         this.currState = GuardState.PATROL;
@@ -58,17 +68,31 @@ public class GuardAIController {
         this.distractPosition = new Vector2(0, 0);
     }
 
+
+    /**
+     * Helper function to retrieve the currently active player avatar.
+     *
+     * @return The active player avatar from the game level
+     */
     private Avatar getActivePlayer() {
         return level.getAvatar();
     }
 
+    /**
+     * Helper function that checks if a distraction from the cat's ability has occurred.
+     *
+     * @return true if the cat player has used its distraction ability, false otherwise
+     */
     private boolean didDistractionOccur() {
         InputController input = InputController.getInstance();
-        // // System.out.print(".");
         return input.didAbility() && getActivePlayer().getAvatarType() == Avatar.AvatarType.CAT;
     }
 
-
+    /**
+     * Helper function that checks if the guard has reached its patrol path.
+     *
+     * @return true if the guard is close enough to its next waypoint or if there are no waypoints, false otherwise
+     */
     private boolean hasReachedPatrolPath() {
         if (waypoints.length == 0) {
             return true;
@@ -77,6 +101,13 @@ public class GuardAIController {
         return distanceFromGuard(nextTargetLocation) <= WAYPOINT_RADIUS;
     }
 
+    /**
+     * Helper function to find the nearest waypoint to the guard's current position.
+     * Updates the currentWaypointIndex to match the nearest waypoint.
+     * This is used in the RETURN state to find the nearest waypoint to return to.
+     *
+     * @return The Vector2 position of the nearest patrol waypoint
+     */
     private Vector2 findNearestWaypoint() {
         if (waypoints.length == 0) {
             return guard.getPosition();
@@ -99,6 +130,11 @@ public class GuardAIController {
 
 
 
+    /**
+     * Updates the guard's AI state and behavior.
+     * This is the main function that should be called each frame to progress the guard's AI.
+     * Handles suspicion level changes, state transitions, and movement target updates.
+     */
     public void update() {
         ticks++;
         // Update suspicion level
@@ -176,24 +212,44 @@ public class GuardAIController {
 
     private boolean tempDistract;
 
+    /**
+     * Helper function to check if the player has been spotted by the guard.
+     *
+     * @return true if the guard is aggravated and at maximum suspicion level, false otherwise
+     */
     private boolean checkPlayerIsSpotted() {
         // TODO: Replace with real guard.isAgroed() method
         return this.guard.isAgroed() && guard.isMaxSusLevel();
     }
 
+    /**
+     * Helper function that calculates the distance between the guard and a target position.
+     *
+     * @param target The position to calculate distance to
+     * @return The distance from the guard to the target position
+     */
     private float distanceFromGuard(Vector2 target) {
         return this.guard.getPosition().dst(target);
     }
 
+    /**
+     * Returns the current state of the guard's AI state machine.
+     *
+     * @return The current GuardState (PATROL, CHASE, RETURN, or DISTRACTED)
+     */
     public GuardState getGuardState() {
         return currState;
     }
 
+    /**
+     * Helper function that determines the next waypoint location based on pathfinding.
+     * Uses the game graph to find a path from the guard's current position to the target location.
+     *
+     * @param targetLocation The destination the guard is trying to reach
+     * @return The next position the guard should move towards
+     */
     private Vector2 getNextWaypointLocation(Vector2 targetLocation) {
-        // System.out.println("Target Location: " + targetLocation.x + ", " + targetLocation.y);
-//        // System.out.println("Target location")
         List<Node> path = gameGraph.getPath(guard.getPosition().cpy(), targetLocation.cpy());
-//        // System.out.println("path " + path);
 
         if (path.isEmpty()) {
             if (currState == GuardState.CHASE) {
@@ -217,6 +273,10 @@ public class GuardAIController {
     }
 
 
+    /**
+     * Helper function that updates the next target location based on the guard's current state.
+     * Handles different targeting logic for patrol, chase, return, and distracted states.
+     */
     private void setNextTargetLocation() {
         switch (currState) {
             case PATROL:
@@ -284,10 +344,20 @@ public class GuardAIController {
         }
     }
 
+    /**
+     * Returns the guard's current target location for movement.
+     *
+     * @return The Vector2 position the guard is currently moving towards
+     */
     public Vector2 getNextTargetLocation() {
         return nextTargetLocation;
     }
 
+    /**
+     * Calculates the direction vector the guard should move in.
+     *
+     * @return A normalized Vector2 representing the movement direction
+     */
     public Vector2 getMovementDirection() {
 //        this.setNextTargetLocation();
         if (this.nextTargetLocation == null) {
@@ -297,11 +367,21 @@ public class GuardAIController {
         }
     }
 
+    /**
+     * Draws debug visualization of the pathfinding graph.
+     *
+     * @param batch The SpriteBatch to draw with
+     * @param camera The camera to use for coordinate transformations
+     * @param texture The texture to use for drawing nodes
+     */
     public void drawGraphDebug(SpriteBatch batch , OrthographicCamera camera, Texture texture) {
         gameGraph.drawGraphDebug(batch, camera, nextTargetLocation, texture);
     }
 
 
+    /**
+     * Enum representing the possible states of the guard's AI state machine.
+     */
     private static enum GuardState {
         /** Guard is patrolling without target*/
         PATROL,
