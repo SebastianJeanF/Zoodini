@@ -521,8 +521,8 @@ public class GameScene implements Screen, ContactListener {
 	 */
 	private void updateCamera(float dt) {
         // Get viewport dimensions in world units
-        float viewWidth = camera.viewportWidth / level.getLevelScaleX();
-        float viewHeight = camera.viewportHeight / level.getLevelScaleY();
+        float viewWidth = camera.viewportWidth / level.getTileSize();
+        float viewHeight = camera.viewportHeight / level.getTileSize();
 
         // Camera margin - how much dead space to allow (smaller = more centered)
         float horizontalMargin = viewWidth * 0.15f; // 15% of view width
@@ -562,8 +562,6 @@ public class GameScene implements Screen, ContactListener {
 		camera.position.x *= level.getTileSize();
 		camera.position.y *= level.getTileSize();
 
-		camera.position.x *= level.getLevelScaleX();
-		camera.position.y *= level.getLevelScaleY();
 		// Update the camera
 		camera.update();
 	}
