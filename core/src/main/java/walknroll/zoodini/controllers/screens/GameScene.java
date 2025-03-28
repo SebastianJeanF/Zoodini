@@ -283,52 +283,44 @@ public class GameScene implements Screen, ContactListener {
      */
     public void update(float dt) {
         //TODO: what is the proper sequence of method calls here?
-
         InputController input = InputController.getInstance();
 
-        onSwap(input);
-
-        Avatar avatar = level.getAvatar();
-
-        if(avatar != null) {
-            checkFlipSprite(avatar, input);
-
-            updateOctopusInkAim(avatar, input);
-
-            rotateEntities(input, avatar);
-
-            moveEntities(avatar);
-
-            // Update camera target to active avatar's position
-            cameraTargetPosition.set(avatar.getPosition());
-        }
-        // Update camera position with interpolation
-        updateCamera(dt);
-
-        ui.update();
-
-        // Update key message timer
-        if(keyMessageTimer > 0) {
-            keyMessageTimer--;
-            if(keyMessageTimer == 0) {
-                ui.hideMessage(UIController.KEY_TIMER); // Clear message when timer expires
-            }
-        }
-
-        updateDoorUnlocking();
-
-        checkDeactivateKeyOnCollect();
-
-        // Update guards
-        updateGuardAI();
-        updateGuards();
-
-        updateInkProjectile();
+        processPlayerAction(input, dt);
+        processNPCAction(dt);
 
         // Turn the physics engine crank.
+        // Collisions generated through world.step()
+        // Animation frames are updated.
         level.update(dt);
     }
 
+    /**
+     * Applies movement forces to the avatar.
+     * Does NOT modify internal states of the avatar. That is the
+     * responsibility of ContactListener
+     */
+    private void processPlayerAction(InputController input, float dt){
+        if(input.didSwap()){
+            onSwap(input);
+        }
+
+        Avatar avatar = level.getAvatar();
+        float vertical = input.getVertical();
+        float horizontal = input.getHorizontal();
+        moveAvatar(vertical, horizontal, avatar);
+
+        cameraTargetPosition.set(avatar.getPosition());
+        updateCamera(dt);
+    }
+
+    /**
+     * Applies movement forces to NPCs.
+     * Does NOT modify internal states of the NPCs. That is the
+     * responsibility of ContactListener
+     */
+    private void processNPCAction(float dt){
+        //TODO
+    }
 
     /**
      * Draw the physics objects to the canvas
@@ -449,21 +441,23 @@ public class GameScene implements Screen, ContactListener {
     }
 
     private Vector2 angleCache = new Vector2();
-    private void moveEntities(Avatar avatar) {
-        angleCache.scl(avatar.getForce());
-        avatar.setMovement(angleCache.x, angleCache.y);
-        avatar.applyForce();
-    }
-
-    private void rotateEntities(InputController input, Avatar avatar) {
+    private void moveAvatar(float verticalForce, float horizontalForce, Avatar avatar) {
         // Rotate the avatar to face the direction of movement
-        angleCache.set(input.getHorizontal(), input.getVertical());
+        angleCache.set(horizontalForce, verticalForce);
         if (angleCache.len2() > 0.0f) {
             float angle = angleCache.angleDeg();
             // Convert to radians with up as 0
             angle = (float) Math.PI * (angle - 90.0f) / 180.0f;
             avatar.getObstacle().setAngle(angle);
         }
+
+        angleCache.scl(avatar.getForce());
+        avatar.setMovement(angleCache.x, angleCache.y);
+        avatar.applyForce();
+    }
+
+    private void rotateEntities(float verticalForce, float horizontalForce, Avatar avatar) {
+
     }
 
     private void updateOctopusInkAim(Avatar avatar, InputController input) {
@@ -575,22 +569,10 @@ public class GameScene implements Screen, ContactListener {
                     continue;
 
                 Guard guard = (Guard) enemy;
-                // Check for meow alert (Gar) or inked alert (Otto)
-
-                // Reset meow alert when the guard reaches its target
-//			if ((guard.isMeowed() && guard.getPosition().dst(guard.getTarget()) < 0.1f)) {
-//				guard.setMeow(false);
-//			}
-
-                // Check Field-of-view (FOV), making guard agroed if they see a player
-
                 moveGuard(guard);
                 if (guard.isMeowed()) {
 
                 }
-
-                // guard.updatePatrol();
-                // moveGuard(guard);
             }
         }
 	}

@@ -53,6 +53,7 @@ import edu.cornell.gdiac.math.Path2;
 import edu.cornell.gdiac.math.PathExtruder;
 import edu.cornell.gdiac.math.PathFactory;
 import edu.cornell.gdiac.util.*;
+import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Cat;
 import walknroll.zoodini.models.entities.Enemy;
@@ -340,60 +341,8 @@ public class GameLevel {
      */
 	public void update(float dt) {
 		if (fixedStep(dt)) {
-            for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry: visions.entries()){
-                VisionCone v = entry.value;
-				ZoodiniSprite key = entry.key;
-                v.update(world);
-                if(v.contains(avatarCat.getPosition())){
-                    if(key instanceof Guard){
-                        ((Guard) key).setTarget(avatarCat.getPosition()); // TODO: this line might not be needed
-                        ((Guard) key).setAgroed(true);
-                        ((Guard) key).setAggroTarget(avatarCat);
-                    } else if(key instanceof SecurityCamera){
-                        SecurityCamera camera = (SecurityCamera)key;
-                        if(!camera.isDisabled()) {
-                            // Alert all guards when camera sees either player
-                            for(Enemy e : enemies) {
-                                if(e instanceof Guard) {
-                                    Guard guard = (Guard)e;
-                                    guard.setTarget(avatarCat.getPosition());
-                                    guard.setAggroTarget(avatarCat);
-                                    guard.setCameraAlerted(true);
-                                }
-                            }
-                        }
-                    }
-                }
-                else if (v.contains(avatarOctopus.getPosition())){
-                    if(key instanceof Guard){
-                        ((Guard) key).setTarget(avatarOctopus.getPosition()); // TODO: this line might not be needed
-                        ((Guard) key).setAgroed(true);
-                        ((Guard) key).setAggroTarget(avatarOctopus);
-                    } else if(key instanceof SecurityCamera){
-                        SecurityCamera camera = (SecurityCamera)key;
-                        if(!camera.isDisabled()) {
-                            // Alert all guards when camera sees either player
-                            for(Enemy e : enemies) {
-                                if(e instanceof Guard) {
-                                    Guard guard = (Guard)e;
-                                    guard.setTarget(avatarOctopus.getPosition());
-                                    guard.setAggroTarget(avatarOctopus);
-                                    guard.setCameraAlerted(true);
-                                }
-                            }
-                        }
-                    }
-                } else if (!v.contains(avatarCat.getPosition())){
-                    if(key instanceof Guard){
-                        ((Guard) key).setAgroed(false);
-                    }
-                } else if (!v.contains(avatarOctopus.getPosition())){
-                    if(key instanceof Guard){
-                        ((Guard) key).setAgroed(false);
-                    }
-                }
-            }
 
+            //Update animation frames
             if(rayHandler != null) {
                 rayHandler.setCombinedMatrix(raycamera);
             }
@@ -419,6 +368,7 @@ public class GameLevel {
             }
         }
     }
+
 
 	/**
 	 * Fixes the physics frame rate to be in sync with the animation framerate
