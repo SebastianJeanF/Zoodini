@@ -221,8 +221,6 @@ public class GameScene implements Screen, ContactListener {
 		countdown = -1;
 
 		camera = new OrthographicCamera();
-		// System.out.println("");
-		// System.out.println("");
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		// Initialize camera tracking variables
 		cameraTargetPosition = new Vector2();
@@ -571,6 +569,24 @@ public class GameScene implements Screen, ContactListener {
 	 * Updates the camera position with interpolation when transitioning
 	 */
 	private void updateCamera(float dt) {
+        // Get viewport dimensions in world units
+        float viewWidth = camera.viewportWidth / level.getLevelScaleX();
+        float viewHeight = camera.viewportHeight / level.getLevelScaleY();
+
+        // Camera margin - how much dead space to allow (smaller = more centered)
+        float horizontalMargin = viewWidth * 0.15f; // 15% of view width
+        float verticalMargin = viewHeight * 0.15f; // 15% of view height
+
+        // Calculate soft boundaries that allow partial dead space
+        float minX = level.getBounds().x + (viewWidth * 0.5f) - horizontalMargin;
+        float maxX = level.getBounds().x + (level.getBounds().width) - (viewWidth * 0.5f) + horizontalMargin;
+        float minY = level.getBounds().y + (viewHeight * 0.5f) - verticalMargin;
+        float maxY = level.getBounds().y + (level.getBounds().height) - (viewHeight * 0.5f) + verticalMargin;
+
+        // Clamp camera position with soft boundaries
+        cameraTargetPosition.x = Math.max(minX, Math.min(cameraTargetPosition.x, maxX));
+        cameraTargetPosition.y = Math.max(minY, Math.min(cameraTargetPosition.y, maxY));
+
 		if (inCameraTransition) {
 			// Update transition timer
 			cameraTransitionTimer += dt;
@@ -594,7 +610,6 @@ public class GameScene implements Screen, ContactListener {
 		// Apply scaling to match world units
 		camera.position.x *= level.getLevelScaleX();
 		camera.position.y *= level.getLevelScaleY();
-
 		// Update the camera
 		camera.update();
 	}
