@@ -294,10 +294,10 @@ public class GameScene implements Screen, ContactListener {
         level.update(dt);
     }
 
+    private Vector3 tmp = new Vector3();
+    private Vector2 tmp2 = new Vector2();
     /**
      * Applies movement forces to the avatar.
-     * Does NOT modify internal states of the avatar. That is the
-     * responsibility of ContactListener
      */
     private void processPlayerAction(InputController input, float dt){
         if(input.didSwap()){
@@ -308,6 +308,21 @@ public class GameScene implements Screen, ContactListener {
         float vertical = input.getVertical();
         float horizontal = input.getHorizontal();
         moveAvatar(vertical, horizontal, avatar);
+
+        if(input.didAbility()){
+            if(avatar.getAvatarType() == AvatarType.OCTOPUS){
+                tmp.set(input.getAiming(), 0);
+                tmp = camera.unproject(tmp);
+                tmp2.set(tmp.x, tmp.y).scl(1.0f / level.getTileSize()).sub(avatar.getPosition());
+                tmp2.clamp(0.0f, 2.0f);
+                System.out.println(tmp2.x + " " + tmp2.y);
+                //At this point, tmp2 stores a vector whose origin is octopus' position and length at most 2.0f
+                //TODO
+
+            } else { //avatar is Cat
+                //TODO
+            }
+        }
 
         cameraTargetPosition.set(avatar.getPosition());
         updateCamera(dt);
@@ -408,15 +423,6 @@ public class GameScene implements Screen, ContactListener {
         });
     }
 
-    private void updateInkProjectile() {
-        InkProjectile projectile = level.getProjectile();
-        if(projectile != null) {
-            if (projectile.getToHide()) {
-                level.hideInkProjectile();
-                projectile.setToHide(false);
-            }
-        }
-    }
 
     private void updateDoorUnlocking() {
         // Update door unlocking progress
@@ -440,7 +446,14 @@ public class GameScene implements Screen, ContactListener {
         }
     }
 
+
     private Vector2 angleCache = new Vector2();
+
+    /**
+     * @param verticalForce
+     * @param horizontalForce
+     * @param avatar
+     */
     private void moveAvatar(float verticalForce, float horizontalForce, Avatar avatar) {
         // Rotate the avatar to face the direction of movement
         angleCache.set(horizontalForce, verticalForce);
@@ -456,50 +469,43 @@ public class GameScene implements Screen, ContactListener {
         avatar.applyForce();
     }
 
-    private void rotateEntities(float verticalForce, float horizontalForce, Avatar avatar) {
+    private void updateOctopusInkAim(Octopus octopus, InputController input) {
 
-    }
+        octopus.setCurrentlyAiming(true);
+        Vector3 unprojected = camera.unproject(
+                new Vector3(input.getAiming().x, input.getAiming().y, 0));
+        cacheVec.set(unprojected.x / level.getTileSize(),
+                unprojected.y / level.getTileSize());
 
-    private void updateOctopusInkAim(Avatar avatar, InputController input) {
-        if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
-			Octopus octopus = (Octopus) avatar;
+        // TODO: max length should be a configurable value
+        float scale = Math.min(cacheVec.dst(octopus.getPosition()) * level.getTileSize(), 250);
+        double dx = octopus.getPosition().x - cacheVec.x;
+        double dy = octopus.getPosition().y - cacheVec.y;
+        float angleRad = -((float) (Math.atan2(dx, dy) + Math.toRadians(90))); // scuffed math (TODO: fix?)
+        cacheVec.set((float) Math.toDegrees(Math.cos(angleRad)), (float) Math.toDegrees(Math.sin(angleRad)))
+                .nor().scl(scale);
+        octopus.setTarget(cacheVec);
 
-			if (input.isAbilityHeld()) {
-				octopus.setCurrentlyAiming(true);
-				Vector3 unprojected = camera.unproject(
-						new Vector3(input.getAiming().x, input.getAiming().y, 0));
-				cacheVec.set(unprojected.x / level.getTileSize(),
-						unprojected.y / level.getTileSize());
+        if (octopus.isCurrentlyAiming() && !input.isAbilityHeld()) {
+            octopus.setCurrentlyAiming(false);
+            octopus.setDidFire(true);
+        }
 
-				// TODO: max length should be a configurable value
-				float scale = Math.min(cacheVec.dst(avatar.getPosition()) * level.getTileSize(), 250);
-				double dx = avatar.getPosition().x - cacheVec.x;
-				double dy = avatar.getPosition().y - cacheVec.y;
-				float angleRad = -((float) (Math.atan2(dx, dy) + Math.toRadians(90))); // scuffed math (TODO: fix?)
-				cacheVec.set((float) Math.toDegrees(Math.cos(angleRad)), (float) Math.toDegrees(Math.sin(angleRad)))
-						.nor().scl(scale);
-				octopus.setTarget(cacheVec);
-			}
-			if (octopus.isCurrentlyAiming() && !input.isAbilityHeld()) {
-				octopus.setCurrentlyAiming(false);
-				octopus.setDidFire(true);
-			}
+        if (octopus.didFire()) {
+            level.hideInkProjectile();
+            level.createInkProjectile();
+            octopus.setDidFire(false);
+        }
 
-			if (octopus.didFire()) {
-				level.hideInkProjectile();
-				level.createInkProjectile();
-				octopus.setDidFire(false);
-			}
+        if(level.getProjectile() != null) {
+            if ((level.getProjectile().getPosition().dst(octopus.getPosition())
+                * level.getTileSize()) > (octopus
+                .getTarget().len())) {
+                level.getProjectile().setToHide(true);
 
-            if(level.getProjectile() != null) {
-                if ((level.getProjectile().getPosition().dst(avatar.getPosition())
-                    * level.getTileSize()) > (octopus
-                    .getTarget().len())) {
-                    level.getProjectile().setToHide(true);
-
-                }
             }
-		}
+        }
+
     }
 
     private static void checkFlipSprite(Avatar avatar, InputController input) {

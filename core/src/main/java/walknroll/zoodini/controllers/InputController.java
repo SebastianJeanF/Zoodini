@@ -25,7 +25,7 @@ import edu.cornell.gdiac.util.XBoxController;
  * only detected the X-Box controller on start-up. This class allows us to
  * hot-swap in a controller via the new XBoxController class.
  */
-public class InputController {
+public class InputController extends InputAdapter{
 	/** The singleton instance of the input controller */
 	private static InputController theController = null;
 
@@ -155,7 +155,7 @@ public class InputController {
 
 	/**
 	 * Returns true if the ability button was pressed.
-	 * 
+	 *
 	 * @return true if the ability button was pressed
 	 */
 	public boolean didAbility() {
@@ -164,7 +164,7 @@ public class InputController {
 
 	/**
 	 * Returns true if the ability button is currently held down.
-	 * 
+	 *
 	 * @return true if the ability button is currently hold
 	 */
 	public boolean isAbilityHeld() {

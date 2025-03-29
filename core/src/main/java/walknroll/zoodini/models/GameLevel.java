@@ -455,6 +455,14 @@ public class GameLevel {
 
     //------------------Helpers-----------------------//
 
+    private void updateInkProjectile() {
+        if(inkProjectile != null) {
+            if (inkProjectile.getToHide()) {
+                hideInkProjectile();
+                inkProjectile.setToHide(false);
+            }
+        }
+    }
 
     public void createInkProjectile() {
         inkProjectile.setPosition(this.getAvatar().getPosition());
