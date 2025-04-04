@@ -297,9 +297,12 @@ public class GameScene implements Screen, ContactListener {
     private Vector3 tmp = new Vector3();
     private Vector2 tmp2 = new Vector2();
     /**
-     * Applies movement forces to the avatar.
+     * Applies movement forces to the avatar and change firing states.
      */
     private void processPlayerAction(InputController input, float dt){
+        tmp.setZero();
+        tmp2.setZero();
+
         if(input.didSwap()){
             onSwap(input);
         }
@@ -337,6 +340,9 @@ public class GameScene implements Screen, ContactListener {
 
         cameraTargetPosition.set(avatar.getPosition());
         updateCamera(dt);
+
+        tmp.setZero();
+        tmp2.setZero();
     }
 
     /**
@@ -348,6 +354,7 @@ public class GameScene implements Screen, ContactListener {
         Octopus octopus = (Octopus) level.getOctopus();
         InkProjectile inkProjectile = level.getProjectile();
 
+        //TODO: not sure about the order of if statements here.
         if(inkProjectile.getShouldDestroy()){
             inkProjectile.destroy();
         }
