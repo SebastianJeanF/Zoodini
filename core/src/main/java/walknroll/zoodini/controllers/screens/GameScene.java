@@ -315,7 +315,7 @@ public class GameScene implements Screen, ContactListener {
             tmp.set(input.getAiming(), 0);
             tmp = camera.unproject(tmp);
             tmp2.set(tmp.x, tmp.y).scl(1.0f / level.getTileSize()).sub(avatar.getPosition());
-            tmp2.clamp(0.0f, 2.0f);
+            tmp2.clamp(0.0f, 5.0f); //this decides the distance for projectile to travel
             octopus.setTarget(tmp2); //set a target vector relative to octopus's position as origin.
 
             if(input.didAbility()) { //check for ink resource here.
@@ -348,11 +348,21 @@ public class GameScene implements Screen, ContactListener {
         Octopus octopus = (Octopus) level.getOctopus();
         InkProjectile inkProjectile = level.getProjectile();
 
-        if(octopus.didFire()) {
-            //TODO
-        } else {
-            //TODO
+        if(inkProjectile.getShouldDestroy()){
+            inkProjectile.destroy();
         }
+
+        if(inkProjectile.getPosition().dst(octopus.getPosition()) > octopus.getTarget().len()){
+            inkProjectile.setShouldDestroy(true);
+        }
+
+        if(octopus.didFire()){
+            activateInkProjectile(inkProjectile, octopus.getPosition(), octopus.getTarget());
+        }
+
+        //TODO: move guards
+
+
     }
 
     /**
@@ -487,67 +497,13 @@ public class GameScene implements Screen, ContactListener {
         avatar.applyForce();
     }
 
-    private void updateInkProjectile() {
-        InkProjectile inkProjectile = level.getProjectile();
-        if(inkProjectile != null) {
-            if (inkProjectile.getToHide()) {
-                //hideInkProjectile();
-                inkProjectile.setToHide(false);
-            }
-        }
-    }
-
-    private void moveInkProjectile(InkProjectile projectile, Vector2 origin, Vector2 target) {
+    private void activateInkProjectile(InkProjectile projectile, Vector2 origin, Vector2 target) {
+        projectile.activate();
         projectile.setPosition(origin);
-        projectile.getObstacle().setActive(true);
-        projectile.setDrawingEnabled(true);
         projectile.setMovement(target.nor());
         projectile.applyForce();
     }
 
-    private void hideInkProjectile(InkProjectile projectile) {
-        projectile.getObstacle().setActive(false);
-        projectile.setDrawingEnabled(false);
-    }
-
-//    private void updateOctopusInkAim(Octopus octopus, InputController input) {
-//
-//        octopus.setCurrentlyAiming(true);
-//        Vector3 unprojected = camera.unproject(
-//                new Vector3(input.getAiming().x, input.getAiming().y, 0));
-//        cacheVec.set(unprojected.x / level.getTileSize(),
-//                unprojected.y / level.getTileSize());
-//
-//        // TODO: max length should be a configurable value
-//        float scale = Math.min(cacheVec.dst(octopus.getPosition()) * level.getTileSize(), 250);
-//        double dx = octopus.getPosition().x - cacheVec.x;
-//        double dy = octopus.getPosition().y - cacheVec.y;
-//        float angleRad = -((float) (Math.atan2(dx, dy) + Math.toRadians(90))); // scuffed math (TODO: fix?)
-//        cacheVec.set((float) Math.toDegrees(Math.cos(angleRad)), (float) Math.toDegrees(Math.sin(angleRad)))
-//                .nor().scl(scale);
-//        octopus.setTarget(cacheVec);
-//
-//        if (octopus.isCurrentlyAiming() && !input.isAbilityHeld()) {
-//            octopus.setCurrentlyAiming(false);
-//            octopus.setDidFire(true);
-//        }
-//
-//        if (octopus.didFire()) {
-//            level.hideInkProjectile();
-//            level.createInkProjectile();
-//            octopus.setDidFire(false);
-//        }
-//
-//        if(level.getProjectile() != null) {
-//            if ((level.getProjectile().getPosition().dst(octopus.getPosition())
-//                * level.getTileSize()) > (octopus
-//                .getTarget().len())) {
-//                level.getProjectile().setToHide(true);
-//
-//            }
-//        }
-//
-//    }
 
     private static void checkFlipSprite(Avatar avatar, InputController input) {
         // flips the sprite if the avatar is moving left
@@ -754,7 +710,7 @@ public class GameScene implements Screen, ContactListener {
 						break;
 					}
 				}
-				level.getProjectile().setToHide(true);
+				level.getProjectile().setShouldDestroy(true);
 			}
 
 

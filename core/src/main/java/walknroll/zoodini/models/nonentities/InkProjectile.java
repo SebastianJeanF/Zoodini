@@ -28,14 +28,14 @@ public class InkProjectile extends ZoodiniSprite {
 
     private int startFrame;
 
-    private boolean toHide;
+    private boolean shouldDestroy;
 
-    public boolean getToHide() {
-        return toHide;
+    public boolean getShouldDestroy() {
+        return shouldDestroy;
     }
 
-    public void setToHide(boolean hide) {
-        this.toHide = hide;
+    public void setShouldDestroy(boolean s) {
+        this.shouldDestroy = s;
     }
 
     public void setPosition(Vector2 newPos) {
@@ -129,7 +129,7 @@ public class InkProjectile extends ZoodiniSprite {
         float r = json.getFloat("spriterad") * units;
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 
-        toHide = false;
+        shouldDestroy = false;
     }
 
     /**
@@ -138,6 +138,10 @@ public class InkProjectile extends ZoodiniSprite {
      * This method should be called after the force attribute is set.
      */
     public void applyForce() {
+        if(shouldDestroy){
+            return;
+        }
+
         if (!obstacle.isActive()) {
             return;
         }
@@ -156,5 +160,21 @@ public class InkProjectile extends ZoodiniSprite {
     @Override
     public void update(float dt) {
         obstacle.update(dt);
+    }
+
+
+    public void destroy(){
+        if(!shouldDestroy){
+            return;
+        }
+        getObstacle().setActive(false);
+        setDrawingEnabled(false);
+        setShouldDestroy(false);
+    }
+
+    public void activate(){
+        setShouldDestroy(false);
+        getObstacle().setActive(true);
+        setDrawingEnabled(true);
     }
 }
