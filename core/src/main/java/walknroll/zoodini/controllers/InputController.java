@@ -13,6 +13,7 @@
 package walknroll.zoodini.controllers;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import edu.cornell.gdiac.util.Controllers;
@@ -65,6 +66,9 @@ public class InputController extends InputAdapter{
     private boolean abilityPressed;
     private boolean abilityPrevious;
 
+    /** Whether the left click was pressed. */
+    private boolean leftClicked;
+    private boolean leftPrevious;
 
 	/** How much did we move horizontally? */
 	private float horizontal;
@@ -175,6 +179,8 @@ public class InputController extends InputAdapter{
 		return aiming;
 	}
 
+    public boolean didLeftClick(){return leftClicked && !leftPrevious;}
+
 	/**
 	 * Creates a new input controller
 	 *
@@ -205,6 +211,7 @@ public class InputController extends InputAdapter{
 		prevPrevious = prevPressed;
 		swapPrevious = swapPressed;
         abilityPrevious = abilityPressed;
+        leftPrevious = leftClicked;
 
 		// Check to see if a GamePad is connected
 		if (xbox != null && xbox.isConnected()) {
@@ -256,6 +263,7 @@ public class InputController extends InputAdapter{
 		exitPressed = (secondary && exitPressed) || (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));
 		swapPressed = (secondary && swapPressed) || (Gdx.input.isKeyPressed(Input.Keys.SPACE));
         abilityPressed = (secondary && abilityPressed) || (Gdx.input.isKeyPressed(Input.Keys.E));
+        leftClicked = (secondary && leftClicked) || (Gdx.input.isButtonPressed(Buttons.LEFT));
 
 		// Directional controls
 		horizontal = (secondary ? horizontal : 0.0f);

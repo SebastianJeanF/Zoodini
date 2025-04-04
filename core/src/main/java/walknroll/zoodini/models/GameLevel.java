@@ -513,6 +513,7 @@ public class GameLevel {
 //        avatarLights[catActive ? 0 : 1].setActive(true);
     }
 
+    Affine2 affineCache = new Affine2();
 	/**
 	 * Draws a reticle on the screen to indicate aiming direction.
 	 *
@@ -533,17 +534,16 @@ public class GameLevel {
 		batch.setColor(Color.BLACK);
 		float x = octopus.getObstacle().getX();
 		float y = octopus.getObstacle().getY();
-		float u = octopus.getObstacle().getPhysicsUnits();
 
 		Vector2 target = octopus.getTarget();
 
 		// TODO: a couple of magic numbers here need to be config values I think
-		Path2 reticlePath = new PathFactory().makeCircle(target.x, target.y, 25);
+		Path2 reticlePath = new PathFactory().makeNgon(target.x + x, target.y + y, 1.0f, 64); //radius = 1.0m. 64 vertices
 		PathExtruder extruder = new PathExtruder(reticlePath);
-		extruder.calculate(3);
-		Affine2 transform = new Affine2();
-		transform.preTranslate(x * u, y * u);
-		batch.draw((TextureRegion) null, extruder.getPolygon(), transform);
+		extruder.calculate(0.1f); //line thickness = 0.1m
+        affineCache.idt();
+        affineCache.scale(getTileSize(), getTileSize());
+		batch.draw((TextureRegion) null, extruder.getPolygon(), affineCache);
 		batch.setColor(Color.WHITE);
 	}
 

@@ -309,20 +309,32 @@ public class GameScene implements Screen, ContactListener {
         float horizontal = input.getHorizontal();
         moveAvatar(vertical, horizontal, avatar);
 
-        if(input.didAbility()){
-            if(avatar.getAvatarType() == AvatarType.OCTOPUS){
-                tmp.set(input.getAiming(), 0);
-                tmp = camera.unproject(tmp);
-                tmp2.set(tmp.x, tmp.y).scl(1.0f / level.getTileSize()).sub(avatar.getPosition());
-                tmp2.clamp(0.0f, 2.0f);
-                System.out.println(tmp2.x + " " + tmp2.y);
-                //At this point, tmp2 stores a vector whose origin is octopus' position and length at most 2.0f
-                //TODO
 
-            } else { //avatar is Cat
-                //TODO
+        if(avatar.getAvatarType() == AvatarType.OCTOPUS){
+            Octopus octopus = (Octopus) avatar;
+            tmp.set(input.getAiming(), 0);
+            tmp = camera.unproject(tmp);
+            tmp2.set(tmp.x, tmp.y).scl(1.0f / level.getTileSize()).sub(avatar.getPosition());
+            tmp2.clamp(0.0f, 2.0f);
+            octopus.setTarget(tmp2); //set a target vector relative to octopus's position as origin.
+
+            if(input.didAbility()) {
+                octopus.setCurrentlyAiming(!octopus.isCurrentlyAiming()); //turn the reticle on and off
             }
+
+            if(octopus.isCurrentlyAiming() && input.didLeftClick()){
+                octopus.setDidFire(true);
+                octopus.setCurrentlyAiming(false);
+                System.out.println("Fire");
+            } else {
+                octopus.setDidFire(false);
+            }
+
+        } else { //avatar is Cat
+            //TODO
         }
+
+
 
         cameraTargetPosition.set(avatar.getPosition());
         updateCamera(dt);
