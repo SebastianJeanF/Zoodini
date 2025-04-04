@@ -318,14 +318,13 @@ public class GameScene implements Screen, ContactListener {
             tmp2.clamp(0.0f, 2.0f);
             octopus.setTarget(tmp2); //set a target vector relative to octopus's position as origin.
 
-            if(input.didAbility()) {
+            if(input.didAbility()) { //check for ink resource here.
                 octopus.setCurrentlyAiming(!octopus.isCurrentlyAiming()); //turn the reticle on and off
             }
 
             if(octopus.isCurrentlyAiming() && input.didLeftClick()){
                 octopus.setDidFire(true);
                 octopus.setCurrentlyAiming(false);
-                System.out.println("Fire");
             } else {
                 octopus.setDidFire(false);
             }
@@ -346,7 +345,14 @@ public class GameScene implements Screen, ContactListener {
      * responsibility of ContactListener
      */
     private void processNPCAction(float dt){
-        //TODO
+        Octopus octopus = (Octopus) level.getOctopus();
+        InkProjectile inkProjectile = level.getProjectile();
+
+        if(octopus.didFire()) {
+            //TODO
+        } else {
+            //TODO
+        }
     }
 
     /**
@@ -481,44 +487,67 @@ public class GameScene implements Screen, ContactListener {
         avatar.applyForce();
     }
 
-    private void updateOctopusInkAim(Octopus octopus, InputController input) {
-
-        octopus.setCurrentlyAiming(true);
-        Vector3 unprojected = camera.unproject(
-                new Vector3(input.getAiming().x, input.getAiming().y, 0));
-        cacheVec.set(unprojected.x / level.getTileSize(),
-                unprojected.y / level.getTileSize());
-
-        // TODO: max length should be a configurable value
-        float scale = Math.min(cacheVec.dst(octopus.getPosition()) * level.getTileSize(), 250);
-        double dx = octopus.getPosition().x - cacheVec.x;
-        double dy = octopus.getPosition().y - cacheVec.y;
-        float angleRad = -((float) (Math.atan2(dx, dy) + Math.toRadians(90))); // scuffed math (TODO: fix?)
-        cacheVec.set((float) Math.toDegrees(Math.cos(angleRad)), (float) Math.toDegrees(Math.sin(angleRad)))
-                .nor().scl(scale);
-        octopus.setTarget(cacheVec);
-
-        if (octopus.isCurrentlyAiming() && !input.isAbilityHeld()) {
-            octopus.setCurrentlyAiming(false);
-            octopus.setDidFire(true);
-        }
-
-        if (octopus.didFire()) {
-            level.hideInkProjectile();
-            level.createInkProjectile();
-            octopus.setDidFire(false);
-        }
-
-        if(level.getProjectile() != null) {
-            if ((level.getProjectile().getPosition().dst(octopus.getPosition())
-                * level.getTileSize()) > (octopus
-                .getTarget().len())) {
-                level.getProjectile().setToHide(true);
-
+    private void updateInkProjectile() {
+        InkProjectile inkProjectile = level.getProjectile();
+        if(inkProjectile != null) {
+            if (inkProjectile.getToHide()) {
+                //hideInkProjectile();
+                inkProjectile.setToHide(false);
             }
         }
-
     }
+
+    private void moveInkProjectile(InkProjectile projectile, Vector2 origin, Vector2 target) {
+        projectile.setPosition(origin);
+        projectile.getObstacle().setActive(true);
+        projectile.setDrawingEnabled(true);
+        projectile.setMovement(target.nor());
+        projectile.applyForce();
+    }
+
+    private void hideInkProjectile(InkProjectile projectile) {
+        projectile.getObstacle().setActive(false);
+        projectile.setDrawingEnabled(false);
+    }
+
+//    private void updateOctopusInkAim(Octopus octopus, InputController input) {
+//
+//        octopus.setCurrentlyAiming(true);
+//        Vector3 unprojected = camera.unproject(
+//                new Vector3(input.getAiming().x, input.getAiming().y, 0));
+//        cacheVec.set(unprojected.x / level.getTileSize(),
+//                unprojected.y / level.getTileSize());
+//
+//        // TODO: max length should be a configurable value
+//        float scale = Math.min(cacheVec.dst(octopus.getPosition()) * level.getTileSize(), 250);
+//        double dx = octopus.getPosition().x - cacheVec.x;
+//        double dy = octopus.getPosition().y - cacheVec.y;
+//        float angleRad = -((float) (Math.atan2(dx, dy) + Math.toRadians(90))); // scuffed math (TODO: fix?)
+//        cacheVec.set((float) Math.toDegrees(Math.cos(angleRad)), (float) Math.toDegrees(Math.sin(angleRad)))
+//                .nor().scl(scale);
+//        octopus.setTarget(cacheVec);
+//
+//        if (octopus.isCurrentlyAiming() && !input.isAbilityHeld()) {
+//            octopus.setCurrentlyAiming(false);
+//            octopus.setDidFire(true);
+//        }
+//
+//        if (octopus.didFire()) {
+//            level.hideInkProjectile();
+//            level.createInkProjectile();
+//            octopus.setDidFire(false);
+//        }
+//
+//        if(level.getProjectile() != null) {
+//            if ((level.getProjectile().getPosition().dst(octopus.getPosition())
+//                * level.getTileSize()) > (octopus
+//                .getTarget().len())) {
+//                level.getProjectile().setToHide(true);
+//
+//            }
+//        }
+//
+//    }
 
     private static void checkFlipSprite(Avatar avatar, InputController input) {
         // flips the sprite if the avatar is moving left

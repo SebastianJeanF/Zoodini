@@ -455,30 +455,6 @@ public class GameLevel {
 
     //------------------Helpers-----------------------//
 
-    private void updateInkProjectile() {
-        if(inkProjectile != null) {
-            if (inkProjectile.getToHide()) {
-                hideInkProjectile();
-                inkProjectile.setToHide(false);
-            }
-        }
-    }
-
-    public void createInkProjectile() {
-        inkProjectile.setPosition(this.getAvatar().getPosition());
-        inkProjectile.getObstacle().setActive(true);
-        inkProjectile.setDrawingEnabled(true);
-        Octopus o = (Octopus) getAvatar();
-        Vector2 facing = o.getTarget().nor();
-        inkProjectile.setMovement(facing.x, facing.y);
-        inkProjectile.applyForce();
-    }
-
-    public void hideInkProjectile() {
-        inkProjectile.getObstacle().setActive(false);
-        inkProjectile.setDrawingEnabled(false);
-    }
-
     /**
      * Immediately adds the object to the physics world
      *
