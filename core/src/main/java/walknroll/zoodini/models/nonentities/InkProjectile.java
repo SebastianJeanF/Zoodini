@@ -26,9 +26,22 @@ public class InkProjectile extends ZoodiniSprite {
     /** The current horizontal movement of the character */
     private Vector2 movement = new Vector2();
 
+    /** The position that this projectile was shot */
+    private Vector2 startPosition = new Vector2();
+
     private int startFrame;
 
     private boolean shouldDestroy;
+
+
+    public Vector2 getStartPosition(){
+        return startPosition;
+    }
+
+    public void setStartPosition(Vector2 p){
+        startPosition.set(p);
+    }
+
 
     public boolean getShouldDestroy() {
         return shouldDestroy;

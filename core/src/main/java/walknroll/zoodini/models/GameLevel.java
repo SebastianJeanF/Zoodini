@@ -53,10 +53,8 @@ import edu.cornell.gdiac.math.Path2;
 import edu.cornell.gdiac.math.PathExtruder;
 import edu.cornell.gdiac.math.PathFactory;
 import edu.cornell.gdiac.util.*;
-import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Cat;
-import walknroll.zoodini.models.entities.Enemy;
 import walknroll.zoodini.models.entities.Guard;
 import walknroll.zoodini.models.entities.Octopus;
 import walknroll.zoodini.models.entities.SecurityCamera;
@@ -107,9 +105,9 @@ public class GameLevel {
 
     private OrthographicCamera raycamera;
 
-	private ObjectMap<Enemy, PositionalLight> enemyLights = new ObjectMap<>();
+	private ObjectMap<Guard, PositionalLight> guardLights = new ObjectMap<>();
 	private PositionalLight[] avatarLights = new PositionalLight[2]; // TODO: array or separate field for two avatars?
-    private Array<Enemy> enemies = new Array<>();
+    private Array<Guard> guards = new Array<>();
     private Array<SecurityCamera> securityCameras = new Array<>();
     private ObjectMap<ZoodiniSprite, VisionCone> visions = new ObjectMap<>();
     private InkProjectile inkProjectile; // ink projectile (there should only ever be one!!!)
@@ -214,11 +212,11 @@ public class GameLevel {
 		activate(avatarOctopus);
 //
 //		// Enemies
-		JsonValue guards = levelFormat.getChild("guards");
-		while (guards != null) {
-			enemies.add(new Guard(directory, guards, levelGlobals.get("guard"), units));
-			activate(enemies.peek());
-			guards = guards.next();
+		JsonValue json = levelFormat.getChild("guards");
+		while (json != null) {
+			guards.add(new Guard(directory, json, levelGlobals.get("guard"), units));
+			activate(guards.peek());
+            json = json.next();
 		}
 
         // Security Cameras
@@ -265,7 +263,7 @@ public class GameLevel {
             visions.put(cam, vc);
         }
 
-        for(Enemy guard : enemies){
+        for(Guard guard : guards){
             VisionCone vc = new VisionCone(rayNum, Vector2.Zero, radius, 0.0f, wideness, c, units, mask, category);
             vc.attachToBody(guard.getObstacle().getBody(), 90.0f);
             visions.put(guard, vc);
@@ -359,8 +357,8 @@ public class GameLevel {
                 inkProjectile.update(dt);
             }
 
-            for (Enemy e : enemies) {
-                e.update(dt);
+            for (Guard g : guards) {
+                g.update(dt);
             }
 
             for (SecurityCamera c : securityCameras) {
@@ -652,8 +650,8 @@ public class GameLevel {
      *
      * @return a reference to the enemies
      */
-    public Array<Enemy> getEnemies() {
-        return enemies;
+    public Array<Guard> getGuards() {
+        return guards;
     }
 
     public InkProjectile getProjectile() {

@@ -155,7 +155,7 @@ public class GameScene implements Screen, ContactListener {
 
 		camera = new OrthographicCamera();
         //30m, 20m is the map dimension. 1 tile = 1m
-		camera.setToOrtho(false, level.getTileSize() * 30,  level.getTileSize() * 20);
+		camera.setToOrtho(false, level.getTileSize() * 15,  level.getTileSize() * 10);
         // Initialize camera tracking variables
 		cameraTargetPosition = new Vector2();
 		cameraPreviousPosition = new Vector2();
@@ -317,8 +317,10 @@ public class GameScene implements Screen, ContactListener {
             Octopus octopus = (Octopus) avatar;
             tmp.set(input.getAiming(), 0);
             tmp = camera.unproject(tmp);
-            tmp2.set(tmp.x, tmp.y).scl(1.0f / level.getTileSize()).sub(avatar.getPosition());
-            tmp2.clamp(0.0f, 5.0f); //this decides the distance for projectile to travel
+            tmp2.set(tmp.x, tmp.y)
+                .scl(1.0f / level.getTileSize())
+                .sub(octopus.getPosition())
+                .clamp(0.0f, 5.0f); //this decides the distance for projectile to travel
             octopus.setTarget(tmp2); //set a target vector relative to octopus's position as origin.
 
             if(input.didAbility()) { //check for ink resource here.
@@ -359,16 +361,17 @@ public class GameScene implements Screen, ContactListener {
             inkProjectile.destroy();
         }
 
-        if(inkProjectile.getPosition().dst(octopus.getPosition()) > octopus.getTarget().len()){
-            inkProjectile.setShouldDestroy(true);
-        }
-
-        if(octopus.didFire()){
+        if(!inkProjectile.getShouldDestroy() && octopus.didFire()){
             activateInkProjectile(inkProjectile, octopus.getPosition(), octopus.getTarget());
         }
 
-        //TODO: move guards
+        if(inkProjectile.getPosition().dst(inkProjectile.getStartPosition()) > octopus.getTarget().len()){
+            inkProjectile.setShouldDestroy(true);
+        }
 
+        //TODO: move guards
+        Array<Guard> guards = level.getGuards();
+        updateGuards(guards);
 
     }
 
@@ -411,16 +414,10 @@ public class GameScene implements Screen, ContactListener {
 
     public void initializeAIControllers() {
         this.gameGraph = new GameGraph(12, 16, level.getBounds().x, level.getBounds().y, level.getSprites());
-        Array<Enemy> enemies = level.getEnemies();
-        if(enemies != null) {
-            for (Enemy enemy : enemies) {
-                if (!(enemy instanceof Guard guard))
-                    continue;
-
-                GuardAIController aiController = new GuardAIController(guard, level, this.gameGraph,
-                    5);
-                guardToAIController.put(guard, aiController);
-            }
+        Array<Guard> guards = level.getGuards();
+        for (Guard g : guards) {
+            GuardAIController aiController = new GuardAIController(g, level, this.gameGraph, 5);
+            guardToAIController.put(g, aiController);
         }
     }
 
@@ -507,6 +504,7 @@ public class GameScene implements Screen, ContactListener {
     private void activateInkProjectile(InkProjectile projectile, Vector2 origin, Vector2 target) {
         projectile.activate();
         projectile.setPosition(origin);
+        projectile.setStartPosition(origin);
         projectile.setMovement(target.nor());
         projectile.applyForce();
     }
@@ -571,26 +569,18 @@ public class GameScene implements Screen, ContactListener {
 	}
 
 
-	void updateGuards() {
-		Array<Enemy> enemies = level.getEnemies();
-        if(enemies != null) {
-            for (Enemy enemy : enemies) {
-                if (!(enemy instanceof Guard))
-                    continue;
-
-                Guard guard = (Guard) enemy;
-                moveGuard(guard);
-                if (guard.isMeowed()) {
-
-                }
-            }
+	void updateGuards(Array<Guard> guards) {
+        for (Guard guard : guards) {
+            moveGuard(guard);
         }
 	}
 
 
 	void moveGuard(Guard guard) {
         Vector2 direction = guard.getMovementDirection();
-        // System.out.print("Direction" + direction);
+        if(direction == null){ //ideally should never be null.
+            return;
+        }
 
 		if (direction.len() > 0) {
 			direction.nor().scl(guard.getForce());
@@ -705,7 +695,7 @@ public class GameScene implements Screen, ContactListener {
             Obstacle exit = level.getExit().getObstacle();
             Obstacle door = level.getDoor().getObstacle();
 			Obstacle projectile = level.getProjectile().getObstacle();
-            Array<Enemy> guards = level.getEnemies();
+            Array<Guard> guards = level.getGuards();
 
 			if ((o1 == projectile || o2 == projectile)) {
 				Array<SecurityCamera> secCameras = level.getSecurityCameras();

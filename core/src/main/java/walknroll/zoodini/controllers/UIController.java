@@ -74,7 +74,7 @@ public class UIController {
         interrupted = new TextLayout("Unlocking Interrupted!", displayFont);
         interrupted.setAlignment(TextAlign.middleCenter);
         interrupted.setColor(Color.YELLOW);
-        
+
 
 
         messages = new Array<>();
@@ -140,7 +140,9 @@ public class UIController {
         batch.flush();
         for (TextLayout message : messageLocations.keys()) {
             if (message != null && message.getColor().a == 1.0f) {
+                batch.setColor(message.getColor());
                 batch.drawText(message, messageLocations.get(message));
+                batch.setColor(Color.WHITE);
             }
         }
         batch.flush();
