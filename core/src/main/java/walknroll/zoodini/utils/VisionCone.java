@@ -105,10 +105,6 @@ public class VisionCone implements RayCastCallback{
             poly.indices.items[idx++] = (short)(numRays);
         }
 
-//        poly.indices.items[idx++] = (short)(numRays - 1);
-//        poly.indices.items[idx++] = (short) (numRays);
-//        poly.indices.items[idx++] = (short) 0;
-
         ShortArray var11 = poly.indices;
         var11.size += 3 * numRays;
 
@@ -116,29 +112,30 @@ public class VisionCone implements RayCastCallback{
     }
 
     public boolean contains(float x, float y){
-        float x_d = this.origin.x - x;
-        float y_d = this.origin.y - y;
-        float dst2 = x_d * x_d + y_d * y_d;
-        if (this.radius * this.radius <= dst2) {
-            return false;
-        } else {
-            boolean oddNodes = false;
-            float x2 = this.cone.vertices.items[this.numRays * 2] = this.origin.x;
-            float y2 = this.cone.vertices.items[this.numRays * 2 + 1] = this.origin.y;
-
-            for(int i = 0; i <= this.numRays; ++i) {
-                float x1 = this.cone.vertices.items[i];
-                float y1 = this.cone.vertices.items[i+1];
-                if ((y1 < y && y2 >= y || y1 >= y && y2 < y) && (y - y1) / (y2 - y1) * (x2 - x1) < x - x1) {
-                    oddNodes = !oddNodes;
-                }
-
-                x2 = x1;
-                y2 = y1;
-            }
-
-            return oddNodes;
-        }
+        return cone.contains(x,y);
+//        float x_d = this.origin.x - x;
+//        float y_d = this.origin.y - y;
+//        float dst2 = x_d * x_d + y_d * y_d;
+//        if (this.radius * this.radius <= dst2) {
+//            return false;
+//        } else {
+//            boolean oddNodes = false;
+//            float x2 = this.cone.vertices.items[this.numRays * 2] = this.origin.x;
+//            float y2 = this.cone.vertices.items[this.numRays * 2 + 1] = this.origin.y;
+//
+//            for(int i = 0; i <= this.numRays; ++i) {
+//                float x1 = this.cone.vertices.items[i];
+//                float y1 = this.cone.vertices.items[i+1];
+//                if ((y1 < y && y2 >= y || y1 >= y && y2 < y) && (y - y1) / (y2 - y1) * (x2 - x1) < x - x1) {
+//                    oddNodes = !oddNodes;
+//                }
+//
+//                x2 = x1;
+//                y2 = y1;
+//            }
+//
+//            return oddNodes;
+//        }
     }
 
     public boolean contains(Vector2 position){

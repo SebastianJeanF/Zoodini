@@ -34,6 +34,31 @@ public class Door extends ZoodiniSprite {
     private TextureRegion lockedTexture;
     /** The texture to use when the door is unlocked */
     private TextureRegion unlockedTexture;
+    /** Time required to unlock this door (seconds) */
+    private float remainingTimeToUnlock;
+    /** Whether this door is being unlocked at current frame*/
+    private boolean isUnlocking;
+
+
+    public boolean isUnlocking() {
+        return isUnlocking;
+    }
+
+    public void setUnlocking(boolean unlocking) {
+        isUnlocking = unlocking;
+    }
+
+    public float getRemainingTimeToUnlock(){
+        return remainingTimeToUnlock;
+    }
+
+    public void setRemainingTimeToUnlock(float t){
+        remainingTimeToUnlock = t;
+    }
+
+    public void resetTimer(){
+        remainingTimeToUnlock = 3; //TODO: set this using json somehow.
+    }
 
     /**
      * Returns whether this door is locked.
@@ -109,7 +134,8 @@ public class Door extends ZoodiniSprite {
         unlockedTexture = new TextureRegion(directory.getEntry(unlockedKey, Texture.class));
 
         // Set initial state (locked by default)
-        locked = true;
+        setLocked(true);
         setTextureRegion(lockedTexture);
+        resetTimer(); //TODO: get this from json
 	}
 }

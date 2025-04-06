@@ -13,6 +13,7 @@
 package walknroll.zoodini.controllers;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import edu.cornell.gdiac.util.Controllers;
@@ -25,7 +26,7 @@ import edu.cornell.gdiac.util.XBoxController;
  * only detected the X-Box controller on start-up. This class allows us to
  * hot-swap in a controller via the new XBoxController class.
  */
-public class InputController {
+public class InputController extends InputAdapter{
 	/** The singleton instance of the input controller */
 	private static InputController theController = null;
 
@@ -65,6 +66,9 @@ public class InputController {
     private boolean abilityPressed;
     private boolean abilityPrevious;
 
+    /** Whether the left click was pressed. */
+    private boolean leftClicked;
+    private boolean leftPrevious;
 
 	/** How much did we move horizontally? */
 	private float horizontal;
@@ -155,7 +159,7 @@ public class InputController {
 
 	/**
 	 * Returns true if the ability button was pressed.
-	 * 
+	 *
 	 * @return true if the ability button was pressed
 	 */
 	public boolean didAbility() {
@@ -164,7 +168,7 @@ public class InputController {
 
 	/**
 	 * Returns true if the ability button is currently held down.
-	 * 
+	 *
 	 * @return true if the ability button is currently hold
 	 */
 	public boolean isAbilityHeld() {
@@ -174,6 +178,8 @@ public class InputController {
 	public Vector2 getAiming() {
 		return aiming;
 	}
+
+    public boolean didLeftClick(){return leftClicked && !leftPrevious;}
 
 	/**
 	 * Creates a new input controller
@@ -205,6 +211,7 @@ public class InputController {
 		prevPrevious = prevPressed;
 		swapPrevious = swapPressed;
         abilityPrevious = abilityPressed;
+        leftPrevious = leftClicked;
 
 		// Check to see if a GamePad is connected
 		if (xbox != null && xbox.isConnected()) {
@@ -256,6 +263,7 @@ public class InputController {
 		exitPressed = (secondary && exitPressed) || (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));
 		swapPressed = (secondary && swapPressed) || (Gdx.input.isKeyPressed(Input.Keys.SPACE));
         abilityPressed = (secondary && abilityPressed) || (Gdx.input.isKeyPressed(Input.Keys.E));
+        leftClicked = (secondary && leftClicked) || (Gdx.input.isButtonPressed(Buttons.LEFT));
 
 		// Directional controls
 		horizontal = (secondary ? horizontal : 0.0f);
