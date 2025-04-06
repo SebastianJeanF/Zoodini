@@ -13,6 +13,8 @@ import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.physics2.BoxObstacle;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
 import walknroll.zoodini.models.GameLevel;
+import walknroll.zoodini.models.entities.Avatar;
+import walknroll.zoodini.models.entities.Avatar.AvatarType;
 import walknroll.zoodini.utils.ZoodiniSprite;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 
@@ -23,6 +25,18 @@ public class Key extends ZoodiniSprite {
 
     /** Whether this key has been collected by the player */
     private boolean collected;
+    /** The avatar that owns this key */
+    private AvatarType owner;
+    /** Whether this key has been used to unlock a door */
+    private boolean used;
+
+    public boolean isUsed() {
+        return used;
+    }
+
+    public void setUsed(boolean used) {
+        this.used = used;
+    }
 
     /**
      * Returns whether this key has been collected.
@@ -34,13 +48,20 @@ public class Key extends ZoodiniSprite {
     }
 
     /**
-     * Sets whether this key has been collected.
+     * Sets whether this key has been collected
      *
      * @param value whether this key has been collected
      */
     public void setCollected(boolean value) {
         collected = value;
+    }
 
+    public void setOwner(AvatarType t){
+        owner = t;
+    }
+
+    public AvatarType getOwnerType(){
+        return owner;
     }
 
     /**
@@ -87,6 +108,7 @@ public class Key extends ZoodiniSprite {
         setTextureRegion(texture);
 
         collected = false;
+        used = false;
     }
     /**
      * Overrides the draw method to make the key invisible when collected

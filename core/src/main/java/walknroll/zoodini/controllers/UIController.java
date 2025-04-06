@@ -93,59 +93,21 @@ public class UIController {
         messageLocations.put(unlocked, new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2));
         messageLocations.put(collected, new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2));
         messageLocations.put(interrupted, new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2));
-
-        //hide everything at the start
-        for(TextLayout text : messages){
-            text.getColor().a = 0.0f;
-        }
     }
 
-    public void setCenterMessage(int code){
-        for(TextLayout text : messageLocations.keys()){
-            Vector2 location = messageLocations.get(text);
-            if(location.x == Gdx.graphics.getWidth() / 2 && location.y == Gdx.graphics.getHeight() / 2){
-                text.getColor().a = 0.0f;
-            }
-        }
+    public void reset(){
 
-        messages.get(code).getColor().a = 1.0f;
     }
 
     public void setFont(BitmapFont f){
         displayFont = f;
     }
 
-    public void hideMessage(int code){
-        messages.get(code).getColor().a = 0.0f;
-    }
-
-    public void showMessage(int code){
-        messages.get(code).getColor().a = 1.0f;
-    }
-
-    public void reset(){
-        for(TextLayout text : messages){
-            text.getColor().a = 0.0f;
-        }
-    }
-
-
     public void update(){
         camera.update();
     }
 
     public void draw(SpriteBatch batch) {
-        batch.setProjectionMatrix(camera.combined);
-        batch.begin(camera);
-        batch.flush();
-        for (TextLayout message : messageLocations.keys()) {
-            if (message != null && message.getColor().a == 1.0f) {
-                batch.setColor(message.getColor());
-                batch.drawText(message, messageLocations.get(message));
-                batch.setColor(Color.WHITE);
-            }
-        }
-        batch.flush();
-        batch.end();
+
     }
 }

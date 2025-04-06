@@ -13,8 +13,6 @@
 package walknroll.zoodini.controllers.screens;
 
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
@@ -25,12 +23,7 @@ import com.badlogic.gdx.physics.box2d.*;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
-import edu.cornell.gdiac.graphics.TextAlign;
-import edu.cornell.gdiac.graphics.TextLayout;
-import edu.cornell.gdiac.math.Poly2;
-import edu.cornell.gdiac.math.PolyFactory;
 import edu.cornell.gdiac.util.*;
-import java.util.logging.Level;
 import walknroll.zoodini.controllers.GuardAIController;
 import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.controllers.UIController;
@@ -38,16 +31,15 @@ import walknroll.zoodini.controllers.aitools.TileGraph;
 import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
-import walknroll.zoodini.models.entities.Enemy;
 import walknroll.zoodini.models.entities.Guard;
 import walknroll.zoodini.models.entities.Octopus;
 import walknroll.zoodini.models.entities.SecurityCamera;
 import walknroll.zoodini.models.entities.Avatar.AvatarType;
+import walknroll.zoodini.models.nonentities.Door;
 import walknroll.zoodini.models.nonentities.InkProjectile;
-import walknroll.zoodini.utils.GameGraph;
+import walknroll.zoodini.models.nonentities.Key;
 import edu.cornell.gdiac.physics2.*;
 import java.util.HashMap;
-import walknroll.zoodini.utils.VisionCone;
 
 /**
  * Gameplay controller for the game.
@@ -62,7 +54,7 @@ import walknroll.zoodini.utils.VisionCone;
  */
 public class GameScene implements Screen, ContactListener {
 
-    private boolean debug = false;
+    private boolean debug = true;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
@@ -94,21 +86,6 @@ public class GameScene implements Screen, ContactListener {
     private final HashMap<Guard, GuardAIController> guardToAIController = new HashMap<>();
 
     private TileGraph<TileNode> graph;
-
-    private GameGraph gameGraph;
-
-    /** Whether the player has collected the key */
-    private boolean keyCollected = false;
-    /** Timer for how long to display the key message */
-    private int keyMessageTimer = 0;
-    /** The character that collected the key */
-    private Avatar keyCollector = null;
-    /** Timer for how long the door has been unlocking */
-    private int unlockingTimer = 0;
-    /** Duration required to unlock the door (in frames) */
-    private static final int UNLOCK_DURATION = 180;
-    /** Whether the door is currently being unlocking */
-    private boolean isUnlocking = false;
 
 
     // Win/lose related fields
@@ -174,7 +151,6 @@ public class GameScene implements Screen, ContactListener {
 
 		setComplete(false);
 		setFailure(false);
-        initializeAIControllers();
 	}
 
 
@@ -191,10 +167,7 @@ public class GameScene implements Screen, ContactListener {
 
         catArrived = false;
         octopusArrived = false;
-        keyCollected = false;
-        keyCollector = null;
-        unlockingTimer = 0;
-        isUnlocking = false;
+
         ui.reset();
 
         setComplete(false);
@@ -204,7 +177,6 @@ public class GameScene implements Screen, ContactListener {
         // Reload the json each time
         level.populate(directory, levelFormat, levelGlobals);
         level.getWorld().setContactListener(this);
-        initializeAIControllers();
     }
 
 
@@ -355,24 +327,41 @@ public class GameScene implements Screen, ContactListener {
     private void processNPCAction(float dt){
         Octopus octopus = (Octopus) level.getOctopus();
         InkProjectile inkProjectile = level.getProjectile();
+        Door door = level.getDoor();
+        Key key = level.getKey();
 
+        //Projectiles
         //TODO: not sure about the order of if statements here.
         if(inkProjectile.getShouldDestroy()){
             inkProjectile.destroy();
         }
 
-        if(!inkProjectile.getShouldDestroy() && octopus.didFire()){
+        if(octopus.didFire()){
             activateInkProjectile(inkProjectile, octopus.getPosition(), octopus.getTarget());
         }
 
         if(inkProjectile.getPosition().dst(inkProjectile.getStartPosition()) > octopus.getTarget().len()){
+            //TODO: need fix: sometimes the projectile disappears in the middle
             inkProjectile.setShouldDestroy(true);
         }
 
-        //TODO: move guards
+        //Guards
         Array<Guard> guards = level.getGuards();
         updateGuards(guards);
 
+
+        //Keys and doors
+        if(key.isCollected() && !key.isUsed() && door.isUnlocking()){
+            door.setRemainingTimeToUnlock(door.getRemainingTimeToUnlock() - dt);
+            System.out.println(door.getRemainingTimeToUnlock());
+        } else {
+            door.resetTimer();
+        }
+
+        if(door.getRemainingTimeToUnlock() <= 0){
+            door.setLocked(false);
+            key.setUsed(true);
+        }
     }
 
     /**
@@ -397,7 +386,11 @@ public class GameScene implements Screen, ContactListener {
         ui.draw(batch);
 
         if(debug) {
-            graph.draw(batch, camera, 32.0f);
+            graph.draw(batch, camera, level.getTileSize());
+            InputController ic = InputController.getInstance();
+            if(ic.didLeftClick()) {
+                TileNode t = graph.markNearestTile(camera, ic.getAiming(), level.getTileSize());
+            }
         }
     }
 
@@ -412,23 +405,23 @@ public class GameScene implements Screen, ContactListener {
 
     //-----------------Helper Methods--------------------//
 
-    public void initializeAIControllers() {
-        this.gameGraph = new GameGraph(12, 16, level.getBounds().x, level.getBounds().y, level.getSprites());
-        Array<Guard> guards = level.getGuards();
-        for (Guard g : guards) {
-            GuardAIController aiController = new GuardAIController(g, level, this.gameGraph, 5);
-            guardToAIController.put(g, aiController);
-        }
-    }
+//    public void initializeAIControllers() {
+//        this.gameGraph = new GameGraph(12, 16, level.getBounds().x, level.getBounds().y, level.getSprites());
+//        Array<Guard> guards = level.getGuards();
+//        for (Guard g : guards) {
+//            GuardAIController aiController = new GuardAIController(g, level, this.gameGraph, 5);
+//            guardToAIController.put(g, aiController);
+//        }
+//    }
 
 
-    private void checkDeactivateKeyOnCollect() {
-        // Deactivate collected key's physics body if needed
-        if (keyCollected && level.getKey() != null && level.getKey().getObstacle().isActive()) {
-            // This is the safe time to modify physics bodies
-            level.getKey().getObstacle().setActive(false);
-        }
-    }
+//    private void checkDeactivateKeyOnCollect() {
+//        // Deactivate collected key's physics body if needed
+//        if (keyCollected && level.getKey() != null && level.getKey().getObstacle().isActive()) {
+//            // This is the safe time to modify physics bodies
+//            level.getKey().getObstacle().setActive(false);
+//        }
+//    }
 
     private void onSwap(InputController input) {
         if (input.didSwap()) {
@@ -456,27 +449,25 @@ public class GameScene implements Screen, ContactListener {
     }
 
 
-    private void updateDoorUnlocking() {
-        // Update door unlocking progress
-        if(isUnlocking) {
-            unlockingTimer++;
-
-            // Update unlocking message percentage
-            if (unlockingTimer % 15 == 0) { // Update message every 1/4 second
-                ui.keyTimer.setText("Unlocking Door: " + Math.round((float) unlockingTimer / UNLOCK_DURATION * 100) + "%");
-                ui.setCenterMessage(UIController.KEY_TIMER);
-            }
-            // Check if door is fully unlocked
-            if (unlockingTimer >= UNLOCK_DURATION) {
-                level.getDoor().setLocked(false);
-                isUnlocking = false;
-
-                // Show door unlocked message
-                ui.setCenterMessage(UIController.UNLOCKED);
-                keyMessageTimer = 120; // 2 seconds at 60 fps to show unlock message
-            }
-        }
-    }
+//    private void updateDoorUnlocking() {
+//        // Update door unlocking progress
+//        if(isUnlocking) {
+//            unlockingTimer++;
+//
+//            // Update unlocking message percentage
+//            if (unlockingTimer % 15 == 0) { // Update message every 1/4 second
+//
+//            }
+//            // Check if door is fully unlocked
+//            if (unlockingTimer >= UNLOCK_DURATION) {
+//                level.getDoor().setLocked(false);
+//                isUnlocking = false;
+//
+//                // Show door unlocked message
+//                keyMessageTimer = 120; // 2 seconds at 60 fps to show unlock message
+//            }
+//        }
+//    }
 
 
     private Vector2 angleCache = new Vector2();
@@ -693,15 +684,19 @@ public class GameScene implements Screen, ContactListener {
             Obstacle cat = level.getCat().getObstacle();
             Obstacle oct = level.getOctopus().getObstacle();
             Obstacle exit = level.getExit().getObstacle();
-            Obstacle door = level.getDoor().getObstacle();
+            Door door = level.getDoor();
+            Obstacle doorObs = door.getObstacle();
 			Obstacle projectile = level.getProjectile().getObstacle();
+
+            Key key = level.getKey();
+            Obstacle keyObs = key.getObstacle();
             Array<Guard> guards = level.getGuards();
 
 			if ((o1 == projectile || o2 == projectile)) {
 				Array<SecurityCamera> secCameras = level.getSecurityCameras();
 				for (int i = 0; i < secCameras.size; i++) {
 					SecurityCamera cam = secCameras.get(i);
-					Obstacle camObstacle = secCameras.get(i).getObstacle();
+					Obstacle camObstacle = cam.getObstacle();
 					if (o1 == camObstacle || o2 == camObstacle) {
 						cam.setDisabled(true);
 						break;
@@ -711,42 +706,55 @@ public class GameScene implements Screen, ContactListener {
 			}
 
 
-            for(Enemy guard : guards){
+            for(Guard guard : guards){
                 Obstacle enemy = guard.getObstacle();
                 if((o1 == cat && o2 == enemy) || (o2 == cat && o1 == enemy) || (o1 == oct && o2 == enemy) || (o2 == oct && o1 == enemy)){
                     setFailure(true);
                 }
             }
 
+            if((o1 == cat && o2 == keyObs) || (o2 == cat && o1 == keyObs)){
+                key.setCollected(true);
+                key.setOwner(AvatarType.CAT);
+            }
+
+            if((o1 == oct && o2 == keyObs) || (o2 == oct && o1 == keyObs)){
+                key.setCollected(true);
+                key.setOwner(AvatarType.OCTOPUS);
+            }
+
+            if((o1 == doorObs && (o2 == cat || o2 == oct)) || (o2 == doorObs && (o1 == cat || o1 == oct))){ //owner of the key does not matter for now.
+                if(door.isLocked()) { //TODO: not sure whether we check if key's collected at collision resolution or in the update().
+                    door.setUnlocking(true);
+                }
+            }
+
             // Handle key pickup
-            if(!keyCollected && level.getKey() != null) {
-                Obstacle keyObs = level.getKey().getObstacle();
-                if(((o1 == cat || o1 == oct) && o2 == keyObs) ||
-                    ((o2 == cat || o2 == oct) && o1 == keyObs)){
-                    keyCollected = true;
-                    level.getKey().setCollected(true);
-                    if (o1 == cat || o2 == cat){keyCollector = level.getCat();}
-                    else if (o1 == oct || o2 == oct){keyCollector = level.getOctopus();}
-
-                    // Display a message that key was collected
-                    ui.setCenterMessage(UIController.KEY_COLLECTED);
-                    // Make the message disappear after a few seconds
-                    keyMessageTimer = 120; // 2 seconds at 60 fps
-                }
-            }
-
-            // Handle door unlocking
-            if(keyCollected && level.getDoor().isLocked() && keyCollector != null) {
-                // Check if the key collector is standing on the door
-                if((o1 == keyCollector.getObstacle() && o2 == door) ||
-                    (o2 == keyCollector.getObstacle() && o1 == door)) {
-                    isUnlocking = true;
-
-                    // Display unlocking message
-                    ui.keyTimer.setText("Unlocking Door: " + 0 + "%");
-                    ui.setCenterMessage(UIController.KEY_TIMER);
-                }
-            }
+//            if(!keyCollected && level.getKey() != null) {
+//                Obstacle keyObs = level.getKey().getObstacle();
+//                if(((o1 == cat || o1 == oct) && o2 == keyObs) ||
+//                    ((o2 == cat || o2 == oct) && o1 == keyObs)){
+//                    keyCollected = true;
+//                    level.getKey().setCollected(true);
+//                    if (o1 == cat || o2 == cat){keyCollector = level.getCat();}
+//                    else if (o1 == oct || o2 == oct){keyCollector = level.getOctopus();}
+//
+//                    // Display a message that key was collected
+//                    // Make the message disappear after a few seconds
+//                    keyMessageTimer = 120; // 2 seconds at 60 fps
+//                }
+//            }
+//
+//            // Handle door unlocking
+//            if(keyCollected && level.getDoor().isLocked() && keyCollector != null) {
+//                // Check if the key collector is standing on the door
+//                if((o1 == keyCollector.getObstacle() && o2 == door) ||
+//                    (o2 == keyCollector.getObstacle() && o1 == door)) {
+//                    isUnlocking = true;
+//
+//                    // Display unlocking message
+//                }
+//            }
 
             // Handle exit collision (only if door is unlocked)
             if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
@@ -786,21 +794,13 @@ public class GameScene implements Screen, ContactListener {
             Obstacle cat = level.getCat().getObstacle();
             Obstacle oct = level.getOctopus().getObstacle();
             Obstacle exit = level.getExit().getObstacle();
-            Obstacle door = level.getDoor().getObstacle();
 
+            Door door = level.getDoor();
+            Obstacle doorObs = door.getObstacle();
 
-            // Handle door unlocking cancellation
-            if(isUnlocking && keyCollector != null) {
-                // Check if the key collector left the door
-                if((o1 == keyCollector.getObstacle() && o2 == door) ||
-                    (o2 == keyCollector.getObstacle() && o1 == door)) {
-                    isUnlocking = false;
-                    unlockingTimer = 0;
-
-                    // Display message that unlocking was interrupted
-                    ui.setCenterMessage(UIController.INTERRUPTED);
-
-                    keyMessageTimer = 60; // 1 second at 60 fps
+            if((o1 == doorObs && (o2 == cat || o2 == oct)) || (o2 == doorObs && (o1 == cat || o1 == oct))){ //owner of the key does not matter for now.
+                if(door.isLocked()) {
+                    door.setUnlocking(false);
                 }
             }
 
@@ -849,8 +849,6 @@ public class GameScene implements Screen, ContactListener {
     private boolean catArrived = false;
     public void setComplete(boolean value) {
         if (value) {
-            ui.showMessage(UIController.VICTORY);
-            ui.hideMessage(UIController.FAILURE);
             countdown = EXIT_COUNT;
         }
         complete = value;
@@ -876,8 +874,6 @@ public class GameScene implements Screen, ContactListener {
      */
     public void setFailure(boolean value) {
         if (value) {
-            ui.showMessage(UIController.FAILURE);
-            ui.hideMessage(UIController.VICTORY);
             countdown = EXIT_COUNT;
         }
         complete = value;
