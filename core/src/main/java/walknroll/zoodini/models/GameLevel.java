@@ -126,7 +126,7 @@ public class GameLevel {
     /** Map */
     private TiledMap tiledMap;
     /** Size of one tile. This serves as scaling factor for all drawings */
-    private int units;
+    private float units;
 
     RayHandler rayHandler;
 
@@ -273,7 +273,7 @@ public class GameLevel {
 
     private void createWallBodies(){
         TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get("Walls");
-        int tileSize = getTileSize();
+        float tileSize = getTileSize();
 
         for (int x = 0; x < layer.getWidth(); x++) {
             for (int y = 0; y < layer.getHeight(); y++) {
@@ -739,7 +739,7 @@ public class GameLevel {
         return tiledMap;
     }
 
-    public int getTileSize(){
+    public float getTileSize(){
         return units;
     }
 }

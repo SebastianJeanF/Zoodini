@@ -340,7 +340,7 @@ public class GameScene implements Screen, ContactListener {
             activateInkProjectile(inkProjectile, octopus.getPosition(), octopus.getTarget());
         }
 
-        if(inkProjectile.getPosition().dst(inkProjectile.getStartPosition()) > octopus.getTarget().len()){
+        if(inkProjectile.getPosition().dst(inkProjectile.getStartPosition()) > inkProjectile.getEndPosition().len()){
             //TODO: need fix: sometimes the projectile disappears in the middle
             inkProjectile.setShouldDestroy(true);
         }
@@ -496,6 +496,7 @@ public class GameScene implements Screen, ContactListener {
         projectile.activate();
         projectile.setPosition(origin);
         projectile.setStartPosition(origin);
+        projectile.setEndPosition(target);
         projectile.setMovement(target.nor());
         projectile.applyForce();
     }
