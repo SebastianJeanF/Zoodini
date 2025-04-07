@@ -47,6 +47,7 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.*;
 
+import com.badlogic.gdx.utils.ObjectMap.Entry;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.math.Path2;
@@ -363,6 +364,10 @@ public class GameLevel {
 
             for (SecurityCamera c : securityCameras) {
                 c.update(dt);
+            }
+
+            for(VisionCone vc : visions.values()){
+                vc.update(world);
             }
         }
     }
