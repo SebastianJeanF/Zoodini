@@ -1,7 +1,10 @@
 {
-  "world_size": [
-    16.0,
-    12.0
+  "map" : {
+    "file" : "maps/firstmap.tmx"
+  },
+  "screen_size": [
+    1000,
+    750
   ],
   "visions" : {
     "rayNum" : 60,
@@ -62,8 +65,8 @@
   },
   "avatarCat": {
     "pos": [
-      1.5,
-      1.5
+      3.5,
+      3.5
     ]
   },
   "avatarOctopus": {
