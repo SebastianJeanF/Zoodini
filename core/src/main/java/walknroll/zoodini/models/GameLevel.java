@@ -47,6 +47,7 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.*;
 
+import com.badlogic.gdx.utils.ObjectMap.Entry;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.math.Path2;
@@ -271,24 +272,27 @@ public class GameLevel {
     }
 
     private void createWallBodies(){
-        MapLayer layer = tiledMap.getLayers().get("Collisions");
-        MapObjects collisions = layer.getObjects();
+        TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get("Walls");
+        int tileSize = getTileSize();
 
-        for(int i = 0; i < collisions.getCount(); i++){
-            MapObject mapObject = collisions.get(i);
+        for (int x = 0; x < layer.getWidth(); x++) {
+            for (int y = 0; y < layer.getHeight(); y++) {
+                TiledMapTileLayer.Cell cell = layer.getCell(x, y);
+                if (cell == null)
+                    continue;
 
-            //These if-branches get the shape of the map object and create a body.
-            if (mapObject instanceof RectangleMapObject)
-            {
-                RectangleMapObject rectangleObject = (RectangleMapObject) mapObject;
-                Rectangle rectangle = rectangleObject.getRectangle(); //in pixels
-                Obstacle obstacle =
+                MapObjects cellObjects = cell.getTile().getObjects();
+                if (cellObjects.getCount() != 1)
+                    continue;
+
+                MapObject mapObject = cellObjects.get(0);
+                if (mapObject instanceof RectangleMapObject rectangleObject){
+                    Rectangle rectangle = rectangleObject.getRectangle(); //in pixels
+                    Obstacle obstacle =
                     new BoxObstacle(
-                        // in meters
-                        (rectangle.x + rectangle.width / 2) / units,
-                        (rectangle.y + rectangle.height / 2) / units,
-                        (rectangle.width) / units,
-                        (rectangle.height) / units
+                        x + 1/2f, y + 1/2f,
+                        rectangle.getWidth() / tileSize,
+                        rectangle.getHeight() / tileSize
                     );
 
                 obstacle.setPhysicsUnits(units);
@@ -303,6 +307,7 @@ public class GameLevel {
 
                 objects.add(obstacle);
                 obstacle.activatePhysics(world);
+                }
             }
         }
     }
@@ -363,6 +368,10 @@ public class GameLevel {
 
             for (SecurityCamera c : securityCameras) {
                 c.update(dt);
+            }
+
+            for(VisionCone vc : visions.values()){
+                vc.update(world);
             }
         }
     }
