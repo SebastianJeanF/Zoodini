@@ -145,7 +145,11 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         int x = MathUtils.floor(vec3.x);
         int y = MathUtils.floor(vec3.y);
         System.out.println("You clicked:" + x + " " + y);
-        selected = getNode(x,y);
+        try {
+            selected = getNode(x, y);
+        } catch (IndexOutOfBoundsException e){
+
+        }
         return selected;
     }
 
