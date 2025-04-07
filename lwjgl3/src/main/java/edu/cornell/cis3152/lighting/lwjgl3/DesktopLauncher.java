@@ -64,7 +64,7 @@ public class DesktopLauncher {
         config.rawHDPI = false;
 
         // Use OpenGLES 2.0
-        //config.useGL30 = false;
+        config.useGL30 = false;
 
         // Window icons used by Windows (in Resources folder)
         config.iconList = "icons.txt";
