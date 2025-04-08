@@ -216,7 +216,16 @@ public class GameLevel {
             activate(guards.peek());
         }
 
-		// Walls
+
+        MapLayer cameraSpawn = tiledMap.getLayers().get("cameras");
+        for(MapObject obj : cameraSpawn.getObjects()){
+            MapProperties properties = obj.getProperties();
+            securityCameras.add(new SecurityCamera(directory, properties, levelGlobals.get("camera"), units));
+            activate(securityCameras.peek());
+        }
+
+
+        // Walls
 		goalDoor = new Door(directory, levelFormat.get("door"), levelGlobals.get("door"), units);
 		activate(goalDoor);
 
@@ -231,13 +240,13 @@ public class GameLevel {
         }
 
         // Security Cameras
-        JsonValue cameras = levelFormat.getChild("cameras");
-        while (cameras != null) {
-            SecurityCamera camera = new SecurityCamera(directory, cameras, levelGlobals.get("camera"), units);
-            activate(camera);
-            securityCameras.add(camera);
-            cameras = cameras.next();
-        }
+//        JsonValue cameras = levelFormat.getChild("cameras");
+//        while (cameras != null) {
+//            SecurityCamera camera = new SecurityCamera(directory, cameras, levelGlobals.get("camera"), units);
+//            activate(camera);
+//            securityCameras.add(camera);
+//            cameras = cameras.next();
+//        }
 
 		// Lights
         JsonValue visionJson = levelFormat.get("visions");

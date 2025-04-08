@@ -16,6 +16,7 @@ package walknroll.zoodini.models.entities;
 
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
@@ -212,22 +213,26 @@ public class Avatar extends ZoodiniSprite {
         float[] pos = new float[2];
         pos[0] = properties.get("x", Float.class) / units;
         pos[1] = properties.get("y", Float.class) / units;
-		float radius = globals.getFloat("radius");
-		obstacle = new WheelObstacle(pos[0], pos[1], radius);
-		obstacle.setName(properties.get("name", String.class));
-		obstacle.setFixedRotation(false);
+		float radius = properties.get("radius",Float.class);
 
-		// Technically, we should do error checking here.
-		// A JSON field might accidentally be missing
-		obstacle.setBodyType(properties.get("bodyType", String.class).equals("static") ? BodyDef.BodyType.StaticBody
-				: BodyDef.BodyType.DynamicBody);
-		obstacle.setDensity(properties.get("density", Float.class));
-		obstacle.setFriction(properties.get("friction", Float.class));
-		obstacle.setRestitution(properties.get("restitution", Float.class));
+		obstacle = new WheelObstacle(pos[0], pos[1], radius);
+		obstacle.setName(properties.get("type", String.class));
+		obstacle.setFixedRotation(false);
+        obstacle.setBodyType(BodyType.DynamicBody);
+		obstacle.setDensity(1.0f);
+		obstacle.setFriction(0.0f);
+		obstacle.setRestitution(0.0f);
 		obstacle.setPhysicsUnits(units);
 
+//		obstacle.setBodyType(properties.get("bodyType", String.class).equals("static") ? BodyDef.BodyType.StaticBody
+//				: BodyDef.BodyType.DynamicBody);
+//		obstacle.setDensity(properties.get("density", Float.class));
+//		obstacle.setFriction(properties.get("friction", Float.class));
+//		obstacle.setRestitution(properties.get("restitution", Float.class));
+//		obstacle.setPhysicsUnits(units);
+
 		setForce(properties.get("force", Float.class));
-		setDamping(properties.get("damping", Float.class));
+		setDamping(10.0f);
 		setMaxSpeed(properties.get("maxSpeed", Float.class));
 
 		// Create the collision filter (used for light penetration)

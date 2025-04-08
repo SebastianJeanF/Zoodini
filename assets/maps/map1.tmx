@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="64" tileheight="64" infinite="0" nextlayerid="5" nextobjectid="5">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="64" tileheight="64" infinite="0" nextlayerid="6" nextobjectid="7">
  <tileset firstgid="1" source="outdoor2.tsx"/>
  <tileset firstgid="1025" source="dark_outdoor.tsx"/>
  <layer id="1" name="ground" width="30" height="20">
@@ -26,6 +26,18 @@
 1222,1222,1190,1190,1222,1222,1223,1224,1192,1192,1192,1192,1192,462,462,462,462,462,462,462,462,462,494,494,494,491,492,493,494,462
 </data>
  </layer>
+ <objectgroup id="5" name="cameras">
+  <object id="5" type="Camera" x="1587.51" y="757.492">
+   <properties>
+    <property name="angle" type="float" value="30"/>
+    <property name="collide" value="0101"/>
+    <property name="exclude" value="0000"/>
+    <property name="radius" type="float" value="0.2"/>
+    <property name="spriteRadius" type="float" value="0.6"/>
+   </properties>
+   <point/>
+  </object>
+ </objectgroup>
  <layer id="2" name="wall" width="30" height="20">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -97,6 +109,17 @@
     <property name="maxSpeed" type="float" value="5"/>
     <property name="radius" type="float" value="0.2"/>
     <property name="restitution" type="float" value="0"/>
+    <property name="spriteRadius" type="float" value="0.6"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="6" type="Guard" x="1332.86" y="688.189">
+   <properties>
+    <property name="collide" value="0001"/>
+    <property name="exclude" value="0000"/>
+    <property name="force" type="float" value="7"/>
+    <property name="maxSpeed" type="float" value="5"/>
+    <property name="radius" type="float" value="0.2"/>
     <property name="spriteRadius" type="float" value="0.6"/>
    </properties>
    <point/>

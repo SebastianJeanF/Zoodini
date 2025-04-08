@@ -1,6 +1,7 @@
 package walknroll.zoodini.models.entities;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.utils.JsonValue;
@@ -36,22 +37,24 @@ public class SecurityCamera extends ZoodiniSprite {
         return angle;
     }
 
-    public SecurityCamera(AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
-        float[] pos = json.get("pos").asFloatArray();
-        float radius = globals.getFloat("radius");
-        angle = json.get("angle").asFloat();
+    public SecurityCamera(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
+        float[] pos = new float[2];
+        pos[0] = properties.get("x", Float.class) / units;
+        pos[1] = properties.get("y", Float.class) / units;
+        float radius = properties.get("radius", Float.class);
+        angle = properties.get("angle", Float.class);
         obstacle = new WheelObstacle(pos[0], pos[1], radius);
-        obstacle.setName(json.name());
+        obstacle.setName(properties.get("type", String.class));
         obstacle.setFixedRotation(false);
 
         obstacle.setBodyType(BodyDef.BodyType.StaticBody);
-        obstacle.setDensity(globals.getFloat("density"));
-        obstacle.setFriction(globals.getFloat("friction"));
-        obstacle.setRestitution(globals.getFloat("restitution"));
+        obstacle.setDensity(1.0f);
+        obstacle.setFriction(0.0f);
+        obstacle.setRestitution(0.0f);
         obstacle.setPhysicsUnits(units);
 
-        short collideBits = GameLevel.bitStringToShort(globals.getString("collide"));
-        short excludeBits = GameLevel.bitStringToComplement(globals.getString("exclude"));
+        short collideBits = GameLevel.bitStringToShort(properties.get("collide", String.class));
+        short excludeBits = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
         Filter filter = new Filter();
         filter.categoryBits = collideBits;
         filter.maskBits = excludeBits;
@@ -59,12 +62,12 @@ public class SecurityCamera extends ZoodiniSprite {
 
         setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));
 
-        String key = globals.getString("texture");
+        String key = globals.getString("texture"); //TODO somehow pull texture from tiled?
         startFrame = globals.getInt("startframe");
         sprite = directory.getEntry(key, SpriteSheet.class);
         sprite.setFrame(startFrame);
 
-        float r = globals.getFloat("spriterad") * units;
+        float r = properties.get("spriteRadius", Float.class) * units;
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 
         disabledTime = disabledTimeRemaining = globals.getInt("disabledTime");
