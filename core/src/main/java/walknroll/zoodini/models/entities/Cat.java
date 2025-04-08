@@ -28,6 +28,11 @@ import edu.cornell.gdiac.assets.AssetDirectory;
 public class Cat extends Avatar {
     /// Whether or not this Gar instance has triggered the meow action
     private boolean meowed;
+    private final float abilityRange;
+
+    public float getAbilityRange() {
+        return abilityRange;
+    }
 
     /**
      * Gets the current value of <code>meowed</code>.
@@ -49,6 +54,7 @@ public class Cat extends Avatar {
 
     public Cat(AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
         super(AvatarType.CAT, directory, json, globals, units);
+        this.abilityRange = globals.getFloat("abilityRange");
     }
 
     @Override
