@@ -53,6 +53,7 @@
         "maxspeed": 5.0,
         "collide": "0001",
         "exclude": "0001",
+        "projectileRange": 3.5,
       "animations": {
         "idle" : "octopus-idle.animation",
         "walk" : "octopus-walk.animation"

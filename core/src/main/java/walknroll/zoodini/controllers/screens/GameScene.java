@@ -292,7 +292,7 @@ public class GameScene implements Screen, ContactListener {
             tmp2.set(tmp.x, tmp.y)
                 .scl(1.0f / level.getTileSize())
                 .sub(octopus.getPosition())
-                .clamp(0.0f, 5.0f); //this decides the distance for projectile to travel
+                .clamp(0.0f, octopus.getProjectileRange()); //this decides the distance for projectile to travel
             octopus.setTarget(tmp2); //set a target vector relative to octopus's position as origin.
 
             if(input.didAbility()) { //check for ink resource here.

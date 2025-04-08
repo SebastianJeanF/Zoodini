@@ -521,7 +521,7 @@ public class GameLevel {
 		Vector2 target = octopus.getTarget();
 
 		// TODO: a couple of magic numbers here need to be config values I think
-		Path2 reticlePath = new PathFactory().makeNgon(target.x + x, target.y + y, 1.0f, 64); //radius = 1.0m. 64 vertices
+		Path2 reticlePath = new PathFactory().makeNgon(target.x + x, target.y + y, 0.25f, 64); //radius = 1.0m. 64 vertices
 		PathExtruder extruder = new PathExtruder(reticlePath);
 		extruder.calculate(0.1f); //line thickness = 0.1m
         affineCache.idt();
