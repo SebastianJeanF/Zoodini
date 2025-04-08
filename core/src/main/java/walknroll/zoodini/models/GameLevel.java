@@ -32,9 +32,11 @@ package walknroll.zoodini.models;
 import box2dLight.*;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.maps.Map;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -54,6 +56,7 @@ import edu.cornell.gdiac.math.Path2;
 import edu.cornell.gdiac.math.PathExtruder;
 import edu.cornell.gdiac.math.PathFactory;
 import edu.cornell.gdiac.util.*;
+import java.util.Iterator;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Cat;
 import walknroll.zoodini.models.entities.Guard;
@@ -167,27 +170,51 @@ public class GameLevel {
 	 * @param levelGlobals the JSON file defining configs global to every level
 	 */
 	public void populate(AssetDirectory directory, JsonValue levelFormat, JsonValue levelGlobals) {
-		int[] gSize = levelGlobals.get("screen_size").asIntArray();
+        // Compute the FPS
+        int[] fps = levelGlobals.get("fps_range").asIntArray();
+        maxFPS = fps[1];
+        minFPS = fps[0];
+        timeStep = 1.0f / maxFPS;
+        maxSteps = 1.0f + (float) maxFPS / minFPS;
+        maxTimePerFrame = timeStep * maxSteps;
+
 
 		world = new World(Vector2.Zero, false);
         tiledMap = new TmxMapLoader().load(levelFormat.get("map").getString("file"));
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
-        TiledMapTileLayer layer = ((TiledMapTileLayer) tiledMap.getLayers().get("Floors"));
-        units = layer.getTileWidth();
-        int width = layer.getWidth(); //30
-        int height = layer.getHeight(); //20
+
+        TiledMapTileLayer ground = ((TiledMapTileLayer) tiledMap.getLayers().get("ground"));
+        units = ground.getTileWidth();
+        int width = ground.getWidth(); //30
+        int height = ground.getHeight(); //20
         bounds = new Rectangle(0,0,width,height);
 
-        createWallBodies();
 
-        // Compute the FPS
-		int[] fps = levelGlobals.get("fps_range").asIntArray();
-		maxFPS = fps[1];
-		minFPS = fps[0];
-		timeStep = 1.0f / maxFPS;
-		maxSteps = 1.0f + (float) maxFPS / minFPS;
-		maxTimePerFrame = timeStep * maxSteps;
+        TiledMapTileLayer wallLayer = (TiledMapTileLayer) tiledMap.getLayers().get("wall");
+        createWallBodies(wallLayer);
+
+
+        MapLayer playerSpawn = tiledMap.getLayers().get("players");
+        for(MapObject obj : playerSpawn.getObjects()){
+            MapProperties properties = obj.getProperties();
+            String type = properties.get("type", String.class);
+            if("Cat".equalsIgnoreCase(type)){
+                avatarCat = new Cat(directory, properties, levelGlobals.get("avatarCat"), units);
+                activate(avatarCat);
+            } else if("Octopus".equalsIgnoreCase(type)){
+                avatarOctopus = new Octopus(directory, properties, levelGlobals.get("avatarOctopus"), units);
+                activate(avatarOctopus);
+            }
+        }
+
+
+        MapLayer guardSpawn = tiledMap.getLayers().get("guards");
+        for(MapObject obj : guardSpawn.getObjects()){
+            MapProperties properties = obj.getProperties();
+            guards.add(new Guard(directory, properties, levelGlobals.get("guard"), units));
+            activate(guards.peek());
+        }
 
 		// Walls
 		goalDoor = new Door(directory, levelFormat.get("door"), levelGlobals.get("door"), units);
@@ -202,23 +229,6 @@ public class GameLevel {
             key = new Key(directory, keyData, levelGlobals.get("key"), units);
             activate(key);
         }
-
-		JsonValue catData = levelFormat.get("avatarCat");
-		avatarCat = new Cat(directory, catData, levelGlobals.get("avatarCat"), units);
-		activate(avatarCat);
-
-//		// Avatars
-		JsonValue octopusData = levelFormat.get("avatarOctopus");
-		avatarOctopus = new Octopus(directory, octopusData, levelGlobals.get("avatarOctopus"), units);
-		activate(avatarOctopus);
-//
-//		// Enemies
-		JsonValue json = levelFormat.getChild("guards");
-		while (json != null) {
-			guards.add(new Guard(directory, json, levelGlobals.get("guard"), units));
-			activate(guards.peek());
-            json = json.next();
-		}
 
         // Security Cameras
         JsonValue cameras = levelFormat.getChild("cameras");
@@ -271,8 +281,12 @@ public class GameLevel {
         }
     }
 
-    private void createWallBodies(){
-        TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get("Walls");
+
+    /**
+     * Create and register rectangle obstacles from a tile layer.
+     * The layer must consist of tiles that has an object assigned to it.
+     * */
+    private void createWallBodies(TiledMapTileLayer layer){
         float tileSize = getTileSize();
 
         for (int x = 0; x < layer.getWidth(); x++) {

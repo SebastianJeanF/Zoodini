@@ -32,7 +32,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
      * @param diagonal whether diagonal movement is allowed
      */
     public TileGraph(TiledMap map, boolean diagonal) {
-        TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("Walls");
+        TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("wall");
         WIDTH = layer.getWidth();
         HEIGHT = layer.getHeight();
         this.nodes = new Array<TileNode>(WIDTH * HEIGHT);
