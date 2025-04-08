@@ -16,17 +16,7 @@
       "category" : "0000"
     },
     "avatarCat": {
-        "radius": 0.4,
-        "spriterad": 4.0,
-        "bodytype": "dynamic",
-        "density": 1.0,
-        "friction": 0.0,
-        "restitution": 0.0,
-        "force": 110.0,
-        "damping": 10.0,
-        "maxspeed": 10.0,
-        "collide": "0001",
-        "exclude": "0001",
+
         "abilityRange": 5,
       "animations": {
         "idle" : "cat-idle.animation",
@@ -165,5 +155,5 @@
     "density":      1.0,
     "friction":     0.0,
     "restitution":  0.0
-  },
+  }
 }
