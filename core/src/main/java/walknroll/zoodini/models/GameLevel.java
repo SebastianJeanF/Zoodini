@@ -37,6 +37,8 @@ import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.objects.EllipseMapObject;
+import com.badlogic.gdx.maps.objects.PolygonMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -190,9 +192,8 @@ public class GameLevel {
         int height = ground.getHeight(); //20
         bounds = new Rectangle(0,0,width,height);
 
-
-        TiledMapTileLayer wallLayer = (TiledMapTileLayer) tiledMap.getLayers().get("wall");
-        createWallBodies(wallLayer);
+        MapLayer walls = tiledMap.getLayers().get("walls");
+        createWallBodies(walls);
 
 
         MapLayer playerSpawn = tiledMap.getLayers().get("players");
@@ -295,28 +296,18 @@ public class GameLevel {
      * Create and register rectangle obstacles from a tile layer.
      * The layer must consist of tiles that has an object assigned to it.
      * */
-    private void createWallBodies(TiledMapTileLayer layer){
+    private void createWallBodies(MapLayer layer){
         float tileSize = getTileSize();
-
-        for (int x = 0; x < layer.getWidth(); x++) {
-            for (int y = 0; y < layer.getHeight(); y++) {
-                TiledMapTileLayer.Cell cell = layer.getCell(x, y);
-                if (cell == null)
-                    continue;
-
-                MapObjects cellObjects = cell.getTile().getObjects();
-                if (cellObjects.getCount() != 1)
-                    continue;
-
-                MapObject mapObject = cellObjects.get(0);
-                if (mapObject instanceof RectangleMapObject rectangleObject){
-                    Rectangle rectangle = rectangleObject.getRectangle(); //in pixels
-                    Obstacle obstacle =
-                    new BoxObstacle(
-                        x + 1/2f, y + 1/2f,
-                        rectangle.getWidth() / tileSize,
-                        rectangle.getHeight() / tileSize
-                    );
+        for(MapObject wall : layer.getObjects()){
+            if (wall instanceof RectangleMapObject rec)
+            {
+                Rectangle rectangle = rec.getRectangle(); //dimensions given in pixels
+                Obstacle obstacle = new BoxObstacle(
+                    (rectangle.x + rectangle.width / 2) / units,
+                    (rectangle.y + rectangle.height / 2) / units,
+                    rectangle.width / units,
+                    rectangle.height / units
+                );
 
                 obstacle.setPhysicsUnits(units);
                 obstacle.setBodyType(BodyType.StaticBody);
@@ -330,9 +321,52 @@ public class GameLevel {
 
                 objects.add(obstacle);
                 obstacle.activatePhysics(world);
-                }
+            }
+            else if (wall instanceof EllipseMapObject e)
+            {
+                Ellipse ellipse = e.getEllipse();
+            }
+            else if (wall instanceof PolygonMapObject poly)
+            {
+                Polygon polygon = poly.getPolygon();
             }
         }
+
+//        for (int x = 0; x < layer.getWidth(); x++) {
+//            for (int y = 0; y < layer.getHeight(); y++) {
+//                TiledMapTileLayer.Cell cell = layer.getCell(x, y);
+//                if (cell == null)
+//                    continue;
+//
+//                MapObjects cellObjects = cell.getTile().getObjects();
+//                if (cellObjects.getCount() != 1)
+//                    continue;
+//
+//                MapObject mapObject = cellObjects.get(0);
+//                if (mapObject instanceof RectangleMapObject rectangleObject){
+//                    Rectangle rectangle = rectangleObject.getRectangle(); //in pixels
+//                    Obstacle obstacle =
+//                    new BoxObstacle(
+//                        x + 1/2f, y + 1/2f,
+//                        rectangle.getWidth() / tileSize,
+//                        rectangle.getHeight() / tileSize
+//                    );
+//
+//                obstacle.setPhysicsUnits(units);
+//                obstacle.setBodyType(BodyType.StaticBody);
+//
+//                Filter filter = new Filter();
+//                short collideBits = GameLevel.bitStringToShort("0100");
+//                short excludeBits = GameLevel.bitStringToComplement("0000");
+//                filter.categoryBits = collideBits;
+//                filter.maskBits = excludeBits;
+//                obstacle.setFilterData(filter);
+//
+//                objects.add(obstacle);
+//                obstacle.activatePhysics(world);
+//                }
+//            }
+//        }
     }
 
 

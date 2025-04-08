@@ -13,24 +13,17 @@ public class TileNode{
 
     public final int x;
     public final int y;
-    public final Cell cell;
     private final int mapHeight;
     public boolean isWall;
 
     protected Array<Connection<TileNode>> connections;
 
-    public TileNode (int x, int y, Cell cell, Array<Connection<TileNode>> connections, int mapHeight) {
+    public TileNode (int x, int y, boolean isWall, Array<Connection<TileNode>> connections, int mapHeight) {
         this.x = x;
         this.y = y;
-        this.cell = cell;
         this.connections = connections;
         this.mapHeight = mapHeight;
-//        if(cell != null) {
-//            this.isWall = true;
-//        } //TODO: set isWall based on the Cell
-        if(cell != null) {
-            this.isWall = cell.getTile().getObjects().getCount() == 1;
-        }
+        this.isWall = isWall;
     }
 
     //TODO: is there a better way to let nodes know the height of map?
