@@ -16,7 +16,6 @@
       "category" : "0000"
     },
     "avatarCat": {
-
         "abilityRange": 5,
       "animations": {
         "idle" : "cat-idle.animation",
@@ -33,17 +32,6 @@
         "debug": "#ffffffC0"
     },
     "avatarOctopus": {
-        "radius": 0.4,
-        "spriterad": 0.6,
-        "bodytype": "dynamic",
-        "density": 1.0,
-        "friction": 0.0,
-        "restitution": 0.0,
-        "force": 80.0,
-        "damping": 10.0,
-        "maxspeed": 5.0,
-        "collide": "0001",
-        "exclude": "0001",
         "abilityRange": 3.5,
       "animations": {
         "idle" : "octopus-idle.animation",

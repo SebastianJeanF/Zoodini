@@ -65,6 +65,7 @@
  <objectgroup id="3" name="players">
   <object id="1" name="Cat" type="Cat" x="1690.67" y="572">
    <properties>
+    <property name="abilityRange" type="float" value="5"/>
     <property name="bodyType" value="dynamic"/>
     <property name="collide" value="0001"/>
     <property name="damping" type="float" value="10"/>
@@ -81,6 +82,7 @@
   </object>
   <object id="2" name="Octopus" type="Octopus" x="1268" y="946.667">
    <properties>
+    <property name="abilityRange" type="float" value="3"/>
     <property name="bodyType" value="dynamic"/>
     <property name="collide" value="0001"/>
     <property name="damping" type="float" value="10"/>

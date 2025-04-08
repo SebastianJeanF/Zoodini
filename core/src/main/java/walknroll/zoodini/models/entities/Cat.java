@@ -55,7 +55,7 @@ public class Cat extends Avatar {
 
     public Cat(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
         super(AvatarType.CAT, directory, properties, globals, units);
-        this.abilityRange = globals.getFloat("abilityRange");
+        this.abilityRange = properties.get("abilityRange", Float.class);
     }
 
     @Override

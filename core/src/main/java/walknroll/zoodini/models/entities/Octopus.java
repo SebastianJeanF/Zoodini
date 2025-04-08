@@ -75,10 +75,10 @@ public class Octopus extends Avatar {
 
     public Octopus(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
         super(AvatarType.OCTOPUS, directory, properties, globals, units);
-        float r = globals.getFloat("spriterad") * OCTOPUS_IMAGE_SCALE * units;
+        float r = properties.get("spriteRadius", Float.class) * OCTOPUS_IMAGE_SCALE * units;
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
         target = new Vector2();
-        this.abilityRange = globals.getFloat("abilityRange");
+        this.abilityRange = properties.get("abilityRange", Float.class);
     }
 
     @Override
