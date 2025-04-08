@@ -134,6 +134,7 @@
     "restitution": 0.0,
     "collide": "0010",
     "exclude": "0000",
+    "excludeUnlocked": "0011",
     "texture": "locked_door",
     "locked_texture": "locked_door",
     "debug": "#ffff00C8"
