@@ -46,17 +46,6 @@
         "debug": "#ffffffC0"
     },
     "guard": {
-        "radius": 0.2,
-        "spriterad": 0.6,
-        "bodytype": "dynamic",
-        "density": 1.0,
-        "friction": 0.0,
-        "restitution": 0.0,
-        "force": 7.0,
-        "damping": 10.0,
-        "maxspeed": 5.0,
-        "collide": "0010",
-        "exclude": "0000",
       "animations": {
         "idle": "dude-idle.animation",
         "walk" : "dude-walk.animation"
@@ -72,18 +61,9 @@
         "debug": "#ffffffC0"
     },
     "camera": {
-        "radius": 0.2,
-        "spriterad": 0.6,
-        "angle": 90,
         "startframe": 0,
-        "collide": "0101",
-        "exclude": "0000",
         "texture": "security-camera.camera",
-        "debug": "#ffffffC0",
-        "density": 1.0,
-        "friction": 0.0,
-        "restitution": 0.0,
-        "disabledTime": 300
+        "debug": "#ffffffC0"
     },
   "key": {
     "size": [

@@ -31,6 +31,7 @@
    <properties>
     <property name="angle" type="float" value="30"/>
     <property name="collide" value="0101"/>
+    <property name="disabledTime" type="float" value="300"/>
     <property name="exclude" value="0000"/>
     <property name="radius" type="float" value="0.2"/>
     <property name="spriteRadius" type="float" value="0.6"/>

@@ -20,8 +20,8 @@ public class SecurityCamera extends ZoodiniSprite {
     private int startFrame;
 
     private boolean isDisabled;
-    private int disabledTime;
-    private int disabledTimeRemaining;
+    private float disabledTime;
+    private float disabledTimeRemaining;
 
     private float angle;
 
@@ -70,7 +70,7 @@ public class SecurityCamera extends ZoodiniSprite {
         float r = properties.get("spriteRadius", Float.class) * units;
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 
-        disabledTime = disabledTimeRemaining = globals.getInt("disabledTime");
+        disabledTime = disabledTimeRemaining = properties.get("disabledTime", Float.class);
 
         isDisabled = false;
     }
