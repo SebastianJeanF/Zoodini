@@ -283,7 +283,7 @@ public class GameScene implements Screen, ContactListener {
         float vertical = input.getVertical();
         float horizontal = input.getHorizontal();
         moveAvatar(vertical, horizontal, avatar);
-
+        checkFlipSprite(avatar, input);
 
         if(avatar.getAvatarType() == AvatarType.OCTOPUS){
             Octopus octopus = (Octopus) avatar;
@@ -292,7 +292,7 @@ public class GameScene implements Screen, ContactListener {
             tmp2.set(tmp.x, tmp.y)
                 .scl(1.0f / level.getTileSize())
                 .sub(octopus.getPosition())
-                .clamp(0.0f, 5.0f); //this decides the distance for projectile to travel
+                .clamp(0.0f, octopus.getAbilityRange()); //this decides the distance for projectile to travel
             octopus.setTarget(tmp2); //set a target vector relative to octopus's position as origin.
 
             if(input.didAbility()) { //check for ink resource here.
@@ -340,7 +340,7 @@ public class GameScene implements Screen, ContactListener {
             activateInkProjectile(inkProjectile, octopus.getPosition(), octopus.getTarget());
         }
 
-        if(inkProjectile.getPosition().dst(inkProjectile.getStartPosition()) > octopus.getTarget().len()){
+        if(inkProjectile.getPosition().dst(inkProjectile.getStartPosition()) > inkProjectile.getEndPosition().len()){
             //TODO: need fix: sometimes the projectile disappears in the middle
             inkProjectile.setShouldDestroy(true);
         }
@@ -496,6 +496,7 @@ public class GameScene implements Screen, ContactListener {
         projectile.activate();
         projectile.setPosition(origin);
         projectile.setStartPosition(origin);
+        projectile.setEndPosition(target);
         projectile.setMovement(target.nor());
         projectile.applyForce();
     }

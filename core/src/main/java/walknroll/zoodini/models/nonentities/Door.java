@@ -39,6 +39,10 @@ public class Door extends ZoodiniSprite {
     /** Whether this door is being unlocked at current frame*/
     private boolean isUnlocking;
 
+    private short collideBits;
+    private short excludeBitsLocked;
+    private short excludeBitsUnlocked;
+
 
     public boolean isUnlocking() {
         return isUnlocking;
@@ -79,7 +83,11 @@ public class Door extends ZoodiniSprite {
         locked = value;
         // When the door is locked, disable the sensor (door acts as a wall).
         // When unlocked, enable the sensor (door lets you pass through).
-        obstacle.setSensor(!locked);
+        Filter filter = new Filter();
+        filter.categoryBits = this.collideBits;
+        filter.maskBits = locked ? this.excludeBitsLocked : this.excludeBitsUnlocked;
+        obstacle.setFilterData(filter);
+        // obstacle.setSensor(!locked);
         setTextureRegion(locked ? lockedTexture : unlockedTexture);
     }
 
@@ -114,11 +122,12 @@ public class Door extends ZoodiniSprite {
 		obstacle.setRestitution(globals.get("restitution").asFloat());
 
 		// Create the collision filter (used for light penetration)
-		short collideBits = GameLevel.bitStringToShort(globals.get("collide").asString());
-		short excludeBits = GameLevel.bitStringToComplement(globals.get("exclude").asString());
+		this.collideBits = GameLevel.bitStringToShort(globals.get("collide").asString());
+		this.excludeBitsLocked = GameLevel.bitStringToComplement(globals.get("exclude").asString());
+		this.excludeBitsUnlocked = GameLevel.bitStringToComplement(globals.get("excludeUnlocked").asString());
 		Filter filter = new Filter();
-		filter.categoryBits = collideBits;
-		filter.maskBits = excludeBits;
+		filter.categoryBits = this.collideBits;
+		filter.maskBits = this.excludeBitsLocked;
 		obstacle.setFilterData(filter);
 
 		setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));

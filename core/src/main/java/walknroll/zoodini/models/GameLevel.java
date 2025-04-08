@@ -126,7 +126,7 @@ public class GameLevel {
     /** Map */
     private TiledMap tiledMap;
     /** Size of one tile. This serves as scaling factor for all drawings */
-    private int units;
+    private float units;
 
     RayHandler rayHandler;
 
@@ -273,7 +273,7 @@ public class GameLevel {
 
     private void createWallBodies(){
         TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get("Walls");
-        int tileSize = getTileSize();
+        float tileSize = getTileSize();
 
         for (int x = 0; x < layer.getWidth(); x++) {
             for (int y = 0; y < layer.getHeight(); y++) {
@@ -521,12 +521,19 @@ public class GameLevel {
 		Vector2 target = octopus.getTarget();
 
 		// TODO: a couple of magic numbers here need to be config values I think
-		Path2 reticlePath = new PathFactory().makeNgon(target.x + x, target.y + y, 1.0f, 64); //radius = 1.0m. 64 vertices
-		PathExtruder extruder = new PathExtruder(reticlePath);
-		extruder.calculate(0.1f); //line thickness = 0.1m
+		Path2 reticlePath = new PathFactory().makeNgon(target.x + x, target.y + y, 0.25f, 64); //radius = 1.0m. 64 vertices
+		PathExtruder reticleExtruder = new PathExtruder(reticlePath);
+		reticleExtruder.calculate(0.1f); //line thickness = 0.1m
         affineCache.idt();
         affineCache.scale(getTileSize(), getTileSize());
-		batch.draw((TextureRegion) null, extruder.getPolygon(), affineCache);
+		batch.draw((TextureRegion) null, reticleExtruder.getPolygon(), affineCache);
+
+        Path2 rangePath = new PathFactory().makeNgon(x, y, octopus.getAbilityRange(), 64); //radius = 1.0m. 64 vertices
+		PathExtruder rangeExtruder = new PathExtruder(rangePath);
+		rangeExtruder.calculate(0.05f); //line thickness = 0.05m
+        affineCache.idt();
+        affineCache.scale(getTileSize(), getTileSize());
+		batch.draw((TextureRegion) null, rangeExtruder.getPolygon(), affineCache);
 		batch.setColor(Color.WHITE);
 	}
 
@@ -739,7 +746,7 @@ public class GameLevel {
         return tiledMap;
     }
 
-    public int getTileSize(){
+    public float getTileSize(){
         return units;
     }
 }

@@ -53,7 +53,7 @@ public class DesktopLauncher {
      */
     private static GDXAppSettings configureApplication() {
         GDXAppSettings config = new GDXAppSettings();
-        config.title = "Box2d Lights";
+        config.title = "Zoodini";
 
         // Use windowed mode
         config.fullscreen = false;
@@ -64,7 +64,7 @@ public class DesktopLauncher {
         config.rawHDPI = false;
 
         // Use OpenGLES 2.0
-         config.useGL30 = false;
+        config.useGL30 = false;
 
         // Window icons used by Windows (in Resources folder)
         config.iconList = "icons.txt";

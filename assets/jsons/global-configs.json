@@ -17,7 +17,7 @@
     },
     "avatarCat": {
         "radius": 0.4,
-        "spriterad": 0.6,
+        "spriterad": 0.5,
         "bodytype": "dynamic",
         "density": 1.0,
         "friction": 0.0,
@@ -27,16 +27,17 @@
         "maxspeed": 10.0,
         "collide": "0001",
         "exclude": "0001",
+        "abilityRange": 5,
       "animations": {
         "idle" : "cat-idle.animation",
         "walk" : "cat-walk.animation"
       },
       "frameDelays": {
-        "idle" : 32,
+        "idle" : 16,
         "walk" : 8
       },
       "startFrames": {
-        "idle" : 5,
+        "idle" : 0,
         "walk" : 0
       },
         "debug": "#ffffffC0"
@@ -53,6 +54,7 @@
         "maxspeed": 5.0,
         "collide": "0001",
         "exclude": "0001",
+        "abilityRange": 3.5,
       "animations": {
         "idle" : "octopus-idle.animation",
         "walk" : "octopus-walk.animation"
@@ -132,6 +134,7 @@
     "restitution": 0.0,
     "collide": "0010",
     "exclude": "0000",
+    "excludeUnlocked": "0011",
     "texture": "locked_door",
     "locked_texture": "locked_door",
     "debug": "#ffff00C8"

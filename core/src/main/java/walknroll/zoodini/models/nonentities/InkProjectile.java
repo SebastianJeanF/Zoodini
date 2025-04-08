@@ -28,6 +28,7 @@ public class InkProjectile extends ZoodiniSprite {
 
     /** The position that this projectile was shot */
     private Vector2 startPosition = new Vector2();
+    private Vector2 endPosition = new Vector2();
 
     private int startFrame;
 
@@ -40,6 +41,14 @@ public class InkProjectile extends ZoodiniSprite {
 
     public void setStartPosition(Vector2 p){
         startPosition.set(p);
+    }
+
+    public Vector2 getEndPosition(){
+        return endPosition;
+    }
+
+    public void setEndPosition(Vector2 p){
+        endPosition.set(p);
     }
 
 
