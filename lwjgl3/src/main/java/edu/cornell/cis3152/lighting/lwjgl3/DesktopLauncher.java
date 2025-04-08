@@ -53,7 +53,7 @@ public class DesktopLauncher {
      */
     private static GDXAppSettings configureApplication() {
         GDXAppSettings config = new GDXAppSettings();
-        config.title = "Box2d Lights";
+        config.title = "Zoodini";
 
         // Use windowed mode
         config.fullscreen = false;
