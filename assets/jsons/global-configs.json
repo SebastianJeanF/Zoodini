@@ -27,6 +27,7 @@
         "maxspeed": 10.0,
         "collide": "0001",
         "exclude": "0001",
+        "abilityRange": 5,
       "animations": {
         "idle" : "cat-idle.animation",
         "walk" : "cat-walk.animation"
@@ -53,7 +54,7 @@
         "maxspeed": 5.0,
         "collide": "0001",
         "exclude": "0001",
-        "projectileRange": 3.5,
+        "abilityRange": 3.5,
       "animations": {
         "idle" : "octopus-idle.animation",
         "walk" : "octopus-walk.animation"

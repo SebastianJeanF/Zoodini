@@ -15,7 +15,7 @@ public class Octopus extends Avatar {
     /// Whether or not this Otto instance has triggered the blind action
     private boolean inked;
     private final float OCTOPUS_IMAGE_SCALE = 1.25f;
-    private final float projectileRange;
+    private final float abilityRange;
     /// Whether this Octopus is currently aiming at a target
     private boolean currentlyAiming;
 
@@ -25,8 +25,8 @@ public class Octopus extends Avatar {
     /// Whether this Octopus has fired an ink projectile
     private boolean didFire;
 
-    public float getProjectileRange() {
-        return projectileRange;
+    public float getAbilityRange() {
+        return abilityRange;
     }
 
     public boolean didFire() {
@@ -77,7 +77,7 @@ public class Octopus extends Avatar {
         float r = globals.getFloat("spriterad") * OCTOPUS_IMAGE_SCALE * units;
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
         target = new Vector2();
-        this.projectileRange = globals.getFloat("projectileRange");
+        this.abilityRange = globals.getFloat("abilityRange");
     }
 
     @Override

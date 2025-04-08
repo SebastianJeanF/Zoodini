@@ -522,11 +522,18 @@ public class GameLevel {
 
 		// TODO: a couple of magic numbers here need to be config values I think
 		Path2 reticlePath = new PathFactory().makeNgon(target.x + x, target.y + y, 0.25f, 64); //radius = 1.0m. 64 vertices
-		PathExtruder extruder = new PathExtruder(reticlePath);
-		extruder.calculate(0.1f); //line thickness = 0.1m
+		PathExtruder reticleExtruder = new PathExtruder(reticlePath);
+		reticleExtruder.calculate(0.1f); //line thickness = 0.1m
         affineCache.idt();
         affineCache.scale(getTileSize(), getTileSize());
-		batch.draw((TextureRegion) null, extruder.getPolygon(), affineCache);
+		batch.draw((TextureRegion) null, reticleExtruder.getPolygon(), affineCache);
+
+        Path2 rangePath = new PathFactory().makeNgon(x, y, octopus.getAbilityRange(), 64); //radius = 1.0m. 64 vertices
+		PathExtruder rangeExtruder = new PathExtruder(rangePath);
+		rangeExtruder.calculate(0.05f); //line thickness = 0.05m
+        affineCache.idt();
+        affineCache.scale(getTileSize(), getTileSize());
+		batch.draw((TextureRegion) null, rangeExtruder.getPolygon(), affineCache);
 		batch.setColor(Color.WHITE);
 	}
 
