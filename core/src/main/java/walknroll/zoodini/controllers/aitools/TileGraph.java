@@ -2,6 +2,7 @@ package walknroll.zoodini.controllers.aitools;
 
 
 import com.badlogic.gdx.ai.pfa.Connection;
+import com.badlogic.gdx.ai.pfa.PathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
@@ -18,6 +19,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import edu.cornell.gdiac.graphics.SpriteBatch;
+import edu.cornell.gdiac.math.Path2;
+import edu.cornell.gdiac.math.PathFactory;
 import edu.cornell.gdiac.math.Poly2;
 import edu.cornell.gdiac.math.PolyFactory;
 
@@ -122,6 +125,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
 
     Affine2 cache = new Affine2();
     PolyFactory pf = new PolyFactory();
+    PathFactory pathFactory = new PathFactory();
     Color c = Color.WHITE;
 
     public void draw(SpriteBatch batch, Camera camera, float units) {
@@ -141,8 +145,10 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
                 c = Color.MAGENTA;
             }
             Poly2 polygon = pf.makeNgon(node.x + 0.5f, node.y + 0.5f, 0.1f, 10);
+            Path2 rect = pathFactory.makeRect(node.x, node.y, 0.95f, 0.95f);
             batch.setColor(c);
             batch.fill(polygon, cache);
+            batch.outline(rect, cache);
         }
         batch.end();
         batch.setColor(Color.WHITE);
