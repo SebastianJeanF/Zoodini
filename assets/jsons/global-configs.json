@@ -16,7 +16,6 @@
       "category" : "0000"
     },
     "avatarCat": {
-        "abilityRange": 5,
       "animations": {
         "idle" : "cat-idle.animation",
         "walk" : "cat-walk.animation"
@@ -32,7 +31,6 @@
         "debug": "#ffffffC0"
     },
     "avatarOctopus": {
-        "abilityRange": 3.5,
       "animations": {
         "idle" : "octopus-idle.animation",
         "walk" : "octopus-walk.animation"
