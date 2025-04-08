@@ -171,7 +171,7 @@ public class GameLevel {
 	 */
 	public void populate(AssetDirectory directory, JsonValue levelFormat, JsonValue levelGlobals) {
         // Compute the FPS
-        int[] fps = levelGlobals.get("fps_range").asIntArray();
+        int[] fps = {20, 60};
         maxFPS = fps[1];
         minFPS = fps[0];
         timeStep = 1.0f / maxFPS;

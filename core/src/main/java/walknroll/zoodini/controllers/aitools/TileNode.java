@@ -25,9 +25,12 @@ public class TileNode{
         this.cell = cell;
         this.connections = connections;
         this.mapHeight = mapHeight;
+//        if(cell != null) {
+//            this.isWall = true;
+//        } //TODO: set isWall based on the Cell
         if(cell != null) {
-            this.isWall = true;
-        } //TODO: set isWall based on the Cell
+            this.isWall = cell.getTile().getObjects().getCount() == 1;
+        }
     }
 
     //TODO: is there a better way to let nodes know the height of map?

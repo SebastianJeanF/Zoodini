@@ -1,12 +1,4 @@
 {
-    "screen_size": [
-        1000,
-        750
-    ],
-    "fps_range": [
-        20,
-        60
-    ],
     "visions" : {
       "rayNum" : 60,
       "radius" : 2.0,

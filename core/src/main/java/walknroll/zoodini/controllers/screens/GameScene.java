@@ -54,7 +54,7 @@ import java.util.HashMap;
  */
 public class GameScene implements Screen, ContactListener {
 
-    private boolean debug = false;
+    private boolean debug = true;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
