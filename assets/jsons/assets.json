@@ -32,8 +32,8 @@
             "wrap":  	false,
             "sprites":	{
             "animation" : {
-                "size" : 8,
-                "rows" : 2,
+                "size" : 4,
+                "rows" : 1,
                 "cols" : 4
             }
             }

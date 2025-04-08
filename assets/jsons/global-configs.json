@@ -17,7 +17,7 @@
     },
     "avatarCat": {
         "radius": 0.4,
-        "spriterad": 0.6,
+        "spriterad": 0.5,
         "bodytype": "dynamic",
         "density": 1.0,
         "friction": 0.0,
@@ -32,11 +32,11 @@
         "walk" : "cat-walk.animation"
       },
       "frameDelays": {
-        "idle" : 32,
+        "idle" : 16,
         "walk" : 8
       },
       "startFrames": {
-        "idle" : 5,
+        "idle" : 0,
         "walk" : 0
       },
         "debug": "#ffffffC0"
