@@ -38,11 +38,14 @@ public class Door extends ZoodiniSprite {
     private float remainingTimeToUnlock;
     /** Whether this door is being unlocked at current frame*/
     private boolean isUnlocking;
+    private static final float UNLOCK_DURATION = 3.0f;
 
 
     public boolean isUnlocking() {
         return isUnlocking;
     }
+
+    public float getUnlockDuration(){return UNLOCK_DURATION;}
 
     public void setUnlocking(boolean unlocking) {
         isUnlocking = unlocking;

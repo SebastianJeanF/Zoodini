@@ -5,12 +5,14 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.TextAlign;
 import edu.cornell.gdiac.graphics.TextLayout;
+import walknroll.zoodini.utils.CircleTimer;
 
 public class UIController {
 
@@ -20,6 +22,9 @@ public class UIController {
     public static final int UNLOCKED = 3;
     public static final int KEY_COLLECTED = 4;
     public static final int INTERRUPTED = 5;
+
+    private CircleTimer unlockTimer;
+    private boolean showUnlockTimer = false;
 
     protected OrthographicCamera camera;
     /** The font for giving messages to the player */
@@ -74,6 +79,8 @@ public class UIController {
         interrupted = new TextLayout("Unlocking Interrupted!", displayFont);
         interrupted.setAlignment(TextAlign.middleCenter);
         interrupted.setColor(Color.YELLOW);
+        //Initializing unlock timer
+        unlockTimer = new CircleTimer(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 30, Color.YELLOW);
 
 
 
@@ -95,8 +102,18 @@ public class UIController {
         messageLocations.put(interrupted, new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2));
     }
 
-    public void reset(){
 
+    public void showUnlockProgress(float progress) {
+        showUnlockTimer = true;
+        unlockTimer.setProgress(progress);
+
+
+    }
+    public void hideUnlockProgress() {
+        showUnlockTimer = false;
+    }
+    public void reset(){
+    hideUnlockProgress();
     }
 
     public void setFont(BitmapFont f){
@@ -108,6 +125,20 @@ public class UIController {
     }
 
     public void draw(SpriteBatch batch) {
-
+        boolean wasDrawing = batch.isDrawing();
+        if (showUnlockTimer) {
+            if (wasDrawing) {
+                batch.end();
+            }
+            unlockTimer.draw();
+            if (wasDrawing){
+                batch.begin(camera);
+            }
+        }
+    }
+    public void dispose() {
+        if (unlockTimer != null) {
+            unlockTimer.dispose();
+        }
     }
 }
