@@ -702,33 +702,6 @@ public class GameScene implements Screen, ContactListener {
                 }
             }
 
-            // Handle key pickup
-//            if(!keyCollected && level.getKey() != null) {
-//                Obstacle keyObs = level.getKey().getObstacle();
-//                if(((o1 == cat || o1 == oct) && o2 == keyObs) ||
-//                    ((o2 == cat || o2 == oct) && o1 == keyObs)){
-//                    keyCollected = true;
-//                    level.getKey().setCollected(true);
-//                    if (o1 == cat || o2 == cat){keyCollector = level.getCat();}
-//                    else if (o1 == oct || o2 == oct){keyCollector = level.getOctopus();}
-//
-//                    // Display a message that key was collected
-//                    // Make the message disappear after a few seconds
-//                    keyMessageTimer = 120; // 2 seconds at 60 fps
-//                }
-//            }
-//
-//            // Handle door unlocking
-//            if(keyCollected && level.getDoor().isLocked() && keyCollector != null) {
-//                // Check if the key collector is standing on the door
-//                if((o1 == keyCollector.getObstacle() && o2 == door) ||
-//                    (o2 == keyCollector.getObstacle() && o1 == door)) {
-//                    isUnlocking = true;
-//
-//                    // Display unlocking message
-//                }
-//            }
-
             // Handle exit collision (only if door is unlocked)
             if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
                 catArrived = true;

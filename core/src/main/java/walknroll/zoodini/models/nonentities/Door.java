@@ -9,6 +9,7 @@
  */
 package walknroll.zoodini.models.nonentities;
 
+import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.utils.*;
@@ -20,6 +21,7 @@ import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.assets.ParserUtils;
 import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.physics2.*;
+import java.util.Iterator;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.utils.ZoodiniSprite;
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="64" tileheight="64" infinite="0" nextlayerid="10" nextobjectid="21">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="64" tileheight="64" infinite="0" nextlayerid="10" nextobjectid="22">
  <tileset firstgid="1" name="outdoor" tilewidth="64" tileheight="64" tilecount="1024" columns="32">
   <image source="../tilesets/outdoor.png" width="2048" height="2048"/>
  </tileset>
@@ -54,6 +54,7 @@
     <property name="force" type="float" value="1.5"/>
     <property name="fov" type="float" value="60"/>
     <property name="maxSpeed" type="float" value="5"/>
+    <property name="path" type="object" value="21"/>
     <property name="radius" type="float" value="0.2"/>
     <property name="spriteRadius" type="float" value="0.6"/>
     <property name="viewDistance" type="float" value="5"/>
@@ -113,6 +114,9 @@
     <property name="spriteRadius" type="float" value="0.6"/>
    </properties>
    <point/>
+  </object>
+  <object id="21" name="path" x="926.667" y="994.667">
+   <polyline points="0,0 444,1.33333"/>
   </object>
  </objectgroup>
  <objectgroup id="9" name="walls">
