@@ -353,8 +353,15 @@ public class Avatar extends ZoodiniSprite {
             float y = this.obstacle.getY();
             float a = this.obstacle.getAngle();
             float u = this.obstacle.getPhysicsUnits();
+
             this.transform.idt();
-            this.transform.preRotate((float)((double)(a * 180.0F) / Math.PI));
+
+            // Only apply rotation if we're moving
+            if (getMovement().len2() > 0.01f) {
+                this.transform.preRotate((float)((double)(a * 180.0F) / Math.PI));
+            } else { // Otherwise, no rotation
+                this.transform.preRotate(0.0F);
+            }
             this.transform.preTranslate(x * u, y * u);
             if (flipped) {
                 this.transform.scale(-1.0F, 1.0F);
