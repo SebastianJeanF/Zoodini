@@ -1,10 +1,5 @@
 {
     "textures": {
-    	"earth": {
-    		"file":	 "textures/dirt.png",
-			"wrapU": "repeated",
-			"wrapV": "repeated"
-    	},
       "guard-idle": {
         "file": 	"textures/guard_walking.png",
         "wrap":  	false,
@@ -118,8 +113,7 @@
   	},
 	"jsons" : {
         "constants" : "jsons/constants.json",
-		"level1" : "jsons/level.json",
-		"globals" : "jsons/global-configs.json",
+        "globals" : "jsons/global-configs.json",
         "levels" : "jsons/levels.json"
 	}
 }

@@ -267,11 +267,9 @@ public class GameScene implements Screen, ContactListener {
         // Collisions generated through world.step()
         // Animation frames are updated.
         level.update(dt);
+        updateSecurityCameraVisionCones(); //vision cone requires separate collision detection, so we have to put this here.
 
-        // Now that everything is moved, Update Camera,
         updateCamera(dt);
-
-        updateSecurityCameraVisionCones();
     }
 
     private void updateSecurityCameraVisionCones() {
@@ -303,8 +301,8 @@ public class GameScene implements Screen, ContactListener {
         float vertical = input.getVertical();
         float horizontal = input.getHorizontal();
         moveAvatar(vertical, horizontal, avatar);
-        checkFlipSprite(avatar, input);
-        level.getOctopus().regenerateInk();
+        checkFlipSprite(avatar, input); // TODO: This shouldn't be here.
+        level.getOctopus().regenerateInk(dt);
 
         if(avatar.getAvatarType() == AvatarType.OCTOPUS){
             Octopus octopus = (Octopus) avatar;
@@ -328,12 +326,10 @@ public class GameScene implements Screen, ContactListener {
                 octopus.setDidFire(false);
             }
 
-        } else { //avatar is Cat
+        } else if(avatar.getAvatarType() == AvatarType.CAT) {
             Cat cat = (Cat) avatar;
             cat.setMeowed(input.didAbility());
         }
-
-
 
 
         tmp.setZero();
@@ -346,7 +342,7 @@ public class GameScene implements Screen, ContactListener {
      * responsibility of ContactListener
      */
     private void processNPCAction(float dt){
-        Octopus octopus = (Octopus) level.getOctopus();
+        Octopus octopus = level.getOctopus();
         InkProjectile inkProjectile = level.getProjectile();
         Door door = level.getDoor();
         Key key = level.getKey();
@@ -362,13 +358,15 @@ public class GameScene implements Screen, ContactListener {
         }
 
         if(inkProjectile.getPosition().dst(inkProjectile.getStartPosition()) > inkProjectile.getEndPosition().len()){
-            //TODO: need fix: sometimes the projectile disappears in the middle
             inkProjectile.setShouldDestroy(true);
         }
 
         //Guards
         Array<Guard> guards = level.getGuards();
         updateGuards(guards);
+
+        //Camera
+        Array<SecurityCamera> cams = level.getSecurityCameras();
 
 
         //Keys and doors
@@ -383,6 +381,7 @@ public class GameScene implements Screen, ContactListener {
             door.setLocked(false);
             key.setUsed(true);
         }
+
     }
 
     /**

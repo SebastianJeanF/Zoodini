@@ -28,13 +28,13 @@ public class Octopus extends Avatar {
     private boolean didFire;
 
     /// The initial amount of ink
-    private static final float INITIAL_INK = 99;
+    private float inkCapacity;
 
     /// The amount of ink consumed per ability usage
-    private static final float INK_USAGE = 33;
+    private float inkUsage;
 
-    /// The amount of ink regenerated per game tick
-    private static final float INK_REGEN_RATE = 0.05f;
+    /// The amount of ink regenerated per second
+    private float inkRegen;
 
     /// The amount of ink this octopus has
     private float inkRemaining;
@@ -91,7 +91,7 @@ public class Octopus extends Avatar {
     }
 
     public float getInkCapacity() {
-        return Octopus.INITIAL_INK;
+        return inkCapacity;
     }
 
     /**
@@ -100,21 +100,21 @@ public class Octopus extends Avatar {
      * @return
      */
     public boolean canUseAbility() {
-        return (inkRemaining - Octopus.INK_USAGE) >= 0;
+        return inkRemaining >= inkUsage;
     }
 
     /**
      * Consume ink resource corresponding to one ability usage
      */
     public void consumeInk() {
-        this.inkRemaining -= Octopus.INK_USAGE;
+        this.inkRemaining -= inkUsage;
     }
 
     /**
      * Regenerate one game tick's worth of ink points
      */
-    public void regenerateInk() {
-        this.inkRemaining = Math.min(Octopus.INITIAL_INK, this.inkRemaining + Octopus.INK_REGEN_RATE);
+    public void regenerateInk(float dt) {
+        this.inkRemaining = Math.min(inkCapacity, this.inkRemaining + dt * inkRegen);
     }
 
     public Octopus(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
@@ -123,7 +123,10 @@ public class Octopus extends Avatar {
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
         target = new Vector2();
         this.abilityRange = properties.get("abilityRange", Float.class);
-        this.inkRemaining = Octopus.INITIAL_INK;
+        this.inkRemaining = properties.get("inkCapacity", Float.class);
+        this.inkRegen = properties.get("inkRegen", Float.class);
+        this.inkUsage = properties.get("inkUsage", Float.class);
+        this.inkCapacity = inkRemaining;
     }
 
     @Override

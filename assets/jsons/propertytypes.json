@@ -275,6 +275,21 @@
                 "value": 1
             },
             {
+                "name": "inkCapacity",
+                "type": "float",
+                "value": 100
+            },
+            {
+                "name": "inkRegen",
+                "type": "float",
+                "value": 1
+            },
+            {
+                "name": "inkUsage",
+                "type": "float",
+                "value": 25
+            },
+            {
                 "name": "maxSpeed",
                 "type": "float",
                 "value": 5
