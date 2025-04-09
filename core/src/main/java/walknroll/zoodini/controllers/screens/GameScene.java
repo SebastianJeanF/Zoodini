@@ -422,7 +422,7 @@ public class GameScene implements Screen, ContactListener {
     //-----------------Helper Methods--------------------//
 
     public void initializeAIControllers() {
-        graph = new TileGraph<>(level.getMap(), false);
+        graph = new TileGraph<>(level.getMap(), true);
 
 //        this.gameGraph = new GameGraph(12, 16, level.getBounds().x, level.getBounds().y, level.getSprites());
         Array<Guard> guards = level.getGuards();
@@ -596,14 +596,14 @@ public class GameScene implements Screen, ContactListener {
 		if (direction.len() > 0) {
 			direction.nor().scl(guard.getForce());
 			if (guard.isMeowed()) {
-				direction.scl(0.25f);
+				direction.scl(1.25f);
 			} else if (guard.isCameraAlerted()) {
                 direction.scl(2.0f);
             }
             else if (guard.isAgroed()) {
-				direction.scl(1.25f);
+				direction.scl(1.75f);
 			} else if (guard.isSus()) {
-                direction.scl(0.75f);
+                direction.scl(1.1f);
             }
 
 			guard.setMovement(direction.x, direction.y);
