@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="64" tileheight="64" infinite="0" nextlayerid="8" nextobjectid="9">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="64" tileheight="64" infinite="0" nextlayerid="8" nextobjectid="15">
  <tileset firstgid="1" source="outdoor2.tsx"/>
  <tileset firstgid="1025" source="dark_outdoor.tsx"/>
  <layer id="1" name="ground" width="30" height="20">
@@ -51,7 +51,10 @@
 </data>
  </layer>
  <objectgroup id="6" name="walls">
-  <object id="8" x="896" y="576" width="128" height="256"/>
+  <object id="8" x="896" y="640" width="128" height="256"/>
+  <object id="11" x="1055.33" y="560">
+   <polygon points="0,0 110,68.6667 34.6667,124.667"/>
+  </object>
  </objectgroup>
  <objectgroup id="5" name="cameras">
   <object id="5" type="Camera" x="1587.51" y="757.492">
@@ -67,58 +70,32 @@
   </object>
  </objectgroup>
  <objectgroup id="3" name="players">
-  <object id="1" name="Cat" type="Cat" x="1690.67" y="572">
+  <object id="12" type="Cat" x="1192.67" y="939.333">
    <properties>
     <property name="abilityRange" type="float" value="5"/>
-    <property name="bodyType" value="dynamic"/>
     <property name="collide" value="0001"/>
-    <property name="damping" type="float" value="10"/>
-    <property name="density" type="float" value="1"/>
-    <property name="exclude" value="0001"/>
+    <property name="exclude" value="0000"/>
     <property name="force" type="float" value="110"/>
-    <property name="friction" type="float" value="0"/>
     <property name="maxSpeed" type="float" value="10"/>
     <property name="radius" type="float" value="0.4"/>
-    <property name="restitution" type="float" value="0"/>
     <property name="spriteRadius" type="float" value="0.6"/>
    </properties>
    <point/>
   </object>
-  <object id="2" name="Octopus" type="Octopus" x="1268" y="946.667">
+  <object id="13" type="Octopus" x="1399.33" y="814.667">
    <properties>
-    <property name="abilityRange" type="float" value="3"/>
-    <property name="bodyType" value="dynamic"/>
+    <property name="abilityRange" type="float" value="3.5"/>
     <property name="collide" value="0001"/>
-    <property name="damping" type="float" value="10"/>
-    <property name="density" type="float" value="1"/>
-    <property name="exclude" value="0001"/>
+    <property name="exclude" value="0000"/>
     <property name="force" type="float" value="80"/>
-    <property name="friction" type="float" value="0"/>
     <property name="maxSpeed" type="float" value="5"/>
     <property name="radius" type="float" value="0.4"/>
-    <property name="restitution" type="float" value="0"/>
     <property name="spriteRadius" type="float" value="0.6"/>
    </properties>
    <point/>
   </object>
  </objectgroup>
  <objectgroup id="4" name="guards">
-  <object id="3" name="guard" type="Guard" x="1178.67" y="744">
-   <properties>
-    <property name="bodyType" value="dynamic"/>
-    <property name="collide" value="0001"/>
-    <property name="damping" type="float" value="10"/>
-    <property name="density" type="float" value="1"/>
-    <property name="exclude" value="0000"/>
-    <property name="force" type="float" value="7"/>
-    <property name="friction" type="float" value="0"/>
-    <property name="maxSpeed" type="float" value="5"/>
-    <property name="radius" type="float" value="0.2"/>
-    <property name="restitution" type="float" value="0"/>
-    <property name="spriteRadius" type="float" value="0.6"/>
-   </properties>
-   <point/>
-  </object>
   <object id="6" type="Guard" x="1332.86" y="688.189">
    <properties>
     <property name="collide" value="0001"/>

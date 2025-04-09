@@ -328,7 +328,21 @@ public class GameLevel {
             }
             else if (wall instanceof PolygonMapObject poly)
             {
-                Polygon polygon = poly.getPolygon();
+
+//                Polygon polygon = poly.getPolygon();
+//                Obstacle obstacle = new PolygonObstacle(polygon.getVertices());
+//                obstacle.setPhysicsUnits(units);
+//                obstacle.setBodyType(BodyType.StaticBody);
+//
+//                Filter filter = new Filter();
+//                short collideBits = GameLevel.bitStringToShort("0100");
+//                short excludeBits = GameLevel.bitStringToComplement("0000");
+//                filter.categoryBits = collideBits;
+//                filter.maskBits = excludeBits;
+//                obstacle.setFilterData(filter);
+//
+//                objects.add(obstacle);
+//                obstacle.activatePhysics(world);
             }
         }
 
