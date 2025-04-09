@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.TextAlign;
 import edu.cornell.gdiac.graphics.TextLayout;
+import walknroll.zoodini.utils.CircleTimer;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Avatar.AvatarType;
@@ -27,6 +28,9 @@ public class UIController {
     public static final int UNLOCKED = 3;
     public static final int KEY_COLLECTED = 4;
     public static final int INTERRUPTED = 5;
+
+    private CircleTimer unlockTimer;
+    private boolean showUnlockTimer = false;
 
     protected OrthographicCamera camera;
     /** The font for giving messages to the player */
@@ -76,6 +80,8 @@ public class UIController {
         interrupted = new TextLayout("Unlocking Interrupted!", displayFont);
         interrupted.setAlignment(TextAlign.middleCenter);
         interrupted.setColor(Color.YELLOW);
+        //Initializing unlock timer
+        unlockTimer = new CircleTimer(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 30, Color.YELLOW);
 
         messages = new Array<>();
         messages.add(victory);
@@ -96,6 +102,18 @@ public class UIController {
 
     public void reset() {
 
+
+    public void showUnlockProgress(float progress) {
+        showUnlockTimer = true;
+        unlockTimer.setProgress(progress);
+
+
+    }
+    public void hideUnlockProgress() {
+        showUnlockTimer = false;
+    }
+    public void reset(){
+    hideUnlockProgress();
     }
 
     public void setFont(BitmapFont f) {
@@ -105,6 +123,24 @@ public class UIController {
     public void update() {
         camera.update();
     }
+
+
+    public void draw(SpriteBatch batch) {
+        boolean wasDrawing = batch.isDrawing();
+        if (showUnlockTimer) {
+            if (wasDrawing) {
+                batch.end();
+            }
+            unlockTimer.draw();
+            if (wasDrawing){
+                batch.begin(camera);
+            }
+        }
+    }
+    public void dispose() {
+        if (unlockTimer != null) {
+            unlockTimer.dispose();
+        }
 
     private void drawInkMeter(SpriteBatch batch, Octopus octopus) {
         batch.setTexture(null);
@@ -124,5 +160,6 @@ public class UIController {
         }
 
         batch.end();
+
     }
 }

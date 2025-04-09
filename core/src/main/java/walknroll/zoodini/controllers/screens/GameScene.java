@@ -371,14 +371,17 @@ public class GameScene implements Screen, ContactListener {
         //Keys and doors
         if(key.isCollected() && !key.isUsed() && door.isUnlocking()){
             door.setRemainingTimeToUnlock(door.getRemainingTimeToUnlock() - dt);
-            System.out.println(door.getRemainingTimeToUnlock());
+            float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
+            ui.showUnlockProgress(progress);
         } else {
             door.resetTimer();
+            ui.hideUnlockProgress();
         }
 
         if(door.getRemainingTimeToUnlock() <= 0){
             door.setLocked(false);
             key.setUsed(true);
+            ui.hideUnlockProgress();
         }
 
     }
