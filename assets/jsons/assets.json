@@ -71,6 +71,7 @@
           }
         }
       },
+
 		"ink-projectile": {
             "file":  "textures/ink_projectile.png",
             "wrap":   false,
@@ -93,6 +94,17 @@
                 }
             }
         },
+      "suspicion-meter": {
+        "file": 	"textures/suspicion_meter.png",
+        "wrap":  	false,
+        "sprites":	{
+          "animation" : {
+            "size" : 11,
+            "rows" : 1,
+            "cols" : 11
+          }
+        }
+      },
         "goal": "textures/helicopter.png",
         "key": "textures/key-sprite.png",
         "locked_door": "textures/locked_door.png",

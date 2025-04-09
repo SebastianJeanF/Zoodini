@@ -5,7 +5,14 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.JsonValue;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
+import edu.cornell.gdiac.graphics.SpriteBatch;
+import edu.cornell.gdiac.graphics.SpriteSheet;
 import walknroll.zoodini.models.entities.Enemy;
+import walknroll.zoodini.utils.animation.Animation;
+import walknroll.zoodini.utils.animation.AnimationController;
+import walknroll.zoodini.utils.animation.AnimationState;
+
+import static walknroll.zoodini.utils.animation.AnimationState.SUSPICION_METER;
 
 public class Guard extends Enemy {
     public static final int MAX_CHASE_TIME = 60; // 1 second
@@ -28,7 +35,7 @@ public class Guard extends Enemy {
     private int currentPatrolIndex = 0;
     private static final float PATROL_THRESHOLD = 0.5f; // Distance to switch patrol points
 
-
+    private final AnimationController suspsicionMeter;
 
     /**
      * Creates a new dude with degenerate settings
@@ -44,6 +51,35 @@ public class Guard extends Enemy {
         isChasing = false;
         meowed = false;
         chaseTimer = 0;
+        AnimationState state = AnimationState.SUSPICION_METER;
+        suspsicionMeter = new AnimationController(state);
+
+
+        String animKey = globals.getString("suspicion");
+        final int START_FRAME = 0;
+        final int FRAME_DELAY = 0;
+        final boolean IS_LOOP = true;
+
+        if (animKey != null) {
+            SpriteSheet animSheet = directory.getEntry(animKey, SpriteSheet.class);
+            System.out.println("Number of frames: " + animSheet.getSize());
+            animSheet.setFrame(START_FRAME);
+            Animation anim = new Animation(
+                animSheet,
+                START_FRAME,
+                animSheet.getSize() - 1,
+                FRAME_DELAY,
+                IS_LOOP
+            );
+            suspsicionMeter.addAnimation(state, anim);
+        }
+    }
+
+
+
+
+    private void setupAnimations(AssetDirectory directory, JsonValue globals) {
+
     }
 
     public Vector2[] getPatrolPoints() {
@@ -139,6 +175,41 @@ public class Guard extends Enemy {
 
 
     public void update(float dt) {
+        obstacle.update(dt);
         applyForce();
+    }
+
+    int susTick = 0;
+    int FRAMES_PER_CHANGE = 20;
+
+    public void draw(SpriteBatch batch) {
+        susTick++;
+        super.draw(batch);
+        if (susTick % FRAMES_PER_CHANGE == 0) {
+            suspsicionMeter.update();
+            suspsicionMeter.getCurrentSpriteSheet().setFrame(suspsicionMeter.getCurrentFrame());
+        }
+
+        if (suspsicionMeter != null) {
+            float PIXEL_PER_WORLD_UNIT = getObstacle().getPhysicsUnits();
+            float guardXPixel = getPosition().x * PIXEL_PER_WORLD_UNIT;
+            float guardYPixel = getPosition().y * PIXEL_PER_WORLD_UNIT;
+            float scale = 0.4f;
+
+            float xPixelOffset = -64f * scale;
+            float yPixelOffset = 20f;
+
+            // Get the original width and height of the sprite sheet
+            float originalWidth = suspsicionMeter.getCurrentSpriteSheet().getRegionWidth();
+            float originalHeight = suspsicionMeter.getCurrentSpriteSheet().getRegionHeight();
+
+            batch.draw(
+                suspsicionMeter.getCurrentSpriteSheet(),
+                guardXPixel + xPixelOffset,
+                guardYPixel + yPixelOffset,
+                originalWidth * scale,
+                originalHeight * scale
+            );
+        }
     }
 }
