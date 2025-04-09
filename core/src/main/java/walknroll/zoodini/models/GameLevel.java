@@ -145,7 +145,6 @@ public class GameLevel {
 	protected float physicsTimeLeft;
 
 
-
 	/**
 	 * Creates a new GameLevel
 	 *
@@ -158,6 +157,10 @@ public class GameLevel {
 		debug = false;
 		catActive = true;
 	}
+
+    public ObjectMap<ZoodiniSprite, VisionCone> getVisionConeMap() {
+        return visions;
+    }
 
 	/**
 	 * Lays out the game geography from the given JSON file
