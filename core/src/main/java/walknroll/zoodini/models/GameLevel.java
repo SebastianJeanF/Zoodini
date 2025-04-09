@@ -444,6 +444,67 @@ public class GameLevel {
             for(VisionCone vc : visions.values()){
                 vc.update(world);
             }
+
+            checkPlayerInVisionCones();
+        }
+    }
+
+    /**
+     * Checks if the player is in the vision cones of any guards or security cameras
+     * and updates their states accordingly.
+     */
+    public void checkPlayerInVisionCones() {
+        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry: visions.entries()) {
+            VisionCone v = entry.value;
+            ZoodiniSprite key = entry.key;
+            v.update(world);
+            if (v.contains(avatarCat.getPosition())) {
+                if (key instanceof Guard) {
+                    ((Guard) key).setTarget(
+                        avatarCat.getPosition()); // TODO: this line might not be needed
+                    ((Guard) key).setAgroed(true);
+                    ((Guard) key).setAggroTarget(avatarCat);
+                    System.out.println("In guard vision cone " + ((Guard) key).getAggroTarget());
+                } else if (key instanceof SecurityCamera) {
+                    SecurityCamera camera = (SecurityCamera) key;
+                    if (!camera.isDisabled()) {
+                        // Alert all guards when camera sees either player
+                        for (Guard guard : getGuards()) {
+                            if (guard != null) {
+                                 guard.setAggroTarget(avatarCat);
+                                guard.setCameraAlerted(true);
+                            }
+                        }
+                    }
+                }
+            } else if (v.contains(avatarOctopus.getPosition())) {
+                if (key instanceof Guard) {
+                    ((Guard) key).setTarget(
+                        avatarOctopus.getPosition()); // TODO: this line might not be needed
+                    ((Guard) key).setAgroed(true);
+                    ((Guard) key).setAggroTarget(avatarOctopus);
+                    System.out.println("In guard vision cone " + ((Guard) key).getAggroTarget());
+                } else if (key instanceof SecurityCamera) {
+                    SecurityCamera camera = (SecurityCamera) key;
+                    if (!camera.isDisabled()) {
+                        // Alert all guards when camera sees either player
+                        for (Guard guard : guards) {
+                            if (guard != null) {
+                                guard.setTarget(avatarOctopus.getPosition());
+                                guard.setCameraAlerted(true);
+                            }
+                        }
+                    }
+                }
+            } else if (!v.contains(avatarCat.getPosition())) {
+                if (key instanceof Guard) {
+                    ((Guard) key).setAgroed(false);
+                }
+            } else if (!v.contains(avatarOctopus.getPosition())) {
+                if (key instanceof Guard) {
+                    ((Guard) key).setAgroed(false);
+                }
+            }
         }
     }
 

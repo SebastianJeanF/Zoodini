@@ -40,6 +40,8 @@ import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
 import edu.cornell.gdiac.physics2.*;
 import java.util.HashMap;
+import walknroll.zoodini.utils.VisionCone;
+import walknroll.zoodini.utils.ZoodiniSprite;
 
 /**
  * Gameplay controller for the game.
@@ -178,6 +180,7 @@ public class GameScene implements Screen, ContactListener {
         // Reload the json each time
         level.populate(directory, levelFormat, levelGlobals);
         level.getWorld().setContactListener(this);
+        initializeAIControllers();
     }
 
 
@@ -590,7 +593,7 @@ public class GameScene implements Screen, ContactListener {
             else if (guard.isAgroed()) {
 				direction.scl(1.25f);
 			} else if (guard.isSus()) {
-                direction.scl(0.1f);
+                direction.scl(0.75f);
             }
 
 			guard.setMovement(direction.x, direction.y);
@@ -896,4 +899,5 @@ public class GameScene implements Screen, ContactListener {
     public boolean isActive() {
         return active;
     }
+
 }

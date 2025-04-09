@@ -27,7 +27,9 @@ import edu.cornell.gdiac.math.PathFactory;
 import edu.cornell.gdiac.math.Poly2;
 import edu.cornell.gdiac.math.PolyFactory;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import walknroll.zoodini.utils.GameGraph.Node;
 
 public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
@@ -37,6 +39,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
 
     protected Array<TileNode> nodes;
     public TileNode startNode;
+    private Set<TileNode> targetNodes = new HashSet<>();
 
     boolean diagonal;
 
