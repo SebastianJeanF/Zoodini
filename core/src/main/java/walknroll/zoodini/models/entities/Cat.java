@@ -15,6 +15,7 @@
  */
 package walknroll.zoodini.models.entities;
 
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.utils.JsonValue;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
@@ -52,9 +53,9 @@ public class Cat extends Avatar {
         meowed = value;
     }
 
-    public Cat(AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
-        super(AvatarType.CAT, directory, json, globals, units);
-        this.abilityRange = globals.getFloat("abilityRange");
+    public Cat(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
+        super(AvatarType.CAT, directory, properties, globals, units);
+        this.abilityRange = properties.get("abilityRange", Float.class);
     }
 
     @Override

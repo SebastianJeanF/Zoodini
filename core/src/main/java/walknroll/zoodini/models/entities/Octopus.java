@@ -1,5 +1,6 @@
 package walknroll.zoodini.models.entities;
 
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.assets.AssetDirectory;
@@ -72,12 +73,12 @@ public class Octopus extends Avatar {
         this.currentlyAiming = value;
     }
 
-    public Octopus(AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
-        super(AvatarType.OCTOPUS, directory, json, globals, units);
-        float r = globals.getFloat("spriterad") * OCTOPUS_IMAGE_SCALE * units;
+    public Octopus(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
+        super(AvatarType.OCTOPUS, directory, properties, globals, units);
+        float r = properties.get("spriteRadius", Float.class) * OCTOPUS_IMAGE_SCALE * units;
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
         target = new Vector2();
-        this.abilityRange = globals.getFloat("abilityRange");
+        this.abilityRange = properties.get("abilityRange", Float.class);
     }
 
     @Override

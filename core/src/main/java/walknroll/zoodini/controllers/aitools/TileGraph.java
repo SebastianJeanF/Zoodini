@@ -2,17 +2,25 @@ package walknroll.zoodini.controllers.aitools;
 
 
 import com.badlogic.gdx.ai.pfa.Connection;
+import com.badlogic.gdx.ai.pfa.PathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import edu.cornell.gdiac.graphics.SpriteBatch;
+import edu.cornell.gdiac.math.Path2;
+import edu.cornell.gdiac.math.PathFactory;
 import edu.cornell.gdiac.math.Poly2;
 import edu.cornell.gdiac.math.PolyFactory;
 
@@ -32,28 +40,41 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
      * @param diagonal whether diagonal movement is allowed
      */
     public TileGraph(TiledMap map, boolean diagonal) {
-        TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("Walls");
-        WIDTH = layer.getWidth();
-        HEIGHT = layer.getHeight();
+        MapProperties props = map.getProperties();
+        WIDTH = props.get("width", Integer.class);
+        HEIGHT = props.get("height", Integer.class);
+        int tileWidth = map.getProperties().get("tilewidth", Integer.class);
+        int tileHeight = map.getProperties().get("tileheight", Integer.class);
+
         this.nodes = new Array<TileNode>(WIDTH * HEIGHT);
         this.startNode = null;
         this.diagonal = diagonal;
-        init(layer); //TODO: should init be called separately?
-    }
 
 
-    /**
-     * Initializes the graph from a TiledMapTileLayer. This method is different from the
-     * constructor: this method is actually responsible for adding nodes and edges.
-     *
-     * @param layer
-     */
-    public void init(TiledMapTileLayer layer) {
         for (int x = 0; x < WIDTH; x++) {
             for (int y = 0; y < HEIGHT; y++) {
-                nodes.add(new TileNode(x, y, layer.getCell(x, y), new Array<>(4), HEIGHT));
+                nodes.add(new TileNode(x, y, false, new Array<>(4), HEIGHT));
             }
         }
+
+        MapLayer objectLayer = map.getLayers().get("walls");
+        for (MapObject obj : objectLayer.getObjects()) {
+            if (!(obj instanceof RectangleMapObject)) continue;
+
+            Rectangle rect = ((RectangleMapObject) obj).getRectangle();
+
+            int startX = (int)(rect.x / tileWidth);
+            int startY = (int)(rect.y / tileHeight);
+            int endX = (int)((rect.x + rect.width) / tileWidth);
+            int endY = (int)((rect.y + rect.height) / tileHeight);
+
+            for (int x = startX; x < endX; x++) {
+                for (int y = startY; y < endY; y++) {
+                    getNode(x, y).isWall = true;
+                }
+            }
+        }
+
 
         for (int x = 0; x < WIDTH; x++) {
             int idx = x * HEIGHT;
@@ -70,7 +91,6 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
             }
         }
     }
-
     /**
      * Helper method for adding edges to a node. Modifies TileNode n's connections.
      *
@@ -105,6 +125,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
 
     Affine2 cache = new Affine2();
     PolyFactory pf = new PolyFactory();
+    PathFactory pathFactory = new PathFactory();
     Color c = Color.WHITE;
 
     public void draw(SpriteBatch batch, Camera camera, float units) {
@@ -123,9 +144,11 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
             if(node.equals(selected)){
                 c = Color.MAGENTA;
             }
-            Poly2 polygon = pf.makeNgon(node.x, node.y, 0.1f, 10);
+            Poly2 polygon = pf.makeNgon(node.x + 0.5f, node.y + 0.5f, 0.1f, 10);
+            Path2 rect = pathFactory.makeRect(node.x, node.y, 0.95f, 0.95f);
             batch.setColor(c);
             batch.fill(polygon, cache);
+            batch.outline(rect, cache);
         }
         batch.end();
         batch.setColor(Color.WHITE);
