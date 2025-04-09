@@ -65,6 +65,8 @@ public class GameScene implements Screen, ContactListener {
 	/** The JSON defining the default entity configs */
 	private JsonValue levelGlobals;
 
+    private JsonValue levelID;
+
 	/** Exit code for quitting the game */
 	public static final int EXIT_QUIT = 0;
 	/** How many frames after winning/losing do we continue? */
@@ -121,9 +123,9 @@ public class GameScene implements Screen, ContactListener {
 		this.batch = batch;
 
 		level = new GameLevel();
-		levelFormat = directory.getEntry("level1", JsonValue.class);
         levelGlobals = directory.getEntry("globals", JsonValue.class);
-		level.populate(directory, levelFormat, levelGlobals);
+        levelID = directory.getEntry("levels", JsonValue.class);
+		level.populate(directory, levelID, levelGlobals);
 		level.getWorld().setContactListener(this);
 
 		complete = false;
@@ -176,7 +178,7 @@ public class GameScene implements Screen, ContactListener {
         countdown = -1;
 
         // Reload the json each time
-        level.populate(directory, levelFormat, levelGlobals);
+        level.populate(directory, levelID, levelGlobals);
         level.getWorld().setContactListener(this);
     }
 

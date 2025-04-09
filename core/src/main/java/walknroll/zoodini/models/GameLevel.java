@@ -44,6 +44,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.utils.*;
@@ -171,10 +172,9 @@ public class GameLevel {
 	 * Lays out the game geography from the given JSON file
 	 *
 	 * @param directory   the asset manager
-	 * @param levelFormat the JSON file defining the level
 	 * @param levelGlobals the JSON file defining configs global to every level
 	 */
-	public void populate(AssetDirectory directory, JsonValue levelFormat, JsonValue levelGlobals) {
+	public void populate(AssetDirectory directory, JsonValue level, JsonValue levelGlobals) {
         // Compute the FPS
         int[] fps = {20, 60};
         maxFPS = fps[1];
@@ -185,7 +185,7 @@ public class GameLevel {
 
 
 		world = new World(Vector2.Zero, false);
-        tiledMap = new TmxMapLoader().load(levelFormat.get("map").getString("file"));
+        tiledMap = new TmxMapLoader().load(level.getString("1"));
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
 
@@ -199,61 +199,41 @@ public class GameLevel {
         createWallBodies(walls);
 
 
-        MapLayer playerSpawn = tiledMap.getLayers().get("players");
+        MapLayer playerSpawn = tiledMap.getLayers().get("objects");
         for(MapObject obj : playerSpawn.getObjects()){
             MapProperties properties = obj.getProperties();
             String type = properties.get("type", String.class);
+
             if("Cat".equalsIgnoreCase(type)){
                 avatarCat = new Cat(directory, properties, levelGlobals.get("avatarCat"), units);
                 activate(avatarCat);
             } else if("Octopus".equalsIgnoreCase(type)){
                 avatarOctopus = new Octopus(directory, properties, levelGlobals.get("avatarOctopus"), units);
                 activate(avatarOctopus);
+            } else if("Key".equalsIgnoreCase(type)){
+                key = new Key(directory, properties, levelGlobals.get("key"), units);
+                activate(key);
+            } else if("Guard".equalsIgnoreCase(type)){
+                Guard g = new Guard(directory, properties, levelGlobals.get("guard"), units);
+                guards.add(g);
+                activate(g);
+            } else if("Camera".equalsIgnoreCase(type)){
+                SecurityCamera cam = new SecurityCamera(directory, properties, levelGlobals.get("camera"), units);
+                securityCameras.add(cam);
+                activate(cam);
+            } else if("Door".equalsIgnoreCase(type)){
+                goalDoor = new Door(directory, properties, levelGlobals.get("door"), units);
+                activate(goalDoor);
+            } else if("Exit".equalsIgnoreCase(type)){
+                exit = new Exit(directory, properties, levelGlobals.get("exit"), units);
+                activate(exit);
             }
         }
 
 
-        MapLayer guardSpawn = tiledMap.getLayers().get("guards");
-        for(MapObject obj : guardSpawn.getObjects()){
-            MapProperties properties = obj.getProperties();
-            guards.add(new Guard(directory, properties, levelGlobals.get("guard"), units));
-            activate(guards.peek());
-        }
-
-
-        MapLayer cameraSpawn = tiledMap.getLayers().get("cameras");
-        for(MapObject obj : cameraSpawn.getObjects()){
-            MapProperties properties = obj.getProperties();
-            securityCameras.add(new SecurityCamera(directory, properties, levelGlobals.get("camera"), units));
-            activate(securityCameras.peek());
-        }
-
-
-        // Walls
-		goalDoor = new Door(directory, levelFormat.get("door"), levelGlobals.get("door"), units);
-		activate(goalDoor);
-
-        exit = new Exit(directory, levelFormat.get("exit"), levelGlobals.get("exit"), units);
-        activate(exit);
-
-        // Create the key
-        if (levelFormat.has("key")) {
-            JsonValue keyData = levelFormat.get("key");
-            key = new Key(directory, keyData, levelGlobals.get("key"), units);
-            activate(key);
-        }
-
-        // Security Cameras
-//        JsonValue cameras = levelFormat.getChild("cameras");
-//        while (cameras != null) {
-//            SecurityCamera camera = new SecurityCamera(directory, cameras, levelGlobals.get("camera"), units);
-//            activate(camera);
-//            securityCameras.add(camera);
-//            cameras = cameras.next();
-//        }
 
 		// Lights
-        JsonValue visionJson = levelFormat.get("visions");
+        JsonValue visionJson = levelGlobals.get("visions");
         initializeVisionCones(visionJson);
 
 //        raycamera = new OrthographicCamera(gSize[0], gSize[1]);
@@ -276,7 +256,7 @@ public class GameLevel {
         int rayNum = json.getInt("rayNum");
         float[] color = json.get("color").asFloatArray();
         short mask = json.getShort("maskbit");
-        short category = json.getShort("categorybit");
+        short category = json.getShort("category");
         Color c = new Color(color[0], color[1], color[2], color[3]);
         for(SecurityCamera cam : securityCameras){
             float fov = cam.getFov();

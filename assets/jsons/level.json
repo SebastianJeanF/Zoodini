@@ -1,11 +1,4 @@
 {
-  "map" : {
-    "file" : "maps/map1.tmx"
-  },
-  "screen_size": [
-    1000,
-    750
-  ],
   "visions" : {
     "rayNum" : 60,
     "color" : [1.0, 1.0, 1.0, 1.0],
