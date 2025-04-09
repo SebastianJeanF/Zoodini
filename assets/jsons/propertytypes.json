@@ -89,6 +89,11 @@
                 "value": 10
             },
             {
+                "name": "meowExpandSpeed",
+                "type": "float",
+                "value": 2
+            },
+            {
                 "name": "radius",
                 "type": "float",
                 "value": 0.4

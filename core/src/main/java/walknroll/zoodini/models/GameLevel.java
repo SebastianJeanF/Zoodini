@@ -253,15 +253,13 @@ public class GameLevel {
 	}
 
     private void initializeVisionCones(JsonValue json) {
-        int rayNum = json.getInt("rayNum");
-        float[] color = json.get("color").asFloatArray();
         short mask = json.getShort("maskbit");
         short category = json.getShort("category");
-        Color c = new Color(color[0], color[1], color[2], color[3]);
+        Color c = Color.WHITE.cpy().add(0,0,0,-0.5f);
         for(SecurityCamera cam : securityCameras){
             float fov = cam.getFov();
             float dist = cam.getViewDistance();
-            VisionCone vc = new VisionCone(rayNum, Vector2.Zero, dist, 0.0f, fov , c, units, mask, category);
+            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov , c, units, mask, category);
             float angle = cam.getAngle();
             vc.attachToBody(cam.getObstacle().getBody(), angle);
             visions.put(cam, vc);
@@ -270,7 +268,7 @@ public class GameLevel {
         for(Guard guard : guards){
             float fov = guard.getFov();
             float dist = guard.getViewDistance();
-            VisionCone vc = new VisionCone(rayNum, Vector2.Zero, dist, 0.0f, fov, c, units, mask, category);
+            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, mask, category);
             vc.attachToBody(guard.getObstacle().getBody(), 90.0f);
             visions.put(guard, vc);
         }
