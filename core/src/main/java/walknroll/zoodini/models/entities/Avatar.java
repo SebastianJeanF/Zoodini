@@ -236,11 +236,11 @@ public class Avatar extends ZoodiniSprite {
 		setMaxSpeed(properties.get("maxSpeed", Float.class));
 
 		// Create the collision filter (used for light penetration)
-		short collideBits = GameLevel.bitStringToShort(properties.get("collide", String.class));
-		short excludeBits = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
 		Filter filter = new Filter();
-		filter.categoryBits = collideBits;
-		filter.maskBits = excludeBits;
+		filter.categoryBits = GameLevel.bitStringToShort(properties.get("category", String.class));
+		filter.maskBits = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
+        System.out.println(filter.categoryBits);
+        System.out.println(filter.maskBits);
 		obstacle.setFilterData(filter);
 
 		setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));

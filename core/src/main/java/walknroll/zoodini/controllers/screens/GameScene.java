@@ -58,7 +58,7 @@ import java.util.HashMap;
  */
 public class GameScene implements Screen, ContactListener {
 
-    private boolean debug = false;
+    private boolean debug = true;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
@@ -400,7 +400,7 @@ public class GameScene implements Screen, ContactListener {
 
         level.draw(batch, camera);
 
-        
+
         if(debug) {
             graph.draw(batch, camera, level.getTileSize());
             InputController ic = InputController.getInstance();

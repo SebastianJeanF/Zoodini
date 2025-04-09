@@ -56,7 +56,7 @@ public class SecurityCamera extends ZoodiniSprite {
         obstacle.setRestitution(0.0f);
         obstacle.setPhysicsUnits(units);
 
-        short collideBits = GameLevel.bitStringToShort(properties.get("collide", String.class));
+        short collideBits = GameLevel.bitStringToShort(properties.get("category", String.class));
         short excludeBits = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
         Filter filter = new Filter();
         filter.categoryBits = collideBits;

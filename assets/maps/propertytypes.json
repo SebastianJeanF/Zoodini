@@ -10,9 +10,9 @@
                 "value": 90
             },
             {
-                "name": "collide",
+                "name": "category",
                 "type": "string",
-                "value": "0101"
+                "value": "01000"
             },
             {
                 "name": "disabledTime",
@@ -22,7 +22,12 @@
             {
                 "name": "exclude",
                 "type": "string",
-                "value": "0000"
+                "value": "00000"
+            },
+            {
+                "name": "fov",
+                "type": "float",
+                "value": 60
             },
             {
                 "name": "radius",
@@ -33,6 +38,11 @@
                 "name": "spriteRadius",
                 "type": "float",
                 "value": 0.6
+            },
+            {
+                "name": "viewDistance",
+                "type": "float",
+                "value": 5
             }
         ],
         "name": "Camera",
@@ -54,19 +64,19 @@
                 "value": 5
             },
             {
-                "name": "collide",
+                "name": "category",
                 "type": "string",
-                "value": "0001"
+                "value": "00010"
             },
             {
                 "name": "exclude",
                 "type": "string",
-                "value": "0001"
+                "value": "00010"
             },
             {
                 "name": "force",
                 "type": "float",
-                "value": 110
+                "value": 2
             },
             {
                 "name": "maxSpeed",
@@ -98,19 +108,24 @@
         "id": 3,
         "members": [
             {
-                "name": "collide",
+                "name": "category",
                 "type": "string",
-                "value": "0001"
+                "value": "00100"
             },
             {
                 "name": "exclude",
                 "type": "string",
-                "value": "0000"
+                "value": "00100"
             },
             {
                 "name": "force",
                 "type": "float",
-                "value": 7
+                "value": 1.5
+            },
+            {
+                "name": "fov",
+                "type": "float",
+                "value": 60
             },
             {
                 "name": "maxSpeed",
@@ -126,6 +141,11 @@
                 "name": "spriteRadius",
                 "type": "float",
                 "value": 0.6
+            },
+            {
+                "name": "viewDistance",
+                "type": "float",
+                "value": 5
             }
         ],
         "name": "Guard",
@@ -147,9 +167,9 @@
                 "value": "static"
             },
             {
-                "name": "collide",
+                "name": "category",
                 "type": "string",
-                "value": "0010"
+                "value": "10000"
             },
             {
                 "name": "density",
@@ -159,7 +179,7 @@
             {
                 "name": "exclude",
                 "type": "string",
-                "value": "0000"
+                "value": "11101"
             },
             {
                 "name": "friction",
@@ -191,19 +211,19 @@
                 "value": 3.5
             },
             {
-                "name": "collide",
+                "name": "category",
                 "type": "string",
-                "value": "0001"
+                "value": "00010"
             },
             {
                 "name": "exclude",
                 "type": "string",
-                "value": "0001"
+                "value": "00010"
             },
             {
                 "name": "force",
                 "type": "float",
-                "value": 80
+                "value": 1
             },
             {
                 "name": "maxSpeed",

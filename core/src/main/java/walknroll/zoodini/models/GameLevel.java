@@ -302,7 +302,6 @@ public class GameLevel {
      * The layer must consist of tiles that has an object assigned to it.
      * */
     private void createWallBodies(MapLayer layer){
-        float tileSize = getTileSize();
         for(MapObject wall : layer.getObjects()){
             if (wall instanceof RectangleMapObject rec)
             {
@@ -318,7 +317,7 @@ public class GameLevel {
                 obstacle.setBodyType(BodyType.StaticBody);
 
                 Filter filter = new Filter();
-                short collideBits = GameLevel.bitStringToShort("0100");
+                short collideBits = GameLevel.bitStringToShort("0001");
                 short excludeBits = GameLevel.bitStringToComplement("0000");
                 filter.categoryBits = collideBits;
                 filter.maskBits = excludeBits;
