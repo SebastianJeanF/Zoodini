@@ -302,6 +302,7 @@ public class GameScene implements Screen, ContactListener {
         float horizontal = input.getHorizontal();
         moveAvatar(vertical, horizontal, avatar);
         checkFlipSprite(avatar, input);
+        level.getOctopus().regenerateInk();
 
         if(avatar.getAvatarType() == AvatarType.OCTOPUS){
             Octopus octopus = (Octopus) avatar;

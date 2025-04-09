@@ -110,6 +110,7 @@ public class UIController {
         batch.setTexture(null);
         batch.setColor(Color.BLACK);
         batch.outline(45, 45, 210, 35);
+        batch.setColor(octopus.canUseAbility() ? Color.FOREST : Color.BLACK);
         batch.fill(50, 50, (octopus.getInkRemaining() / octopus.getInkCapacity()) * 200f, 25);
         batch.setColor(Color.WHITE);
     }

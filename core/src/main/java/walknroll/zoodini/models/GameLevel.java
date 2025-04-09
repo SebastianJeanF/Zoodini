@@ -692,11 +692,11 @@ public class GameLevel {
         return catActive ? avatarCat : avatarOctopus;
     }
 
-    public Avatar getCat() {
+    public Cat getCat() {
         return avatarCat;
     }
 
-    public Avatar getOctopus() {
+    public Octopus getOctopus() {
         return avatarOctopus;
     }
 
