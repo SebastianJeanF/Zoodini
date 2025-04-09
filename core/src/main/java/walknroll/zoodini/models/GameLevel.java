@@ -459,6 +459,8 @@ public class GameLevel {
         mapRenderer.setView((OrthographicCamera) camera);
         mapRenderer.render();
 
+        updateFlipSprite(getAvatar());
+
         for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
 			if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
 				continue;
@@ -502,6 +504,13 @@ public class GameLevel {
 
 
     //------------------Helpers-----------------------//
+
+    private void updateFlipSprite(Avatar avatar) {
+        // flips the sprite if the avatar is moving left
+        if (!avatar.isFlipped() && avatar.getMovement().x < 0.0f || avatar.isFlipped() && avatar.getMovement().x > 0.0f) {
+            avatar.flipSprite();
+        }
+    }
 
     /**
      * Immediately adds the object to the physics world

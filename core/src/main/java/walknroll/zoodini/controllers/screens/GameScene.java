@@ -301,7 +301,6 @@ public class GameScene implements Screen, ContactListener {
         float vertical = input.getVertical();
         float horizontal = input.getHorizontal();
         moveAvatar(vertical, horizontal, avatar);
-        checkFlipSprite(avatar, input); // TODO: This shouldn't be here.
         level.getOctopus().regenerateInk(dt);
 
         if(avatar.getAvatarType() == AvatarType.OCTOPUS){
@@ -425,24 +424,6 @@ public class GameScene implements Screen, ContactListener {
 
     //-----------------Helper Methods--------------------//
 
-//    public void initializeAIControllers() {
-//        this.gameGraph = new GameGraph(12, 16, level.getBounds().x, level.getBounds().y, level.getSprites());
-//        Array<Guard> guards = level.getGuards();
-//        for (Guard g : guards) {
-//            GuardAIController aiController = new GuardAIController(g, level, this.gameGraph, 5);
-//            guardToAIController.put(g, aiController);
-//        }
-//    }
-
-
-//    private void checkDeactivateKeyOnCollect() {
-//        // Deactivate collected key's physics body if needed
-//        if (keyCollected && level.getKey() != null && level.getKey().getObstacle().isActive()) {
-//            // This is the safe time to modify physics bodies
-//            level.getKey().getObstacle().setActive(false);
-//        }
-//    }
-
     private void onSwap(InputController input) {
         if (input.didSwap()) {
             // stop active character movement
@@ -460,35 +441,6 @@ public class GameScene implements Screen, ContactListener {
             inCameraTransition = true;
         }
     }
-
-    private void updateGuardAI() {
-        guardToAIController.forEach((guard, controller) -> {
-            controller.update();
-            guard.think(controller.getMovementDirection(), controller.getNextTargetLocation());
-        });
-    }
-
-
-//    private void updateDoorUnlocking() {
-//        // Update door unlocking progress
-//        if(isUnlocking) {
-//            unlockingTimer++;
-//
-//            // Update unlocking message percentage
-//            if (unlockingTimer % 15 == 0) { // Update message every 1/4 second
-//
-//            }
-//            // Check if door is fully unlocked
-//            if (unlockingTimer >= UNLOCK_DURATION) {
-//                level.getDoor().setLocked(false);
-//                isUnlocking = false;
-//
-//                // Show door unlocked message
-//                keyMessageTimer = 120; // 2 seconds at 60 fps to show unlock message
-//            }
-//        }
-//    }
-
 
     private Vector2 angleCache = new Vector2();
 
@@ -524,14 +476,6 @@ public class GameScene implements Screen, ContactListener {
         projectile.setEndPosition(target);
         projectile.setMovement(target.nor());
         projectile.applyForce();
-    }
-
-
-    private static void checkFlipSprite(Avatar avatar, InputController input) {
-        // flips the sprite if the avatar is moving left
-        if (!avatar.isFlipped() && input.getHorizontal() == -1f || avatar.isFlipped() && input.getHorizontal() == 1f) {
-            avatar.flipSprite();
-        }
     }
 
 
