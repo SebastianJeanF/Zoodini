@@ -40,6 +40,9 @@ import walknroll.zoodini.models.nonentities.Door;
 import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
 import edu.cornell.gdiac.physics2.*;
+import walknroll.zoodini.utils.VisionCone;
+import walknroll.zoodini.utils.ZoodiniSprite;
+
 import java.util.HashMap;
 
 /**
@@ -265,6 +268,20 @@ public class GameScene implements Screen, ContactListener {
         // Collisions generated through world.step()
         // Animation frames are updated.
         level.update(dt);
+
+        updateSecurityCameraVisionCones();
+    }
+
+    private void updateSecurityCameraVisionCones() {
+        ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
+        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
+            if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
+                Vector2 avatarPosition = level.getAvatar().getPosition();
+                if (entry.value.contains(avatarPosition)) {
+                    ((SecurityCamera) entry.key).activateRing();
+                }
+            }
+        }
     }
 
     private Vector3 tmp = new Vector3();
@@ -489,7 +506,7 @@ public class GameScene implements Screen, ContactListener {
             avatar.getObstacle().setAngle(angle);
         }
 
-        angleCache.scl(avatar.getForce());
+        angleCache.scl(avatar.getForce()).scl(level.getTileSize());
         avatar.setMovement(angleCache.x, angleCache.y);
         avatar.applyForce();
     }

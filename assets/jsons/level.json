@@ -8,9 +8,7 @@
   ],
   "visions" : {
     "rayNum" : 60,
-    "radius" : 5.0,
     "color" : [1.0, 1.0, 1.0, 1.0],
-    "wideness" : 60.0,
     "maskbit" : "0100",
     "categorybit" : "0000"
   },

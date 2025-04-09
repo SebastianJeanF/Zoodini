@@ -12,6 +12,8 @@ public class Guard extends Enemy {
     public static final float FOV_DISTANCE = 7.0f; // Maximum detection distance.
     public static final float FOV_ANGLE = 45.0f; // Total cone angle in degrees.
 
+    private float fov;
+    private float viewDistance;
     private boolean isChasing;
     private boolean meowed;
     private int chaseTimer;
@@ -28,8 +30,6 @@ public class Guard extends Enemy {
     private int currentPatrolIndex = 0;
     private static final float PATROL_THRESHOLD = 0.5f; // Distance to switch patrol points
 
-
-
     /**
      * Creates a new dude with degenerate settings
      * <p>
@@ -38,36 +38,17 @@ public class Guard extends Enemy {
      */
     public Guard(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
         super(directory, properties, globals, units);
-
+        fov = properties.get("fov", Float.class);
         currentPatrolIndex = 0;
         cameraAlerted = false;
         isChasing = false;
         meowed = false;
         chaseTimer = 0;
+        viewDistance = properties.get("viewDistance", Float.class);
     }
 
-    public Vector2[] getPatrolPoints() {
-        return patrolPoints;
-    }
-    public boolean isCameraAlerted() {
-        return cameraAlerted;
-    }
-
-    public void setCameraAlerted(boolean value) {
-        cameraAlerted = value;
-    }
-
-    /** If a guard is "agroed", it is currently chasing a player */
-    public boolean isAgroed() {
-        return isChasing;
-    }
-
-    /** The value of target is only valid if guard is agroed or is "meowed" */
-    public Vector2 getTarget() {
-        if (meowed == true) {
-            // System.out.print("Guard is getting meow target");
-        }
-        return target;
+    public void update(float dt) {
+        applyForce();
     }
 
     /** Get current movement direction of guard.
@@ -137,8 +118,35 @@ public class Guard extends Enemy {
         chaseTimer = value;
     }
 
+    public float getFov(){
+        return fov;
+    }
 
-    public void update(float dt) {
-        applyForce();
+    public float getViewDistance(){
+        return viewDistance;
+    }
+
+    public Vector2[] getPatrolPoints() {
+        return patrolPoints;
+    }
+    public boolean isCameraAlerted() {
+        return cameraAlerted;
+    }
+
+    public void setCameraAlerted(boolean value) {
+        cameraAlerted = value;
+    }
+
+    /** If a guard is "agroed", it is currently chasing a player */
+    public boolean isAgroed() {
+        return isChasing;
+    }
+
+    /** The value of target is only valid if guard is agroed or is "meowed" */
+    public Vector2 getTarget() {
+        if (meowed == true) {
+            // System.out.print("Guard is getting meow target");
+        }
+        return target;
     }
 }

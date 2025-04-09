@@ -28,8 +28,8 @@
         "walk" : "octopus-walk.animation"
       },
       "frameDelays": {
-        "idle" : 20,
-        "walk" : 12
+        "idle" : 16,
+        "walk" : 8
       },
       "startFrames": {
         "idle" : 0,
@@ -39,8 +39,8 @@
     },
     "guard": {
       "animations": {
-        "idle": "dude-idle.animation",
-        "walk" : "dude-walk.animation"
+        "idle": "guard-idle.animation",
+        "walk" : "guard-walk.animation"
       },
       "frameDelays": {
         "idle" : 4,
