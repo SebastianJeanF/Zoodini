@@ -116,7 +116,6 @@ public class Cat extends Avatar {
     @Override
     public void update(float dt) {
         super.update(dt);
-        setAngle(0);
 
         // Update ring animation
         if (isRingActive) {
@@ -141,6 +140,7 @@ public class Cat extends Avatar {
 
     @Override
     public void draw(SpriteBatch batch) {
+        setAngle(0);
         super.draw(batch);
 
         // Draw expanding ring if active
