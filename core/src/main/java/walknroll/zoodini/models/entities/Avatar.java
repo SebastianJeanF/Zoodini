@@ -14,7 +14,9 @@
  */
 package walknroll.zoodini.models.entities;
 
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
@@ -201,35 +203,41 @@ public class Avatar extends ZoodiniSprite {
 	 *
 	 * @param avatarType The type of this avatar
 	 * @param directory  The asset directory (for textures, etc)
-	 * @param json       The JSON values defining this avatar
+	 * @param properties The properties of tiled map object
 	 * @param globals	 The global JSON values defining this avatar
 	 * @param units      The physics units for this avatar
 	 */
-	public Avatar(AvatarType avatarType, AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
+	public Avatar(AvatarType avatarType, AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
 		this.avatarType = avatarType;
 
-		float[] pos = json.get("pos").asFloatArray();
-		float radius = globals.getFloat("radius");
-		obstacle = new WheelObstacle(pos[0], pos[1], radius);
-		obstacle.setName(json.name());
-		obstacle.setFixedRotation(false);
+        float[] pos = new float[2];
+        pos[0] = properties.get("x", Float.class) / units;
+        pos[1] = properties.get("y", Float.class) / units;
+		float radius = properties.get("radius",Float.class);
 
-		// Technically, we should do error checking here.
-		// A JSON field might accidentally be missing
-		obstacle.setBodyType(globals.getString("bodytype").equals("static") ? BodyDef.BodyType.StaticBody
-				: BodyDef.BodyType.DynamicBody);
-		obstacle.setDensity(globals.getFloat("density"));
-		obstacle.setFriction(globals.getFloat("friction"));
-		obstacle.setRestitution(globals.getFloat("restitution"));
+		obstacle = new WheelObstacle(pos[0], pos[1], radius);
+		obstacle.setName(properties.get("type", String.class));
+		obstacle.setFixedRotation(false);
+        obstacle.setBodyType(BodyType.DynamicBody);
+		obstacle.setDensity(1.0f);
+		obstacle.setFriction(0.0f);
+		obstacle.setRestitution(0.0f);
 		obstacle.setPhysicsUnits(units);
 
-		setForce(globals.getFloat("force"));
-		setDamping(globals.getFloat("damping"));
-		setMaxSpeed(globals.getFloat("maxspeed"));
+//		obstacle.setBodyType(properties.get("bodyType", String.class).equals("static") ? BodyDef.BodyType.StaticBody
+//				: BodyDef.BodyType.DynamicBody);
+//		obstacle.setDensity(properties.get("density", Float.class));
+//		obstacle.setFriction(properties.get("friction", Float.class));
+//		obstacle.setRestitution(properties.get("restitution", Float.class));
+//		obstacle.setPhysicsUnits(units);
+
+		setForce(properties.get("force", Float.class));
+		setDamping(10.0f);
+		setMaxSpeed(properties.get("maxSpeed", Float.class));
 
 		// Create the collision filter (used for light penetration)
-		short collideBits = GameLevel.bitStringToShort(globals.getString("collide"));
-		short excludeBits = GameLevel.bitStringToComplement(globals.getString("exclude"));
+		short collideBits = GameLevel.bitStringToShort(properties.get("collide", String.class));
+		short excludeBits = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
 		Filter filter = new Filter();
 		filter.categoryBits = collideBits;
 		filter.maskBits = excludeBits;
@@ -242,7 +250,7 @@ public class Avatar extends ZoodiniSprite {
         // Load animations from JSON
         setupAnimations(directory, globals);
 
-        float r = globals.getFloat("spriterad") * units;
+        float r = properties.get("spriteRadius", Float.class) * units;
 		mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 	}
 

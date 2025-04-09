@@ -32,9 +32,13 @@ package walknroll.zoodini.models;
 import box2dLight.*;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.maps.Map;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
+import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.objects.EllipseMapObject;
+import com.badlogic.gdx.maps.objects.PolygonMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -54,6 +58,7 @@ import edu.cornell.gdiac.math.Path2;
 import edu.cornell.gdiac.math.PathExtruder;
 import edu.cornell.gdiac.math.PathFactory;
 import edu.cornell.gdiac.util.*;
+import java.util.Iterator;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Cat;
 import walknroll.zoodini.models.entities.Guard;
@@ -170,29 +175,61 @@ public class GameLevel {
 	 * @param levelGlobals the JSON file defining configs global to every level
 	 */
 	public void populate(AssetDirectory directory, JsonValue levelFormat, JsonValue levelGlobals) {
-		int[] gSize = levelGlobals.get("screen_size").asIntArray();
+        // Compute the FPS
+        int[] fps = {20, 60};
+        maxFPS = fps[1];
+        minFPS = fps[0];
+        timeStep = 1.0f / maxFPS;
+        maxSteps = 1.0f + (float) maxFPS / minFPS;
+        maxTimePerFrame = timeStep * maxSteps;
+
 
 		world = new World(Vector2.Zero, false);
         tiledMap = new TmxMapLoader().load(levelFormat.get("map").getString("file"));
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
-        TiledMapTileLayer layer = ((TiledMapTileLayer) tiledMap.getLayers().get("Floors"));
-        units = layer.getTileWidth();
-        int width = layer.getWidth(); //30
-        int height = layer.getHeight(); //20
+
+        TiledMapTileLayer ground = ((TiledMapTileLayer) tiledMap.getLayers().get("ground"));
+        units = ground.getTileWidth();
+        int width = ground.getWidth(); //30
+        int height = ground.getHeight(); //20
         bounds = new Rectangle(0,0,width,height);
 
-        createWallBodies();
+        MapLayer walls = tiledMap.getLayers().get("walls");
+        createWallBodies(walls);
 
-        // Compute the FPS
-		int[] fps = levelGlobals.get("fps_range").asIntArray();
-		maxFPS = fps[1];
-		minFPS = fps[0];
-		timeStep = 1.0f / maxFPS;
-		maxSteps = 1.0f + (float) maxFPS / minFPS;
-		maxTimePerFrame = timeStep * maxSteps;
 
-		// Walls
+        MapLayer playerSpawn = tiledMap.getLayers().get("players");
+        for(MapObject obj : playerSpawn.getObjects()){
+            MapProperties properties = obj.getProperties();
+            String type = properties.get("type", String.class);
+            if("Cat".equalsIgnoreCase(type)){
+                avatarCat = new Cat(directory, properties, levelGlobals.get("avatarCat"), units);
+                activate(avatarCat);
+            } else if("Octopus".equalsIgnoreCase(type)){
+                avatarOctopus = new Octopus(directory, properties, levelGlobals.get("avatarOctopus"), units);
+                activate(avatarOctopus);
+            }
+        }
+
+
+        MapLayer guardSpawn = tiledMap.getLayers().get("guards");
+        for(MapObject obj : guardSpawn.getObjects()){
+            MapProperties properties = obj.getProperties();
+            guards.add(new Guard(directory, properties, levelGlobals.get("guard"), units));
+            activate(guards.peek());
+        }
+
+
+        MapLayer cameraSpawn = tiledMap.getLayers().get("cameras");
+        for(MapObject obj : cameraSpawn.getObjects()){
+            MapProperties properties = obj.getProperties();
+            securityCameras.add(new SecurityCamera(directory, properties, levelGlobals.get("camera"), units));
+            activate(securityCameras.peek());
+        }
+
+
+        // Walls
 		goalDoor = new Door(directory, levelFormat.get("door"), levelGlobals.get("door"), units);
 		activate(goalDoor);
 
@@ -206,31 +243,14 @@ public class GameLevel {
             activate(key);
         }
 
-		JsonValue catData = levelFormat.get("avatarCat");
-		avatarCat = new Cat(directory, catData, levelGlobals.get("avatarCat"), units);
-		activate(avatarCat);
-
-//		// Avatars
-		JsonValue octopusData = levelFormat.get("avatarOctopus");
-		avatarOctopus = new Octopus(directory, octopusData, levelGlobals.get("avatarOctopus"), units);
-		activate(avatarOctopus);
-//
-//		// Enemies
-		JsonValue json = levelFormat.getChild("guards");
-		while (json != null) {
-			guards.add(new Guard(directory, json, levelGlobals.get("guard"), units));
-			activate(guards.peek());
-            json = json.next();
-		}
-
         // Security Cameras
-        JsonValue cameras = levelFormat.getChild("cameras");
-        while (cameras != null) {
-            SecurityCamera camera = new SecurityCamera(directory, cameras, levelGlobals.get("camera"), units);
-            activate(camera);
-            securityCameras.add(camera);
-            cameras = cameras.next();
-        }
+//        JsonValue cameras = levelFormat.getChild("cameras");
+//        while (cameras != null) {
+//            SecurityCamera camera = new SecurityCamera(directory, cameras, levelGlobals.get("camera"), units);
+//            activate(camera);
+//            securityCameras.add(camera);
+//            cameras = cameras.next();
+//        }
 
 		// Lights
         JsonValue visionJson = levelFormat.get("visions");
@@ -274,29 +294,23 @@ public class GameLevel {
         }
     }
 
-    private void createWallBodies(){
-        TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get("Walls");
+
+    /**
+     * Create and register rectangle obstacles from a tile layer.
+     * The layer must consist of tiles that has an object assigned to it.
+     * */
+    private void createWallBodies(MapLayer layer){
         float tileSize = getTileSize();
-
-        for (int x = 0; x < layer.getWidth(); x++) {
-            for (int y = 0; y < layer.getHeight(); y++) {
-                TiledMapTileLayer.Cell cell = layer.getCell(x, y);
-                if (cell == null)
-                    continue;
-
-                MapObjects cellObjects = cell.getTile().getObjects();
-                if (cellObjects.getCount() != 1)
-                    continue;
-
-                MapObject mapObject = cellObjects.get(0);
-                if (mapObject instanceof RectangleMapObject rectangleObject){
-                    Rectangle rectangle = rectangleObject.getRectangle(); //in pixels
-                    Obstacle obstacle =
-                    new BoxObstacle(
-                        x + 1/2f, y + 1/2f,
-                        rectangle.getWidth() / tileSize,
-                        rectangle.getHeight() / tileSize
-                    );
+        for(MapObject wall : layer.getObjects()){
+            if (wall instanceof RectangleMapObject rec)
+            {
+                Rectangle rectangle = rec.getRectangle(); //dimensions given in pixels
+                Obstacle obstacle = new BoxObstacle(
+                    (rectangle.x + rectangle.width / 2) / units,
+                    (rectangle.y + rectangle.height / 2) / units,
+                    rectangle.width / units,
+                    rectangle.height / units
+                );
 
                 obstacle.setPhysicsUnits(units);
                 obstacle.setBodyType(BodyType.StaticBody);
@@ -310,9 +324,66 @@ public class GameLevel {
 
                 objects.add(obstacle);
                 obstacle.activatePhysics(world);
-                }
+            }
+            else if (wall instanceof EllipseMapObject e)
+            {
+                Ellipse ellipse = e.getEllipse();
+            }
+            else if (wall instanceof PolygonMapObject poly)
+            {
+
+//                Polygon polygon = poly.getPolygon();
+//                Obstacle obstacle = new PolygonObstacle(polygon.getVertices());
+//                obstacle.setPhysicsUnits(units);
+//                obstacle.setBodyType(BodyType.StaticBody);
+//
+//                Filter filter = new Filter();
+//                short collideBits = GameLevel.bitStringToShort("0100");
+//                short excludeBits = GameLevel.bitStringToComplement("0000");
+//                filter.categoryBits = collideBits;
+//                filter.maskBits = excludeBits;
+//                obstacle.setFilterData(filter);
+//
+//                objects.add(obstacle);
+//                obstacle.activatePhysics(world);
             }
         }
+
+//        for (int x = 0; x < layer.getWidth(); x++) {
+//            for (int y = 0; y < layer.getHeight(); y++) {
+//                TiledMapTileLayer.Cell cell = layer.getCell(x, y);
+//                if (cell == null)
+//                    continue;
+//
+//                MapObjects cellObjects = cell.getTile().getObjects();
+//                if (cellObjects.getCount() != 1)
+//                    continue;
+//
+//                MapObject mapObject = cellObjects.get(0);
+//                if (mapObject instanceof RectangleMapObject rectangleObject){
+//                    Rectangle rectangle = rectangleObject.getRectangle(); //in pixels
+//                    Obstacle obstacle =
+//                    new BoxObstacle(
+//                        x + 1/2f, y + 1/2f,
+//                        rectangle.getWidth() / tileSize,
+//                        rectangle.getHeight() / tileSize
+//                    );
+//
+//                obstacle.setPhysicsUnits(units);
+//                obstacle.setBodyType(BodyType.StaticBody);
+//
+//                Filter filter = new Filter();
+//                short collideBits = GameLevel.bitStringToShort("0100");
+//                short excludeBits = GameLevel.bitStringToComplement("0000");
+//                filter.categoryBits = collideBits;
+//                filter.maskBits = excludeBits;
+//                obstacle.setFilterData(filter);
+//
+//                objects.add(obstacle);
+//                obstacle.activatePhysics(world);
+//                }
+//            }
+//        }
     }
 
 

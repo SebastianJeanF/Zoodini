@@ -1,5 +1,6 @@
 package walknroll.zoodini.models.entities;
 
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.JsonValue;
 
@@ -35,26 +36,8 @@ public class Guard extends Enemy {
      * The main purpose of this constructor is to set the initial capsule
      * orientation.
      */
-    public Guard(AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
-        super(directory, json, globals, units);
-
-        // Read patrol points from JSON if available.
-        if (json.has("patrol")) {
-            JsonValue patrolJson = json.get("patrol");
-            patrolPoints = new Vector2[patrolJson.size];
-            int index = 0;
-            for (JsonValue point : patrolJson) {
-                float x = point.getFloat(0);
-                float y = point.getFloat(1);
-                patrolPoints[index++] = new Vector2(x, y);
-            }
-        } else {
-            // Fallback to default patrol points if none are provided in JSON.
-            patrolPoints = new Vector2[] {
-                    new Vector2(4f, 8),
-                    new Vector2(14, 8)
-            };
-        }
+    public Guard(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
+        super(directory, properties, globals, units);
 
         currentPatrolIndex = 0;
         cameraAlerted = false;
