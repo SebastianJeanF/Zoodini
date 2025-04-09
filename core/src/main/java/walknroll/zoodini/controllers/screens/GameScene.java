@@ -14,6 +14,7 @@ package walknroll.zoodini.controllers.screens;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -30,10 +31,7 @@ import walknroll.zoodini.controllers.UIController;
 import walknroll.zoodini.controllers.aitools.TileGraph;
 import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
-import walknroll.zoodini.models.entities.Avatar;
-import walknroll.zoodini.models.entities.Guard;
-import walknroll.zoodini.models.entities.Octopus;
-import walknroll.zoodini.models.entities.SecurityCamera;
+import walknroll.zoodini.models.entities.*;
 import walknroll.zoodini.models.entities.Avatar.AvatarType;
 import walknroll.zoodini.models.nonentities.Door;
 import walknroll.zoodini.models.nonentities.InkProjectile;
@@ -57,7 +55,7 @@ import java.util.HashMap;
  */
 public class GameScene implements Screen, ContactListener {
 
-    private boolean debug = false;
+    private boolean debug = true;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
@@ -301,6 +299,7 @@ public class GameScene implements Screen, ContactListener {
         float horizontal = input.getHorizontal();
         moveAvatar(vertical, horizontal, avatar);
         checkFlipSprite(avatar, input);
+        level.getOctopus().regenerateInk();
 
         if(avatar.getAvatarType() == AvatarType.OCTOPUS){
             Octopus octopus = (Octopus) avatar;
@@ -312,19 +311,21 @@ public class GameScene implements Screen, ContactListener {
                 .clamp(0.0f, octopus.getAbilityRange()); //this decides the distance for projectile to travel
             octopus.setTarget(tmp2); //set a target vector relative to octopus's position as origin.
 
-            if(input.didAbility()) { //check for ink resource here.
+            if(input.didAbility() && octopus.canUseAbility()) { //check for ink resource here.
                 octopus.setCurrentlyAiming(!octopus.isCurrentlyAiming()); //turn the reticle on and off
             }
 
             if(octopus.isCurrentlyAiming() && input.didLeftClick()){
                 octopus.setDidFire(true);
                 octopus.setCurrentlyAiming(false);
+                octopus.consumeInk();
             } else {
                 octopus.setDidFire(false);
             }
 
         } else { //avatar is Cat
-            //TODO
+            Cat cat = (Cat) avatar;
+            cat.setMeowed(input.didAbility());
         }
 
 
@@ -394,13 +395,9 @@ public class GameScene implements Screen, ContactListener {
 
         // Set the camera's updated view
         batch.setProjectionMatrix(camera.combined);
-        // Set the camera's updated view
-        batch.setProjectionMatrix(camera.combined);
 
         level.draw(batch, camera);
 
-        // Final message
-        ui.draw(batch);
 
         if(debug) {
             graph.draw(batch, camera, level.getTileSize());
@@ -409,6 +406,10 @@ public class GameScene implements Screen, ContactListener {
                 TileNode t = graph.markNearestTile(camera, ic.getAiming(), level.getTileSize());
             }
         }
+
+        // batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+        // Final message
+        ui.draw(batch, level);
     }
 
     /**
@@ -504,7 +505,7 @@ public class GameScene implements Screen, ContactListener {
             avatar.getObstacle().setAngle(angle);
         }
 
-        angleCache.scl(avatar.getForce());
+        angleCache.scl(avatar.getForce()).scl(level.getTileSize());
         avatar.setMovement(angleCache.x, angleCache.y);
         avatar.applyForce();
     }

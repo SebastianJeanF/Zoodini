@@ -22,6 +22,9 @@ import walknroll.zoodini.utils.ZoodiniSprite;
 
 public class SecurityCamera extends ZoodiniSprite {
 
+    private float fov;
+    private float viewDistance;
+
     private int startFrame;
     private boolean isDisabled;
     private float disabledTime;
@@ -36,18 +39,6 @@ public class SecurityCamera extends ZoodiniSprite {
     private Color ringColor;
     private float ringThickness;
     private Affine2 affineCache;
-
-    public boolean isDisabled() {
-        return isDisabled;
-    }
-
-    public void setDisabled(boolean isDisabled) {
-        this.isDisabled = isDisabled;
-    }
-
-    public float getAngle() {
-        return angle;
-    }
 
     public SecurityCamera(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
         float[] pos = new float[2];
@@ -65,7 +56,7 @@ public class SecurityCamera extends ZoodiniSprite {
         obstacle.setRestitution(0.0f);
         obstacle.setPhysicsUnits(units);
 
-        short collideBits = GameLevel.bitStringToShort(properties.get("collide", String.class));
+        short collideBits = GameLevel.bitStringToShort(properties.get("category", String.class));
         short excludeBits = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
         Filter filter = new Filter();
         filter.categoryBits = collideBits;
@@ -93,6 +84,8 @@ public class SecurityCamera extends ZoodiniSprite {
         currentRadius = 0f;
         isRingActive = false;
         affineCache = new Affine2();
+        fov = properties.get("fov",Float.class);
+        viewDistance = properties.get("viewDistance", Float.class);
     }
 
     /**
@@ -169,5 +162,26 @@ public class SecurityCamera extends ZoodiniSprite {
 
     public float getY() {
         return obstacle.getY();
+    }
+
+    public float getFov(){
+        return fov;
+    }
+
+    public float getViewDistance(){
+        return viewDistance;
+    }
+
+
+    public boolean isDisabled() {
+        return isDisabled;
+    }
+
+    public void setDisabled(boolean isDisabled) {
+        this.isDisabled = isDisabled;
+    }
+
+    public float getAngle() {
+        return angle;
     }
 }

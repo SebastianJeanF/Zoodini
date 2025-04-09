@@ -19,6 +19,8 @@ public class Guard extends Enemy {
     public static final float FOV_DISTANCE = 7.0f; // Maximum detection distance.
     public static final float FOV_ANGLE = 45.0f; // Total cone angle in degrees.
 
+    private float fov;
+    private float viewDistance;
     private boolean isChasing;
     private boolean meowed;
     private int chaseTimer;
@@ -45,7 +47,7 @@ public class Guard extends Enemy {
      */
     public Guard(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
         super(directory, properties, globals, units);
-
+        fov = properties.get("fov", Float.class);
         currentPatrolIndex = 0;
         cameraAlerted = false;
         isChasing = false;
@@ -53,6 +55,7 @@ public class Guard extends Enemy {
         chaseTimer = 0;
         AnimationState state = AnimationState.SUSPICION_METER;
         suspsicionMeter = new AnimationController(state);
+        viewDistance = properties.get("viewDistance", Float.class);
 
 
         String animKey = globals.getString("suspicion");
@@ -98,12 +101,8 @@ public class Guard extends Enemy {
         return isChasing;
     }
 
-    /** The value of target is only valid if guard is agroed or is "meowed" */
-    public Vector2 getTarget() {
-        if (meowed == true) {
-            // System.out.print("Guard is getting meow target");
-        }
-        return target;
+    public void update(float dt) {
+        applyForce();
     }
 
     /** Get current movement direction of guard.
@@ -173,10 +172,24 @@ public class Guard extends Enemy {
         chaseTimer = value;
     }
 
+    public float getFov(){
+        return fov;
+    }
 
-    public void update(float dt) {
-        obstacle.update(dt);
-        applyForce();
+    public float getViewDistance(){
+        return viewDistance;
+    }
+
+
+
+
+
+    /** The value of target is only valid if guard is agroed or is "meowed" */
+    public Vector2 getTarget() {
+        if (meowed == true) {
+            // System.out.print("Guard is getting meow target");
+        }
+        return target;
     }
 
     int susTick = 0;

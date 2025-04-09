@@ -274,21 +274,23 @@ public class GameLevel {
 
     private void initializeVisionCones(JsonValue json) {
         int rayNum = json.getInt("rayNum");
-        float radius = json.getFloat("radius");
         float[] color = json.get("color").asFloatArray();
-        float wideness = json.getFloat("wideness");
         short mask = json.getShort("maskbit");
         short category = json.getShort("categorybit");
         Color c = new Color(color[0], color[1], color[2], color[3]);
         for(SecurityCamera cam : securityCameras){
-            VisionCone vc = new VisionCone(rayNum, Vector2.Zero, radius, 0.0f, wideness, c, units, mask, category);
+            float fov = cam.getFov();
+            float dist = cam.getViewDistance();
+            VisionCone vc = new VisionCone(rayNum, Vector2.Zero, dist, 0.0f, fov , c, units, mask, category);
             float angle = cam.getAngle();
             vc.attachToBody(cam.getObstacle().getBody(), angle);
             visions.put(cam, vc);
         }
 
         for(Guard guard : guards){
-            VisionCone vc = new VisionCone(rayNum, Vector2.Zero, radius, 0.0f, wideness, c, units, mask, category);
+            float fov = guard.getFov();
+            float dist = guard.getViewDistance();
+            VisionCone vc = new VisionCone(rayNum, Vector2.Zero, dist, 0.0f, fov, c, units, mask, category);
             vc.attachToBody(guard.getObstacle().getBody(), 90.0f);
             visions.put(guard, vc);
         }
@@ -300,7 +302,6 @@ public class GameLevel {
      * The layer must consist of tiles that has an object assigned to it.
      * */
     private void createWallBodies(MapLayer layer){
-        float tileSize = getTileSize();
         for(MapObject wall : layer.getObjects()){
             if (wall instanceof RectangleMapObject rec)
             {
@@ -316,7 +317,7 @@ public class GameLevel {
                 obstacle.setBodyType(BodyType.StaticBody);
 
                 Filter filter = new Filter();
-                short collideBits = GameLevel.bitStringToShort("0100");
+                short collideBits = GameLevel.bitStringToShort("0001");
                 short excludeBits = GameLevel.bitStringToComplement("0000");
                 filter.categoryBits = collideBits;
                 filter.maskBits = excludeBits;
@@ -331,21 +332,7 @@ public class GameLevel {
             }
             else if (wall instanceof PolygonMapObject poly)
             {
-
-//                Polygon polygon = poly.getPolygon();
-//                Obstacle obstacle = new PolygonObstacle(polygon.getVertices());
-//                obstacle.setPhysicsUnits(units);
-//                obstacle.setBodyType(BodyType.StaticBody);
-//
-//                Filter filter = new Filter();
-//                short collideBits = GameLevel.bitStringToShort("0100");
-//                short excludeBits = GameLevel.bitStringToComplement("0000");
-//                filter.categoryBits = collideBits;
-//                filter.maskBits = excludeBits;
-//                obstacle.setFilterData(filter);
-//
-//                objects.add(obstacle);
-//                obstacle.activatePhysics(world);
+                Polygon polygon = poly.getPolygon();
             }
         }
 
@@ -510,7 +497,7 @@ public class GameLevel {
         if(avatar != null) {
             if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
                 Octopus octopus = (Octopus) avatar;
-                if (octopus.isCurrentlyAiming()) {
+                if (octopus.isCurrentlyAiming() && octopus.canUseAbility()) {
                     drawOctopusReticle(batch, camera);
                 }
             }
@@ -704,11 +691,11 @@ public class GameLevel {
         return catActive ? avatarCat : avatarOctopus;
     }
 
-    public Avatar getCat() {
+    public Cat getCat() {
         return avatarCat;
     }
 
-    public Avatar getOctopus() {
+    public Octopus getOctopus() {
         return avatarOctopus;
     }
 

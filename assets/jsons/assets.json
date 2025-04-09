@@ -5,8 +5,8 @@
 			"wrapU": "repeated",
 			"wrapV": "repeated"
     	},
-      "dude-idle": {
-        "file": 	"textures/walking.png",
+      "guard-idle": {
+        "file": 	"textures/guard_walking.png",
         "wrap":  	false,
         "sprites":	{
           "animation" : {
@@ -16,8 +16,8 @@
           }
         }
       },
-      "dude-walk": {
-        "file": 	"textures/walking.png",
+      "guard-walk": {
+        "file": 	"textures/guard_walking.png",
         "wrap":  	false,
         "sprites":	{
           "animation" : {
@@ -61,7 +61,7 @@
         }
       },
       "octopus-walk": {
-        "file": 	"textures/otto_walk.png",
+        "file": 	"textures/octopus_walk.png",
         "wrap":  	false,
         "sprites":	{
           "animation" : {
