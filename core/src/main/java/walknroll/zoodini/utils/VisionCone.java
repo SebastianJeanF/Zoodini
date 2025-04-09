@@ -1,8 +1,10 @@
 package walknroll.zoodini.utils;
 
 import box2dLight.ConeLight;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.MathUtils;
@@ -200,11 +202,14 @@ public class VisionCone implements RayCastCallback{
 
     Affine2 cache = new Affine2();
     public void draw(SpriteBatch batch, Camera camera){
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         batch.begin(camera);
-        batch.setColor(c);
+        batch.setColor(1.0f,1.0f,1.0f,0.5f); //rgba
         cache.idt();
         cache.scale(units,units);
         batch.fill(cone, cache);
         batch.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
     }
 }
