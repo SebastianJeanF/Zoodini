@@ -268,6 +268,9 @@ public class GameScene implements Screen, ContactListener {
         // Animation frames are updated.
         level.update(dt);
 
+        // Now that everything is moved, Update Camera,
+        updateCamera(dt);
+
         updateSecurityCameraVisionCones();
     }
 
@@ -332,8 +335,6 @@ public class GameScene implements Screen, ContactListener {
 
 
 
-        cameraTargetPosition.set(avatar.getPosition());
-        updateCamera(dt);
 
         tmp.setZero();
         tmp2.setZero();
@@ -501,6 +502,11 @@ public class GameScene implements Screen, ContactListener {
         // Rotate the avatar to face the direction of movement
         angleCache.set(horizontalForce, verticalForce);
         if (angleCache.len2() > 0.0f) {
+            // Prevent faster movement when going diagonally
+            if (angleCache.len() > 1.0f) {
+                angleCache.nor();
+            }
+
             float angle = angleCache.angleDeg();
             // Convert to radians with up as 0
             angle = (float) Math.PI * (angle - 90.0f) / 180.0f;
@@ -534,6 +540,8 @@ public class GameScene implements Screen, ContactListener {
 	 * Updates the camera position with interpolation when transitioning
 	 */
 	private void updateCamera(float dt) {
+        cameraTargetPosition.set(level.getAvatar().getPosition());
+
         // Get viewport dimensions in world units
         float viewWidth = camera.viewportWidth / level.getTileSize();
         float viewHeight = camera.viewportHeight / level.getTileSize();

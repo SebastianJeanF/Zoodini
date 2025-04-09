@@ -192,12 +192,18 @@ public class Guard extends Enemy {
         return target;
     }
 
-    int susTick = 0;
-    int FRAMES_PER_CHANGE = 20;
+
 
     public void draw(SpriteBatch batch) {
-        susTick++;
         super.draw(batch);
+        drawSuspicionMeter(batch);
+    }
+
+    // Temporary values, until meter is attached to guard AI controller
+    int susTick = 0;
+    final int FRAMES_PER_CHANGE = 20;
+    public void drawSuspicionMeter(SpriteBatch batch) {
+        susTick++;
         if (susTick % FRAMES_PER_CHANGE == 0) {
             suspsicionMeter.update();
             suspsicionMeter.getCurrentSpriteSheet().setFrame(suspsicionMeter.getCurrentFrame());
@@ -207,10 +213,10 @@ public class Guard extends Enemy {
             float PIXEL_PER_WORLD_UNIT = getObstacle().getPhysicsUnits();
             float guardXPixel = getPosition().x * PIXEL_PER_WORLD_UNIT;
             float guardYPixel = getPosition().y * PIXEL_PER_WORLD_UNIT;
-            float scale = 0.4f;
 
-            float xPixelOffset = -64f * scale;
-            float yPixelOffset = 20f;
+            float SCALE = 0.3f;
+            float X_PIXEL_OFFSET = -90f * SCALE;
+            float Y_PIXEL_OFFSET = 30f;
 
             // Get the original width and height of the sprite sheet
             float originalWidth = suspsicionMeter.getCurrentSpriteSheet().getRegionWidth();
@@ -218,10 +224,10 @@ public class Guard extends Enemy {
 
             batch.draw(
                 suspsicionMeter.getCurrentSpriteSheet(),
-                guardXPixel + xPixelOffset,
-                guardYPixel + yPixelOffset,
-                originalWidth * scale,
-                originalHeight * scale
+                guardXPixel + X_PIXEL_OFFSET,
+                guardYPixel + Y_PIXEL_OFFSET,
+                originalWidth * SCALE,
+                originalHeight * SCALE
             );
         }
     }
