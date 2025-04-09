@@ -392,6 +392,16 @@ public class GameScene implements Screen, ContactListener {
         ui.draw(batch);
 
         if(debug) {
+            graph.clearTargetNodes();
+
+            // For each guard, mark their target nodes for display
+            guardToAIController.forEach((guard, controller) -> {
+                Vector2 targetLocation = controller.getNextTargetLocation();
+                if (targetLocation != null) {
+                    graph.markPositionAsTarget(targetLocation);
+                }
+            });
+
             graph.draw(batch, camera, level.getTileSize());
             InputController ic = InputController.getInstance();
             if(ic.didLeftClick()) {

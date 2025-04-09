@@ -153,6 +153,11 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
             if(node.equals(selected)){
                 c = Color.MAGENTA;
             }
+
+            if (targetNodes.contains(node)) {
+                c = Color.RED;
+            }
+
             Poly2 polygon = pf.makeNgon(node.x + 0.5f, node.y + 0.5f, 0.1f, 10);
             Path2 rect = pathFactory.makeRect(node.x, node.y, 0.95f, 0.95f);
             batch.setColor(c);
@@ -194,6 +199,37 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
      * */
     public TileNode markNearestTile(Camera cam, Vector2 screenCoord, float units) {
         return markNearestTile(cam, screenCoord.x, screenCoord.y, units);
+    }
+
+
+    /**
+     * Marks a node as a target node that will be highlighted in red during debug drawing.
+     *
+     * @param node The node to mark as a target
+     */
+    public void markAsTarget(TileNode node) {
+        if (node != null) {
+            targetNodes.add(node);
+        }
+    }
+
+    /**
+     * Clears all marked target nodes.
+     */
+    public void clearTargetNodes() {
+        targetNodes.clear();
+    }
+
+    /**
+     * Marks a world position as a target that will be highlighted in red during debug drawing.
+     *
+     * @param worldPos The world position to mark
+     */
+    public void markPositionAsTarget(Vector2 worldPos) {
+        TileNode node = worldToTile(worldPos);
+        if (node != null) {
+            markAsTarget(node);
+        }
     }
 
     /**
