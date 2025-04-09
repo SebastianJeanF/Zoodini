@@ -54,7 +54,7 @@ import java.util.HashMap;
  */
 public class GameScene implements Screen, ContactListener {
 
-    private boolean debug = false;
+    private boolean debug = true;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
@@ -148,6 +148,7 @@ public class GameScene implements Screen, ContactListener {
         ui.init();
 
         graph = new TileGraph<>(level.getMap(), false);
+        initializeAIControllers();
 
 		setComplete(false);
 		setFailure(false);
@@ -446,11 +447,13 @@ public class GameScene implements Screen, ContactListener {
     }
 
     private void updateGuardAI() {
+        System.out.println("In UpdateGuardAI");
         guardToAIController.forEach((guard, controller) -> {
             System.out.println("Updating guard AI for a guard");
             controller.update();
             guard.think(controller.getMovementDirection(), controller.getNextTargetLocation());
         });
+        System.out.println("Done updating guard AI");
     }
 
 

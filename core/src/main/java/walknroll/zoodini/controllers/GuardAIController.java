@@ -3,18 +3,25 @@ package walknroll.zoodini.controllers;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.Connection;
+import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
+import com.badlogic.gdx.ai.pfa.GraphPath;
+import com.badlogic.gdx.ai.pfa.Heuristic;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 
 
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import java.util.ArrayList;
+import walknroll.zoodini.controllers.aitools.ManhattanHeuristic;
+import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Guard;
 //import walknroll.zoodini.utils.GameGraph;
 import walknroll.zoodini.controllers.aitools.TileGraph;
+import walknroll.zoodini.utils.GameGraph.DistanceHeuristic;
 import walknroll.zoodini.utils.GameGraph.Node;
 
 import java.util.List;
@@ -48,6 +55,10 @@ public class GuardAIController {
     /** Graph representation of the game */
     private TileGraph tileGraph;
 
+    private IndexedAStarPathFinder<TileNode> pathFinder;
+
+    private Heuristic heuristic;
+
 
     private Vector2 nextTargetLocation;
 
@@ -64,7 +75,7 @@ public class GuardAIController {
      * @param level The game level containing relevant game state information
      * @param tileGraph The graph representation of the level for pathfinding
      */
-    public GuardAIController(Guard guard, GameLevel level, TileGraph tileGraph) {
+    public GuardAIController(Guard guard, GameLevel level, TileGraph<TileNode> tileGraph) {
         this.guard = guard;
         this.level = level;
         this.currState = GuardState.PATROL;
@@ -74,6 +85,9 @@ public class GuardAIController {
         this.ticks = 0L;
         this.distractPosition = new Vector2(0, 0);
         this.cameraAlertPosition = new Vector2(0, 0);
+        this.pathFinder = new IndexedAStarPathFinder<>(tileGraph);
+        this.heuristic = new ManhattanHeuristic<>();
+        this.nextTargetLocation = new Vector2(0, 0);
     }
 
 
@@ -301,6 +315,7 @@ public class GuardAIController {
         return currState;
     }
 
+
     /**
      * Helper function that determines the next waypoint location based on pathfinding.
      * Uses the game graph to find a path from the guard's current position to the target location.
@@ -309,10 +324,7 @@ public class GuardAIController {
      * @return The next position the guard should move towards
      */
     private Vector2 getNextWaypointLocation(Vector2 targetLocation) {
-        // TODO: use the getPath method of the PathFinder
-//        List<Node> path = tileGraph.getPath(guard.getPosition().cpy(), targetLocation.cpy());
-        List<Node> path = new ArrayList<>();
-
+        List<TileNode> path = getPath(guard.getPosition().cpy(), targetLocation.cpy());
         if (path.isEmpty()) {
             if (currState == GuardState.CHASE) {
                 return targetPlayer.getPosition().cpy();
@@ -321,17 +333,16 @@ public class GuardAIController {
         }
 
         int pathIdx = 0;
-        Vector2 nextStep = path.get(pathIdx).getWorldPosition().cpy();
+        Vector2 nextStep = tileGraph.tileToWorld(path.get(pathIdx));
         final float MIN_STEP_DISTANCE = 0.5F;
 
         // Skip steps that are too close to the guard to prevent jittering
         while (nextStep.dst(guard.getPosition().cpy()) < MIN_STEP_DISTANCE && pathIdx < path.size() - 1) {
             pathIdx++;
-            nextStep = path.get(pathIdx).getWorldPosition().cpy();
+            nextStep = tileGraph.tileToWorld(path.get(pathIdx));
         }
         return nextStep;
     }
-
 
     /**
      * Helper function that updates the next target location based on the guard's current state.
@@ -444,6 +455,47 @@ public class GuardAIController {
 //        gameGraph.drawGraphDebug(batch, camera, nextTargetLocation, texture);
     }
 
+
+    /**
+     * Finds the shortest path between two positions in the world using A*.
+     *
+     * @INVARIANT this.heuristic must be initialized
+     * @param currPosWorld The starting position in world coordinates
+     * @param targetPosWorld The target position in world coordinates
+     * @return A list of nodes representing the path from start to target, excluding the start node
+     */
+    public List<TileNode> getPath(Vector2 currPosWorld, Vector2 targetPosWorld) {
+        GraphPath<TileNode> graphPath = new DefaultGraphPath<>();
+        TileNode start = tileGraph.worldToTile(currPosWorld);
+        TileNode end = tileGraph.worldToTile(targetPosWorld);
+
+        System.out.println("Current guard Position: " + currPosWorld);
+        // System.out.println("Graph's target: "+ end.getWorldPosition());
+        // Check if start or end node is null
+        if (start == null || end == null) {
+            // System.err.println("Error: Start or end node is null.");
+            return new ArrayList<>();
+        }
+
+        if (start.isWall) {
+            start = tileGraph.findNearestNonObstacleNode(currPosWorld);
+        }
+
+        if (end.isWall) {
+            end = tileGraph.findNearestNonObstacleNode(targetPosWorld);
+        }
+
+        pathFinder.searchNodePath(start, end, heuristic, graphPath);
+
+        // Only add nodes to the path if they are not the start node
+        List<TileNode> path = new ArrayList<>();
+        for (TileNode node : graphPath) {
+            if (!node.equals(start)) {
+                path.add(node);
+            }
+        }
+        return path;
+    }
 
     /**
      * Enum representing the possible states of the guard's AI state machine.

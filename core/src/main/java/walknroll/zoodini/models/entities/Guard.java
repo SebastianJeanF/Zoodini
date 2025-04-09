@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.graphics.Pixmap;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
+import java.util.Arrays;
 import walknroll.zoodini.models.entities.Enemy;
 
 public class Guard extends Enemy {
@@ -58,6 +59,26 @@ public class Guard extends Enemy {
      */
     public Guard(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
         super(directory, properties, globals, units);
+
+        // Read patrol points from JSON if available.
+        if (globals.has("patrol")) {
+            JsonValue patrolJson = globals.get("patrol");
+            patrolPoints = new Vector2[patrolJson.size];
+            int index = 0;
+            for (JsonValue point : patrolJson) {
+                float x = point.getFloat(0);
+                float y = point.getFloat(1);
+                patrolPoints[index++] = new Vector2(x, y);
+            }
+        } else {
+            // Fallback to default patrol points if none are provided in JSON.
+            patrolPoints = new Vector2[] {
+                new Vector2(10.5f, 8),
+                new Vector2(14, 8)
+            };
+        }
+
+        System.out.println("Patrol Points: " + Arrays.toString(patrolPoints));
 
         currentPatrolIndex = 0;
         cameraAlerted = false;
