@@ -74,7 +74,8 @@ public class Guard extends Enemy {
             // Fallback to default patrol points if none are provided in JSON.
             patrolPoints = new Vector2[] {
                 new Vector2(10.5f, 8),
-                new Vector2(14, 8)
+                new Vector2(14, 8),
+                new Vector2(0, 0),
             };
         }
 
@@ -155,7 +156,6 @@ public class Guard extends Enemy {
             return;
         }
 
-        System.out.println("Drawing sus level bar");
 
         float susPercentage = susLevel / maxSusLevel;
         float barWidth = BAR_WIDTH * susPercentage;
@@ -211,7 +211,6 @@ public class Guard extends Enemy {
     }
 
     public void think(Vector2 movementDirection, Vector2 targetPosition) {
-        System.out.println("Guard is thinking");
         this.movementDirection = movementDirection;
         this.targetPosition = targetPosition;
     }

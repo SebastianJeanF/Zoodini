@@ -159,8 +159,10 @@ public class GuardAIController {
         if (currState != GuardState.CHASE) { // Only update when not chasing
             if (this.guard.isAgroed()) { // In guard's line of sight
                 guard.deltaSusLevel(3); // Increase suspicion
+                System.out.println("Guard is aggroed");
             } else {
                 guard.deltaSusLevel(-1); // Decrease suspicion
+                System.out.println("Guard is not aggroed");
             }
         } else {
             // not in guard's line of sight and not under camera
@@ -178,6 +180,7 @@ public class GuardAIController {
     public void update() {
         ticks++;
         updateSusLevel();
+        System.out.println(guard.getSusLevel());
 
         switch(this.currState) {
             case PATROL:
@@ -280,6 +283,8 @@ public class GuardAIController {
             default: // Should not happen
                 break;
         }
+
+        System.out.println("Guard state: " + currState);
 
         setNextTargetLocation();
 
@@ -469,7 +474,7 @@ public class GuardAIController {
         TileNode start = tileGraph.worldToTile(currPosWorld);
         TileNode end = tileGraph.worldToTile(targetPosWorld);
 
-        System.out.println("Current guard Position: " + currPosWorld);
+//        System.out.println("Current guard Position: " + currPosWorld);
         // System.out.println("Graph's target: "+ end.getWorldPosition());
         // Check if start or end node is null
         if (start == null || end == null) {

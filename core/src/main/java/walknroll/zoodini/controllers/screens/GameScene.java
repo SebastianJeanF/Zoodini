@@ -447,13 +447,10 @@ public class GameScene implements Screen, ContactListener {
     }
 
     private void updateGuardAI() {
-        System.out.println("In UpdateGuardAI");
         guardToAIController.forEach((guard, controller) -> {
-            System.out.println("Updating guard AI for a guard");
             controller.update();
             guard.think(controller.getMovementDirection(), controller.getNextTargetLocation());
         });
-        System.out.println("Done updating guard AI");
     }
 
 
