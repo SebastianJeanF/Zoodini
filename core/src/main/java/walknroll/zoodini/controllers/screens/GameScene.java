@@ -31,10 +31,7 @@ import walknroll.zoodini.controllers.UIController;
 import walknroll.zoodini.controllers.aitools.TileGraph;
 import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
-import walknroll.zoodini.models.entities.Avatar;
-import walknroll.zoodini.models.entities.Guard;
-import walknroll.zoodini.models.entities.Octopus;
-import walknroll.zoodini.models.entities.SecurityCamera;
+import walknroll.zoodini.models.entities.*;
 import walknroll.zoodini.models.entities.Avatar.AvatarType;
 import walknroll.zoodini.models.nonentities.Door;
 import walknroll.zoodini.models.nonentities.InkProjectile;
@@ -58,7 +55,7 @@ import java.util.HashMap;
  */
 public class GameScene implements Screen, ContactListener {
 
-    private boolean debug = false;
+    private boolean debug = true;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
@@ -302,6 +299,7 @@ public class GameScene implements Screen, ContactListener {
         float horizontal = input.getHorizontal();
         moveAvatar(vertical, horizontal, avatar);
         checkFlipSprite(avatar, input);
+        level.getOctopus().regenerateInk();
 
         if(avatar.getAvatarType() == AvatarType.OCTOPUS){
             Octopus octopus = (Octopus) avatar;
@@ -326,7 +324,8 @@ public class GameScene implements Screen, ContactListener {
             }
 
         } else { //avatar is Cat
-            //TODO
+            Cat cat = (Cat) avatar;
+            cat.setMeowed(input.didAbility());
         }
 
 
@@ -399,7 +398,7 @@ public class GameScene implements Screen, ContactListener {
 
         level.draw(batch, camera);
 
-        
+
         if(debug) {
             graph.draw(batch, camera, level.getTileSize());
             InputController ic = InputController.getInstance();

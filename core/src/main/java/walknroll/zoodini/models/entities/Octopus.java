@@ -4,6 +4,7 @@ import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.assets.AssetDirectory;
+import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteMesh;
 
 /**
@@ -27,10 +28,13 @@ public class Octopus extends Avatar {
     private boolean didFire;
 
     /// The initial amount of ink
-    private static final float INITIAL_INK = 100;
+    private static final float INITIAL_INK = 99;
 
     /// The amount of ink consumed per ability usage
-    private static final float INK_USAGE = 10;
+    private static final float INK_USAGE = 33;
+
+    /// The amount of ink regenerated per game tick
+    private static final float INK_REGEN_RATE = 0.05f;
 
     /// The amount of ink this octopus has
     private float inkRemaining;
@@ -92,11 +96,11 @@ public class Octopus extends Avatar {
 
     /**
      * Returns whether or not this Octopus has enough ink resource to use an ability
-     * 
+     *
      * @return
      */
     public boolean canUseAbility() {
-        return inkRemaining > 0;
+        return (inkRemaining - Octopus.INK_USAGE) >= 0;
     }
 
     /**
@@ -104,6 +108,13 @@ public class Octopus extends Avatar {
      */
     public void consumeInk() {
         this.inkRemaining -= Octopus.INK_USAGE;
+    }
+
+    /**
+     * Regenerate one game tick's worth of ink points
+     */
+    public void regenerateInk() {
+        this.inkRemaining = Math.min(Octopus.INITIAL_INK, this.inkRemaining + Octopus.INK_REGEN_RATE);
     }
 
     public Octopus(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
@@ -118,6 +129,11 @@ public class Octopus extends Avatar {
     @Override
     public void update(float dt) {
         super.update(dt);
+    }
+
+    @Override
+    public void draw(SpriteBatch batch){
         setAngle(0);
+        super.draw(batch);
     }
 }
