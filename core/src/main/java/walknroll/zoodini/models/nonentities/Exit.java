@@ -66,7 +66,7 @@ public class Exit extends ZoodiniSprite {
      * @param units     The physics units for this avatar
      */
     public Exit(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
-        float[] pos = {properties.get("x", Float.class), properties.get("y", Float.class)};
+        float[] pos = {properties.get("x", Float.class) / units, properties.get("y", Float.class) / units};
         float size = properties.get("size", Float.class);
 
         obstacle = new BoxObstacle(pos[0], pos[1], size, size);
