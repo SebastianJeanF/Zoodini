@@ -27,18 +27,21 @@ public class SecurityCamera extends ZoodiniSprite {
 
     private int startFrame;
     private boolean isDisabled;
-    private float disabledTime;
+    private float disabledTime; //in seconds
     private float disabledTimeRemaining;
     private float angle;
 
     // Ring effect properties
     private float currentRadius;
-    private float maxRadius;
+    private float alarmDistance;
     private float expansionSpeed;
     private boolean isRingActive;
     private Color ringColor;
     private float ringThickness;
-    private Affine2 affineCache;
+
+    Affine2 affineCache = new Affine2();
+    PathFactory pf = new PathFactory();
+    PathExtruder extruder = new PathExtruder();
 
     public SecurityCamera(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
         float[] pos = new float[2];
@@ -78,13 +81,12 @@ public class SecurityCamera extends ZoodiniSprite {
         isDisabled = false;
 
         // Initialize ring effect properties
-        maxRadius = globals.getFloat("cameraRange", 4.0f);
-        expansionSpeed = globals.getFloat("ringExpansionSpeed", 0.1f);
-        ringThickness = globals.getFloat("ringThickness", 0.05f);
+        alarmDistance = properties.get("alarmDistance", Float.class);
+        expansionSpeed = 1.0f;
+        ringThickness = 0.1f;
         ringColor = new Color(1, 0, 0, 0.5f); // Semi-transparent red
-        currentRadius = 0f;
+        currentRadius = 0f; //in meters
         isRingActive = false;
-        affineCache = new Affine2();
         fov = properties.get("fov",Float.class);
         viewDistance = properties.get("viewDistance", Float.class);
     }
@@ -104,23 +106,24 @@ public class SecurityCamera extends ZoodiniSprite {
         super.update(dt);
 
         if (isDisabled()) {
-            disabledTimeRemaining--;
+            disabledTimeRemaining -= dt;
         }
 
-        if (disabledTimeRemaining < 0) {
+        if (disabledTimeRemaining <= 0) {
             isDisabled = false;
             disabledTimeRemaining = disabledTime;
         }
 
         // Update ring animation
         if (isRingActive) {
-            currentRadius += expansionSpeed;
+            currentRadius += expansionSpeed * dt;
 
-            if (currentRadius >= maxRadius) {
+            if (currentRadius >= alarmDistance) {
                 isRingActive = false;
             }
         }
     }
+
 
     @Override
     public void draw(SpriteBatch batch) {
@@ -139,18 +142,18 @@ public class SecurityCamera extends ZoodiniSprite {
             float y = getY();
 
             // Create n-gon path for the ring
-            Path2 ringPath = new PathFactory().makeNgon(x, y, currentRadius, 64);
+            Path2 ringPath = pf.makeNgon(x, y, currentRadius, 64);
 
             // Create extruder for the ring outline
-            PathExtruder ringExtruder = new PathExtruder(ringPath);
-            ringExtruder.calculate(ringThickness);
+            extruder.set(ringPath);
+            extruder.calculate(ringThickness);
 
             // Set up affine transformation
             affineCache.idt();
             affineCache.scale(obstacle.getPhysicsUnits(), obstacle.getPhysicsUnits());
 
             // Draw the ring
-            batch.draw((TextureRegion) null, ringExtruder.getPolygon(), affineCache);
+            batch.draw((TextureRegion) null, extruder.getPolygon(), affineCache);
 
             // Restore original color
             batch.setColor(originalColor);
