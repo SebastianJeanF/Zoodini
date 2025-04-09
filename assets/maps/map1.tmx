@@ -33,8 +33,10 @@
     <property name="collide" value="0101"/>
     <property name="disabledTime" type="float" value="300"/>
     <property name="exclude" value="0000"/>
+    <property name="fov" type="float" value="60"/>
     <property name="radius" type="float" value="0.2"/>
     <property name="spriteRadius" type="float" value="0.6"/>
+    <property name="viewDistance" type="float" value="3"/>
    </properties>
    <point/>
   </object>
@@ -66,14 +68,16 @@
   </object>
  </objectgroup>
  <objectgroup id="4" name="guards">
-  <object id="6" type="Guard" x="1332.86" y="688.189">
+  <object id="6" type="Guard" x="926.193" y="616.189">
    <properties>
     <property name="collide" value="0001"/>
     <property name="exclude" value="0000"/>
     <property name="force" type="float" value="7"/>
+    <property name="fov" type="float" value="60"/>
     <property name="maxSpeed" type="float" value="5"/>
     <property name="radius" type="float" value="0.2"/>
     <property name="spriteRadius" type="float" value="0.6"/>
+    <property name="viewDistance" type="float" value="5"/>
    </properties>
    <point/>
   </object>
