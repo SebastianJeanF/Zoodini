@@ -20,6 +20,7 @@ import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.math.Poly2;
 import edu.cornell.gdiac.math.PolyFactory;
 import java.util.Arrays;
+import walknroll.zoodini.models.GameLevel;
 
 public class VisionCone implements RayCastCallback{
 
@@ -65,7 +66,7 @@ public class VisionCone implements RayCastCallback{
      * @param units pixels-per-meter ratio used for drawing only
      * @param maskbits bits that the rays collide with.
      */
-    public VisionCone(int numRays, Vector2 origin, float radius, float facing, float wideness, Color c, float units, short maskbits, short categorybits) {
+    public VisionCone(int numRays, Vector2 origin, float radius, float facing, float wideness, Color c, float units, String categorybits, String maskbits) {
         this.numRays = numRays;
         this.radius = radius;
         this.facingAngle = facing;
@@ -74,8 +75,8 @@ public class VisionCone implements RayCastCallback{
         this.rayEndPoints = new Array<>();
         this.c = c;
         this.units = units;
-        this.maskbits = maskbits;
-        this.categorybits = categorybits;
+        this.maskbits = GameLevel.bitStringToComplement(maskbits);
+        this.categorybits = GameLevel.bitStringToShort(categorybits);
 
         cone = createPolygon(numRays, origin, radius, facing, wideness);
     }

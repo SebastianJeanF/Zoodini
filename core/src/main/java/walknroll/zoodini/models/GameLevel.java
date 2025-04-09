@@ -230,11 +230,7 @@ public class GameLevel {
             }
         }
 
-
-
-		// Lights
-        JsonValue visionJson = levelGlobals.get("visions");
-        initializeVisionCones(visionJson);
+        initializeVisionCones();
 
 //        raycamera = new OrthographicCamera(gSize[0], gSize[1]);
 //        raycamera.setToOrtho(false, gSize[0], gSize[1]);
@@ -252,14 +248,12 @@ public class GameLevel {
 		inkProjectile.getObstacle().setActive(false);
 	}
 
-    private void initializeVisionCones(JsonValue json) {
-        short mask = json.getShort("maskbit");
-        short category = json.getShort("category");
+    private void initializeVisionCones() {
         Color c = Color.WHITE.cpy().add(0,0,0,-0.5f);
         for(SecurityCamera cam : securityCameras){
             float fov = cam.getFov();
             float dist = cam.getViewDistance();
-            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov , c, units, mask, category);
+            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov , c, units, "000000", "111110");
             float angle = cam.getAngle();
             vc.attachToBody(cam.getObstacle().getBody(), angle);
             visions.put(cam, vc);
@@ -268,7 +262,7 @@ public class GameLevel {
         for(Guard guard : guards){
             float fov = guard.getFov();
             float dist = guard.getViewDistance();
-            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, mask, category);
+            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, "000000", "111110");
             vc.attachToBody(guard.getObstacle().getBody(), 90.0f);
             visions.put(guard, vc);
         }

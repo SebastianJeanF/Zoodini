@@ -278,8 +278,10 @@ public class GameScene implements Screen, ContactListener {
         ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
         for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
             if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
-                Vector2 avatarPosition = level.getAvatar().getPosition();
-                if (entry.value.contains(avatarPosition)) {
+                Vector2 catPos = level.getCat().getPosition();
+                Vector2 octPos = level.getOctopus().getPosition();
+
+                if (entry.value.contains(catPos) || entry.value.contains(octPos)) {
                     ((SecurityCamera) entry.key).activateRing();
                 }
             }

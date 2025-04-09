@@ -1,12 +1,4 @@
 {
-    "visions" : {
-      "rayNum" : 60,
-      "radius" : 2.0,
-      "color" : [0.0, 0.0, 0.0, 0.0],
-      "wideness" : 60.0,
-      "maskbit" : "0000",
-      "category" : "0000"
-    },
     "avatarCat": {
       "animations": {
         "idle" : "cat-idle.animation",
