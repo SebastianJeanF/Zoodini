@@ -55,6 +55,7 @@ import java.util.HashMap;
 public class GameScene implements Screen, ContactListener {
 
     private boolean debug = true;
+//    private boolean debug = false;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
@@ -258,6 +259,7 @@ public class GameScene implements Screen, ContactListener {
         InputController input = InputController.getInstance();
 
         processPlayerAction(input, dt);
+        updateGuardAI();
         processNPCAction(dt);
 
         // Turn the physics engine crank.
@@ -268,6 +270,7 @@ public class GameScene implements Screen, ContactListener {
 
     private Vector3 tmp = new Vector3();
     private Vector2 tmp2 = new Vector2();
+
     /**
      * Applies movement forces to the avatar and change firing states.
      */
@@ -405,14 +408,16 @@ public class GameScene implements Screen, ContactListener {
 
     //-----------------Helper Methods--------------------//
 
-//    public void initializeAIControllers() {
+    public void initializeAIControllers() {
+        graph = new TileGraph<>(level.getMap(), false);
+
 //        this.gameGraph = new GameGraph(12, 16, level.getBounds().x, level.getBounds().y, level.getSprites());
-//        Array<Guard> guards = level.getGuards();
-//        for (Guard g : guards) {
-//            GuardAIController aiController = new GuardAIController(g, level, this.gameGraph, 5);
-//            guardToAIController.put(g, aiController);
-//        }
-//    }
+        Array<Guard> guards = level.getGuards();
+        for (Guard g : guards) {
+            GuardAIController aiController = new GuardAIController(g, level, graph);
+            guardToAIController.put(g, aiController);
+        }
+    }
 
 
 //    private void checkDeactivateKeyOnCollect() {
@@ -443,6 +448,7 @@ public class GameScene implements Screen, ContactListener {
 
     private void updateGuardAI() {
         guardToAIController.forEach((guard, controller) -> {
+            System.out.println("Updating guard AI for a guard");
             controller.update();
             guard.think(controller.getMovementDirection(), controller.getNextTargetLocation());
         });
@@ -571,6 +577,7 @@ public class GameScene implements Screen, ContactListener {
 	void moveGuard(Guard guard) {
         Vector2 direction = guard.getMovementDirection();
         if(direction == null){ //ideally should never be null.
+            System.out.println("Guard direction is null");
             return;
         }
 

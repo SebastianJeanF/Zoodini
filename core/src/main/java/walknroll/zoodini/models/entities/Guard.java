@@ -33,6 +33,7 @@ public class Guard extends Enemy {
     private static final float PATROL_THRESHOLD = 0.5f; // Distance to switch patrol points
 
     private float susLevel;
+    private float susThreshold;
     private float maxSusLevel;
 
     private final float DEAGRRO_PERIOD = 60F;
@@ -82,6 +83,7 @@ public class Guard extends Enemy {
         chaseTimer = 0;
         susLevel = 0F;
         maxSusLevel = 100F;
+        susThreshold = 50F;
         deAggroTimer = 0F;
 
         // sus-bar texture
@@ -112,16 +114,19 @@ public class Guard extends Enemy {
     }
 
     public void deltaSusLevel(float delta) {
-        this.susLevel = MathUtils.clamp(susLevel + delta, 0.0F, 100.0F);
+        this.susLevel = MathUtils.clamp(susLevel + delta, 0.0F, maxSusLevel);
     }
 
     public boolean isMaxSusLevel() {
         return susLevel == maxSusLevel;
     }
 
-    public boolean isMinSusLevel() {
-        return susLevel == 0.0F;
-    }
+    /** Check if the guard is "suspicious" of the player.
+     * A guard is suspicious if their susLevel is greater than or equal to
+     * the susThreshold. */
+    public boolean isSus() { return susLevel >= susThreshold; }
+
+    public boolean isMinSusLevel() { return susLevel == 0.0F; }
 
     public boolean checkDeAggroed() {
         return deAggroTimer <= 0;
@@ -131,6 +136,11 @@ public class Guard extends Enemy {
         this.deAggroTimer = MathUtils.clamp(deAggroTimer + delta, 0.0F, DEAGRRO_PERIOD);
     }
 
+    /**
+     * Differentially start the deAggro timer. If the guard is alerted by a camera, set the
+     * timer to ALERT_DEAGRRO_PERIOD. Otherwise, set it to DEAGRRO_PERIOD.
+     * ALERT_DEAGRRO_PERIOD is longer than DEAGRRO_PERIOD.
+     */
     public void startDeAggroTimer() {
         this.deAggroTimer = isCameraAlerted() ? ALERT_DEAGRRO_PERIOD : DEAGRRO_PERIOD;
     }
@@ -197,6 +207,7 @@ public class Guard extends Enemy {
     }
 
     public void think(Vector2 movementDirection, Vector2 targetPosition) {
+        System.out.println("Guard is thinking");
         this.movementDirection = movementDirection;
         this.targetPosition = targetPosition;
     }
