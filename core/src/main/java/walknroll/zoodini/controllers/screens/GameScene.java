@@ -14,6 +14,7 @@ package walknroll.zoodini.controllers.screens;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -30,15 +31,15 @@ import walknroll.zoodini.controllers.UIController;
 import walknroll.zoodini.controllers.aitools.TileGraph;
 import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
-import walknroll.zoodini.models.entities.Avatar;
-import walknroll.zoodini.models.entities.Guard;
-import walknroll.zoodini.models.entities.Octopus;
-import walknroll.zoodini.models.entities.SecurityCamera;
+import walknroll.zoodini.models.entities.*;
 import walknroll.zoodini.models.entities.Avatar.AvatarType;
 import walknroll.zoodini.models.nonentities.Door;
 import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
 import edu.cornell.gdiac.physics2.*;
+import walknroll.zoodini.utils.VisionCone;
+import walknroll.zoodini.utils.ZoodiniSprite;
+
 import java.util.HashMap;
 
 /**
@@ -63,6 +64,8 @@ public class GameScene implements Screen, ContactListener {
 	private JsonValue levelFormat;
 	/** The JSON defining the default entity configs */
 	private JsonValue levelGlobals;
+
+    private JsonValue levelID;
 
 	/** Exit code for quitting the game */
 	public static final int EXIT_QUIT = 0;
@@ -120,9 +123,9 @@ public class GameScene implements Screen, ContactListener {
 		this.batch = batch;
 
 		level = new GameLevel();
-		levelFormat = directory.getEntry("level1", JsonValue.class);
         levelGlobals = directory.getEntry("globals", JsonValue.class);
-		level.populate(directory, levelFormat, levelGlobals);
+        levelID = directory.getEntry("levels", JsonValue.class);
+		level.populate(directory, levelID, levelGlobals);
 		level.getWorld().setContactListener(this);
 
 		complete = false;
@@ -175,7 +178,7 @@ public class GameScene implements Screen, ContactListener {
         countdown = -1;
 
         // Reload the json each time
-        level.populate(directory, levelFormat, levelGlobals);
+        level.populate(directory, levelID, levelGlobals);
         level.getWorld().setContactListener(this);
     }
 
@@ -264,6 +267,21 @@ public class GameScene implements Screen, ContactListener {
         // Collisions generated through world.step()
         // Animation frames are updated.
         level.update(dt);
+        updateSecurityCameraVisionCones(); //vision cone requires separate collision detection, so we have to put this here.
+
+        updateCamera(dt);
+    }
+
+    private void updateSecurityCameraVisionCones() {
+        ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
+        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
+            if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
+                Vector2 avatarPosition = level.getAvatar().getPosition();
+                if (entry.value.contains(avatarPosition)) {
+                    ((SecurityCamera) entry.key).activateRing();
+                }
+            }
+        }
     }
 
     private Vector3 tmp = new Vector3();
@@ -283,7 +301,8 @@ public class GameScene implements Screen, ContactListener {
         float vertical = input.getVertical();
         float horizontal = input.getHorizontal();
         moveAvatar(vertical, horizontal, avatar);
-
+        checkFlipSprite(avatar, input); // TODO: This shouldn't be here.
+        level.getOctopus().regenerateInk(dt);
 
         if(avatar.getAvatarType() == AvatarType.OCTOPUS){
             Octopus octopus = (Octopus) avatar;
@@ -292,28 +311,26 @@ public class GameScene implements Screen, ContactListener {
             tmp2.set(tmp.x, tmp.y)
                 .scl(1.0f / level.getTileSize())
                 .sub(octopus.getPosition())
-                .clamp(0.0f, 5.0f); //this decides the distance for projectile to travel
+                .clamp(0.0f, octopus.getAbilityRange()); //this decides the distance for projectile to travel
             octopus.setTarget(tmp2); //set a target vector relative to octopus's position as origin.
 
-            if(input.didAbility()) { //check for ink resource here.
+            if(input.didAbility() && octopus.canUseAbility()) { //check for ink resource here.
                 octopus.setCurrentlyAiming(!octopus.isCurrentlyAiming()); //turn the reticle on and off
             }
 
             if(octopus.isCurrentlyAiming() && input.didLeftClick()){
                 octopus.setDidFire(true);
                 octopus.setCurrentlyAiming(false);
+                octopus.consumeInk();
             } else {
                 octopus.setDidFire(false);
             }
 
-        } else { //avatar is Cat
-            //TODO
+        } else if(avatar.getAvatarType() == AvatarType.CAT) {
+            Cat cat = (Cat) avatar;
+            cat.setMeowed(input.didAbility());
         }
 
-
-
-        cameraTargetPosition.set(avatar.getPosition());
-        updateCamera(dt);
 
         tmp.setZero();
         tmp2.setZero();
@@ -325,7 +342,7 @@ public class GameScene implements Screen, ContactListener {
      * responsibility of ContactListener
      */
     private void processNPCAction(float dt){
-        Octopus octopus = (Octopus) level.getOctopus();
+        Octopus octopus = level.getOctopus();
         InkProjectile inkProjectile = level.getProjectile();
         Door door = level.getDoor();
         Key key = level.getKey();
@@ -341,13 +358,15 @@ public class GameScene implements Screen, ContactListener {
         }
 
         if(inkProjectile.getPosition().dst(inkProjectile.getStartPosition()) > inkProjectile.getEndPosition().len()){
-            //TODO: need fix: sometimes the projectile disappears in the middle
             inkProjectile.setShouldDestroy(true);
         }
 
         //Guards
         Array<Guard> guards = level.getGuards();
         updateGuards(guards);
+
+        //Camera
+        Array<SecurityCamera> cams = level.getSecurityCameras();
 
 
         //Keys and doors
@@ -365,6 +384,7 @@ public class GameScene implements Screen, ContactListener {
             key.setUsed(true);
             ui.hideUnlockProgress();
         }
+
     }
 
     /**
@@ -380,13 +400,9 @@ public class GameScene implements Screen, ContactListener {
 
         // Set the camera's updated view
         batch.setProjectionMatrix(camera.combined);
-        // Set the camera's updated view
-        batch.setProjectionMatrix(camera.combined);
 
         level.draw(batch, camera);
 
-        // Final message
-        ui.draw(batch);
 
         if(debug) {
             graph.draw(batch, camera, level.getTileSize());
@@ -395,6 +411,10 @@ public class GameScene implements Screen, ContactListener {
                 TileNode t = graph.markNearestTile(camera, ic.getAiming(), level.getTileSize());
             }
         }
+
+        // batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+        // Final message
+        ui.draw(batch, level);
     }
 
     /**
@@ -484,13 +504,18 @@ public class GameScene implements Screen, ContactListener {
         // Rotate the avatar to face the direction of movement
         angleCache.set(horizontalForce, verticalForce);
         if (angleCache.len2() > 0.0f) {
+            // Prevent faster movement when going diagonally
+            if (angleCache.len() > 1.0f) {
+                angleCache.nor();
+            }
+
             float angle = angleCache.angleDeg();
             // Convert to radians with up as 0
             angle = (float) Math.PI * (angle - 90.0f) / 180.0f;
             avatar.getObstacle().setAngle(angle);
         }
 
-        angleCache.scl(avatar.getForce());
+        angleCache.scl(avatar.getForce()).scl(level.getTileSize());
         avatar.setMovement(angleCache.x, angleCache.y);
         avatar.applyForce();
     }
@@ -517,6 +542,8 @@ public class GameScene implements Screen, ContactListener {
 	 * Updates the camera position with interpolation when transitioning
 	 */
 	private void updateCamera(float dt) {
+        cameraTargetPosition.set(level.getAvatar().getPosition());
+
         // Get viewport dimensions in world units
         float viewWidth = camera.viewportWidth / level.getTileSize();
         float viewHeight = camera.viewportHeight / level.getTileSize();

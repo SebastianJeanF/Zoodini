@@ -120,8 +120,6 @@ public class GuardAIController {
 
         setNextTargetLocation();
 
-
-
         switch(this.currState) {
             case PATROL:
                 // If player is spotted, change state to chase

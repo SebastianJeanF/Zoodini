@@ -9,6 +9,8 @@
  */
 package walknroll.zoodini.models.nonentities;
 
+import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -39,6 +41,10 @@ public class Door extends ZoodiniSprite {
     /** Whether this door is being unlocked at current frame*/
     private boolean isUnlocking;
     private static final float UNLOCK_DURATION = 3.0f;
+
+    private short collideBits;
+    private short excludeBitsLocked;
+    private short excludeBitsUnlocked;
 
 
     public boolean isUnlocking() {
@@ -82,7 +88,11 @@ public class Door extends ZoodiniSprite {
         locked = value;
         // When the door is locked, disable the sensor (door acts as a wall).
         // When unlocked, enable the sensor (door lets you pass through).
-        obstacle.setSensor(!locked);
+        Filter filter = new Filter();
+        filter.categoryBits = this.collideBits;
+        filter.maskBits = locked ? this.excludeBitsLocked : this.excludeBitsUnlocked;
+        obstacle.setFilterData(filter);
+        // obstacle.setSensor(!locked);
         setTextureRegion(locked ? lockedTexture : unlockedTexture);
     }
 
@@ -92,36 +102,35 @@ public class Door extends ZoodiniSprite {
 	 * Creates a door with the given settings
 	 *
 	 * @param directory The asset directory (for textures, etc)
-	 * @param json      The JSON values defining this avatar
 	 * @param units     The physics units for this avatar
 	 */
-	public Door(AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
-		float[] pos = json.get("pos").asFloatArray();
-		float[] size = globals.get("size").asFloatArray();
+	public Door(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
+		float[] pos = {properties.get("x",Float.class) / units, properties.get("y", Float.class) / units};
+		float size = properties.get("size", Float.class);
 
-		obstacle = new BoxObstacle(pos[0], pos[1], size[0], size[1]);
-		obstacle.setName(json.name());
+		obstacle = new BoxObstacle(pos[0], pos[1], size, size);
+		obstacle.setName(properties.get("type", String.class));
 		obstacle.setSensor(false);
 		obstacle.setPhysicsUnits(units);
 
-		float w = size[0] * units;
-		float h = size[1] * units;
+		float w = size * units;
+		float h = size * units;
 		mesh = new SpriteMesh(-w / 2, -h / 2, w, h);
 
 		// Technically, we should do error checking here.
 		// A JSON field might accidentally be missing
-		obstacle.setBodyType(globals.get("bodytype").asString().equals("static") ? BodyDef.BodyType.StaticBody
-				: BodyDef.BodyType.DynamicBody);
-		obstacle.setDensity(globals.get("density").asFloat());
-		obstacle.setFriction(globals.get("friction").asFloat());
-		obstacle.setRestitution(globals.get("restitution").asFloat());
+		obstacle.setBodyType(BodyType.StaticBody);
+		obstacle.setDensity(0.0f);
+		obstacle.setFriction(0.0f);
+		obstacle.setRestitution(0.0f);
 
 		// Create the collision filter (used for light penetration)
-		short collideBits = GameLevel.bitStringToShort(globals.get("collide").asString());
-		short excludeBits = GameLevel.bitStringToComplement(globals.get("exclude").asString());
+		this.collideBits = GameLevel.bitStringToShort(properties.get("category", String.class));
+		this.excludeBitsLocked = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
+		this.excludeBitsUnlocked = GameLevel.bitStringToComplement(properties.get("excludeUnlocked", String.class));
 		Filter filter = new Filter();
-		filter.categoryBits = collideBits;
-		filter.maskBits = excludeBits;
+		filter.categoryBits = this.collideBits;
+		filter.maskBits = this.excludeBitsLocked;
 		obstacle.setFilterData(filter);
 
 		setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));

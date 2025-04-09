@@ -1,12 +1,4 @@
 {
-    "screen_size": [
-        1000,
-        750
-    ],
-    "fps_range": [
-        20,
-        60
-    ],
     "visions" : {
       "rayNum" : 60,
       "radius" : 2.0,
@@ -16,50 +8,29 @@
       "category" : "0000"
     },
     "avatarCat": {
-        "radius": 0.4,
-        "spriterad": 0.6,
-        "bodytype": "dynamic",
-        "density": 1.0,
-        "friction": 0.0,
-        "restitution": 0.0,
-        "force": 110.0,
-        "damping": 10.0,
-        "maxspeed": 10.0,
-        "collide": "0001",
-        "exclude": "0001",
       "animations": {
+        "idle" : "cat-idle.animation",
         "idle" : "cat-idle.animation",
         "walk" : "cat-walk.animation"
       },
       "frameDelays": {
-        "idle" : 32,
+        "idle" : 16,
         "walk" : 8
       },
       "startFrames": {
-        "idle" : 5,
+        "idle" : 0,
         "walk" : 0
       },
         "debug": "#ffffffC0"
     },
     "avatarOctopus": {
-        "radius": 0.4,
-        "spriterad": 0.6,
-        "bodytype": "dynamic",
-        "density": 1.0,
-        "friction": 0.0,
-        "restitution": 0.0,
-        "force": 80.0,
-        "damping": 10.0,
-        "maxspeed": 5.0,
-        "collide": "0001",
-        "exclude": "0001",
       "animations": {
         "idle" : "octopus-idle.animation",
         "walk" : "octopus-walk.animation"
       },
       "frameDelays": {
-        "idle" : 20,
-        "walk" : 12
+        "idle" : 16,
+        "walk" : 8
       },
       "startFrames": {
         "idle" : 0,
@@ -68,20 +39,9 @@
         "debug": "#ffffffC0"
     },
     "guard": {
-        "radius": 0.2,
-        "spriterad": 0.6,
-        "bodytype": "dynamic",
-        "density": 1.0,
-        "friction": 0.0,
-        "restitution": 0.0,
-        "force": 7.0,
-        "damping": 10.0,
-        "maxspeed": 5.0,
-        "collide": "0010",
-        "exclude": "0000",
       "animations": {
-        "idle": "dude-idle.animation",
-        "walk" : "dude-walk.animation"
+        "idle": "guard-idle.animation",
+        "walk" : "guard-walk.animation"
       },
       "frameDelays": {
         "idle" : 4,
@@ -91,62 +51,24 @@
         "idle" : 0,
         "walk" : 0
       },
-        "debug": "#ffffffC0"
+      "suspicion": "suspicion-meter.animation",
+      "debug": "#ffffffC0"
     },
     "camera": {
-        "radius": 0.2,
-        "spriterad": 0.6,
-        "angle": 90,
         "startframe": 0,
-        "collide": "0101",
-        "exclude": "0000",
         "texture": "security-camera.camera",
-        "debug": "#ffffffC0",
-        "density": 1.0,
-        "friction": 0.0,
-        "restitution": 0.0,
-        "disabledTime": 300
+        "debug": "#ffffffC0"
     },
   "key": {
-    "size": [
-      0.75,
-      0.75
-    ],
-    "bodytype": "static",
-    "density": 0.0,
-    "friction": 0.0,
-    "restitution": 0.0,
-    "collide": "0010",
-    "exclude": "0000",
     "texture": "key",
     "debug": "#ffff00C8"
   },
   "door": {
-    "size": [
-      1.25,
-      1.25
-    ],
-    "bodytype": "static",
-    "density": 0.0,
-    "friction": 0.0,
-    "restitution": 0.0,
-    "collide": "0010",
-    "exclude": "0000",
     "texture": "locked_door",
     "locked_texture": "locked_door",
     "debug": "#ffff00C8"
   },
   "exit": {
-    "size": [
-      1.25,
-      1.25
-    ],
-    "bodytype": "static",
-    "density": 0.0,
-    "friction": 0.0,
-    "restitution": 0.0,
-    "collide": "0010",
-    "exclude": "0000",
     "texture": "unlocked_door",
     "locked_texture": "unlocked_door",
     "debug": "#ffff00C8"
@@ -155,12 +77,12 @@
     "radius":       0.2,
     "spriterad":    0.2,
     "startframe":   0,
-    "collide":      "0010",
-    "exclude":      "0001",
+    "collide":      "00010",
+    "exclude":      "00010",
     "texture":      "ink-projectile.ink",
     "debug":        "#ffffffC0",
     "density":      1.0,
     "friction":     0.0,
     "restitution":  0.0
-  },
+  }
 }
