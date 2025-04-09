@@ -55,7 +55,7 @@ import java.util.HashMap;
  */
 public class GameScene implements Screen, ContactListener {
 
-    private boolean debug = true;
+    private boolean debug = false;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
@@ -364,26 +364,19 @@ public class GameScene implements Screen, ContactListener {
             inkProjectile.setShouldDestroy(true);
         }
 
-        //Guards
         Array<Guard> guards = level.getGuards();
         updateGuards(guards);
 
-        //Camera
         Array<SecurityCamera> cams = level.getSecurityCameras();
 
-
-        //Keys and doors
         if(key.isCollected() && !key.isUsed() && door.isUnlocking()){
-            door.setRemainingTimeToUnlock(door.getRemainingTimeToUnlock() - dt);
             float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
             ui.showUnlockProgress(progress);
         } else {
-            door.resetTimer();
             ui.hideUnlockProgress();
         }
 
         if(door.getRemainingTimeToUnlock() <= 0){
-            door.setLocked(false);
             key.setUsed(true);
             ui.hideUnlockProgress();
         }
@@ -703,8 +696,9 @@ public class GameScene implements Screen, ContactListener {
             }
 
             if((o1 == doorObs && (o2 == cat || o2 == oct)) || (o2 == doorObs && (o1 == cat || o1 == oct))){ //owner of the key does not matter for now.
-                if(door.isLocked()) { //TODO: not sure whether we check if key's collected at collision resolution or in the update().
+                if(key.isCollected() && !key.isUsed() && door.isLocked()) { //TODO: not sure whether we check if key's collected at collision resolution or in the update().
                     door.setUnlocking(true);
+                    System.out.println("here");
                 }
             }
 

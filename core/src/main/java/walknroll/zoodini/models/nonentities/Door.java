@@ -66,7 +66,7 @@ public class Door extends ZoodiniSprite {
     }
 
     public void resetTimer(){
-        remainingTimeToUnlock = 3; //TODO: set this using json somehow.
+        remainingTimeToUnlock = 3.0f; //TODO: set this using json somehow.
     }
 
     /**
@@ -150,4 +150,17 @@ public class Door extends ZoodiniSprite {
         setTextureRegion(lockedTexture);
         resetTimer(); //TODO: get this from json
 	}
+
+    public void update(float dt){
+        super.update(dt);
+        if(isUnlocking){
+            remainingTimeToUnlock -= dt;
+        } else {
+            resetTimer();
+        }
+
+        if(remainingTimeToUnlock <= 0.0f){
+            setLocked(false);
+        }
+    }
 }

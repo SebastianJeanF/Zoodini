@@ -380,7 +380,6 @@ public class GameLevel {
 
             updateFlipSprite(getAvatar());
 
-            //Update animation frames
             if(rayHandler != null) {
                 rayHandler.setCombinedMatrix(raycamera);
             }
@@ -408,6 +407,9 @@ public class GameLevel {
             for(VisionCone vc : visions.values()){
                 vc.update(world);
             }
+
+            goalDoor.update(dt);
+            key.update(dt);
         }
     }
 
