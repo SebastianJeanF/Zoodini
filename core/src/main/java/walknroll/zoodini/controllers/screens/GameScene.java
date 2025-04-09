@@ -257,19 +257,21 @@ public class GameScene implements Screen, ContactListener {
      * @param dt Number of seconds since last animation frame
      */
     public void update(float dt) {
-        //TODO: what is the proper sequence of method calls here?
         InputController input = InputController.getInstance();
-
         processPlayerAction(input, dt);
         processNPCAction(dt);
-
-        // Turn the physics engine crank.
-        // Collisions generated through world.step()
-        // Animation frames are updated.
-        level.update(dt);
+        level.update(dt); //collisions
         updateSecurityCameraVisionCones(); //vision cone requires separate collision detection, so we have to put this here.
-
         updateCamera(dt);
+    }
+
+
+    private void thinkAll(float dt){
+        InputController input = InputController.getInstance();
+    }
+
+    private void moveAll(float dt){
+
     }
 
     private void updateSecurityCameraVisionCones() {

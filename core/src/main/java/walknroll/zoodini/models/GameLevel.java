@@ -189,10 +189,10 @@ public class GameLevel {
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
 
-        TiledMapTileLayer ground = ((TiledMapTileLayer) tiledMap.getLayers().get("ground"));
-        units = ground.getTileWidth();
-        int width = ground.getWidth(); //30
-        int height = ground.getHeight(); //20
+        MapProperties props = tiledMap.getProperties();
+        int width = props.get("width", Integer.class);
+        int height = props.get("height", Integer.class);
+        units = props.get("tilewidth", Integer.class);
         bounds = new Rectangle(0,0,width,height);
 
         MapLayer walls = tiledMap.getLayers().get("walls");
