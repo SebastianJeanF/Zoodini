@@ -204,12 +204,9 @@ public class GuardAIController {
                 // Due to ordering of checks, this will only happen if the guard is suspicious
                 // TODO: Ask if we need this transition
                 else if (didDistractionOccur()) {
-
-
-
-
                     currState = GuardState.DISTRACTED;
                     guard.setMeow(true);
+                    distractPosition.set(getActivePlayer().getPosition());
                 }
                 // Guard is not sus, not meowed, but player under camera; SUSPICIOUS -> ALERTED
                 // Due to ordering of checks, this will only happen if the guard is suspicious
