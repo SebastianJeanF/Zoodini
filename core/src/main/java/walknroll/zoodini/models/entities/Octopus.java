@@ -4,6 +4,7 @@ import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.assets.AssetDirectory;
+import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteMesh;
 
 /**
@@ -95,7 +96,7 @@ public class Octopus extends Avatar {
 
     /**
      * Returns whether or not this Octopus has enough ink resource to use an ability
-     * 
+     *
      * @return
      */
     public boolean canUseAbility() {
@@ -109,7 +110,7 @@ public class Octopus extends Avatar {
         this.inkRemaining -= Octopus.INK_USAGE;
     }
 
-    /** 
+    /**
      * Regenerate one game tick's worth of ink points
      */
     public void regenerateInk() {
@@ -128,6 +129,11 @@ public class Octopus extends Avatar {
     @Override
     public void update(float dt) {
         super.update(dt);
+    }
+
+    @Override
+    public void draw(SpriteBatch batch) {
         setAngle(0);
+        super.draw(batch);
     }
 }
