@@ -26,6 +26,15 @@ public class Octopus extends Avatar {
     /// Whether this Octopus has fired an ink projectile
     private boolean didFire;
 
+    /// The initial amount of ink
+    private static final float INITIAL_INK = 100;
+
+    /// The amount of ink consumed per ability usage
+    private static final float INK_USAGE = 10;
+
+    /// The amount of ink this octopus has
+    private float inkRemaining;
+
     public float getAbilityRange() {
         return abilityRange;
     }
@@ -73,12 +82,37 @@ public class Octopus extends Avatar {
         this.currentlyAiming = value;
     }
 
+    public float getInkRemaining() {
+        return this.inkRemaining;
+    }
+
+    public float getInkCapacity() {
+        return Octopus.INITIAL_INK;
+    }
+
+    /**
+     * Returns whether or not this Octopus has enough ink resource to use an ability
+     * 
+     * @return
+     */
+    public boolean canUseAbility() {
+        return inkRemaining > 0;
+    }
+
+    /**
+     * Consume ink resource corresponding to one ability usage
+     */
+    public void consumeInk() {
+        this.inkRemaining -= Octopus.INK_USAGE;
+    }
+
     public Octopus(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
         super(AvatarType.OCTOPUS, directory, properties, globals, units);
         float r = properties.get("spriteRadius", Float.class) * OCTOPUS_IMAGE_SCALE * units;
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
         target = new Vector2();
         this.abilityRange = properties.get("abilityRange", Float.class);
+        this.inkRemaining = Octopus.INITIAL_INK;
     }
 
     @Override

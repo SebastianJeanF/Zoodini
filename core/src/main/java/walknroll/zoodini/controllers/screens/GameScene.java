@@ -14,6 +14,7 @@ package walknroll.zoodini.controllers.screens;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -295,13 +296,14 @@ public class GameScene implements Screen, ContactListener {
                 .clamp(0.0f, octopus.getAbilityRange()); //this decides the distance for projectile to travel
             octopus.setTarget(tmp2); //set a target vector relative to octopus's position as origin.
 
-            if(input.didAbility()) { //check for ink resource here.
+            if(input.didAbility() && octopus.canUseAbility()) { //check for ink resource here.
                 octopus.setCurrentlyAiming(!octopus.isCurrentlyAiming()); //turn the reticle on and off
             }
 
             if(octopus.isCurrentlyAiming() && input.didLeftClick()){
                 octopus.setDidFire(true);
                 octopus.setCurrentlyAiming(false);
+                octopus.consumeInk();
             } else {
                 octopus.setDidFire(false);
             }
@@ -377,14 +379,10 @@ public class GameScene implements Screen, ContactListener {
 
         // Set the camera's updated view
         batch.setProjectionMatrix(camera.combined);
-        // Set the camera's updated view
-        batch.setProjectionMatrix(camera.combined);
 
         level.draw(batch, camera);
 
-        // Final message
-        ui.draw(batch);
-
+        
         if(debug) {
             graph.draw(batch, camera, level.getTileSize());
             InputController ic = InputController.getInstance();
@@ -392,6 +390,10 @@ public class GameScene implements Screen, ContactListener {
                 TileNode t = graph.markNearestTile(camera, ic.getAiming(), level.getTileSize());
             }
         }
+
+        // batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+        // Final message
+        ui.draw(batch, level);
     }
 
     /**
