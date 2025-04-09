@@ -220,7 +220,7 @@ public class Avatar extends ZoodiniSprite {
 		obstacle.setFixedRotation(false);
         obstacle.setBodyType(BodyType.DynamicBody);
 		obstacle.setDensity(1.0f);
-		obstacle.setFriction(0.0f);
+		obstacle.setFriction(100.0f);
 		obstacle.setRestitution(0.0f);
 		obstacle.setPhysicsUnits(units);
 
@@ -355,13 +355,7 @@ public class Avatar extends ZoodiniSprite {
             float u = this.obstacle.getPhysicsUnits();
 
             this.transform.idt();
-
-            // Only apply rotation if we're moving
-            if (getMovement().len2() > 0.01f) {
-                this.transform.preRotate((float)((double)(a * 180.0F) / Math.PI));
-            } else { // Otherwise, no rotation
-                this.transform.preRotate(0.0F);
-            }
+            this.transform.preRotate((float)((double)(a * 180.0F) / Math.PI));
             this.transform.preTranslate(x * u, y * u);
             if (flipped) {
                 this.transform.scale(-1.0F, 1.0F);
