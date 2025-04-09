@@ -100,8 +100,6 @@ public class UIController {
         messageLocations.put(interrupted, new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2));
     }
 
-    public void reset() {
-
 
     public void showUnlockProgress(float progress) {
         showUnlockTimer = true;
@@ -141,6 +139,7 @@ public class UIController {
         if (unlockTimer != null) {
             unlockTimer.dispose();
         }
+    }
 
     private void drawInkMeter(SpriteBatch batch, Octopus octopus) {
         batch.setTexture(null);
