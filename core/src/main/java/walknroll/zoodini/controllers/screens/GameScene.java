@@ -504,7 +504,7 @@ public class GameScene implements Screen, ContactListener {
             avatar.getObstacle().setAngle(angle);
         }
 
-        angleCache.scl(avatar.getForce());
+        angleCache.scl(avatar.getForce()).scl(level.getTileSize());
         avatar.setMovement(angleCache.x, angleCache.y);
         avatar.applyForce();
     }
