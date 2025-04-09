@@ -48,6 +48,7 @@ public class SecurityCamera extends ZoodiniSprite {
         angle = properties.get("angle", Float.class);
         obstacle = new WheelObstacle(pos[0], pos[1], radius);
         obstacle.setName(properties.get("type", String.class));
+        System.out.println(properties.get("type", String.class));
         obstacle.setFixedRotation(false);
 
         obstacle.setBodyType(BodyDef.BodyType.StaticBody);

@@ -105,6 +105,70 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
+        "id": 6,
+        "members": [
+            {
+                "name": "category",
+                "type": "string",
+                "value": "10000"
+            },
+            {
+                "name": "exclude",
+                "type": "string",
+                "value": "00000"
+            },
+            {
+                "name": "excludeUnlocked",
+                "type": "string",
+                "value": "00110"
+            },
+            {
+                "name": "size",
+                "type": "float",
+                "value": 1.25
+            }
+        ],
+        "name": "Door",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "tile",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 7,
+        "members": [
+            {
+                "name": "category",
+                "type": "string",
+                "value": "10000"
+            },
+            {
+                "name": "exclude",
+                "type": "string",
+                "value": "00000"
+            },
+            {
+                "name": "size",
+                "type": "float",
+                "value": 1.25
+            }
+        ],
+        "name": "Exit",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
         "id": 3,
         "members": [
             {
@@ -159,22 +223,12 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 5,
+        "id": 4,
         "members": [
-            {
-                "name": "bodyType",
-                "type": "string",
-                "value": "static"
-            },
             {
                 "name": "category",
                 "type": "string",
                 "value": "10000"
-            },
-            {
-                "name": "density",
-                "type": "float",
-                "value": 0
             },
             {
                 "name": "exclude",
@@ -182,14 +236,9 @@
                 "value": "11101"
             },
             {
-                "name": "friction",
+                "name": "size",
                 "type": "float",
-                "value": 0
-            },
-            {
-                "name": "restitution",
-                "type": "float",
-                "value": 0
+                "value": 1
             }
         ],
         "name": "Key",
@@ -203,7 +252,7 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 4,
+        "id": 5,
         "members": [
             {
                 "name": "abilityRange",
@@ -224,6 +273,21 @@
                 "name": "force",
                 "type": "float",
                 "value": 1
+            },
+            {
+                "name": "inkCapacity",
+                "type": "float",
+                "value": 100
+            },
+            {
+                "name": "inkRegen",
+                "type": "float",
+                "value": 1
+            },
+            {
+                "name": "inkUsage",
+                "type": "float",
+                "value": 25
             },
             {
                 "name": "maxSpeed",

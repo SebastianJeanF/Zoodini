@@ -1,10 +1,5 @@
 {
     "textures": {
-    	"earth": {
-    		"file":	 "textures/dirt.png",
-			"wrapU": "repeated",
-			"wrapV": "repeated"
-    	},
       "guard-idle": {
         "file": 	"textures/guard_walking.png",
         "wrap":  	false,
@@ -71,6 +66,7 @@
           }
         }
       },
+
 		"ink-projectile": {
             "file":  "textures/ink_projectile.png",
             "wrap":   false,
@@ -93,6 +89,17 @@
                 }
             }
         },
+      "suspicion-meter": {
+        "file": 	"textures/suspicion_meter.png",
+        "wrap":  	false,
+        "sprites":	{
+          "animation" : {
+            "size" : 11,
+            "rows" : 1,
+            "cols" : 11
+          }
+        }
+      },
         "goal": "textures/helicopter.png",
         "key": "textures/key-sprite.png",
         "locked_door": "textures/locked_door.png",
@@ -106,7 +113,7 @@
   	},
 	"jsons" : {
         "constants" : "jsons/constants.json",
-		"level1" : "jsons/level.json",
-		"globals" : "jsons/global-configs.json"
+        "globals" : "jsons/global-configs.json",
+        "levels" : "jsons/levels.json"
 	}
 }

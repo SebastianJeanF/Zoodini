@@ -65,6 +65,8 @@ public class GameScene implements Screen, ContactListener {
 	/** The JSON defining the default entity configs */
 	private JsonValue levelGlobals;
 
+    private JsonValue levelID;
+
 	/** Exit code for quitting the game */
 	public static final int EXIT_QUIT = 0;
 	/** How many frames after winning/losing do we continue? */
@@ -121,9 +123,9 @@ public class GameScene implements Screen, ContactListener {
 		this.batch = batch;
 
 		level = new GameLevel();
-		levelFormat = directory.getEntry("level1", JsonValue.class);
         levelGlobals = directory.getEntry("globals", JsonValue.class);
-		level.populate(directory, levelFormat, levelGlobals);
+        levelID = directory.getEntry("levels", JsonValue.class);
+		level.populate(directory, levelID, levelGlobals);
 		level.getWorld().setContactListener(this);
 
 		complete = false;
@@ -176,7 +178,7 @@ public class GameScene implements Screen, ContactListener {
         countdown = -1;
 
         // Reload the json each time
-        level.populate(directory, levelFormat, levelGlobals);
+        level.populate(directory, levelID, levelGlobals);
         level.getWorld().setContactListener(this);
     }
 
@@ -265,8 +267,9 @@ public class GameScene implements Screen, ContactListener {
         // Collisions generated through world.step()
         // Animation frames are updated.
         level.update(dt);
+        updateSecurityCameraVisionCones(); //vision cone requires separate collision detection, so we have to put this here.
 
-        updateSecurityCameraVisionCones();
+        updateCamera(dt);
     }
 
     private void updateSecurityCameraVisionCones() {
@@ -298,8 +301,7 @@ public class GameScene implements Screen, ContactListener {
         float vertical = input.getVertical();
         float horizontal = input.getHorizontal();
         moveAvatar(vertical, horizontal, avatar);
-        checkFlipSprite(avatar, input);
-        level.getOctopus().regenerateInk();
+        level.getOctopus().regenerateInk(dt);
 
         if(avatar.getAvatarType() == AvatarType.OCTOPUS){
             Octopus octopus = (Octopus) avatar;
@@ -323,15 +325,11 @@ public class GameScene implements Screen, ContactListener {
                 octopus.setDidFire(false);
             }
 
-        } else { //avatar is Cat
+        } else if(avatar.getAvatarType() == AvatarType.CAT) {
             Cat cat = (Cat) avatar;
             cat.setMeowed(input.didAbility());
         }
 
-
-
-        cameraTargetPosition.set(avatar.getPosition());
-        updateCamera(dt);
 
         tmp.setZero();
         tmp2.setZero();
@@ -343,7 +341,7 @@ public class GameScene implements Screen, ContactListener {
      * responsibility of ContactListener
      */
     private void processNPCAction(float dt){
-        Octopus octopus = (Octopus) level.getOctopus();
+        Octopus octopus = level.getOctopus();
         InkProjectile inkProjectile = level.getProjectile();
         Door door = level.getDoor();
         Key key = level.getKey();
@@ -359,7 +357,6 @@ public class GameScene implements Screen, ContactListener {
         }
 
         if(inkProjectile.getPosition().dst(inkProjectile.getStartPosition()) > inkProjectile.getEndPosition().len()){
-            //TODO: need fix: sometimes the projectile disappears in the middle
             inkProjectile.setShouldDestroy(true);
         }
 
@@ -367,19 +364,26 @@ public class GameScene implements Screen, ContactListener {
         Array<Guard> guards = level.getGuards();
         updateGuards(guards);
 
+        //Camera
+        Array<SecurityCamera> cams = level.getSecurityCameras();
+
 
         //Keys and doors
         if(key.isCollected() && !key.isUsed() && door.isUnlocking()){
             door.setRemainingTimeToUnlock(door.getRemainingTimeToUnlock() - dt);
-            System.out.println(door.getRemainingTimeToUnlock());
+            float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
+            ui.showUnlockProgress(progress);
         } else {
             door.resetTimer();
+            ui.hideUnlockProgress();
         }
 
         if(door.getRemainingTimeToUnlock() <= 0){
             door.setLocked(false);
             key.setUsed(true);
+            ui.hideUnlockProgress();
         }
+
     }
 
     /**
@@ -423,24 +427,6 @@ public class GameScene implements Screen, ContactListener {
 
     //-----------------Helper Methods--------------------//
 
-//    public void initializeAIControllers() {
-//        this.gameGraph = new GameGraph(12, 16, level.getBounds().x, level.getBounds().y, level.getSprites());
-//        Array<Guard> guards = level.getGuards();
-//        for (Guard g : guards) {
-//            GuardAIController aiController = new GuardAIController(g, level, this.gameGraph, 5);
-//            guardToAIController.put(g, aiController);
-//        }
-//    }
-
-
-//    private void checkDeactivateKeyOnCollect() {
-//        // Deactivate collected key's physics body if needed
-//        if (keyCollected && level.getKey() != null && level.getKey().getObstacle().isActive()) {
-//            // This is the safe time to modify physics bodies
-//            level.getKey().getObstacle().setActive(false);
-//        }
-//    }
-
     private void onSwap(InputController input) {
         if (input.didSwap()) {
             // stop active character movement
@@ -459,35 +445,6 @@ public class GameScene implements Screen, ContactListener {
         }
     }
 
-    private void updateGuardAI() {
-        guardToAIController.forEach((guard, controller) -> {
-            controller.update();
-            guard.think(controller.getMovementDirection(), controller.getNextTargetLocation());
-        });
-    }
-
-
-//    private void updateDoorUnlocking() {
-//        // Update door unlocking progress
-//        if(isUnlocking) {
-//            unlockingTimer++;
-//
-//            // Update unlocking message percentage
-//            if (unlockingTimer % 15 == 0) { // Update message every 1/4 second
-//
-//            }
-//            // Check if door is fully unlocked
-//            if (unlockingTimer >= UNLOCK_DURATION) {
-//                level.getDoor().setLocked(false);
-//                isUnlocking = false;
-//
-//                // Show door unlocked message
-//                keyMessageTimer = 120; // 2 seconds at 60 fps to show unlock message
-//            }
-//        }
-//    }
-
-
     private Vector2 angleCache = new Vector2();
 
     /**
@@ -499,6 +456,11 @@ public class GameScene implements Screen, ContactListener {
         // Rotate the avatar to face the direction of movement
         angleCache.set(horizontalForce, verticalForce);
         if (angleCache.len2() > 0.0f) {
+            // Prevent faster movement when going diagonally
+            if (angleCache.len() > 1.0f) {
+                angleCache.nor();
+            }
+
             float angle = angleCache.angleDeg();
             // Convert to radians with up as 0
             angle = (float) Math.PI * (angle - 90.0f) / 180.0f;
@@ -520,18 +482,12 @@ public class GameScene implements Screen, ContactListener {
     }
 
 
-    private static void checkFlipSprite(Avatar avatar, InputController input) {
-        // flips the sprite if the avatar is moving left
-        if (!avatar.isFlipped() && input.getHorizontal() == -1f || avatar.isFlipped() && input.getHorizontal() == 1f) {
-            avatar.flipSprite();
-        }
-    }
-
-
 	/**
 	 * Updates the camera position with interpolation when transitioning
 	 */
 	private void updateCamera(float dt) {
+        cameraTargetPosition.set(level.getAvatar().getPosition());
+
         // Get viewport dimensions in world units
         float viewWidth = camera.viewportWidth / level.getTileSize();
         float viewHeight = camera.viewportHeight / level.getTileSize();
