@@ -386,6 +386,8 @@ public class GameLevel {
 	public void update(float dt) {
 		if (fixedStep(dt)) {
 
+            updateFlipSprite(getAvatar());
+
             //Update animation frames
             if(rayHandler != null) {
                 rayHandler.setCombinedMatrix(raycamera);
@@ -458,8 +460,6 @@ public class GameLevel {
 
         mapRenderer.setView((OrthographicCamera) camera);
         mapRenderer.render();
-
-        updateFlipSprite(getAvatar());
 
         for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
 			if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
