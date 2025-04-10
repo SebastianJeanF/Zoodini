@@ -291,11 +291,14 @@ public class GameScene implements Screen, ContactListener {
                 Vector2 catPos = level.getCat().getPosition();
                 Vector2 octPos = level.getOctopus().getPosition();
 
+                Avatar detectedPlayer = entry.value.contains(catPos) ? level.getCat() : level.getOctopus();
+
                 if (entry.value.contains(catPos) || entry.value.contains(octPos)) {
+
                     ((SecurityCamera) entry.key).activateRing();
                     // Alert all guards
 
-                    Avatar detectedPlayer = entry.value.contains(catPos) ? level.getCat() : level.getOctopus();
+                    detectedPlayer.setUnderCamera(true);
 
                     for (Guard guard : level.getGuards()) {
                         if (guard != null) {
@@ -306,6 +309,8 @@ public class GameScene implements Screen, ContactListener {
                             guard.setTarget(detectedPlayer.getPosition());
                         }
                     }
+                } else {
+                    detectedPlayer.setUnderCamera(false);
                 }
             }
         }
@@ -335,6 +340,8 @@ public class GameScene implements Screen, ContactListener {
                 guard.setAgroed(true);
                 guard.setAggroTarget(level.getCat());
                 guard.setTarget(level.getCat().getPosition());
+                level.getCat().setUnderVisionCone(true);
+                guard.setSeesPlayer(true);
 //                System.out.println("Guard detected cat: " + guard.getAggroTarget());
             }
 
@@ -343,11 +350,16 @@ public class GameScene implements Screen, ContactListener {
                 guard.setAgroed(true);
                 guard.setAggroTarget(level.getOctopus());
                 guard.setTarget(level.getOctopus().getPosition());
+                level.getOctopus().setUnderVisionCone(true);
+                guard.setSeesPlayer(true);
 //                System.out.println("Guard detected octopus: " + guard.getAggroTarget());
             }
             // No player detected
             else {
                 // Only set to false if the guard isn't being alerted by a camera
+                level.getOctopus().setUnderVisionCone(false);
+                level.getCat().setUnderVisionCone(false);
+                guard.setSeesPlayer(false);
                 if (!guard.isCameraAlerted()) {
                     guard.setAgroed(false);
                 }
@@ -682,7 +694,8 @@ public class GameScene implements Screen, ContactListener {
             }
 
 
-			guard.setMovement(direction.x, direction.y);
+            guard.setMovement(direction.x, direction.y);
+            guard.setMovement(0, 0);
 		}
 
 		// Update the guard's orientation to face the direction of movement.

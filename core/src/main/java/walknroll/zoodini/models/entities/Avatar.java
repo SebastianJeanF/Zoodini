@@ -62,6 +62,8 @@ public class Avatar extends ZoodiniSprite {
 
     private boolean underCamera;
 
+    private boolean underVisionCone;
+
 	public enum AvatarType {
 		CAT,
 		OCTOPUS,
@@ -250,6 +252,7 @@ public class Avatar extends ZoodiniSprite {
 		mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 
         underCamera = false;
+        underVisionCone = false;
 	}
 
     private void setupAnimations(AssetDirectory directory, JsonValue globals) {
@@ -385,7 +388,15 @@ public class Avatar extends ZoodiniSprite {
         this.underCamera = underCamera;
     }
 
+    public void setUnderVisionCone(boolean underVisionCone) {
+        this.underVisionCone = underVisionCone;
+    }
+
     public boolean isUnderCamera() {
         return underCamera;
+    }
+
+    public boolean isInGuardVisionCone() {
+        return underVisionCone;
     }
 }
