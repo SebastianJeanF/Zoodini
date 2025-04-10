@@ -57,7 +57,7 @@ public class GuardAIController {
 
     private final long STATE_CHANGE_COOLDOWN = 10;
 
-
+    private final float CAT_MEOW_RADIUS = 4f;
 
     /** Graph representation of the game */
     private TileGraph tileGraph;
@@ -114,7 +114,8 @@ public class GuardAIController {
      */
     private boolean didDistractionOccur() {
         InputController input = InputController.getInstance();
-        return input.didAbility() && getActivePlayer().getAvatarType() == Avatar.AvatarType.CAT;
+        float guardToPlayerDistance = guard.getPosition().dst(getActivePlayer().getPosition());
+        return input.didAbility() && getActivePlayer().getAvatarType() == Avatar.AvatarType.CAT && guardToPlayerDistance <= CAT_MEOW_RADIUS;
     }
 
     /**
