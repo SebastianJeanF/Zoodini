@@ -397,8 +397,8 @@ public class GameLevel {
             }
 
             for (Guard g : guards) {
-                updateFlipSprite(g);
                 g.update(dt);
+                updateFlipSprite(g);
             }
 
             for (SecurityCamera c : securityCameras) {
