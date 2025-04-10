@@ -43,6 +43,8 @@ public class Door extends ZoodiniSprite {
     /** Whether this door is being unlocked at current frame*/
     private boolean isUnlocking;
     private static final float UNLOCK_DURATION = 3.0f;
+    /** Tiled MapObject for this door*/
+    private MapObject mapObject;
 
     private short collideBits;
     private short excludeBitsLocked;
@@ -106,7 +108,9 @@ public class Door extends ZoodiniSprite {
 	 * @param directory The asset directory (for textures, etc)
 	 * @param units     The physics units for this avatar
 	 */
-	public Door(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
+	public Door(AssetDirectory directory, MapObject obj, JsonValue globals, float units) {
+        mapObject = obj;
+        MapProperties properties = mapObject.getProperties();
 		float[] pos = {properties.get("x",Float.class) / units, properties.get("y", Float.class) / units};
 		float size = properties.get("size", Float.class);
 
@@ -151,12 +155,17 @@ public class Door extends ZoodiniSprite {
         setLocked(true);
         setTextureRegion(lockedTexture);
         resetTimer(); //TODO: get this from json
-	}
+
+        if(!properties.get("key", MapObject.class).getProperties().get("type", String.class).equalsIgnoreCase("Key")){
+            throw new AssertionError("This door has no associated key");
+        }
+    }
 
     public void update(float dt){
         super.update(dt);
-        if(isUnlocking){
+        if(isLocked() && isUnlocking()){
             remainingTimeToUnlock -= dt;
+            System.out.println(remainingTimeToUnlock);
         } else {
             resetTimer();
         }

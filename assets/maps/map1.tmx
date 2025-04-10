@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="64" tileheight="64" infinite="0" nextlayerid="10" nextobjectid="22">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="64" tileheight="64" infinite="0" nextlayerid="10" nextobjectid="31">
  <tileset firstgid="1" name="outdoor" tilewidth="64" tileheight="64" tilecount="1024" columns="32">
   <image source="../tilesets/outdoor.png" width="2048" height="2048"/>
  </tileset>
@@ -8,6 +8,12 @@
  </tileset>
  <tileset firstgid="2049" name="IMG_6849" tilewidth="32" tileheight="32" tilecount="195" columns="15">
   <image source="../tilesets/IMG_6849.png" width="500" height="440"/>
+ </tileset>
+ <tileset firstgid="2244" name="objects" tilewidth="50" tileheight="50" tilecount="1" columns="0">
+  <grid orientation="orthogonal" width="1" height="1"/>
+  <tile id="0">
+   <image source="../tilesets/key-sprite.png" width="50" height="50"/>
+  </tile>
  </tileset>
  <layer id="1" name="ground" width="30" height="20">
   <data encoding="csv">
@@ -75,19 +81,12 @@
    </properties>
    <point/>
   </object>
-  <object id="16" type="Key" x="860.606" y="593.939">
-   <properties>
-    <property name="category" value="10000"/>
-    <property name="exclude" value="11101"/>
-    <property name="size" type="float" value="1"/>
-   </properties>
-   <point/>
-  </object>
   <object id="17" type="Door" x="1006.06" y="515.152">
    <properties>
     <property name="category" value="10000"/>
     <property name="exclude" value="00000"/>
     <property name="excludeUnlocked" value="00110"/>
+    <property name="key" type="object" value="30"/>
     <property name="size" type="float" value="1.25"/>
    </properties>
    <point/>
@@ -118,6 +117,14 @@
   <object id="21" name="path" x="926.667" y="994.667">
    <polyline points="0,0 444,1.33333"/>
   </object>
+  <object id="28" name="wrongkey" type="Key" gid="2244" x="839" y="946.333" width="50" height="50">
+   <properties>
+    <property name="category" value="10000"/>
+    <property name="exclude" value="11101"/>
+    <property name="size" type="float" value="1"/>
+   </properties>
+  </object>
+  <object id="30" name="rightkey" gid="2244" x="1040.33" y="1122.33" width="50" height="50"/>
  </objectgroup>
  <objectgroup id="9" name="walls">
   <object id="19" x="640" y="256" width="128" height="384"/>

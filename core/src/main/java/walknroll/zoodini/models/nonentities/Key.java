@@ -3,7 +3,10 @@ package walknroll.zoodini.models.nonentities;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.Map;
+import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Filter;
@@ -31,6 +34,8 @@ public class Key extends ZoodiniSprite {
     private AvatarType owner;
     /** Whether this key has been used to unlock a door */
     private boolean used;
+    /** Tiled MapObject for this key*/
+    MapObject mapObject;
 
     public boolean isUsed() {
         return used;
@@ -73,7 +78,10 @@ public class Key extends ZoodiniSprite {
      * @param globals   The JSON values defining global key properties
      * @param units     The physics units for this key
      */
-    public Key(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
+    public Key(AssetDirectory directory, MapObject obj, JsonValue globals, float units) {
+        mapObject = obj;
+        MapProperties properties = mapObject.getProperties();
+
         float[] pos = new float[2];
         pos[0] = properties.get("x", Float.class) / units;
         pos[1] = properties.get("y", Float.class) / units;
@@ -105,8 +113,10 @@ public class Key extends ZoodiniSprite {
         setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.YELLOW));
 
         // Get texture
-        String key = globals.get("texture").asString(); //TODO get texture from tiled.
-        TextureRegion texture = new TextureRegion(directory.getEntry(key, Texture.class));
+        TextureMapObject tObj = (TextureMapObject) obj;
+        //String key = globals.get("texture").asString(); //TODO get texture from tiled.
+        TextureRegion texture = tObj.getTextureRegion();
+        //TextureRegion texture = new TextureRegion(directory.getEntry(key, Texture.class));
         setTextureRegion(texture);
 
         collected = false;
@@ -120,6 +130,10 @@ public class Key extends ZoodiniSprite {
         if (!collected) {
             super.draw(batch);
         }
+    }
+
+    public int getID(){
+        return mapObject.getProperties().get("id", Integer.class);
     }
 
 }

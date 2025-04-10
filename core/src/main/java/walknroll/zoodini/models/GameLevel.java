@@ -103,12 +103,8 @@ public class GameLevel {
 	/** Whether the currently active avatar is the cat. Otherwise, it's the octopus */
 	private boolean catActive;
 
-	/** Reference to the goalDoor (for collision detection) */
-	private Door goalDoor;
     /** Reference to the exit (for collision detection) */
     private Exit exit;
-    /** Reference to the key (for pickup detection) */
-    private Key key;
 
     private OrthographicCamera raycamera;
 
@@ -118,6 +114,8 @@ public class GameLevel {
     private Array<SecurityCamera> securityCameras = new Array<>();
     private ObjectMap<ZoodiniSprite, VisionCone> visions = new ObjectMap<>();
     private InkProjectile inkProjectile; // ink projectile (there should only ever be one!!!)
+    private Array<Key> keys = new Array<>();
+    private ObjectMap<Door, Key> doors = new ObjectMap<>();
 
 	/** All the object sprites in the world. */
 	protected PooledList<ZoodiniSprite> sprites = new PooledList<ZoodiniSprite>();
@@ -210,9 +208,6 @@ public class GameLevel {
             } else if("Octopus".equalsIgnoreCase(type)){
                 avatarOctopus = new Octopus(directory, properties, levelGlobals.get("avatarOctopus"), units);
                 activate(avatarOctopus);
-            } else if("Key".equalsIgnoreCase(type)){
-                key = new Key(directory, properties, levelGlobals.get("key"), units);
-                activate(key);
             } else if("Guard".equalsIgnoreCase(type)){
                 Guard g = new Guard(directory, properties, levelGlobals.get("guard"), units);
                 guards.add(g);
@@ -222,12 +217,17 @@ public class GameLevel {
                 securityCameras.add(cam);
                 activate(cam);
             } else if("Door".equalsIgnoreCase(type)){
-                goalDoor = new Door(directory, properties, levelGlobals.get("door"), units);
-                activate(goalDoor);
+                Door door = new Door(directory, obj, levelGlobals.get("door"), units);
+                Key key = new Key(directory, obj.getProperties().get("key", MapObject.class), levelGlobals.get("key"), units);
+                doors.put(door, key);
+                keys.add(key);
+                activate(door);
+                activate(key);
             } else if("Exit".equalsIgnoreCase(type)){
                 exit = new Exit(directory, properties, levelGlobals.get("exit"), units);
                 activate(exit);
             }
+
         }
 
         initializeVisionCones();
@@ -408,8 +408,13 @@ public class GameLevel {
                 vc.update(world);
             }
 
-            goalDoor.update(dt);
-            key.update(dt);
+            for(Door door : doors.keys()){
+                door.update(dt);
+            }
+
+            for(Key key : keys){
+                key.update(dt);
+            }
         }
     }
 
@@ -637,12 +642,12 @@ public class GameLevel {
     }
 
     /**
-     * Returns a reference to the key
+     * Returns a reference to the keys
      *
-     * @return a reference to the key
+     * @return a reference to the keys
      */
-    public Key getKey() {
-        return key;
+    public Array<Key> getKeys() {
+        return keys;
     }
 
     /**
@@ -684,12 +689,12 @@ public class GameLevel {
 
 
     /**
-     * Returns a reference to the door
+     * Returns a reference to the doors
      *
-     * @return a reference to the door
+     * @return a reference to the doors
      */
-    public Door getDoor() {
-        return goalDoor;
+    public ObjectMap<Door, Key> getDoors() {
+        return doors;
     }
 
     /**
