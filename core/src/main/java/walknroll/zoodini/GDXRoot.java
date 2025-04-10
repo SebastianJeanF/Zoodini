@@ -14,6 +14,7 @@ import com.badlogic.gdx.*;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.*;
+import walknroll.zoodini.controllers.screens.CreditsScene;
 import walknroll.zoodini.controllers.screens.GameScene;
 import walknroll.zoodini.controllers.screens.LoadingScene;
 import walknroll.zoodini.controllers.screens.SettingsScene;
@@ -25,7 +26,8 @@ import walknroll.zoodini.controllers.screens.SettingsScene;
  * above this (e.g. PC games use DesktopLauncher) which serves as the true root.
  * However, those classes are unique to each platform, while this class is the
  * same across all plaforms. In addition, this functions as the root class all
- * intents and purposes, and you would draw it as a root class in an architecture
+ * intents and purposes, and you would draw it as a root class in an
+ * architecture
  * specification.
  */
 public class GDXRoot extends Game implements ScreenListener {
@@ -44,11 +46,13 @@ public class GDXRoot extends Game implements ScreenListener {
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private GameScene gameplay;
 	private SettingsScene settings;
+	private CreditsScene credits;
 
 	/**
 	 * Creates a new game from the configuration settings.
 	 */
-	public GDXRoot() {}
+	public GDXRoot() {
+	}
 
 	/**
 	 * Called when the Application is first created.
@@ -57,8 +61,8 @@ public class GDXRoot extends Game implements ScreenListener {
 	 * the asynchronous loader for all other assets.
 	 */
 	public void create() {
-		batch  = new SpriteBatch();
-		loading = new LoadingScene("jsons/assets.json",batch,1);
+		batch = new SpriteBatch();
+		loading = new LoadingScene("jsons/assets.json", batch, 1);
 
 		loading.setScreenListener(this);
 		setScreen(loading);
@@ -104,6 +108,10 @@ public class GDXRoot extends Game implements ScreenListener {
 			settings.dispose();
 			settings = null;
 		}
+		if (credits != null && screen != credits) {
+			credits.dispose();
+			credits = null;
+		}
 	}
 
 	/**
@@ -117,9 +125,13 @@ public class GDXRoot extends Game implements ScreenListener {
 	public void exitScreen(Screen screen, int exitCode) {
 		switch (exitCode) {
 			case GDXRoot.EXIT_CREDITS:
+				credits = new CreditsScene(batch);
+				credits.setScreenListener(this);
+				setScreen(credits);
+				disposeExcept(credits);
 				break;
 			case GDXRoot.EXIT_MENU:
-				loading = new LoadingScene("jsons/assets.json",batch,1);
+				loading = new LoadingScene("jsons/assets.json", batch, 1);
 				loading.setScreenListener(this);
 				setScreen(loading);
 				disposeExcept(loading);
@@ -144,16 +156,16 @@ public class GDXRoot extends Game implements ScreenListener {
 				break;
 		}
 		// if (screen == loading) {
-		// 	directory = loading.getAssets();
-		// 	gameplay = new GameScene(directory, batch);
-		// 	gameplay.setScreenListener(this);
-		// 	setScreen(gameplay);
+		// directory = loading.getAssets();
+		// gameplay = new GameScene(directory, batch);
+		// gameplay.setScreenListener(this);
+		// setScreen(gameplay);
 
-		// 	loading.dispose();
-		// 	loading = null;
+		// loading.dispose();
+		// loading = null;
 		// } else if (exitCode == GameScene.EXIT_QUIT) {
-		// 	// We quit the main application
-		// 	Gdx.app.exit();
+		// // We quit the main application
+		// Gdx.app.exit();
 		// }
 	}
 
