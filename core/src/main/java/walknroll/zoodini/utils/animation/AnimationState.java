@@ -3,6 +3,8 @@ package walknroll.zoodini.utils.animation;
 public enum AnimationState {
     IDLE,
     WALK,
+    WALK_UP,
+    WALK_DOWN,
     SUSPICION_METER;
 
 

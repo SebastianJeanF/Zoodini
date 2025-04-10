@@ -44,6 +44,28 @@
           }
         }
       },
+      "cat-walk-up": {
+        "file": 	"textures/cat_walk_up.png",
+        "wrap":  	false,
+        "sprites":	{
+          "animation" : {
+            "size" : 3,
+            "rows" : 1,
+            "cols" : 3
+          }
+        }
+      },
+      "cat-walk-down": {
+        "file": 	"textures/cat_walk_down.png",
+        "wrap":  	false,
+        "sprites":	{
+          "animation" : {
+            "size" : 3,
+            "rows" : 1,
+            "cols" : 3
+          }
+        }
+      },
       "octopus-idle": {
         "file": 	"textures/octopus_idle.png",
         "wrap":  	false,
@@ -66,7 +88,28 @@
           }
         }
       },
-
+      "octopus-walk-up": {
+        "file": 	"textures/octopus_walk_up.png",
+        "wrap":  	false,
+        "sprites":	{
+          "animation" : {
+            "size" : 4,
+            "rows" : 1,
+            "cols" : 4
+          }
+        }
+      },
+        "octopus-walk-down": {
+            "file": 	"textures/octopus_walk_down.png",
+            "wrap":  	false,
+            "sprites":	{
+            "animation" : {
+                "size" : 4,
+                "rows" : 1,
+                "cols" : 4
+            }
+            }
+        },
       "ink-projectile": {
           "file":  "textures/ink_projectile.png",
           "wrap":   false,
