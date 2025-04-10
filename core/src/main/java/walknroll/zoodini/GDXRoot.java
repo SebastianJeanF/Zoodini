@@ -16,6 +16,7 @@ import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.*;
 import walknroll.zoodini.controllers.screens.GameScene;
 import walknroll.zoodini.controllers.screens.LoadingScene;
+import walknroll.zoodini.controllers.screens.SettingsScene;
 
 /**
  * Root class for a LibGDX.
@@ -28,6 +29,12 @@ import walknroll.zoodini.controllers.screens.LoadingScene;
  * specification.
  */
 public class GDXRoot extends Game implements ScreenListener {
+	public static final int EXIT_QUIT = 0;
+	public static final int EXIT_MENU = 1;
+	public static final int EXIT_PLAY = 2;
+	public static final int EXIT_SETTINGS = 3;
+	public static final int EXIT_CREDITS = 4;
+
 	/** AssetManager to load game assets (textures, data, etc.) */
 	AssetDirectory directory;
 	/** Drawing context to display graphics (VIEW CLASS) */
@@ -36,6 +43,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	private LoadingScene loading;
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private GameScene gameplay;
+	private SettingsScene settings;
 
 	/**
 	 * Creates a new game from the configuration settings.
@@ -83,6 +91,21 @@ public class GDXRoot extends Game implements ScreenListener {
 		super.dispose();
 	}
 
+	private void disposeExcept(Screen screen) {
+		if (gameplay != null && screen != gameplay) {
+			gameplay.dispose();
+			gameplay = null;
+		}
+		if (loading != null && screen != loading) {
+			loading.dispose();
+			loading = null;
+		}
+		if (settings != null && screen != settings) {
+			settings.dispose();
+			settings = null;
+		}
+	}
+
 	/**
 	 * The given screen has made a request to exit its player mode.
 	 *
@@ -92,18 +115,46 @@ public class GDXRoot extends Game implements ScreenListener {
 	 * @param exitCode The state of the screen upon exit
 	 */
 	public void exitScreen(Screen screen, int exitCode) {
-		if (screen == loading) {
-			directory = loading.getAssets();
-			gameplay = new GameScene(directory, batch);
-			gameplay.setScreenListener(this);
-			setScreen(gameplay);
-
-			loading.dispose();
-			loading = null;
-		} else if (exitCode == GameScene.EXIT_QUIT) {
-			// We quit the main application
-			Gdx.app.exit();
+		switch (exitCode) {
+			case GDXRoot.EXIT_CREDITS:
+				break;
+			case GDXRoot.EXIT_MENU:
+				loading = new LoadingScene("jsons/assets.json",batch,1);
+				loading.setScreenListener(this);
+				setScreen(loading);
+				disposeExcept(loading);
+				break;
+			case GDXRoot.EXIT_PLAY:
+				directory = loading.getAssets();
+				gameplay = new GameScene(directory, batch);
+				gameplay.setScreenListener(this);
+				setScreen(gameplay);
+				disposeExcept(gameplay);
+				break;
+			case GDXRoot.EXIT_QUIT:
+				Gdx.app.exit();
+				break;
+			case GDXRoot.EXIT_SETTINGS:
+				settings = new SettingsScene(batch);
+				settings.setScreenListener(this);
+				setScreen(settings);
+				disposeExcept(settings);
+				break;
+			default:
+				break;
 		}
+		// if (screen == loading) {
+		// 	directory = loading.getAssets();
+		// 	gameplay = new GameScene(directory, batch);
+		// 	gameplay.setScreenListener(this);
+		// 	setScreen(gameplay);
+
+		// 	loading.dispose();
+		// 	loading = null;
+		// } else if (exitCode == GameScene.EXIT_QUIT) {
+		// 	// We quit the main application
+		// 	Gdx.app.exit();
+		// }
 	}
 
 }
