@@ -81,7 +81,7 @@ public class LoadingScene implements Screen, InputProcessor {
 	/** Current progress (0 to 1) of the asset manager */
 	private float progress;
 	/** The current state of the play button */
-	private PressState pressState;
+	private Integer pressState;
 	/**
 	 * The amount of time to devote to loading assets (as opposed to on screen
 	 * hints, etc.)
@@ -129,7 +129,7 @@ public class LoadingScene implements Screen, InputProcessor {
 	 * @return true if the player is ready to go
 	 */
 	public boolean isReady() {
-		return pressState != PressState.NONE;
+		return pressState != null;
 	}
 
 	/**
@@ -159,11 +159,11 @@ public class LoadingScene implements Screen, InputProcessor {
 		public float width;
 		public float height;
 
-		private PressState pressedState;
+		private int pressedState;
 		private String assetName;
 		private boolean pressed;
 
-		public MenuButton(float x, float y, float width, float height, String assetName, PressState pressedState) {
+		public MenuButton(float x, float y, float width, float height, String assetName, int pressedState) {
 			this.x = x;
 			this.y = y;
 			this.width = width;
@@ -181,7 +181,7 @@ public class LoadingScene implements Screen, InputProcessor {
 			return this.assetName;
 		}
 
-		public PressState getPressedState() {
+		public int getPressedState() {
 			return this.pressedState;
 		}
 
@@ -231,7 +231,7 @@ public class LoadingScene implements Screen, InputProcessor {
 
 		// No progress so far.
 		progress = 0;
-		pressState = PressState.NONE;
+		pressState = null;
 
 		affine = new Affine2();
 		Gdx.input.setInputProcessor(this);
@@ -246,11 +246,13 @@ public class LoadingScene implements Screen, InputProcessor {
 		float buttonHeight = constants.getFloat("button.height");
 		buttons = Array.with(
 				new MenuButton(buttonX, constants.getFloat("button.start.y"), buttonWidth, buttonHeight, "play",
-						PressState.PLAY),
+						GDXRoot.EXIT_PLAY),
 				new MenuButton(buttonX, constants.getFloat("button.settings.y"), buttonWidth, buttonHeight, "settings",
-						PressState.SETTINGS),
+						GDXRoot.EXIT_SETTINGS),
 				new MenuButton(buttonX, constants.getFloat("button.credits.y"), buttonWidth, buttonHeight, "credits",
-						PressState.CREDITS));
+						GDXRoot.EXIT_CREDITS),
+				new MenuButton(buttonX, constants.getFloat("button.quit.y"), buttonWidth, buttonHeight, "quit",
+						GDXRoot.EXIT_QUIT));
 	}
 
 	/**
@@ -388,21 +390,7 @@ public class LoadingScene implements Screen, InputProcessor {
 
 			// We are are ready, notify our listener
 			if (isReady() && listener != null) {
-				int exitCode = GDXRoot.EXIT_QUIT;
-				switch (pressState) {
-					case CREDITS:
-						exitCode = GDXRoot.EXIT_CREDITS;
-						break;
-					case PLAY:
-						exitCode = GDXRoot.EXIT_PLAY;
-						break;
-					case SETTINGS:
-						exitCode = GDXRoot.EXIT_SETTINGS;
-						break;
-					default:
-						break;
-				}
-				listener.exitScreen(this, exitCode);
+				listener.exitScreen(this, pressState);
 			}
 		}
 	}

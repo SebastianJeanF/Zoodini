@@ -231,7 +231,7 @@ public class GameScene implements Screen, ContactListener {
 
         // Now it is time to maybe switch screens.
         if (input.didExit()) {
-            listener.exitScreen(this, GDXRoot.EXIT_QUIT);
+            listener.exitScreen(this, GDXRoot.EXIT_MENU);
             return false;
         } else if (countdown > 0) {
             countdown--;
