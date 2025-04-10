@@ -26,7 +26,7 @@ public class SecurityCamera extends ZoodiniSprite {
     private float viewDistance;
 
     private int startFrame;
-    private boolean isDisabled;
+    private boolean disabled;
     private float disabledTime; //in seconds
     private float disabledTimeRemaining;
     private float angle;
@@ -78,7 +78,7 @@ public class SecurityCamera extends ZoodiniSprite {
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 
         disabledTime = properties.get("disabledTime", Float.class);
-        isDisabled = false;
+        disabled = false;
 
         // Initialize ring effect properties
         alarmDistance = properties.get("alarmDistance", Float.class);
@@ -105,13 +105,12 @@ public class SecurityCamera extends ZoodiniSprite {
     public void update(float dt) {
         super.update(dt);
 
-        if (isDisabled()) {
+        if (disabled == true) {
             disabledTimeRemaining -= dt;
         }
 
         if (disabledTimeRemaining <= 0) {
-            isDisabled = false;
-            disabledTimeRemaining = disabledTime;
+            disabled = false;
         }
 
         // Update ring animation
@@ -178,11 +177,12 @@ public class SecurityCamera extends ZoodiniSprite {
 
 
     public boolean isDisabled() {
-        return isDisabled;
+        return disabled;
     }
 
-    public void setDisabled(boolean isDisabled) {
-        this.isDisabled = isDisabled;
+    public void disable() {
+        this.disabled = true;
+        disabledTimeRemaining = disabledTime;
     }
 
     public float getAngle() {

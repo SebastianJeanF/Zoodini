@@ -670,7 +670,7 @@ public class GameScene implements Screen, ContactListener {
 					SecurityCamera cam = secCameras.get(i);
 					Obstacle camObstacle = cam.getObstacle();
 					if (o1 == camObstacle || o2 == camObstacle) {
-						cam.setDisabled(true);
+						cam.disable();
 						break;
 					}
 				}
