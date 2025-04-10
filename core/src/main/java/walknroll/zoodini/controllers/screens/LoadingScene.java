@@ -27,6 +27,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ScreenUtils;
 import edu.cornell.gdiac.graphics.*;
@@ -34,6 +35,8 @@ import edu.cornell.gdiac.assets.*;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.math.PathExtruder;
 import edu.cornell.gdiac.util.*;
+import walknroll.zoodini.GDXRoot;
+
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -50,7 +53,7 @@ public class LoadingScene implements Screen, InputProcessor {
 	private static int DEFAULT_BUDGET = 15;
 
 	// There are TWO asset managers.
-	// One to load the loading screen.  The other to load the assets
+	// One to load the loading screen. The other to load the assets
 	/** Internal assets for this loading screen */
 	private AssetDirectory internal;
 	/** The actual assets to be loaded */
@@ -78,12 +81,17 @@ public class LoadingScene implements Screen, InputProcessor {
 	/** Current progress (0 to 1) of the asset manager */
 	private float progress;
 	/** The current state of the play button */
-	private int   pressState;
-	/** The amount of time to devote to loading assets (as opposed to on screen hints, etc.) */
-	private int   budget;
+	private PressState pressState;
+	/**
+	 * The amount of time to devote to loading assets (as opposed to on screen
+	 * hints, etc.)
+	 */
+	private int budget;
 
 	/** Whether or not this player mode is still active */
 	private boolean active;
+
+	private Array<MenuButton> buttons;
 
 	/**
 	 * Returns the budget for the asset loader.
@@ -121,14 +129,14 @@ public class LoadingScene implements Screen, InputProcessor {
 	 * @return true if the player is ready to go
 	 */
 	public boolean isReady() {
-		return pressState == 2;
+		return pressState != PressState.NONE;
 	}
 
 	/**
 	 * Returns the asset directory produced by this loading screen
 	 *
 	 * This asset loader is NOT owned by this loading scene, so it persists even
-	 * after the scene is disposed.  It is your responsbility to unload the
+	 * after the scene is disposed. It is your responsbility to unload the
 	 * assets in this directory.
 	 *
 	 * @return the asset directory produced by this loading screen
@@ -137,11 +145,60 @@ public class LoadingScene implements Screen, InputProcessor {
 		return assets;
 	}
 
+	private enum PressState {
+		NONE,
+		PLAY,
+		SETTINGS,
+		CREDITS
+	}
+
+	/** Wrapper class for instantiating menu buttons */
+	private class MenuButton {
+		public float x;
+		public float y;
+		public float width;
+		public float height;
+
+		private PressState pressedState;
+		private String assetName;
+		private boolean pressed;
+
+		public MenuButton(float x, float y, float width, float height, String assetName, PressState pressedState) {
+			this.x = x;
+			this.y = y;
+			this.width = width;
+			this.height = height;
+			this.assetName = assetName;
+			this.pressedState = pressedState;
+			this.pressed = false;
+		}
+
+		public boolean contains(float x, float y) {
+			return (x >= this.x) && (y >= this.y) && (x <= this.x + this.width) && (y <= this.y + this.height);
+		}
+
+		public String getAssetName() {
+			return this.assetName;
+		}
+
+		public PressState getPressedState() {
+			return this.pressedState;
+		}
+
+		public void press() {
+			this.pressed = !this.pressed;
+		}
+
+		public boolean isPressed() {
+			return this.pressed;
+		}
+	}
+
 	/**
 	 * Creates a LoadingMode with the default budget, size and position.
 	 *
-	 * @param file  	The asset directory to load in the background
-	 * @param batch 	The sprite batch to draw to
+	 * @param file  The asset directory to load in the background
+	 * @param batch The sprite batch to draw to
 	 */
 	public LoadingScene(String file, SpriteBatch batch) {
 		this(file, batch, DEFAULT_BUDGET);
@@ -150,38 +207,50 @@ public class LoadingScene implements Screen, InputProcessor {
 	/**
 	 * Creates a LoadingMode with the default size and position.
 	 *
-	 * The budget is the number of milliseconds to spend loading assets each animation
-	 * frame.  This allows you to do something other than load assets.  An animation
+	 * The budget is the number of milliseconds to spend loading assets each
+	 * animation
+	 * frame. This allows you to do something other than load assets. An animation
 	 * frame is ~16 milliseconds. So if the budget is 10, you have 6 milliseconds to
-	 * do something else.  This is how game companies animate their loading screens.
+	 * do something else. This is how game companies animate their loading screens.
 	 *
-	 * @param file  	The asset directory to load in the background
-	 * @param canvas 	The game canvas to draw to
+	 * @param file   The asset directory to load in the background
+	 * @param canvas The game canvas to draw to
 	 * @param millis The loading budget in milliseconds
 	 */
 	public LoadingScene(String file, SpriteBatch batch, int millis) {
-		this.batch  = batch;
+		this.batch = batch;
 		budget = millis;
 
 		// We need these files loaded immediately
-		internal = new AssetDirectory( "loading/boot.json" );
+		internal = new AssetDirectory("loading/boot.json");
 		internal.loadAssets();
 		internal.finishLoading();
 
-		constants = internal.getEntry( "constants", JsonValue.class );
-		resize(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+		constants = internal.getEntry("constants", JsonValue.class);
+		resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
 		// No progress so far.
 		progress = 0;
-		pressState = 0;
+		pressState = PressState.NONE;
 
 		affine = new Affine2();
-		Gdx.input.setInputProcessor( this );
+		Gdx.input.setInputProcessor(this);
 
 		// Start loading the REAL assets
-		assets = new AssetDirectory( file );
+		assets = new AssetDirectory(file);
 		assets.loadAssets();
 		active = true;
+
+		float buttonX = constants.getFloat("button.x");
+		float buttonWidth = constants.getFloat("button.width");
+		float buttonHeight = constants.getFloat("button.height");
+		buttons = Array.with(
+				new MenuButton(buttonX, constants.getFloat("button.start.y"), buttonWidth, buttonHeight, "play",
+						PressState.PLAY),
+				new MenuButton(buttonX, constants.getFloat("button.settings.y"), buttonWidth, buttonHeight, "settings",
+						PressState.SETTINGS),
+				new MenuButton(buttonX, constants.getFloat("button.credits.y"), buttonWidth, buttonHeight, "credits",
+						PressState.CREDITS));
 	}
 
 	/**
@@ -195,8 +264,10 @@ public class LoadingScene implements Screen, InputProcessor {
 	/**
 	 * Update the status of this player mode.
 	 *
-	 * We prefer to separate update and draw from one another as separate methods, instead
-	 * of using the single render() method that LibGDX does.  We will talk about why we
+	 * We prefer to separate update and draw from one another as separate methods,
+	 * instead
+	 * of using the single render() method that LibGDX does. We will talk about why
+	 * we
 	 * prefer this in lecture.
 	 *
 	 * @param delta Number of seconds since last animation frame
@@ -214,35 +285,39 @@ public class LoadingScene implements Screen, InputProcessor {
 	/**
 	 * Draw the status of this player mode.
 	 *
-	 * We prefer to separate update and draw from one another as separate methods, instead
-	 * of using the single render() method that LibGDX does.  We will talk about why we
+	 * We prefer to separate update and draw from one another as separate methods,
+	 * instead
+	 * of using the single render() method that LibGDX does. We will talk about why
+	 * we
 	 * prefer this in lecture.
 	 */
 	private void draw() {
 		// Cornell colors
-		ScreenUtils.clear( 0.702f, 0.1255f, 0.145f,1.0f );
+		ScreenUtils.clear(0.702f, 0.1255f, 0.145f, 1.0f);
 
 		batch.begin(camera);
-		batch.setColor( Color.WHITE );
+		batch.setColor(Color.WHITE);
 
 		// Height lock the logo
-		Texture texture = internal.getEntry( "splash", Texture.class );
-		batch.draw(texture,(width-height)/2, 0, height, height);
+		Texture texture = internal.getEntry("splash", Texture.class);
+		float ratio = (float) width / (float) texture.getWidth();
+		batch.draw(texture, 0, 0, width, ratio * texture.getHeight());
+
+		texture = internal.getEntry("logo", Texture.class);
+		batch.draw(texture, (width / 2f) - (texture.getWidth() / 2f), height - (texture.getHeight() + 50),
+				texture.getWidth(),
+				texture.getHeight());
 
 		if (progress < 1.0f) {
 			drawProgress();
 		} else {
-			float cx = width/2;
-			float cy = (int)(constants.getFloat( "bar.height" )*height);
-			float s = constants.getFloat("button.scale")*scale;
-			Color tint = (pressState == 1 ? Color.GRAY : Color.WHITE);
-			texture = internal.getEntry("play",Texture.class);
+			for (MenuButton menuButton : buttons) {
+				Color tint = menuButton.isPressed() ? Color.GRAY : Color.WHITE;
+				texture = internal.getEntry(menuButton.getAssetName(), Texture.class);
 
-			SpriteBatch.computeTransform( affine, texture.getWidth() / 2, texture.getHeight() / 2,
-						                  cx, cy, 0, s, s );
-
-			batch.setColor( tint );
-			batch.draw( texture, affine );
+				batch.setColor(tint);
+				batch.draw(texture, menuButton.x, menuButton.y, menuButton.width, menuButton.height);
+			}
 		}
 		batch.end();
 	}
@@ -250,47 +325,48 @@ public class LoadingScene implements Screen, InputProcessor {
 	/**
 	 * Updates the progress bar according to loading progress
 	 *
-	 * The progress bar is composed of parts: two rounded caps on the end, and a rectangle in a middle. We adjust the
+	 * The progress bar is composed of parts: two rounded caps on the end, and a
+	 * rectangle in a middle. We adjust the
 	 * size of the rectangle in the middle to represent the amount of progress.
 	 */
 	private void drawProgress() {
-		float w = (int)(constants.getFloat( "bar.width" )*width);
-		float cx = width/2;
-		float cy = (int)(constants.getFloat( "bar.height" )*height);
+		float w = (int) (constants.getFloat("bar.width") * width);
+		float cx = width / 2;
+		float cy = (int) (constants.getFloat("bar.height") * height);
 		TextureRegion region1, region2, region3;
 
 		// "3-patch" the background
-		batch.setColor( Color.WHITE );
-		region1 = internal.getEntry( "progress.backleft", TextureRegion.class );
-		batch.draw(region1,cx-w/2, cy, scale*region1.getRegionWidth(), scale*region1.getRegionHeight());
+		batch.setColor(Color.WHITE);
+		region1 = internal.getEntry("progress.backleft", TextureRegion.class);
+		batch.draw(region1, cx - w / 2, cy, scale * region1.getRegionWidth(), scale * region1.getRegionHeight());
 
-		region2 = internal.getEntry( "progress.backright", TextureRegion.class );
-		batch.draw(region2,cx+w/2-scale*region2.getRegionWidth(), cy,
-				scale*region2.getRegionWidth(), scale*region2.getRegionHeight());
+		region2 = internal.getEntry("progress.backright", TextureRegion.class);
+		batch.draw(region2, cx + w / 2 - scale * region2.getRegionWidth(), cy,
+				scale * region2.getRegionWidth(), scale * region2.getRegionHeight());
 
-		region3 = internal.getEntry( "progress.background", TextureRegion.class );
-		batch.draw(region3, cx-w/2+scale*region1.getRegionWidth(), cy,
-				w-scale*(region2.getRegionWidth()+region1.getRegionWidth()),
-				scale*region3.getRegionHeight());
+		region3 = internal.getEntry("progress.background", TextureRegion.class);
+		batch.draw(region3, cx - w / 2 + scale * region1.getRegionWidth(), cy,
+				w - scale * (region2.getRegionWidth() + region1.getRegionWidth()),
+				scale * region3.getRegionHeight());
 
 		// "3-patch" the foreground
-		region1 = internal.getEntry( "progress.foreleft", TextureRegion.class );
-		batch.draw(region1,cx-w/2, cy,scale*region1.getRegionWidth(), scale*region1.getRegionHeight());
+		region1 = internal.getEntry("progress.foreleft", TextureRegion.class);
+		batch.draw(region1, cx - w / 2, cy, scale * region1.getRegionWidth(), scale * region1.getRegionHeight());
 
 		if (progress > 0) {
-			region2 = internal.getEntry( "progress.foreright", TextureRegion.class );
-			float span = progress*(w-scale*(region1.getRegionWidth()+region2.getRegionWidth()));
+			region2 = internal.getEntry("progress.foreright", TextureRegion.class);
+			float span = progress * (w - scale * (region1.getRegionWidth() + region2.getRegionWidth()));
 
-			batch.draw( region2,cx-w/2+scale*region1.getRegionWidth()+span, cy,
-					scale*region2.getRegionWidth(), scale*region2.getRegionHeight());
+			batch.draw(region2, cx - w / 2 + scale * region1.getRegionWidth() + span, cy,
+					scale * region2.getRegionWidth(), scale * region2.getRegionHeight());
 
-			region3 = internal.getEntry( "progress.foreground", TextureRegion.class );
-			batch.draw(region3, cx-w/2+scale*region1.getRegionWidth(), cy,
-					    span, scale*region3.getRegionHeight());
+			region3 = internal.getEntry("progress.foreground", TextureRegion.class);
+			batch.draw(region3, cx - w / 2 + scale * region1.getRegionWidth(), cy,
+					span, scale * region3.getRegionHeight());
 		} else {
-			region2 = internal.getEntry( "progress.foreright", TextureRegion.class );
-			batch.draw(region2, cx-w/2+scale*region1.getRegionWidth(), cy,
-					scale*region2.getRegionWidth(), scale*region2.getRegionHeight());
+			region2 = internal.getEntry("progress.foreright", TextureRegion.class);
+			batch.draw(region2, cx - w / 2 + scale * region1.getRegionWidth(), cy,
+					scale * region2.getRegionWidth(), scale * region2.getRegionHeight());
 		}
 
 	}
@@ -299,7 +375,8 @@ public class LoadingScene implements Screen, InputProcessor {
 	/**
 	 * Called when the Screen should render itself.
 	 *
-	 * We defer to the other methods update() and draw().  However, it is VERY important
+	 * We defer to the other methods update() and draw(). However, it is VERY
+	 * important
 	 * that we only quit AFTER a draw.
 	 *
 	 * @param delta Number of seconds since last animation frame
@@ -311,7 +388,21 @@ public class LoadingScene implements Screen, InputProcessor {
 
 			// We are are ready, notify our listener
 			if (isReady() && listener != null) {
-				listener.exitScreen(this, 0);
+				int exitCode = GDXRoot.EXIT_QUIT;
+				switch (pressState) {
+					case CREDITS:
+						exitCode = GDXRoot.EXIT_CREDITS;
+						break;
+					case PLAY:
+						exitCode = GDXRoot.EXIT_PLAY;
+						break;
+					case SETTINGS:
+						exitCode = GDXRoot.EXIT_SETTINGS;
+						break;
+					default:
+						break;
+				}
+				listener.exitScreen(this, exitCode);
 			}
 		}
 	}
@@ -327,14 +418,14 @@ public class LoadingScene implements Screen, InputProcessor {
 	 */
 	public void resize(int width, int height) {
 		// Compute the drawing scale
-		scale = ((float)height)/constants.getFloat( "height" );
+		scale = ((float) height) / constants.getFloat("height");
 
-		this.width  = width;
+		this.width = width;
 		this.height = height;
 		if (camera == null) {
-			camera = new OrthographicCamera(width,height);
- 		} else {
-			camera.setToOrtho( false, width, height  );
+			camera = new OrthographicCamera(width, height);
+		} else {
+			camera.setToOrtho(false, width, height);
 		}
 	}
 
@@ -389,7 +480,7 @@ public class LoadingScene implements Screen, InputProcessor {
 	 * Called when the screen was touched or a mouse button was pressed.
 	 *
 	 * This method checks to see if the play button is available and if the click
-	 * is in the bounds of the play button.  If so, it signals the that the button
+	 * is in the bounds of the play button. If so, it signals the that the button
 	 * has been pressed and is currently down. Any mouse button is accepted.
 	 *
 	 * @param screenX the x-coordinate of the mouse on the screen
@@ -398,29 +489,46 @@ public class LoadingScene implements Screen, InputProcessor {
 	 * @return whether to hand the event to other listeners.
 	 */
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		if (progress < 1.0f || pressState == 2) {
+		if (progress < 1.0f) {
 			return true;
 		}
 
 		// Flip to match graphics coordinates
-		screenY = height-screenY;
+		screenY = height - screenY;
 
 		// Play button is a circle.
-		float cx = width/2;
-		float cy = (int)(constants.getFloat( "bar.height" )*height);
-		float s = constants.getFloat( "button.scale" )*scale;
-		float radius = s*internal.getEntry("play",Texture.class).getWidth()/2.0f;
-		float dist = (screenX-cx)*(screenX-cx)+(screenY-cy)*(screenY-cy);
-		if (dist < radius*radius) {
-			pressState = 1;
+		for (MenuButton menuButton : buttons) {
+			if (menuButton.isPressed()) {
+				return true;
+			}
+			if (menuButton.contains(screenX, screenY)) {
+				menuButton.press();
+				break;
+			}
 		}
+		// float buttonX = constants.getFloat("button.x");
+		// float buttonWidth = constants.getFloat("button.width");
+		// if (screenX >= buttonX && screenX <= buttonX + buttonWidth) {
+		// pressState = 1;
+		// }
+		// float cx = width / 2;
+		// float cy = (int) (constants.getFloat("bar.height") * height);
+		// float s = constants.getFloat("button.scale") * scale;
+		// float radius = s * internal.getEntry("play", Texture.class).getWidth() /
+		// 2.0f;
+		// float dist = (screenX - cx) * (screenX - cx) + (screenY - cy) * (screenY -
+		// cy);
+		// if (dist < radius * radius) {
+		// pressState = 1;
+		// }
 		return false;
 	}
 
 	/**
 	 * Called when a finger was lifted or a mouse button was released.
 	 *
-	 * This method checks to see if the play button is currently pressed down. If so,
+	 * This method checks to see if the play button is currently pressed down. If
+	 * so,
 	 * it signals the that the player is ready to go.
 	 *
 	 * @param screenX the x-coordinate of the mouse on the screen
@@ -429,9 +537,11 @@ public class LoadingScene implements Screen, InputProcessor {
 	 * @return whether to hand the event to other listeners.
 	 */
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		if (pressState == 1) {
-			pressState = 2;
-			return false;
+		for (MenuButton menuButton : buttons) {
+			if (menuButton.isPressed()) {
+				pressState = menuButton.getPressedState();
+				return false;
+			}
 		}
 		return true;
 	}
@@ -469,7 +579,8 @@ public class LoadingScene implements Screen, InputProcessor {
 	}
 
 	/**
-	 * Called when the mouse was moved without any buttons being pressed. (UNSUPPORTED)
+	 * Called when the mouse was moved without any buttons being pressed.
+	 * (UNSUPPORTED)
 	 *
 	 * @param screenX the x-coordinate of the mouse on the screen
 	 * @param screenY the y-coordinate of the mouse on the screen
