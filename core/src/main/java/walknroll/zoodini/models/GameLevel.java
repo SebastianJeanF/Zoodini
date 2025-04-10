@@ -522,12 +522,7 @@ public class GameLevel {
         mapRenderer.setView((OrthographicCamera) camera);
         mapRenderer.render();
 
-        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
-			if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
-				continue;
-			}
-            entry.value.draw(batch,camera);
-        }
+
 
         batch.begin(camera);
 		for (ZoodiniSprite obj : sprites) {
@@ -546,7 +541,15 @@ public class GameLevel {
             }
         }
 
+
 		batch.end();
+        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
+            if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
+                continue;
+            }
+            entry.value.draw(batch,camera);
+        }
+
 
         if(rayHandler != null) {
             rayHandler.render();
