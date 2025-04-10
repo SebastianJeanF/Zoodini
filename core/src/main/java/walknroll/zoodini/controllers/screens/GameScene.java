@@ -298,7 +298,8 @@ public class GameScene implements Screen, ContactListener {
                     Avatar detectedPlayer = entry.value.contains(catPos) ? level.getCat() : level.getOctopus();
 
                     for (Guard guard : level.getGuards()) {
-                        if (guard != null) {
+                        float guardToCameraDistance = guard.getPosition().dst(((SecurityCamera) entry.key).getPosition());
+                        if (guardToCameraDistance <= ((SecurityCamera) entry.key).getAlarmDistance()) {
                             guard.setAggroTarget(detectedPlayer);
                             guard.setCameraAlerted(true);
 
