@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.utils.JsonValue;
@@ -91,6 +92,10 @@ public class SecurityCamera extends ZoodiniSprite {
         viewDistance = properties.get("viewDistance", Float.class);
     }
 
+    public float getAlarmDistance(){
+        return alarmDistance;
+    }
+
     /**
      * Activates the ring effect
      */
@@ -157,6 +162,10 @@ public class SecurityCamera extends ZoodiniSprite {
             // Restore original color
             batch.setColor(originalColor);
         }
+    }
+
+    public Vector2 getPosition() {
+        return obstacle.getPosition();
     }
 
     public float getX() {

@@ -300,7 +300,8 @@ public class GameScene implements Screen, ContactListener {
                     Avatar detectedPlayer = entry.value.contains(catPos) ? level.getCat() : level.getOctopus();
 
                     for (Guard guard : level.getGuards()) {
-                        if (guard != null) {
+                        float guardToCameraDistance = guard.getPosition().dst(((SecurityCamera) entry.key).getPosition());
+                        if (guardToCameraDistance <= ((SecurityCamera) entry.key).getAlarmDistance()) {
                             guard.setAggroTarget(detectedPlayer);
                             guard.setCameraAlerted(true);
 
@@ -624,15 +625,12 @@ public class GameScene implements Screen, ContactListener {
         float viewWidth = camera.viewportWidth / level.getTileSize();
         float viewHeight = camera.viewportHeight / level.getTileSize();
 
-        // Camera margin - how much dead space to allow (smaller = more centered)
-        float horizontalMargin = viewWidth * 0.15f; // 15% of view width
-        float verticalMargin = viewHeight * 0.15f; // 15% of view height
 
         // Calculate soft boundaries that allow partial dead space
-        float minX = level.getBounds().x + (viewWidth * 0.5f) - horizontalMargin;
-        float maxX = level.getBounds().x + (level.getBounds().width) - (viewWidth * 0.5f) + horizontalMargin;
-        float minY = level.getBounds().y + (viewHeight * 0.5f) - verticalMargin;
-        float maxY = level.getBounds().y + (level.getBounds().height) - (viewHeight * 0.5f) + verticalMargin;
+        float minX = level.getBounds().x + (viewWidth * 0.5f);
+        float maxX = level.getBounds().x + (level.getBounds().width) - (viewWidth * 0.5f);
+        float minY = level.getBounds().y + (viewHeight * 0.5f);
+        float maxY = level.getBounds().y + (level.getBounds().height) - (viewHeight * 0.5f);
 
         // Clamp camera position with soft boundaries
         cameraTargetPosition.x = Math.max(minX, Math.min(cameraTargetPosition.x, maxX));
@@ -808,10 +806,11 @@ public class GameScene implements Screen, ContactListener {
 					Obstacle camObstacle = cam.getObstacle();
 					if (o1 == camObstacle || o2 == camObstacle) {
 						cam.disable();
+                        contact.setEnabled(false);
+                        level.getProjectile().setShouldDestroy(true);
 						break;
 					}
 				}
-				level.getProjectile().setShouldDestroy(true);
 			}
 
 
