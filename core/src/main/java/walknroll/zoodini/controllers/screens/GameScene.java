@@ -327,6 +327,11 @@ public class GameScene implements Screen, ContactListener {
             Guard guard = (Guard) entry.key;
             VisionCone visionCone = entry.value;
 
+            Vector2 movementDir = guard.getMovementDirection();
+            if (movementDir != null && movementDir.len2() > 0.01f) {
+                entry.value.setFacingDirection(movementDir);
+            }
+
             Vector2 catPos = level.getCat().getPosition();
             Vector2 octPos = level.getOctopus().getPosition();
 

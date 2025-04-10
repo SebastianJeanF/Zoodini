@@ -153,6 +153,12 @@ public class VisionCone implements RayCastCallback{
         this.facingAngle = degree;
     }
 
+    public void setFacingDirection(Vector2 direction) {
+        if (direction != null && direction.len2() > 0.01f) {
+            // Convert direction vector to angle in degrees (0 is right, 90 is up)
+            this.facingAngle = MathUtils.radiansToDegrees * MathUtils.atan2(direction.y, direction.x);
+        }
+    }
 
     float closestFraction = 1.0f;
     @Override
@@ -182,7 +188,8 @@ public class VisionCone implements RayCastCallback{
         int k = 0;
 
         for (int i = 0; i < numRays; ++i) {
-            float degrees = MathUtils.radiansToDegrees * body.getAngle() + facingAngle;
+//            float degrees = MathUtils.radiansToDegrees * body.getAngle() + facingAngle;
+            float degrees = facingAngle;
             degrees += (i - (numRays - 1) / 2f) * coef;
             float rads = MathUtils.degreesToRadians * degrees;
 
