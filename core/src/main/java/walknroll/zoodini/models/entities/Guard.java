@@ -75,8 +75,8 @@ public class Guard extends Enemy {
         final boolean IS_LOOP = true;
 
         if (animKey != null) {
-            SpriteSheet animSheet = directory.getEntry(animKey, SpriteSheet.class);
-            System.out.println("Number of frames: " + animSheet.getSize());
+            SpriteSheet sharedSheet = directory.getEntry(animKey, SpriteSheet.class);
+            SpriteSheet animSheet = new SpriteSheet(sharedSheet);
             animSheet.setFrame(START_FRAME);
             Animation anim = new Animation(
                 animSheet,

@@ -137,9 +137,9 @@
         "wrap":  	false,
         "sprites":	{
           "animation" : {
-            "size" : 11,
+            "size" : 12,
             "rows" : 1,
-            "cols" : 11
+            "cols" : 12
           }
         }
       },
