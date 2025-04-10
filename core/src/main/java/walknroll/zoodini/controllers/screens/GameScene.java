@@ -43,6 +43,8 @@ import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 
 import java.util.HashMap;
+import java.util.Map;
+
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 
@@ -451,20 +453,29 @@ public class GameScene implements Screen, ContactListener {
 
         Array<SecurityCamera> cams = level.getSecurityCameras();
 
-//        if(key.isCollected() && !key.isUsed() && door.isUnlocking()){
-//            float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
-//            Vector2 doorPos = door.getObstacle().getPosition().cpy();
-//            float tileSize = level.getTileSize();
-//            ui.showUnlockProgress(progress, doorPos, camera, tileSize);
-//        } else {
-//            door.resetTimer();
-//            ui.hideUnlockProgress();
-//        }
-//
-//        if(door.getRemainingTimeToUnlock() <= 0){
-//            key.setUsed(true);
-//            ui.hideUnlockProgress();
-//        }
+
+        // TODO: Might need to comment out again
+        for (ObjectMap.Entry<Door, Key> entry : doors.entries()) {
+            Door door = entry.key;
+            Key key = entry.value;
+
+            if(key.isCollected() && !key.isUsed() && door.isUnlocking()){
+                System.out.println("KEY COLLECTED");
+
+                float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
+                Vector2 doorPos = door.getObstacle().getPosition().cpy();
+                float tileSize = level.getTileSize();
+                door.showUnlockProgress(progress, doorPos, camera, tileSize);
+            } else {
+                door.resetTimer();
+                door.hideUnlockProgress();
+            }
+
+            if(door.getRemainingTimeToUnlock() <= 0){
+                key.setUsed(true);
+                door.hideUnlockProgress();
+            }
+        }
 
     }
 
@@ -506,7 +517,7 @@ public class GameScene implements Screen, ContactListener {
         // batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         // Final message
 
-        ui.draw(batch);
+//        ui.draw(batch);
         ui.draw(batch, level);
     }
 
@@ -795,10 +806,11 @@ public class GameScene implements Screen, ContactListener {
 					Obstacle camObstacle = cam.getObstacle();
 					if (o1 == camObstacle || o2 == camObstacle) {
 						cam.disable();
+                        contact.setEnabled(false);
+                        level.getProjectile().setShouldDestroy(true);
 						break;
 					}
 				}
-				level.getProjectile().setShouldDestroy(true);
 			}
 
 
@@ -832,7 +844,8 @@ public class GameScene implements Screen, ContactListener {
                 if ((o1 == doorObs && (o2 == cat || o2 == oct)) || (o2 == doorObs && (o1 == cat
                     || o1 == oct))) { //owner of the key does not matter for now.
                     if (theRightKey.isCollected() && !theRightKey.isUsed()
-                        && door.isLocked()) { //TODO: not sure whether we check if key's collected at collision resolution or in the update().
+                        && door.isLocked()) { //TODO: not sure whether we check if
+                        // key's collected at collision resolution or in the update().
                         door.setUnlocking(true);
                     }
                 }
