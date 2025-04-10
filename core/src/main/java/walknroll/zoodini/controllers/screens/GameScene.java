@@ -25,6 +25,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.*;
+import walknroll.zoodini.GDXRoot;
 import walknroll.zoodini.controllers.GuardAIController;
 import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.controllers.UIController;
@@ -67,8 +68,6 @@ public class GameScene implements Screen, ContactListener {
 
     private JsonValue levelID;
 
-	/** Exit code for quitting the game */
-	public static final int EXIT_QUIT = 0;
 	/** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
 
@@ -196,8 +195,8 @@ public class GameScene implements Screen, ContactListener {
         if (active) {
             if (preUpdate(delta)) {
                 update(delta);
+                draw();
             }
-            draw();
         }
     }
 
@@ -232,7 +231,7 @@ public class GameScene implements Screen, ContactListener {
 
         // Now it is time to maybe switch screens.
         if (input.didExit()) {
-            listener.exitScreen(this, EXIT_QUIT);
+            listener.exitScreen(this, GDXRoot.EXIT_QUIT);
             return false;
         } else if (countdown > 0) {
             countdown--;
