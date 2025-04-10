@@ -82,6 +82,12 @@ public class GDXRoot extends Game implements ScreenListener {
 		if (gameplay != null) {
 			gameplay.dispose();
 		}
+		if (settings != null) {
+			settings.dispose();
+		}
+		if (credits != null) {
+			credits.dispose();
+		}
 
 		batch.dispose();
 		batch = null;
