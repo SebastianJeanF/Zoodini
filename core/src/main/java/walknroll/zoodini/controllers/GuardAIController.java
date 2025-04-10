@@ -179,6 +179,7 @@ public class GuardAIController {
                 guard.deltaDeAggroTimer(2);
             }
         }
+        System.out.println("Guard's suspicion level: " + guard.getSusLevel());
     }
 
     public boolean canStateTransition() {
@@ -186,82 +187,17 @@ public class GuardAIController {
     }
 
     /**
-     * Updates the guard's AI state and behavior.
-     * This is the main function that should be called each frame to progress the guard's AI.
-     * Handles suspicion level changes, state transitions, and movement target updates.
+     * Updates the guard's state based on current conditions and state priority.
      */
-    public void update() {
-        ticks++;
-        // Only change state every 5 ticks
-//        if (!canStateTransition()) {
-//            return;
-//        }
-        updateSusLevel();
-//        System.out.println(guard.getSusLevel());
+    private void updateGuardState() {
+        // First check for max suspicion level, which always leads to CHASE (highest priority)
+        if (guard.isMaxSusLevel() && currState != GuardState.CHASE) {
+            currState = GuardState.CHASE;
+            guard.startDeAggroTimer();
+            return;
+        }
 
-        switch(this.currState) {
-            case PATROL:
-                // Guard is not max sus level but is suspicious; PATROL -> SUSPICIOUS
-                if (guard.isSus()) {
-//                    System.out.println("Guard is suspicious");
-//                    System.out.println(guard.getSusLevel());
-                    currState = GuardState.SUSPICIOUS;
-                    lastStateChangeTime = ticks;
-                }
-                // Guard is not sus and is meowed; PATROL -> DISTRACTED
-                // Due to ordering of checks, this will only happen if the guard is not suspicious
-                // This makes sense since we don't want the guard to deagrro by being meowed
-                else if (didDistractionOccur()) {
-                    currState = GuardState.DISTRACTED;
-                    guard.setMeow(true);
-                    distractPosition.set(getActivePlayer().getPosition());
-                    lastStateChangeTime = ticks;
-                }
-                // Guard is not sus, not meowed, but player under camera; PATROL -> ALERTED
-                // Due to ordering of checks, this will only happen if the guard is not suspicious
-                // Guard shouldn't deaggro if other player touches camera
-                else if (guard.isCameraAlerted()) {
-                    currState = GuardState.AlERTED;
-                    guard.startDeAggroTimer();
-                    guard.setMaxSusLevel();
-                    cameraAlertPosition.set(getActivePlayer().getPosition());
-                    lastStateChangeTime = ticks;
-                }
-                // Otherwise, stay in PATROL state
-                break;
-            case SUSPICIOUS:
-                // Suspicion level is below threshold; SUSPICIOUS -> PATROL
-                if (!guard.isSus()) {
-                    currState = GuardState.PATROL;
-                    lastStateChangeTime = ticks;
-                }
-                // Max suspicion level reached; SUSPICIOUS -> CHASE
-                else if (guard.isMaxSusLevel()) {
-                    currState = GuardState.CHASE;
-                    guard.startDeAggroTimer();
-                    lastStateChangeTime = ticks;
-                }
-                // Guard is not max sus level and is meowed; SUSPICIOUS -> DISTRACTED
-                // Due to ordering of checks, this will only happen if the guard is suspicious
-                // TODO: Ask if we need this transition
-                else if (didDistractionOccur()) {
-                    currState = GuardState.DISTRACTED;
-                    guard.setMeow(true);
-                    distractPosition.set(getActivePlayer().getPosition());
-                    lastStateChangeTime = ticks;
-                }
-                // Guard is not sus, not meowed, but player under camera; SUSPICIOUS -> ALERTED
-                // Due to ordering of checks, this will only happen if the guard is suspicious
-                // TODO: Ask if we need this transition
-                else if (guard.isCameraAlerted()) {
-                    currState = GuardState.AlERTED;
-                    guard.startDeAggroTimer();
-                    guard.setMaxSusLevel();
-                    cameraAlertPosition.set(getActivePlayer().getPosition());
-                    lastStateChangeTime = ticks;
-                }
-                // Stay in SUSPICIOUS state -> Move towards player (Handled in setNextTargetLocation)
-                break;
+        switch (currState ) {
             case CHASE:
                 // If player deaggros the guard; CHASE -> PATROL
                 // This happens if the guard is not in line of sight and the deAggroTimer is 0
@@ -273,18 +209,13 @@ public class GuardAIController {
                 }
                 // Stay in CHASE state -> Chase player (Handled in setNextTargetLocation)
                 break;
-//            case RETURN:
-//                // If guard reaches its target, change state to patrol
-//                if (hasReachedPatrolPath()) {
-//                    currState = GuardState.PATROL;
-//                } else if (guard.isMaxSusLevel() || guard.isCameraAlerted()) {
-//                    currState = GuardState.CHASE;
-//                    guard.startDeAggroTimer();
-//                }
-//                if (guard.isCameraAlerted()) {
-//                    guard.setMaxSusLevel();
-//                }
-//                break;
+            case SUSPICIOUS:
+                // Suspicion level is below threshold; SUSPICIOUS -> PATROL
+                if (!guard.isSus()) {
+                    currState = GuardState.PATROL;
+                    lastStateChangeTime = ticks;
+                }
+                break;
             case DISTRACTED:
                 // If guard has reached meow location; DISTRACTED -> PATROL
                 if (guard.getPosition().dst(distractPosition) <= WAYPOINT_RADIUS) {
@@ -311,11 +242,159 @@ public class GuardAIController {
                     lastStateChangeTime = ticks;
                 }
                 break;
-            default: // Should not happen
+            case PATROL:
+                // Guard is not max sus level but is suspicious; PATROL -> SUSPICIOUS
+                if (guard.isSus()) {
+                    currState = GuardState.SUSPICIOUS;
+                    lastStateChangeTime = ticks;
+                }
+                // Guard is not sus and is meowed; PATROL -> DISTRACTED
+                // Due to ordering of checks, this will only happen if the guard is not suspicious
+                // This makes sense since we don't want the guard to deagrro by being meowed
+                else if (didDistractionOccur()) {
+                    currState = GuardState.DISTRACTED;
+                    guard.setMeow(true);
+                    distractPosition.set(getActivePlayer().getPosition());
+                    lastStateChangeTime = ticks;
+                }
+                // Guard is not sus, not meowed, but player under camera; PATROL -> ALERTED
+                // Due to ordering of checks, this will only happen if the guard is not suspicious
+                // Guard shouldn't deaggro if other player touches camera
+                else if (guard.isCameraAlerted()) {
+                    currState = GuardState.AlERTED;
+                    guard.startDeAggroTimer();
+                    guard.setMaxSusLevel();
+                    cameraAlertPosition.set(getActivePlayer().getPosition());
+                    lastStateChangeTime = ticks;
+                }
+                // Otherwise, stay in PATROL state
+                break;
+            default:
+                // Should never happen, but reset to PATROL if we get an invalid state
+                currState = GuardState.PATROL;
                 break;
         }
+    }
 
-//        System.out.println("Guard state: " + currState);
+    /**
+     * Updates the guard's AI state and behavior.
+     * This is the main function that should be called each frame to progress the guard's AI.
+     * Handles suspicion level changes, state transitions, and movement target updates.
+     */
+    public void update() {
+        ticks++;
+        // Only change state every 5 ticks
+//        if (!canStateTransition()) {
+//            return;
+//        }
+        updateSusLevel();
+//        System.out.println(guard.getSusLevel());
+        updateGuardState();
+//        switch(this.currState) {
+//            case PATROL:
+//                // Guard is not max sus level but is suspicious; PATROL -> SUSPICIOUS
+//                if (guard.isSus()) {
+////                    System.out.println("Guard is suspicious");
+////                    System.out.println(guard.getSusLevel());
+//                    currState = GuardState.SUSPICIOUS;
+//                    lastStateChangeTime = ticks;
+//                }
+//                // Guard is not sus and is meowed; PATROL -> DISTRACTED
+//                // Due to ordering of checks, this will only happen if the guard is not suspicious
+//                // This makes sense since we don't want the guard to deagrro by being meowed
+//                else if (didDistractionOccur()) {
+//                    currState = GuardState.DISTRACTED;
+//                    guard.setMeow(true);
+//                    distractPosition.set(getActivePlayer().getPosition());
+//                    lastStateChangeTime = ticks;
+//                }
+//                // Guard is not sus, not meowed, but player under camera; PATROL -> ALERTED
+//                // Due to ordering of checks, this will only happen if the guard is not suspicious
+//                // Guard shouldn't deaggro if other player touches camera
+//                else if (guard.isCameraAlerted()) {
+//                    currState = GuardState.AlERTED;
+//                    guard.startDeAggroTimer();
+//                    guard.setMaxSusLevel();
+//                    cameraAlertPosition.set(getActivePlayer().getPosition());
+//                    lastStateChangeTime = ticks;
+//                }
+//                // Otherwise, stay in PATROL state
+//                break;
+//            case SUSPICIOUS:
+//                // Suspicion level is below threshold; SUSPICIOUS -> PATROL
+//                if (!guard.isSus()) {
+//                    currState = GuardState.PATROL;
+//                    lastStateChangeTime = ticks;
+//                }
+//                // Max suspicion level reached; SUSPICIOUS -> CHASE
+//                else if (guard.isMaxSusLevel()) {
+//                    currState = GuardState.CHASE;
+//                    guard.startDeAggroTimer();
+//                    lastStateChangeTime = ticks;
+//                }
+//                // Guard is not max sus level and is meowed; SUSPICIOUS -> DISTRACTED
+//                // Due to ordering of checks, this will only happen if the guard is suspicious
+//                // TODO: Ask if we need this transition
+//                else if (didDistractionOccur()) {
+//                    currState = GuardState.DISTRACTED;
+//                    guard.setMeow(true);
+//                    distractPosition.set(getActivePlayer().getPosition());
+//                    lastStateChangeTime = ticks;
+//                }
+//                // Guard is not sus, not meowed, but player under camera; SUSPICIOUS -> ALERTED
+//                // Due to ordering of checks, this will only happen if the guard is suspicious
+//                // TODO: Ask if we need this transition
+//                else if (guard.isCameraAlerted()) {
+//                    currState = GuardState.AlERTED;
+//                    guard.startDeAggroTimer();
+//                    guard.setMaxSusLevel();
+//                    cameraAlertPosition.set(getActivePlayer().getPosition());
+//                    lastStateChangeTime = ticks;
+//                }
+//                // Stay in SUSPICIOUS state -> Move towards player (Handled in setNextTargetLocation)
+//                break;
+//            case CHASE:
+//                // If player deaggros the guard; CHASE -> PATROL
+//                // This happens if the guard is not in line of sight and the deAggroTimer is 0
+//                if (guard.checkDeAggroed()) {
+//                    currState = GuardState.PATROL;
+//                    // If guard was previously alerted by a camera
+//                    guard.setCameraAlerted(false);
+//                    lastStateChangeTime = ticks;
+//                }
+//                // Stay in CHASE state -> Chase player (Handled in setNextTargetLocation)
+//                break;
+//            case DISTRACTED:
+//                // If guard has reached meow location; DISTRACTED -> PATROL
+//                if (guard.getPosition().dst(distractPosition) <= WAYPOINT_RADIUS) {
+//                    currState = GuardState.PATROL;
+//                    guard.setMeow(false);
+//                    lastStateChangeTime = ticks;
+//                }
+//                // Guard has not reached meow location, sus level is above threshold; DISTRACTED -> SUSPICIOUS
+//                else if (guard.isSus()) {
+//                    currState = GuardState.SUSPICIOUS;
+//                    lastStateChangeTime = ticks;
+//                }
+//                break;
+//            case AlERTED:
+//                // If guard has reached camera location; ALERTED -> PATROL
+//                if (guard.getPosition().dst(cameraAlertPosition) <= WAYPOINT_RADIUS) {
+//                    currState = GuardState.PATROL;
+//                    guard.setMeow(false);
+//                    lastStateChangeTime = ticks;
+//                }
+//                // Guard has not reached camera location, sus level is above threshold; ALERTED -> SUSPICIOUS
+//                else if (guard.isSus()) {
+//                    currState = GuardState.SUSPICIOUS;
+//                    lastStateChangeTime = ticks;
+//                }
+//                break;
+//            default: // Should not happen
+//                break;
+//        }
+
+        System.out.println("Guard state: " + currState);
 
         setNextTargetLocation();
 
