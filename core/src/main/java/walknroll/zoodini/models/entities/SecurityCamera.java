@@ -20,6 +20,9 @@ import edu.cornell.gdiac.math.PathExtruder;
 import edu.cornell.gdiac.math.PathFactory;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.utils.ZoodiniSprite;
+import walknroll.zoodini.utils.animation.Animation;
+import walknroll.zoodini.utils.animation.AnimationController;
+import walknroll.zoodini.utils.animation.AnimationState;
 
 public class SecurityCamera extends ZoodiniSprite {
 
@@ -39,6 +42,8 @@ public class SecurityCamera extends ZoodiniSprite {
     private boolean isRingActive;
     private Color ringColor;
     private float ringThickness;
+
+    private final AnimationController animationController;
 
     Affine2 affineCache = new Affine2();
     PathFactory pf = new PathFactory();
@@ -70,13 +75,22 @@ public class SecurityCamera extends ZoodiniSprite {
 
         setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));
 
-        String key = globals.getString("texture"); //TODO somehow pull texture from tiled?
-        startFrame = globals.getInt("startframe");
-        sprite = directory.getEntry(key, SpriteSheet.class);
-        sprite.setFrame(startFrame);
+//        String key = globals.getString("texture"); //TODO somehow pull texture from tiled?
+//        startFrame = globals.getInt("startframe");
+//        sprite = directory.getEntry(key, SpriteSheet.class);
+//        sprite.setFrame(startFrame);
+//
+//        float r = properties.get("spriteRadius", Float.class) * units;
+//        mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
+
+        // Initialize animation controller
+        animationController = new AnimationController(AnimationState.IDLE);
+        // Load animations from JSON
+        setupAnimations(directory, globals);
 
         float r = properties.get("spriteRadius", Float.class) * units;
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
+
 
         disabledTime = properties.get("disabledTime", Float.class);
         disabled = false;
@@ -90,6 +104,44 @@ public class SecurityCamera extends ZoodiniSprite {
         isRingActive = false;
         fov = properties.get("fov",Float.class);
         viewDistance = properties.get("viewDistance", Float.class);
+    }
+
+    // TODO: generalize this for avatar animation code as well to avoid redundancy
+    private void setupAnimations(AssetDirectory directory, JsonValue globals) {
+        JsonValue anims = globals.get("animations");
+        JsonValue startFrames = globals.get("startFrames");
+        if (anims != null) {
+            JsonValue frameDelays = globals.get("frameDelays");
+            addAnimation(directory, anims, "idle", AnimationState.IDLE, frameDelays, true, startFrames.getInt("idle", 0));
+        }
+
+        assert anims != null;
+        sprite = directory.getEntry(anims.getString("idle"), SpriteSheet.class);
+        sprite.setFrame(startFrames.getInt("idle", 0));
+    }
+
+    private void addAnimation(
+        AssetDirectory directory,
+        JsonValue anims, String name,
+        AnimationState state,
+        JsonValue frameDelays,
+        boolean loop,
+        int startFrame
+    ) {
+        String animKey = anims.getString(name, null);
+        int frameDelay = frameDelays.getInt(name, 1);
+
+        if (animKey != null) {
+            SpriteSheet animSheet = directory.getEntry(animKey, SpriteSheet.class);
+            Animation anim = new Animation(
+                animSheet,
+                startFrame,
+                animSheet.getSize() - 1,
+                frameDelay,
+                loop
+            );
+            animationController.addAnimation(state, anim);
+        }
     }
 
     public float getAlarmDistance(){
@@ -108,6 +160,21 @@ public class SecurityCamera extends ZoodiniSprite {
 
     @Override
     public void update(float dt) {
+
+        // Update animation controller
+        animationController.update();
+
+        // This is the key fix - update the sprite reference itself
+        SpriteSheet currentSheet = animationController.getCurrentSpriteSheet();
+        if (currentSheet != null) {
+            sprite = currentSheet;  // Switch to the current animation's spritesheet
+        }
+
+        // Now setting the frame will work correctly
+        if (sprite != null) {
+            sprite.setFrame(animationController.getCurrentFrame());
+        }
+
         super.update(dt);
 
         if (disabled == true) {

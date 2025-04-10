@@ -66,7 +66,16 @@
   "camera": {
       "startframe": 0,
       "texture": "security-camera.camera",
-      "debug": "#ffffffC0"
+      "debug": "#ffffffC0",
+    "animations": {
+      "idle": "camera-idle.animation",
+    },
+    "frameDelays": {
+      "idle" : 16
+    },
+    "startFrames": {
+      "idle" : 0
+    },
   },
   "key": {
     "texture": "key",
