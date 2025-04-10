@@ -460,7 +460,6 @@ public class GameScene implements Screen, ContactListener {
             Key key = entry.value;
 
             if(key.isCollected() && !key.isUsed() && door.isUnlocking()){
-                System.out.println("KEY COLLECTED");
 
                 float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
                 Vector2 doorPos = door.getObstacle().getPosition().cpy();
@@ -764,6 +763,8 @@ public class GameScene implements Screen, ContactListener {
 		this.listener = listener;
 	}
 
+
+
 	/**
 	 * Callback method for the start of a collision
 	 *
@@ -821,19 +822,28 @@ public class GameScene implements Screen, ContactListener {
                 }
             }
 
+            // CAT
             for(Key key : level.getKeys()) {
+                if (key.isCollected()) { continue;} //skip if the key is not collected
+
                 Obstacle keyObs = key.getObstacle();
                 if ((o1 == cat && o2 == keyObs) || (o2 == cat && o1 == keyObs)) {
                     key.setCollected(true);
                     key.setOwner(AvatarType.CAT);
                     System.out.println("COLLISION");
+                    level.getCat().assignKey(key);
                 }
             }
+
+            // OCTOPUS
             for(Key key : level.getKeys()) {
+                if (key.isCollected()) { continue;} //skip if the key is not collected
+
                 Obstacle keyObs = key.getObstacle();
                 if ((o1 == oct && o2 == keyObs) || (o2 == oct && o1 == keyObs)) {
                     key.setCollected(true);
                     key.setOwner(AvatarType.OCTOPUS);
+                    level.getOctopus().assignKey(key);
                 }
             }
 
@@ -841,11 +851,22 @@ public class GameScene implements Screen, ContactListener {
             for(Door door : doors.keys()) {
                 Obstacle doorObs = door.getObstacle();
                 Key theRightKey = doors.get(door);
-                if ((o1 == doorObs && (o2 == cat || o2 == oct)) || (o2 == doorObs && (o1 == cat
-                    || o1 == oct))) { //owner of the key does not matter for now.
+
+                AvatarType type = theRightKey.getOwnerType();
+
+
+
+                if (
+                    (o1 == doorObs && (o2 == cat && level.getCat().getKeys().contains(theRightKey, true)))
+                    || (o1 == doorObs && (o2 == oct && level.getOctopus().getKeys().contains(theRightKey, true)))
+                    || (o2 == doorObs && (o1 == cat && level.getCat().getKeys().contains(theRightKey, true)))
+                    || (o2 == doorObs && (o1 == oct && level.getOctopus().getKeys().contains(theRightKey, true)))
+                )
+                { //owner of the key does not matter for now.
                     if (theRightKey.isCollected() && !theRightKey.isUsed()
                         && door.isLocked()) { //TODO: not sure whether we check if
                         // key's collected at collision resolution or in the update().
+                        System.out.println("DOOR UNLOCKING");
                         door.setUnlocking(true);
                     }
                 }
@@ -870,6 +891,7 @@ public class GameScene implements Screen, ContactListener {
 		}
 	}
 
+
 	/** Unused ContactListener method */
 	public void endContact(Contact contact) {
         Fixture fix1 = contact.getFixtureA();
@@ -893,9 +915,18 @@ public class GameScene implements Screen, ContactListener {
             ObjectMap<Door,Key> doors = level.getDoors();
 
             for(Door door : doors.keys()) {
+
+                doors.get(door);
                 Obstacle doorObs = door.getObstacle();
-                if ((o1 == doorObs && (o2 == cat || o2 == oct)) || (o2 == doorObs && (o1 == cat
-                    || o1 == oct))) { //owner of the key does not matter for now.
+                Key theRightKey = doors.get(door);
+                AvatarType type = doors.get(door).getOwnerType();
+
+
+                if ((o1 == doorObs && (o2 == cat && level.getCat().getKeys().contains(theRightKey, true)))
+                    || (o1 == doorObs && (o2 == oct && level.getOctopus().getKeys().contains(theRightKey, true)))
+                    || (o2 == doorObs && (o1 == cat && level.getCat().getKeys().contains(theRightKey, true)))
+                    || (o2 == doorObs && (o1 == oct && level.getOctopus().getKeys().contains(theRightKey, true)))
+                ) { //owner of the key does not matter for now.
                     if (door.isLocked()) {
                         door.setUnlocking(false);
                     }

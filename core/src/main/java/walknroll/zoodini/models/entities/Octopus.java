@@ -2,10 +2,12 @@ package walknroll.zoodini.models.entities;
 
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteMesh;
+import walknroll.zoodini.models.nonentities.Key;
 
 /**
  * Player avatar for the plaform game.
@@ -38,6 +40,21 @@ public class Octopus extends Avatar {
 
     /// The amount of ink this octopus has
     private float inkRemaining;
+
+    // Keys of doors
+    private Array<Key> keys;
+
+    public void assignKey(Key key) {
+        if (keys == null) {
+            keys = new Array<Key>();
+        }
+        keys.add(key);
+    }
+
+    public Array<Key> getKeys() {
+        return keys;
+    }
+
 
     public float getAbilityRange() {
         return abilityRange;
@@ -127,6 +144,7 @@ public class Octopus extends Avatar {
         this.inkRegen = properties.get("inkRegen", Float.class);
         this.inkUsage = properties.get("inkUsage", Float.class);
         this.inkCapacity = inkRemaining;
+        keys = new Array<Key>();
     }
 
     @Override

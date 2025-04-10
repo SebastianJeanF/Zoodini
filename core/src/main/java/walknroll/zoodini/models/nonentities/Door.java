@@ -174,7 +174,7 @@ public class Door extends ZoodiniSprite {
         super.update(dt);
         if(isLocked() && isUnlocking()){
             remainingTimeToUnlock -= dt;
-            System.out.println(remainingTimeToUnlock);
+//            System.out.println(remainingTimeToUnlock);
         } else {
             resetTimer();
         }
