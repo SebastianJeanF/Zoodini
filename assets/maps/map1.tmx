@@ -124,7 +124,13 @@
     <property name="size" type="float" value="1"/>
    </properties>
   </object>
-  <object id="30" name="rightkey" gid="2244" x="1040.33" y="1122.33" width="50" height="50"/>
+  <object id="30" name="rightkey" type="Key" gid="2244" x="1040.33" y="1122.33" width="50" height="50">
+   <properties>
+    <property name="category" value="10000"/>
+    <property name="exclude" value="11101"/>
+    <property name="size" type="float" value="1"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup id="9" name="walls">
   <object id="19" x="640" y="256" width="128" height="384"/>

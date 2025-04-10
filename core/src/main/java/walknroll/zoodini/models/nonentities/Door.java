@@ -157,7 +157,7 @@ public class Door extends ZoodiniSprite {
         resetTimer(); //TODO: get this from json
 
         if(!properties.get("key", MapObject.class).getProperties().get("type", String.class).equalsIgnoreCase("Key")){
-            throw new AssertionError("This door has no associated key");
+            throw new AssertionError("The associated key to this door is not of type key");
         }
     }
 
