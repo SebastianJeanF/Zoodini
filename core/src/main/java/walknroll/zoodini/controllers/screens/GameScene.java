@@ -43,6 +43,8 @@ import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 
 import java.util.HashMap;
+import java.util.Map;
+
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 
@@ -451,20 +453,29 @@ public class GameScene implements Screen, ContactListener {
 
         Array<SecurityCamera> cams = level.getSecurityCameras();
 
-//        if(key.isCollected() && !key.isUsed() && door.isUnlocking()){
-//            float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
-//            Vector2 doorPos = door.getObstacle().getPosition().cpy();
-//            float tileSize = level.getTileSize();
-//            ui.showUnlockProgress(progress, doorPos, camera, tileSize);
-//        } else {
-//            door.resetTimer();
-//            ui.hideUnlockProgress();
-//        }
-//
-//        if(door.getRemainingTimeToUnlock() <= 0){
-//            key.setUsed(true);
-//            ui.hideUnlockProgress();
-//        }
+
+        // TODO: Might need to comment out aggain
+        for (ObjectMap.Entry<Door, Key> entry : doors.entries()) {
+            Door door = entry.key;
+            Key key = entry.value;
+
+            if(key.isCollected() && !key.isUsed() && door.isUnlocking()){
+                System.out.println("KEY COLLECTED");
+
+                float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
+                Vector2 doorPos = door.getObstacle().getPosition().cpy();
+                float tileSize = level.getTileSize();
+                ui.showUnlockProgress(progress, doorPos, camera, tileSize);
+            } else {
+                door.resetTimer();
+                ui.hideUnlockProgress();
+            }
+
+            if(door.getRemainingTimeToUnlock() <= 0){
+                key.setUsed(true);
+                ui.hideUnlockProgress();
+            }
+        }
 
     }
 

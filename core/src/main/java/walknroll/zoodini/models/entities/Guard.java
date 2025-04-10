@@ -273,7 +273,7 @@ public class Guard extends Enemy {
     public void update(float dt) {
         // If we have a movement direction, update orientation
         if (movementDirection != null && movementDirection.len2() > 0.0001f) {
-            updateOrientation(dt, movementDirection);
+//            updateOrientation(dt, movementDirection);
         }
         applyForce();
         super.update(dt);
