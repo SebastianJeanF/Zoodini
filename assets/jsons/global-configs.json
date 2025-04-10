@@ -44,15 +44,21 @@
   "guard": {
     "animations": {
       "idle": "guard-idle.animation",
-      "walk" : "guard-walk.animation"
+      "walk" : "guard-walk.animation",
+        "walk-up" : "guard-walk-up.animation",
+        "walk-down" : "guard-walk-down.animation"
     },
     "frameDelays": {
       "idle" : 8,
-      "walk" : 8
+      "walk" : 8,
+        "walk-up" : 6,
+        "walk-down" : 6
     },
     "startFrames": {
       "idle" : 0,
-      "walk" : 0
+      "walk" : 0,
+        "walk-up" : 0,
+        "walk-down" : 0
     },
     "suspicion": "suspicion-meter.animation",
     "debug": "#ffffffC0"
