@@ -271,6 +271,10 @@ public class Guard extends Enemy {
 
 
     public void update(float dt) {
+        // If we have a movement direction, update orientation
+        if (movementDirection != null && movementDirection.len2() > 0.0001f) {
+            updateOrientation(dt, movementDirection);
+        }
         applyForce();
         super.update(dt);
     }
@@ -283,44 +287,50 @@ public class Guard extends Enemy {
         return target;
     }
 
-
-
     public void draw(SpriteBatch batch) {
         setAngle(0);
         super.draw(batch);
         drawSuspicionMeter(batch);
     }
 
-    // Temporary values, until meter is attached to guard AI controller
-    int susTick = 0;
-    final int FRAMES_PER_CHANGE = 20;
     public void drawSuspicionMeter(SpriteBatch batch) {
-        susTick++;
-        if (susTick % FRAMES_PER_CHANGE == 0) {
-            suspsicionMeter.update();
-            suspsicionMeter.getCurrentSpriteSheet().setFrame(suspsicionMeter.getCurrentFrame());
+        if (suspsicionMeter == null || suspsicionMeter.getCurrentSpriteSheet() == null) {
+            return;
         }
 
-        if (suspsicionMeter != null) {
-            float PIXEL_PER_WORLD_UNIT = getObstacle().getPhysicsUnits();
-            float guardXPixel = getPosition().x * PIXEL_PER_WORLD_UNIT;
-            float guardYPixel = getPosition().y * PIXEL_PER_WORLD_UNIT;
-
-            float SCALE = 0.3f;
-            float X_PIXEL_OFFSET = -90f * SCALE;
-            float Y_PIXEL_OFFSET = 30f;
-
-            // Get the original width and height of the sprite sheet
-            float originalWidth = suspsicionMeter.getCurrentSpriteSheet().getRegionWidth();
-            float originalHeight = suspsicionMeter.getCurrentSpriteSheet().getRegionHeight();
-
-            batch.draw(
-                suspsicionMeter.getCurrentSpriteSheet(),
-                guardXPixel + X_PIXEL_OFFSET,
-                guardYPixel + Y_PIXEL_OFFSET,
-                originalWidth * SCALE,
-                originalHeight * SCALE
-            );
+        // Calculate which frame to display based on suspicion level
+        int totalFrames = suspsicionMeter.getCurrentSpriteSheet().getSize() - 1;
+        if (totalFrames <= 0) {
+            return; // No valid frames
         }
+
+        // Map suspicion level (0 to maxSusLevel) to frame index (0 to totalFrames)
+        int frameIndex = Math.round((susLevel / maxSusLevel) * totalFrames);
+
+        // Ensure frame index is within valid range
+        frameIndex = MathUtils.clamp(frameIndex, 0, totalFrames);
+
+        // Update the animation to show the correct frame
+        suspsicionMeter.getCurrentSpriteSheet().setFrame(frameIndex);
+
+        float PIXEL_PER_WORLD_UNIT = getObstacle().getPhysicsUnits();
+        float guardXPixel = getPosition().x * PIXEL_PER_WORLD_UNIT;
+        float guardYPixel = getPosition().y * PIXEL_PER_WORLD_UNIT;
+
+        float SCALE = 0.3f;
+        float X_PIXEL_OFFSET = -90f * SCALE;
+        float Y_PIXEL_OFFSET = 30f;
+
+        // Get the original width and height of the sprite sheet
+        float originalWidth = suspsicionMeter.getCurrentSpriteSheet().getRegionWidth();
+        float originalHeight = suspsicionMeter.getCurrentSpriteSheet().getRegionHeight();
+
+        batch.draw(
+            suspsicionMeter.getCurrentSpriteSheet(),
+            guardXPixel + X_PIXEL_OFFSET,
+            guardYPixel + Y_PIXEL_OFFSET,
+            originalWidth * SCALE,
+            originalHeight * SCALE
+        );
     }
 }
