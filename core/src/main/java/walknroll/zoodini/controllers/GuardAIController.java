@@ -456,23 +456,25 @@ public class GuardAIController {
                 break;
         }
 
+        nextTargetLocation = getNextWaypointLocation(newTarget);
+
         // Only update the target if we have a valid new position and it's significantly different
         // This prevents micromovements that cause flickering
-        if (newTarget != null) {
-            if (nextTargetLocation == null) {
-                nextTargetLocation = getNextWaypointLocation(newTarget);
-            } else {
-                // Only update target if it's significantly different from current target
-                // or we've reached the current target
-                float currentTargetDist = distanceFromGuard(nextTargetLocation);
-
-                // If target is close or significantly changed, update it
-                if (currentTargetDist <= WAYPOINT_RADIUS ||
-                    newTarget.dst(nextTargetLocation) > 0.5f) {
-                    nextTargetLocation = getNextWaypointLocation(newTarget);
-                }
-            }
-        }
+//        if (newTarget != null) {
+//            if (nextTargetLocation == null) {
+//                nextTargetLocation = getNextWaypointLocation(newTarget);
+//            } else {
+//                // Only update target if it's significantly different from current target
+//                // or we've reached the current target
+//                float currentTargetDist = distanceFromGuard(nextTargetLocation);
+//
+//                // If target is close or significantly changed, update it
+//                if (currentTargetDist <= WAYPOINT_RADIUS ||
+//                    newTarget.dst(nextTargetLocation) > 0.5f) {
+//                    nextTargetLocation = getNextWaypointLocation(newTarget);
+//                }
+//            }
+//        }
     }
 
     /**
