@@ -453,7 +453,7 @@ public class GameScene implements Screen, ContactListener {
         Array<SecurityCamera> cams = level.getSecurityCameras();
 
 
-        // TODO: Might need to comment out aggain
+        // TODO: Might need to comment out again
         for (ObjectMap.Entry<Door, Key> entry : doors.entries()) {
             Door door = entry.key;
             Key key = entry.value;
@@ -464,15 +464,15 @@ public class GameScene implements Screen, ContactListener {
                 float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
                 Vector2 doorPos = door.getObstacle().getPosition().cpy();
                 float tileSize = level.getTileSize();
-                ui.showUnlockProgress(progress, doorPos, camera, tileSize);
+                door.showUnlockProgress(progress, doorPos, camera, tileSize);
             } else {
                 door.resetTimer();
-                ui.hideUnlockProgress();
+                door.hideUnlockProgress();
             }
 
             if(door.getRemainingTimeToUnlock() <= 0){
                 key.setUsed(true);
-                ui.hideUnlockProgress();
+                door.hideUnlockProgress();
             }
         }
 
@@ -516,7 +516,7 @@ public class GameScene implements Screen, ContactListener {
         // batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         // Final message
 
-        ui.draw(batch);
+//        ui.draw(batch);
         ui.draw(batch, level);
     }
 
@@ -845,7 +845,8 @@ public class GameScene implements Screen, ContactListener {
                 if ((o1 == doorObs && (o2 == cat || o2 == oct)) || (o2 == doorObs && (o1 == cat
                     || o1 == oct))) { //owner of the key does not matter for now.
                     if (theRightKey.isCollected() && !theRightKey.isUsed()
-                        && door.isLocked()) { //TODO: not sure whether we check if key's collected at collision resolution or in the update().
+                        && door.isLocked()) { //TODO: not sure whether we check if
+                        // key's collected at collision resolution or in the update().
                         door.setUnlocking(true);
                     }
                 }
