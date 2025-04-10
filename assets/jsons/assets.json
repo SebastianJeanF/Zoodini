@@ -146,7 +146,9 @@
       "goal": "textures/helicopter.png",
       "key": "textures/key-sprite.png",
       "locked_door": "textures/locked_door.png",
-      "unlocked_door": "textures/panda-sprite.png"
+      "unlocked_door": "textures/panda-sprite.png",
+      "cat-icon": "textures/cat-icon.png",
+        "octopus-icon": "textures/octopus-icon.png"
   	},
   	"fonts": {
   		"display": {
