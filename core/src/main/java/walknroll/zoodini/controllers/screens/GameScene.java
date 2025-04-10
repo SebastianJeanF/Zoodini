@@ -413,7 +413,6 @@ public class GameScene implements Screen, ContactListener {
 
         // batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         // Final message
-        System.out.println("About to draw UI");
 
         ui.draw(batch);
         ui.draw(batch, level);

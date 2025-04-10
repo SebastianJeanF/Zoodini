@@ -43,9 +43,6 @@ public class CircleTimer {
             Gdx.graphics.getHeight()));
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        System.out.println("CircleTimer drawing at position: (" + x + ", " + y + ") with radius: " + radius);
-        System.out.println("Screen dimensions: " + Gdx.graphics.getWidth() + "x" + Gdx.graphics.getHeight());
-
         // Draw background circle
         shapeRenderer.setColor(0.2f, 0.2f, 0.2f, 0.7f);
         shapeRenderer.circle(x, y, radius);
