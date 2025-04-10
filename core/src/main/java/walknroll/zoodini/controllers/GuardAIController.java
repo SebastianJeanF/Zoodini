@@ -57,7 +57,7 @@ public class GuardAIController {
 
     private final long STATE_CHANGE_COOLDOWN = 10;
 
-    private final float CAT_MEOW_RADIUS = 4f;
+    private final float CAT_MEOW_RADIUS = 5f;
 
     /** Graph representation of the game */
     private TileGraph tileGraph;
