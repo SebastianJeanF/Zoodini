@@ -121,7 +121,7 @@ public class GameGraph {
             }
         }
 
-        System.out.println(graphVisual.toString());
+//        System.out.println(graphVisual.toString());
     }
 
 //

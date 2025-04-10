@@ -365,7 +365,7 @@ public class GameScene implements Screen, ContactListener {
                 guard.setAgroed(true);
                 guard.setAggroTarget(level.getCat());
                 guard.setTarget(level.getCat().getPosition());
-                System.out.println("Guard detected cat: " + guard.getAggroTarget());
+//                System.out.println("Guard detected cat: " + guard.getAggroTarget());
             }
 
             // Check if octopus is detected
@@ -373,7 +373,7 @@ public class GameScene implements Screen, ContactListener {
                 guard.setAgroed(true);
                 guard.setAggroTarget(level.getOctopus());
                 guard.setTarget(level.getOctopus().getPosition());
-                System.out.println("Guard detected octopus: " + guard.getAggroTarget());
+//                System.out.println("Guard detected octopus: " + guard.getAggroTarget());
             }
             // No player detected
             else {
@@ -714,9 +714,9 @@ public class GameScene implements Screen, ContactListener {
 
 		// Update the guard's orientation to face the direction of movement.
 		Vector2 movement = guard.getMovementDirection();
-		if (movement.len2() > 0.0001f) { // Only update if there is significant movement
-			guard.setAngle(movement.angleRad() - (float) Math.PI/2);
-		}
+//		if (movement.len2() > 0.0001f) { // Only update if there is significant movement
+//			guard.setAngle(movement.angleRad() - (float) Math.PI/2);
+//		}
 		guard.applyForce();
 	}
 

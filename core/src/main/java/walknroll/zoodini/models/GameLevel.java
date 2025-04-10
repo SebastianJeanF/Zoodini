@@ -397,6 +397,7 @@ public class GameLevel {
             }
 
             for (Guard g : guards) {
+                updateFlipSprite(g);
                 g.update(dt);
             }
 
@@ -435,7 +436,7 @@ public class GameLevel {
                         avatarCat.getPosition()); // TODO: this line might not be needed
                     ((Guard) key).setAgroed(true);
                     ((Guard) key).setAggroTarget(avatarCat);
-                    System.out.println("In guard vision cone " + ((Guard) key).getAggroTarget());
+//                    System.out.println("In guard vision cone " + ((Guard) key).getAggroTarget());
                 } else if (key instanceof SecurityCamera) {
                     SecurityCamera camera = (SecurityCamera) key;
                     if (!camera.isDisabled()) {
@@ -454,7 +455,7 @@ public class GameLevel {
                         avatarOctopus.getPosition()); // TODO: this line might not be needed
                     ((Guard) key).setAgroed(true);
                     ((Guard) key).setAggroTarget(avatarOctopus);
-                    System.out.println("In guard vision cone " + ((Guard) key).getAggroTarget());
+//                    System.out.println("In guard vision cone " + ((Guard) key).getAggroTarget());
                 } else if (key instanceof SecurityCamera) {
                     SecurityCamera camera = (SecurityCamera) key;
                     if (!camera.isDisabled()) {

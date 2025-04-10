@@ -47,8 +47,8 @@
       "walk" : "guard-walk.animation"
     },
     "frameDelays": {
-      "idle" : 4,
-      "walk" : 4
+      "idle" : 8,
+      "walk" : 8
     },
     "startFrames": {
       "idle" : 0,

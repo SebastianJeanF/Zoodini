@@ -235,8 +235,8 @@ public class Avatar extends ZoodiniSprite {
 		Filter filter = new Filter();
 		filter.categoryBits = GameLevel.bitStringToShort(properties.get("category", String.class));
 		filter.maskBits = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
-        System.out.println(filter.categoryBits);
-        System.out.println(filter.maskBits);
+//        System.out.println(filter.categoryBits);
+//        System.out.println(filter.maskBits);
 		obstacle.setFilterData(filter);
 
 		setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));
