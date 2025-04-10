@@ -77,6 +77,10 @@
     "locked_texture": "unlocked_door",
     "debug": "#ffff00C8"
   },
+  "avatarIcons": {
+    "cat-texture": "cat-icon",
+    "octopus-texture": "octopus-icon"
+  },
   "ink": {
     "radius":       0.2,
     "spriterad":    0.2,

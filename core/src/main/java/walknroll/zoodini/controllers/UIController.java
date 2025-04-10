@@ -49,6 +49,9 @@ public class UIController {
     /** message location is pixel coordinate of the screen */
     protected ObjectMap<TextLayout, Vector2> messageLocations;
 
+    private TextureRegion catIcon;
+    private TextureRegion octopusIcon;
+
     public UIController() {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -123,6 +126,13 @@ public class UIController {
         displayFont = f;
     }
 
+    public void setCatIcon(TextureRegion icon) {
+        catIcon = icon;
+    }
+    public void setOctopusIcon(TextureRegion icon) {
+        octopusIcon = icon;
+    }
+
     public void update() {
         camera.update();
     }
@@ -154,12 +164,26 @@ public class UIController {
         }
     }
 
+    public void drawCatIcon(SpriteBatch batch){
+        batch.setTextureRegion(catIcon);
+        batch.setColor(Color.WHITE);
+        batch.draw(catIcon, 45, 30, 0, 0, catIcon.getRegionWidth(), catIcon.getRegionHeight(), 1f, 1f, 0);
+        batch.setColor(Color.WHITE);
+    }
+
+    public void drawOctopusIcon(SpriteBatch batch){
+        batch.setTextureRegion(octopusIcon);
+        batch.setColor(Color.WHITE);
+        batch.draw(octopusIcon, 45, 30, 0, 0, octopusIcon.getRegionWidth(), octopusIcon.getRegionHeight(), 1f, 1f, 0);
+        batch.setColor(Color.WHITE);
+    }
+
     private void drawInkMeter(SpriteBatch batch, Octopus octopus) {
         batch.setTexture(null);
         batch.setColor(Color.BLACK);
-        batch.outline(45, 45, 210, 35);
+        batch.outline(245, 115, 210, 35);
         batch.setColor(octopus.canUseAbility() ? Color.FOREST : Color.BLACK);
-        batch.fill(50, 50, (octopus.getInkRemaining() / octopus.getInkCapacity()) * 200f, 25);
+        batch.fill(250, 120, (octopus.getInkRemaining() / octopus.getInkCapacity()) * 200f, 25);
         batch.setColor(Color.WHITE);
     }
 
@@ -169,6 +193,9 @@ public class UIController {
 
         if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
             drawInkMeter(batch, (Octopus) avatar);
+            drawOctopusIcon(batch);
+        } else {
+            drawCatIcon(batch);
         }
 
         batch.end();

@@ -25,6 +25,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.*;
+import org.w3c.dom.Text;
 import walknroll.zoodini.GDXRoot;
 import walknroll.zoodini.controllers.GuardAIController;
 import walknroll.zoodini.controllers.InputController;
@@ -145,8 +146,13 @@ public class GameScene implements Screen, ContactListener {
 
 
         //UI controller is not working as intended. Someone fix plz
+        JsonValue avatarIcons = levelGlobals.get("avatarIcons");
         ui = new UIController();
         ui.setFont(directory.getEntry("display", BitmapFont.class));
+        TextureRegion catIcon = new TextureRegion(directory.getEntry(avatarIcons.get("cat-texture").asString(), Texture.class));
+        TextureRegion octopusIcon = new TextureRegion(directory.getEntry(avatarIcons.get("octopus-texture").asString(), Texture.class));
+        ui.setCatIcon(catIcon);
+        ui.setOctopusIcon(octopusIcon);
         ui.init();
 
         graph = new TileGraph<>(level.getMap(), false);
