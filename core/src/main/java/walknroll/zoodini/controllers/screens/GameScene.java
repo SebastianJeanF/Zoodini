@@ -271,7 +271,7 @@ public class GameScene implements Screen, ContactListener {
         InputController input = InputController.getInstance();
         processPlayerAction(input, dt);
         level.update(dt); //collisions
-        updateVisionCones();
+        updateVisionCones(dt);
         updateGuardAI();
         processNPCAction(dt);
         updateCamera(dt);
@@ -317,7 +317,7 @@ public class GameScene implements Screen, ContactListener {
      * Checks if the player is in the vision cones of any guards and updates their states accordingly.
      * This function specifically handles guard vision detection, separate from security cameras.
      */
-    private void updateGuardVisionCones() {
+    private void updateGuardVisionCones(float dt) {
         ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
 
         for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry: visions.entries()) {
@@ -330,9 +330,8 @@ public class GameScene implements Screen, ContactListener {
             VisionCone visionCone = entry.value;
 
             Vector2 movementDir = guard.getMovementDirection();
-            if (movementDir != null && movementDir.len2() > 0.01f) {
-                entry.value.setFacingDirection(movementDir);
-            }
+            visionCone.updateFacingDirection(dt, movementDir);
+
 
             Vector2 catPos = level.getCat().getPosition();
             Vector2 octPos = level.getOctopus().getPosition();
@@ -366,9 +365,9 @@ public class GameScene implements Screen, ContactListener {
      * Updates all vision cone detection in the game.
      * Delegates to specific functions for guards and security cameras.
      */
-    public void updateVisionCones() {
+    public void updateVisionCones(float dt) {
         updateSecurityCameraVisionCones();
-        updateGuardVisionCones();
+        updateGuardVisionCones(dt);
     }
 
     private Vector3 tmp = new Vector3();
