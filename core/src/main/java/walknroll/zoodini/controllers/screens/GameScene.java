@@ -682,7 +682,10 @@ public class GameScene implements Screen, ContactListener {
 				direction.scl(5f);
 			} else if (guard.isSus()) {
                 direction.scl(4f);
+            } else {
+                direction.scl(3f);
             }
+
 
 			guard.setMovement(direction.x, direction.y);
 		}
