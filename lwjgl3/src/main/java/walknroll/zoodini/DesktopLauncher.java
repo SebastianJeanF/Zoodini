@@ -14,7 +14,7 @@
  * @author: Walker M. White
  * @date: 1/10/25
  */
-package edu.cornell.cis3152.lighting.lwjgl3;
+package walknroll.zoodini;
 
 import edu.cornell.gdiac.backend.*;
 import walknroll.zoodini.GDXRoot;

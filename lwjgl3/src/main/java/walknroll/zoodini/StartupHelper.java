@@ -14,7 +14,7 @@
  */
 //Note, the above license and copyright applies to this file only.
 
-package edu.cornell.cis3152.lighting.lwjgl3;
+package walknroll.zoodini;
 
 import org.lwjgl.system.macosx.LibC;
 

@@ -1,4 +1,4 @@
-package edu.cornell.cis3152.lighting.utils;
+package walknroll.zoodini.utils;
 
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.math.Vector2;
