@@ -203,8 +203,8 @@ public class GuardAIController {
             case PATROL:
                 // Guard is not max sus level but is suspicious; PATROL -> SUSPICIOUS
                 if (guard.isSus()) {
-                    System.out.println("Guard is suspicious");
-                    System.out.println(guard.getSusLevel());
+//                    System.out.println("Guard is suspicious");
+//                    System.out.println(guard.getSusLevel());
                     currState = GuardState.SUSPICIOUS;
                     lastStateChangeTime = ticks;
                 }

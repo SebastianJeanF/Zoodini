@@ -259,11 +259,8 @@ public class Avatar extends ZoodiniSprite {
             JsonValue frameDelays = globals.get("frameDelays");
             addAnimation(directory, anims, "walk", AnimationState.WALK, frameDelays, true, startFrames.getInt("walk", 0));
             addAnimation(directory, anims, "idle", AnimationState.IDLE, frameDelays, true, startFrames.getInt("idle", 0));
-            //TODO: Please remove this if statement once guards have their up and down animations uploaded
-            if (avatarType != AvatarType.ENEMY) {
-                addAnimation(directory, anims, "walk-up", AnimationState.WALK_UP, frameDelays, true, startFrames.getInt("walk-up", 0));
-                addAnimation(directory, anims, "walk-down", AnimationState.WALK_DOWN, frameDelays, true, startFrames.getInt("walk-down", 0));
-            }
+            addAnimation(directory, anims, "walk-up", AnimationState.WALK_UP, frameDelays, true, startFrames.getInt("walk-up", 0));
+            addAnimation(directory, anims, "walk-down", AnimationState.WALK_DOWN, frameDelays, true, startFrames.getInt("walk-down", 0));
         }
 
         assert anims != null;
