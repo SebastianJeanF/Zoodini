@@ -226,12 +226,6 @@ public class Avatar extends ZoodiniSprite {
 		obstacle.setRestitution(0.0f);
 		obstacle.setPhysicsUnits(units);
 
-//		obstacle.setBodyType(properties.get("bodyType", String.class).equals("static") ? BodyDef.BodyType.StaticBody
-//				: BodyDef.BodyType.DynamicBody);
-//		obstacle.setDensity(properties.get("density", Float.class));
-//		obstacle.setFriction(properties.get("friction", Float.class));
-//		obstacle.setRestitution(properties.get("restitution", Float.class));
-//		obstacle.setPhysicsUnits(units);
 
 		setForce(properties.get("force", Float.class));
 		setDamping(10.0f);
@@ -241,8 +235,8 @@ public class Avatar extends ZoodiniSprite {
 		Filter filter = new Filter();
 		filter.categoryBits = GameLevel.bitStringToShort(properties.get("category", String.class));
 		filter.maskBits = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
-        System.out.println(filter.categoryBits);
-        System.out.println(filter.maskBits);
+//        System.out.println(filter.categoryBits);
+//        System.out.println(filter.maskBits);
 		obstacle.setFilterData(filter);
 
 		setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));
@@ -265,6 +259,8 @@ public class Avatar extends ZoodiniSprite {
             JsonValue frameDelays = globals.get("frameDelays");
             addAnimation(directory, anims, "walk", AnimationState.WALK, frameDelays, true, startFrames.getInt("walk", 0));
             addAnimation(directory, anims, "idle", AnimationState.IDLE, frameDelays, true, startFrames.getInt("idle", 0));
+            addAnimation(directory, anims, "walk-up", AnimationState.WALK_UP, frameDelays, true, startFrames.getInt("walk-up", 0));
+            addAnimation(directory, anims, "walk-down", AnimationState.WALK_DOWN, frameDelays, true, startFrames.getInt("walk-down", 0));
         }
 
         assert anims != null;
@@ -311,11 +307,26 @@ public class Avatar extends ZoodiniSprite {
 		obstacle.setAngularVelocity(0.0f);
 
 		// Apply force for movement
-		if (getMovement().len2() > 0f) {
-			forceCache.set(getMovement());
-			obstacle.getBody().applyForce(forceCache, obstacle.getPosition(), true);
-            animationController.setState(AnimationState.WALK);
-		} else {
+        if (getMovement().len2() > 0f) {
+            forceCache.set(getMovement());
+            obstacle.getBody().applyForce(forceCache, obstacle.getPosition(), true);
+
+            // Determine animation based on direction
+            float dx = getMovement().x;
+            float dy = getMovement().y;
+
+            if (Math.abs(dy) > Math.abs(dx)) {
+                // Vertical movement is dominant
+                if (dy > 0) {
+                    animationController.setState(AnimationState.WALK_UP);
+                } else {
+                    animationController.setState(AnimationState.WALK_DOWN);
+                }
+            } else {
+                // Horizontal movement is dominant
+                animationController.setState(AnimationState.WALK);
+            }
+        } else {
             animationController.setState(AnimationState.IDLE);
 		}
 	}

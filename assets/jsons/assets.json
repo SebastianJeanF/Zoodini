@@ -22,6 +22,28 @@
           }
         }
       },
+        "guard-walk-up": {
+            "file": 	"textures/guard_walk_up.png",
+            "wrap":  	false,
+            "sprites":	{
+            "animation" : {
+                "size" : 4,
+                "rows" : 1,
+                "cols" : 4
+            }
+            }
+        },
+        "guard-walk-down": {
+            "file": 	"textures/guard_walk_down.png",
+            "wrap":  	false,
+            "sprites":	{
+            "animation" : {
+                "size" : 4,
+                "rows" : 1,
+                "cols" : 4
+            }
+            }
+        },
         "cat-idle": {
             "file": 	"textures/cat_idle.png",
             "wrap":  	false,
@@ -41,6 +63,28 @@
             "size" : 4,
             "rows" : 1,
             "cols" : 4
+          }
+        }
+      },
+      "cat-walk-up": {
+        "file": 	"textures/cat_walk_up.png",
+        "wrap":  	false,
+        "sprites":	{
+          "animation" : {
+            "size" : 5,
+            "rows" : 1,
+            "cols" : 5
+          }
+        }
+      },
+      "cat-walk-down": {
+        "file": 	"textures/cat_walk_down.png",
+        "wrap":  	false,
+        "sprites":	{
+          "animation" : {
+            "size" : 3,
+            "rows" : 1,
+            "cols" : 3
           }
         }
       },
@@ -66,7 +110,28 @@
           }
         }
       },
-
+      "octopus-walk-up": {
+        "file": 	"textures/octopus_walk_up.png",
+        "wrap":  	false,
+        "sprites":	{
+          "animation" : {
+            "size" : 4,
+            "rows" : 1,
+            "cols" : 4
+          }
+        }
+      },
+        "octopus-walk-down": {
+            "file": 	"textures/octopus_walk_down.png",
+            "wrap":  	false,
+            "sprites":	{
+            "animation" : {
+                "size" : 4,
+                "rows" : 1,
+                "cols" : 4
+            }
+            }
+        },
       "ink-projectile": {
           "file":  "textures/ink_projectile.png",
           "wrap":   false,
@@ -94,16 +159,17 @@
         "wrap":  	false,
         "sprites":	{
           "animation" : {
-            "size" : 11,
+            "size" : 12,
             "rows" : 1,
-            "cols" : 11
+            "cols" : 12
           }
         }
       },
-      "goal": "textures/helicopter.png",
       "key": "textures/key-sprite.png",
       "locked_door": "textures/locked_door.png",
-      "unlocked_door": "textures/panda-sprite.png"
+      "unlocked_door": "textures/panda-sprite.png",
+      "cat-icon": "textures/cat-icon.png",
+        "octopus-icon": "textures/octopus-icon.png"
   	},
   	"fonts": {
   		"display": {

@@ -25,6 +25,8 @@ import com.badlogic.gdx.physics.box2d.*;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.*;
+import org.w3c.dom.Text;
+import walknroll.zoodini.GDXRoot;
 import walknroll.zoodini.controllers.GuardAIController;
 import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.controllers.UIController;
@@ -69,8 +71,6 @@ public class GameScene implements Screen, ContactListener {
 
     private JsonValue levelID;
 
-	/** Exit code for quitting the game */
-	public static final int EXIT_QUIT = 0;
 	/** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
 
@@ -148,8 +148,13 @@ public class GameScene implements Screen, ContactListener {
 
 
         //UI controller is not working as intended. Someone fix plz
+        JsonValue avatarIcons = levelGlobals.get("avatarIcons");
         ui = new UIController();
         ui.setFont(directory.getEntry("display", BitmapFont.class));
+        TextureRegion catIcon = new TextureRegion(directory.getEntry(avatarIcons.get("cat-texture").asString(), Texture.class));
+        TextureRegion octopusIcon = new TextureRegion(directory.getEntry(avatarIcons.get("octopus-texture").asString(), Texture.class));
+        ui.setCatIcon(catIcon);
+        ui.setOctopusIcon(octopusIcon);
         ui.init();
 
         graph = new TileGraph<>(level.getMap(), false);
@@ -200,8 +205,8 @@ public class GameScene implements Screen, ContactListener {
         if (active) {
             if (preUpdate(delta)) {
                 update(delta);
+                draw();
             }
-            draw();
         }
     }
 
@@ -236,7 +241,7 @@ public class GameScene implements Screen, ContactListener {
 
         // Now it is time to maybe switch screens.
         if (input.didExit()) {
-            listener.exitScreen(this, EXIT_QUIT);
+            listener.exitScreen(this, GDXRoot.EXIT_MENU);
             return false;
         } else if (countdown > 0) {
             countdown--;
@@ -330,7 +335,7 @@ public class GameScene implements Screen, ContactListener {
                 guard.setAgroed(true);
                 guard.setAggroTarget(level.getCat());
                 guard.setTarget(level.getCat().getPosition());
-                System.out.println("Guard detected cat: " + guard.getAggroTarget());
+//                System.out.println("Guard detected cat: " + guard.getAggroTarget());
             }
 
             // Check if octopus is detected
@@ -338,7 +343,7 @@ public class GameScene implements Screen, ContactListener {
                 guard.setAgroed(true);
                 guard.setAggroTarget(level.getOctopus());
                 guard.setTarget(level.getOctopus().getPosition());
-                System.out.println("Guard detected octopus: " + guard.getAggroTarget());
+//                System.out.println("Guard detected octopus: " + guard.getAggroTarget());
             }
             // No player detected
             else {
@@ -679,9 +684,9 @@ public class GameScene implements Screen, ContactListener {
 
 		// Update the guard's orientation to face the direction of movement.
 		Vector2 movement = guard.getMovementDirection();
-		if (movement.len2() > 0.0001f) { // Only update if there is significant movement
-			guard.setAngle(movement.angleRad() - (float) Math.PI/2);
-		}
+//		if (movement.len2() > 0.0001f) { // Only update if there is significant movement
+//			guard.setAngle(movement.angleRad() - (float) Math.PI/2);
+//		}
 		guard.applyForce();
 	}
 
@@ -784,7 +789,7 @@ public class GameScene implements Screen, ContactListener {
 					SecurityCamera cam = secCameras.get(i);
 					Obstacle camObstacle = cam.getObstacle();
 					if (o1 == camObstacle || o2 == camObstacle) {
-						cam.setDisabled(true);
+						cam.disable();
 						break;
 					}
 				}

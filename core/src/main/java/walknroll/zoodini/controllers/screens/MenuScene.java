@@ -48,7 +48,7 @@ import com.badlogic.gdx.graphics.g2d.*;
  * progress bar. Once all assets are loaded, the progress bar is replaced
  * by a play button. You are free to adopt this to your needs.
  */
-public class LoadingScene implements Screen, InputProcessor {
+public class MenuScene implements Screen, InputProcessor {
 	/** Default budget for asset loader (do nothing but load 60 fps) */
 	private static int DEFAULT_BUDGET = 15;
 
@@ -81,7 +81,7 @@ public class LoadingScene implements Screen, InputProcessor {
 	/** Current progress (0 to 1) of the asset manager */
 	private float progress;
 	/** The current state of the play button */
-	private PressState pressState;
+	private Integer pressState;
 	/**
 	 * The amount of time to devote to loading assets (as opposed to on screen
 	 * hints, etc.)
@@ -129,7 +129,7 @@ public class LoadingScene implements Screen, InputProcessor {
 	 * @return true if the player is ready to go
 	 */
 	public boolean isReady() {
-		return pressState != PressState.NONE;
+		return pressState != null;
 	}
 
 	/**
@@ -159,11 +159,11 @@ public class LoadingScene implements Screen, InputProcessor {
 		public float width;
 		public float height;
 
-		private PressState pressedState;
+		private int pressedState;
 		private String assetName;
 		private boolean pressed;
 
-		public MenuButton(float x, float y, float width, float height, String assetName, PressState pressedState) {
+		public MenuButton(float x, float y, float width, float height, String assetName, int pressedState) {
 			this.x = x;
 			this.y = y;
 			this.width = width;
@@ -181,7 +181,7 @@ public class LoadingScene implements Screen, InputProcessor {
 			return this.assetName;
 		}
 
-		public PressState getPressedState() {
+		public int getPressedState() {
 			return this.pressedState;
 		}
 
@@ -200,7 +200,7 @@ public class LoadingScene implements Screen, InputProcessor {
 	 * @param file  The asset directory to load in the background
 	 * @param batch The sprite batch to draw to
 	 */
-	public LoadingScene(String file, SpriteBatch batch) {
+	public MenuScene(String file, SpriteBatch batch) {
 		this(file, batch, DEFAULT_BUDGET);
 	}
 
@@ -217,7 +217,7 @@ public class LoadingScene implements Screen, InputProcessor {
 	 * @param canvas The game canvas to draw to
 	 * @param millis The loading budget in milliseconds
 	 */
-	public LoadingScene(String file, SpriteBatch batch, int millis) {
+	public MenuScene(String file, SpriteBatch batch, int millis) {
 		this.batch = batch;
 		budget = millis;
 
@@ -231,7 +231,7 @@ public class LoadingScene implements Screen, InputProcessor {
 
 		// No progress so far.
 		progress = 0;
-		pressState = PressState.NONE;
+		pressState = null;
 
 		affine = new Affine2();
 		Gdx.input.setInputProcessor(this);
@@ -246,11 +246,13 @@ public class LoadingScene implements Screen, InputProcessor {
 		float buttonHeight = constants.getFloat("button.height");
 		buttons = Array.with(
 				new MenuButton(buttonX, constants.getFloat("button.start.y"), buttonWidth, buttonHeight, "play",
-						PressState.PLAY),
+						GDXRoot.EXIT_PLAY),
 				new MenuButton(buttonX, constants.getFloat("button.settings.y"), buttonWidth, buttonHeight, "settings",
-						PressState.SETTINGS),
+						GDXRoot.EXIT_SETTINGS),
 				new MenuButton(buttonX, constants.getFloat("button.credits.y"), buttonWidth, buttonHeight, "credits",
-						PressState.CREDITS));
+						GDXRoot.EXIT_CREDITS),
+				new MenuButton(buttonX, constants.getFloat("button.quit.y"), buttonWidth, buttonHeight, "quit",
+						GDXRoot.EXIT_QUIT));
 	}
 
 	/**
@@ -388,21 +390,7 @@ public class LoadingScene implements Screen, InputProcessor {
 
 			// We are are ready, notify our listener
 			if (isReady() && listener != null) {
-				int exitCode = GDXRoot.EXIT_QUIT;
-				switch (pressState) {
-					case CREDITS:
-						exitCode = GDXRoot.EXIT_CREDITS;
-						break;
-					case PLAY:
-						exitCode = GDXRoot.EXIT_PLAY;
-						break;
-					case SETTINGS:
-						exitCode = GDXRoot.EXIT_SETTINGS;
-						break;
-					default:
-						break;
-				}
-				listener.exitScreen(this, exitCode);
+				listener.exitScreen(this, pressState);
 			}
 		}
 	}
@@ -546,17 +534,22 @@ public class LoadingScene implements Screen, InputProcessor {
 		return true;
 	}
 
-	// UNSUPPORTED METHODS FROM InputProcessor
-
 	/**
-	 * Called when a key is pressed (UNSUPPORTED)
+	 * Called when a key is pressed
+	 * 
+	 * Used to process quitting the game with the ESC key
 	 *
 	 * @param keycode the key pressed
 	 * @return whether to hand the event to other listeners.
 	 */
 	public boolean keyDown(int keycode) {
+		if (keycode == Input.Keys.ESCAPE) {
+			pressState = GDXRoot.EXIT_QUIT;
+		}
 		return true;
 	}
+
+	// UNSUPPORTED METHODS FROM InputProcessor
 
 	/**
 	 * Called when a key is typed (UNSUPPORTED)

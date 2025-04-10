@@ -20,6 +20,11 @@
             "minfilter" : "linear",
             "magfilter" : "linear"
 		},
+        "quit":     {
+			"file" : "loading/quit.png",
+            "minfilter" : "linear",
+            "magfilter" : "linear"
+		},
         "logo": {
             "file": "loading/logo.png",
             "minfilter": "linear",
@@ -42,11 +47,11 @@
         "height" : 576,
         "bar.width" : 0.66,
         "bar.height" : 0.25,
-        "button.scale" : 0.75,
         "button.x": 50,
-        "button.start.y": 170,
-        "button.settings.y": 110,
-        "button.credits.y": 50,
+        "button.start.y": 230,
+        "button.settings.y": 170,
+        "button.credits.y": 110,
+        "button.quit.y": 50,
         "button.width": 335,
         "button.height": 56
       }

@@ -166,10 +166,10 @@ public class GuardAIController {
         if (currState != GuardState.CHASE) { // Only update when not chasing
             if (this.guard.isAgroed()) { // In guard's line of sight
                 guard.deltaSusLevel(2); // Increase suspicion
-                System.out.println("Guard is aggroed");
+//                System.out.println("Guard is aggroed");
             } else {
                 guard.deltaSusLevel(-1); // Decrease suspicion
-                System.out.println("Guard is not aggroed");
+//                System.out.println("Guard is not aggroed");
             }
         } else { // Guard is chasing
             // not in guard's line of sight and not under camera
@@ -197,14 +197,14 @@ public class GuardAIController {
 //            return;
 //        }
         updateSusLevel();
-        System.out.println(guard.getSusLevel());
+//        System.out.println(guard.getSusLevel());
 
         switch(this.currState) {
             case PATROL:
                 // Guard is not max sus level but is suspicious; PATROL -> SUSPICIOUS
                 if (guard.isSus()) {
-                    System.out.println("Guard is suspicious");
-                    System.out.println(guard.getSusLevel());
+//                    System.out.println("Guard is suspicious");
+//                    System.out.println(guard.getSusLevel());
                     currState = GuardState.SUSPICIOUS;
                     lastStateChangeTime = ticks;
                 }
@@ -315,7 +315,7 @@ public class GuardAIController {
                 break;
         }
 
-        System.out.println("Guard state: " + currState);
+//        System.out.println("Guard state: " + currState);
 
         setNextTargetLocation();
 

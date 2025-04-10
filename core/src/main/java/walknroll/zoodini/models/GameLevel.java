@@ -398,6 +398,7 @@ public class GameLevel {
 
             for (Guard g : guards) {
                 g.update(dt);
+                updateFlipSprite(g);
             }
 
             for (SecurityCamera c : securityCameras) {
@@ -435,7 +436,7 @@ public class GameLevel {
                         avatarCat.getPosition()); // TODO: this line might not be needed
                     ((Guard) key).setAgroed(true);
                     ((Guard) key).setAggroTarget(avatarCat);
-                    System.out.println("In guard vision cone " + ((Guard) key).getAggroTarget());
+//                    System.out.println("In guard vision cone " + ((Guard) key).getAggroTarget());
                 } else if (key instanceof SecurityCamera) {
                     SecurityCamera camera = (SecurityCamera) key;
                     if (!camera.isDisabled()) {
@@ -454,7 +455,7 @@ public class GameLevel {
                         avatarOctopus.getPosition()); // TODO: this line might not be needed
                     ((Guard) key).setAgroed(true);
                     ((Guard) key).setAggroTarget(avatarOctopus);
-                    System.out.println("In guard vision cone " + ((Guard) key).getAggroTarget());
+//                    System.out.println("In guard vision cone " + ((Guard) key).getAggroTarget());
                 } else if (key instanceof SecurityCamera) {
                     SecurityCamera camera = (SecurityCamera) key;
                     if (!camera.isDisabled()) {
@@ -521,12 +522,7 @@ public class GameLevel {
         mapRenderer.setView((OrthographicCamera) camera);
         mapRenderer.render();
 
-        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
-			if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
-				continue;
-			}
-            entry.value.draw(batch,camera);
-        }
+
 
         batch.begin(camera);
 		for (ZoodiniSprite obj : sprites) {
@@ -545,7 +541,15 @@ public class GameLevel {
             }
         }
 
+
 		batch.end();
+        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
+            if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
+                continue;
+            }
+            entry.value.draw(batch,camera);
+        }
+
 
         if(rayHandler != null) {
             rayHandler.render();
