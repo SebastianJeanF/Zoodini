@@ -369,11 +369,13 @@ public class GameScene implements Screen, ContactListener {
 
         Array<SecurityCamera> cams = level.getSecurityCameras();
 
-        //TODO: do this over multiple keys
 //        if(key.isCollected() && !key.isUsed() && door.isUnlocking()){
 //            float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
-//            ui.showUnlockProgress(progress);
+//            Vector2 doorPos = door.getObstacle().getPosition().cpy();
+//            float tileSize = level.getTileSize();
+//            ui.showUnlockProgress(progress, doorPos, camera, tileSize);
 //        } else {
+//            door.resetTimer();
 //            ui.hideUnlockProgress();
 //        }
 //
@@ -411,6 +413,8 @@ public class GameScene implements Screen, ContactListener {
 
         // batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         // Final message
+
+        ui.draw(batch);
         ui.draw(batch, level);
     }
 
