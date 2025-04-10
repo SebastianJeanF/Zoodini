@@ -103,12 +103,8 @@ public class GameLevel {
 	/** Whether the currently active avatar is the cat. Otherwise, it's the octopus */
 	private boolean catActive;
 
-	/** Reference to the goalDoor (for collision detection) */
-	private Door goalDoor;
     /** Reference to the exit (for collision detection) */
     private Exit exit;
-    /** Reference to the key (for pickup detection) */
-    private Key key;
 
     private OrthographicCamera raycamera;
 
@@ -118,6 +114,8 @@ public class GameLevel {
     private Array<SecurityCamera> securityCameras = new Array<>();
     private ObjectMap<ZoodiniSprite, VisionCone> visions = new ObjectMap<>();
     private InkProjectile inkProjectile; // ink projectile (there should only ever be one!!!)
+    private Array<Key> keys = new Array<>();
+    private ObjectMap<Door, Key> doors = new ObjectMap<>();
 
 	/** All the object sprites in the world. */
 	protected PooledList<ZoodiniSprite> sprites = new PooledList<ZoodiniSprite>();
@@ -189,10 +187,10 @@ public class GameLevel {
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
 
-        TiledMapTileLayer ground = ((TiledMapTileLayer) tiledMap.getLayers().get("ground"));
-        units = ground.getTileWidth();
-        int width = ground.getWidth(); //30
-        int height = ground.getHeight(); //20
+        MapProperties props = tiledMap.getProperties();
+        int width = props.get("width", Integer.class);
+        int height = props.get("height", Integer.class);
+        units = props.get("tilewidth", Integer.class);
         bounds = new Rectangle(0,0,width,height);
 
         MapLayer walls = tiledMap.getLayers().get("walls");
@@ -210,9 +208,6 @@ public class GameLevel {
             } else if("Octopus".equalsIgnoreCase(type)){
                 avatarOctopus = new Octopus(directory, properties, levelGlobals.get("avatarOctopus"), units);
                 activate(avatarOctopus);
-            } else if("Key".equalsIgnoreCase(type)){
-                key = new Key(directory, properties, levelGlobals.get("key"), units);
-                activate(key);
             } else if("Guard".equalsIgnoreCase(type)){
                 Guard g = new Guard(directory, properties, levelGlobals.get("guard"), units);
                 guards.add(g);
@@ -222,19 +217,20 @@ public class GameLevel {
                 securityCameras.add(cam);
                 activate(cam);
             } else if("Door".equalsIgnoreCase(type)){
-                goalDoor = new Door(directory, properties, levelGlobals.get("door"), units);
-                activate(goalDoor);
+                Door door = new Door(directory, obj, levelGlobals.get("door"), units);
+                Key key = new Key(directory, obj.getProperties().get("key", MapObject.class), levelGlobals.get("key"), units);
+                doors.put(door, key);
+                keys.add(key);
+                activate(door);
+                activate(key);
             } else if("Exit".equalsIgnoreCase(type)){
                 exit = new Exit(directory, properties, levelGlobals.get("exit"), units);
                 activate(exit);
             }
+
         }
 
-
-
-		// Lights
-        JsonValue visionJson = levelGlobals.get("visions");
-        initializeVisionCones(visionJson);
+        initializeVisionCones();
 
 //        raycamera = new OrthographicCamera(gSize[0], gSize[1]);
 //        raycamera.setToOrtho(false, gSize[0], gSize[1]);
@@ -252,16 +248,12 @@ public class GameLevel {
 		inkProjectile.getObstacle().setActive(false);
 	}
 
-    private void initializeVisionCones(JsonValue json) {
-        int rayNum = json.getInt("rayNum");
-        float[] color = json.get("color").asFloatArray();
-        short mask = json.getShort("maskbit");
-        short category = json.getShort("category");
-        Color c = new Color(color[0], color[1], color[2], color[3]);
+    private void initializeVisionCones() {
+        Color c = Color.WHITE.cpy().add(0,0,0,-0.5f);
         for(SecurityCamera cam : securityCameras){
             float fov = cam.getFov();
             float dist = cam.getViewDistance();
-            VisionCone vc = new VisionCone(rayNum, Vector2.Zero, dist, 0.0f, fov , c, units, mask, category);
+            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov , c, units, "000000", "111110");
             float angle = cam.getAngle();
             vc.attachToBody(cam.getObstacle().getBody(), angle);
             visions.put(cam, vc);
@@ -270,7 +262,7 @@ public class GameLevel {
         for(Guard guard : guards){
             float fov = guard.getFov();
             float dist = guard.getViewDistance();
-            VisionCone vc = new VisionCone(rayNum, Vector2.Zero, dist, 0.0f, fov, c, units, mask, category);
+            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, "000000", "111110");
             vc.attachToBody(guard.getObstacle().getBody(), 90.0f);
             visions.put(guard, vc);
         }
@@ -388,7 +380,6 @@ public class GameLevel {
 
             updateFlipSprite(getAvatar());
 
-            //Update animation frames
             if(rayHandler != null) {
                 rayHandler.setCombinedMatrix(raycamera);
             }
@@ -415,6 +406,14 @@ public class GameLevel {
 
             for(VisionCone vc : visions.values()){
                 vc.update(world);
+            }
+
+            for(Door door : doors.keys()){
+                door.update(dt);
+            }
+
+            for(Key key : keys){
+                key.update(dt);
             }
         }
     }
@@ -643,12 +642,12 @@ public class GameLevel {
     }
 
     /**
-     * Returns a reference to the key
+     * Returns a reference to the keys
      *
-     * @return a reference to the key
+     * @return a reference to the keys
      */
-    public Key getKey() {
-        return key;
+    public Array<Key> getKeys() {
+        return keys;
     }
 
     /**
@@ -690,12 +689,12 @@ public class GameLevel {
 
 
     /**
-     * Returns a reference to the door
+     * Returns a reference to the doors
      *
-     * @return a reference to the door
+     * @return a reference to the doors
      */
-    public Door getDoor() {
-        return goalDoor;
+    public ObjectMap<Door, Key> getDoors() {
+        return doors;
     }
 
     /**

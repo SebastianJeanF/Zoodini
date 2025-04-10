@@ -67,28 +67,28 @@
         }
       },
 
-		"ink-projectile": {
-            "file":  "textures/ink_projectile.png",
-            "wrap":   false,
-            "sprites":  {
-                "ink" : {
-                  "size" : 1,
-                  "rows" : 1,
-                  "cols" : 1
-                }
-            }
-        },
-        "security-camera": {
-            "file":  "textures/security_camera.png",
-            "wrap":   false,
-            "sprites":  {
-                "camera" : {
-                  "size" : 1,
-                  "rows" : 1,
-                  "cols" : 1
-                }
-            }
-        },
+      "ink-projectile": {
+          "file":  "textures/ink_projectile.png",
+          "wrap":   false,
+          "sprites":  {
+              "ink" : {
+                "size" : 1,
+                "rows" : 1,
+                "cols" : 1
+              }
+          }
+      },
+      "security-camera": {
+          "file":  "textures/security_camera.png",
+          "wrap":   false,
+          "sprites":  {
+              "camera" : {
+                "size" : 1,
+                "rows" : 1,
+                "cols" : 1
+              }
+          }
+      },
       "suspicion-meter": {
         "file": 	"textures/suspicion_meter.png",
         "wrap":  	false,
@@ -100,10 +100,10 @@
           }
         }
       },
-        "goal": "textures/helicopter.png",
-        "key": "textures/key-sprite.png",
-        "locked_door": "textures/locked_door.png",
-        "unlocked_door": "textures/panda-sprite.png"
+      "goal": "textures/helicopter.png",
+      "key": "textures/key-sprite.png",
+      "locked_door": "textures/locked_door.png",
+      "unlocked_door": "textures/panda-sprite.png"
   	},
   	"fonts": {
   		"display": {

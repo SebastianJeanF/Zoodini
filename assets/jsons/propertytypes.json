@@ -5,6 +5,11 @@
         "id": 1,
         "members": [
             {
+                "name": "alarmDistance",
+                "type": "float",
+                "value": 5
+            },
+            {
                 "name": "angle",
                 "type": "float",
                 "value": 90
@@ -17,7 +22,7 @@
             {
                 "name": "disabledTime",
                 "type": "float",
-                "value": 0
+                "value": 5
             },
             {
                 "name": "exclude",
@@ -82,6 +87,11 @@
                 "name": "maxSpeed",
                 "type": "float",
                 "value": 10
+            },
+            {
+                "name": "meowExpandSpeed",
+                "type": "float",
+                "value": 2
             },
             {
                 "name": "radius",

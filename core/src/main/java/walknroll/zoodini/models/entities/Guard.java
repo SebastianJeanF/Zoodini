@@ -1,6 +1,9 @@
 package walknroll.zoodini.models.entities;
 
+import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.objects.PolygonMapObject;
+import com.badlogic.gdx.maps.objects.PolylineMapObject;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.JsonValue;
 
@@ -57,6 +60,14 @@ public class Guard extends Enemy {
         suspsicionMeter = new AnimationController(state);
         viewDistance = properties.get("viewDistance", Float.class);
 
+        MapObject path = properties.get("path", MapObject.class);
+        if(path instanceof PolylineMapObject line){
+            float[] vertices = line.getPolyline().getVertices();
+            for (int i = 0; i < vertices.length; i++) {
+                vertices[i] /= units;
+            }
+            setPatrolPoints(line.getPolyline().getVertices());
+        }
 
         String animKey = globals.getString("suspicion");
         final int START_FRAME = 0;
@@ -88,6 +99,21 @@ public class Guard extends Enemy {
     public Vector2[] getPatrolPoints() {
         return patrolPoints;
     }
+
+    public void setPatrolPoints(Vector2[] v){
+        patrolPoints = v;
+    }
+
+    public void setPatrolPoints(float[] points){
+        assert points.length % 2 == 0;
+        Vector2[] vec2s = new Vector2[points.length / 2];
+        for(int i = 0; i < points.length; i+=2){
+            Vector2 v = new Vector2(points[i], points[i+1]);
+            vec2s[i/2] = v;
+        }
+        setPatrolPoints(vec2s);
+    }
+
     public boolean isCameraAlerted() {
         return cameraAlerted;
     }
@@ -102,6 +128,7 @@ public class Guard extends Enemy {
     }
 
     public void update(float dt) {
+
         applyForce();
     }
 

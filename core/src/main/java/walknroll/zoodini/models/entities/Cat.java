@@ -90,7 +90,7 @@ public class Cat extends Avatar {
 
         // Initialize ring effect properties
         maxRadius = abilityRange;
-        expansionSpeed = globals.getFloat("ringExpansionSpeed", 0.1f);
+        expansionSpeed = properties.get("meowExpandSpeed", Float.class); //1 m/s
         ringThickness = globals.getFloat("ringThickness", 0.3f);
         ringColor = new Color(211f, 211f, 211f, 0.5f); // Semi-transparent green
         currentRadius = 0f;
@@ -119,7 +119,7 @@ public class Cat extends Avatar {
 
         // Update ring animation
         if (isRingActive) {
-            currentRadius += expansionSpeed;
+            currentRadius += expansionSpeed * dt;
 
             if (currentRadius >= maxRadius) {
                 isRingActive = false;
@@ -137,6 +137,10 @@ public class Cat extends Avatar {
             }
         }
     }
+
+
+    PathFactory pf = new PathFactory();
+    PathExtruder pe = new PathExtruder();
 
     @Override
     public void draw(SpriteBatch batch) {
@@ -156,18 +160,18 @@ public class Cat extends Avatar {
             float y = getPosition().y;
 
             // Create n-gon path for the ring
-            Path2 ringPath = new PathFactory().makeNgon(x, y, currentRadius, 64);
+            Path2 ringPath = pf.makeNgon(x, y, currentRadius, 64);
 
             // Create extruder for the ring outline
-            PathExtruder ringExtruder = new PathExtruder(ringPath);
-            ringExtruder.calculate(ringThickness);
+            pe.set(ringPath);
+            pe.calculate(ringThickness);
 
             // Set up affine transformation
             affineCache.idt();
             affineCache.scale(obstacle.getPhysicsUnits(), obstacle.getPhysicsUnits());
 
             // Draw the ring
-            batch.draw((TextureRegion) null, ringExtruder.getPolygon(), affineCache);
+            batch.draw((TextureRegion) null, pe.getPolygon(), affineCache);
 
             // Restore original color
             batch.setColor(originalColor);

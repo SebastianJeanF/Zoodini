@@ -9,6 +9,7 @@
  */
 package walknroll.zoodini.models.nonentities;
 
+import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.utils.*;
@@ -20,6 +21,7 @@ import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.assets.ParserUtils;
 import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.physics2.*;
+import java.util.Iterator;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.utils.ZoodiniSprite;
 
@@ -41,6 +43,8 @@ public class Door extends ZoodiniSprite {
     /** Whether this door is being unlocked at current frame*/
     private boolean isUnlocking;
     private static final float UNLOCK_DURATION = 3.0f;
+    /** Tiled MapObject for this door*/
+    private MapObject mapObject;
 
     private short collideBits;
     private short excludeBitsLocked;
@@ -66,7 +70,7 @@ public class Door extends ZoodiniSprite {
     }
 
     public void resetTimer(){
-        remainingTimeToUnlock = 3; //TODO: set this using json somehow.
+        remainingTimeToUnlock = 3.0f; //TODO: set this using json somehow.
     }
 
     /**
@@ -104,7 +108,9 @@ public class Door extends ZoodiniSprite {
 	 * @param directory The asset directory (for textures, etc)
 	 * @param units     The physics units for this avatar
 	 */
-	public Door(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
+	public Door(AssetDirectory directory, MapObject obj, JsonValue globals, float units) {
+        mapObject = obj;
+        MapProperties properties = mapObject.getProperties();
 		float[] pos = {properties.get("x",Float.class) / units, properties.get("y", Float.class) / units};
 		float size = properties.get("size", Float.class);
 
@@ -149,5 +155,23 @@ public class Door extends ZoodiniSprite {
         setLocked(true);
         setTextureRegion(lockedTexture);
         resetTimer(); //TODO: get this from json
-	}
+
+        if(!properties.get("key", MapObject.class).getProperties().get("type", String.class).equalsIgnoreCase("Key")){
+            throw new AssertionError("The associated key to this door is not of type key");
+        }
+    }
+
+    public void update(float dt){
+        super.update(dt);
+        if(isLocked() && isUnlocking()){
+            remainingTimeToUnlock -= dt;
+            System.out.println(remainingTimeToUnlock);
+        } else {
+            resetTimer();
+        }
+
+        if(remainingTimeToUnlock <= 0.0f){
+            setLocked(false);
+        }
+    }
 }

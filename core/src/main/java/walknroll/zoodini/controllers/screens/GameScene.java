@@ -55,7 +55,7 @@ import java.util.HashMap;
  */
 public class GameScene implements Screen, ContactListener {
 
-    private boolean debug = true;
+    private boolean debug = false;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
@@ -257,27 +257,31 @@ public class GameScene implements Screen, ContactListener {
      * @param dt Number of seconds since last animation frame
      */
     public void update(float dt) {
-        //TODO: what is the proper sequence of method calls here?
         InputController input = InputController.getInstance();
-
         processPlayerAction(input, dt);
         processNPCAction(dt);
-
-        // Turn the physics engine crank.
-        // Collisions generated through world.step()
-        // Animation frames are updated.
-        level.update(dt);
+        level.update(dt); //collisions
         updateSecurityCameraVisionCones(); //vision cone requires separate collision detection, so we have to put this here.
-
         updateCamera(dt);
+    }
+
+
+    private void thinkAll(float dt){
+        InputController input = InputController.getInstance();
+    }
+
+    private void moveAll(float dt){
+
     }
 
     private void updateSecurityCameraVisionCones() {
         ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
         for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
             if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
-                Vector2 avatarPosition = level.getAvatar().getPosition();
-                if (entry.value.contains(avatarPosition)) {
+                Vector2 catPos = level.getCat().getPosition();
+                Vector2 octPos = level.getOctopus().getPosition();
+
+                if (entry.value.contains(catPos) || entry.value.contains(octPos)) {
                     ((SecurityCamera) entry.key).activateRing();
                 }
             }
@@ -343,8 +347,8 @@ public class GameScene implements Screen, ContactListener {
     private void processNPCAction(float dt){
         Octopus octopus = level.getOctopus();
         InkProjectile inkProjectile = level.getProjectile();
-        Door door = level.getDoor();
-        Key key = level.getKey();
+        ObjectMap<Door, Key> doors = level.getDoors();
+        Array<Key> keys = level.getKeys();
 
         //Projectiles
         //TODO: not sure about the order of if statements here.
@@ -360,29 +364,25 @@ public class GameScene implements Screen, ContactListener {
             inkProjectile.setShouldDestroy(true);
         }
 
-        //Guards
         Array<Guard> guards = level.getGuards();
         updateGuards(guards);
 
-        //Camera
         Array<SecurityCamera> cams = level.getSecurityCameras();
 
-
-        //Keys and doors
-        if(key.isCollected() && !key.isUsed() && door.isUnlocking()){
-            door.setRemainingTimeToUnlock(door.getRemainingTimeToUnlock() - dt);
-            float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
-            ui.showUnlockProgress(progress);
-        } else {
-            door.resetTimer();
-            ui.hideUnlockProgress();
-        }
-
-        if(door.getRemainingTimeToUnlock() <= 0){
-            door.setLocked(false);
-            key.setUsed(true);
-            ui.hideUnlockProgress();
-        }
+//        if(key.isCollected() && !key.isUsed() && door.isUnlocking()){
+//            float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
+//            Vector2 doorPos = door.getObstacle().getPosition().cpy();
+//            float tileSize = level.getTileSize();
+//            ui.showUnlockProgress(progress, doorPos, camera, tileSize);
+//        } else {
+//            door.resetTimer();
+//            ui.hideUnlockProgress();
+//        }
+//
+//        if(door.getRemainingTimeToUnlock() <= 0){
+//            key.setUsed(true);
+//            ui.hideUnlockProgress();
+//        }
 
     }
 
@@ -413,6 +413,8 @@ public class GameScene implements Screen, ContactListener {
 
         // batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         // Final message
+
+        ui.draw(batch);
         ui.draw(batch, level);
     }
 
@@ -659,12 +661,8 @@ public class GameScene implements Screen, ContactListener {
             Obstacle cat = level.getCat().getObstacle();
             Obstacle oct = level.getOctopus().getObstacle();
             Obstacle exit = level.getExit().getObstacle();
-            Door door = level.getDoor();
-            Obstacle doorObs = door.getObstacle();
 			Obstacle projectile = level.getProjectile().getObstacle();
 
-            Key key = level.getKey();
-            Obstacle keyObs = key.getObstacle();
             Array<Guard> guards = level.getGuards();
 
 			if ((o1 == projectile || o2 == projectile)) {
@@ -688,48 +686,34 @@ public class GameScene implements Screen, ContactListener {
                 }
             }
 
-            if((o1 == cat && o2 == keyObs) || (o2 == cat && o1 == keyObs)){
-                key.setCollected(true);
-                key.setOwner(AvatarType.CAT);
+            for(Key key : level.getKeys()) {
+                Obstacle keyObs = key.getObstacle();
+                if ((o1 == cat && o2 == keyObs) || (o2 == cat && o1 == keyObs)) {
+                    key.setCollected(true);
+                    key.setOwner(AvatarType.CAT);
+                    System.out.println("COLLISION");
+                }
             }
-
-            if((o1 == oct && o2 == keyObs) || (o2 == oct && o1 == keyObs)){
-                key.setCollected(true);
-                key.setOwner(AvatarType.OCTOPUS);
-            }
-
-            if((o1 == doorObs && (o2 == cat || o2 == oct)) || (o2 == doorObs && (o1 == cat || o1 == oct))){ //owner of the key does not matter for now.
-                if(door.isLocked()) { //TODO: not sure whether we check if key's collected at collision resolution or in the update().
-                    door.setUnlocking(true);
+            for(Key key : level.getKeys()) {
+                Obstacle keyObs = key.getObstacle();
+                if ((o1 == oct && o2 == keyObs) || (o2 == oct && o1 == keyObs)) {
+                    key.setCollected(true);
+                    key.setOwner(AvatarType.OCTOPUS);
                 }
             }
 
-            // Handle key pickup
-//            if(!keyCollected && level.getKey() != null) {
-//                Obstacle keyObs = level.getKey().getObstacle();
-//                if(((o1 == cat || o1 == oct) && o2 == keyObs) ||
-//                    ((o2 == cat || o2 == oct) && o1 == keyObs)){
-//                    keyCollected = true;
-//                    level.getKey().setCollected(true);
-//                    if (o1 == cat || o2 == cat){keyCollector = level.getCat();}
-//                    else if (o1 == oct || o2 == oct){keyCollector = level.getOctopus();}
-//
-//                    // Display a message that key was collected
-//                    // Make the message disappear after a few seconds
-//                    keyMessageTimer = 120; // 2 seconds at 60 fps
-//                }
-//            }
-//
-//            // Handle door unlocking
-//            if(keyCollected && level.getDoor().isLocked() && keyCollector != null) {
-//                // Check if the key collector is standing on the door
-//                if((o1 == keyCollector.getObstacle() && o2 == door) ||
-//                    (o2 == keyCollector.getObstacle() && o1 == door)) {
-//                    isUnlocking = true;
-//
-//                    // Display unlocking message
-//                }
-//            }
+            ObjectMap<Door, Key> doors = level.getDoors();
+            for(Door door : doors.keys()) {
+                Obstacle doorObs = door.getObstacle();
+                Key theRightKey = doors.get(door);
+                if ((o1 == doorObs && (o2 == cat || o2 == oct)) || (o2 == doorObs && (o1 == cat
+                    || o1 == oct))) { //owner of the key does not matter for now.
+                    if (theRightKey.isCollected() && !theRightKey.isUsed()
+                        && door.isLocked()) { //TODO: not sure whether we check if key's collected at collision resolution or in the update().
+                        door.setUnlocking(true);
+                    }
+                }
+            }
 
             // Handle exit collision (only if door is unlocked)
             if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
@@ -770,12 +754,15 @@ public class GameScene implements Screen, ContactListener {
             Obstacle oct = level.getOctopus().getObstacle();
             Obstacle exit = level.getExit().getObstacle();
 
-            Door door = level.getDoor();
-            Obstacle doorObs = door.getObstacle();
+            ObjectMap<Door,Key> doors = level.getDoors();
 
-            if((o1 == doorObs && (o2 == cat || o2 == oct)) || (o2 == doorObs && (o1 == cat || o1 == oct))){ //owner of the key does not matter for now.
-                if(door.isLocked()) {
-                    door.setUnlocking(false);
+            for(Door door : doors.keys()) {
+                Obstacle doorObs = door.getObstacle();
+                if ((o1 == doorObs && (o2 == cat || o2 == oct)) || (o2 == doorObs && (o1 == cat
+                    || o1 == oct))) { //owner of the key does not matter for now.
+                    if (door.isLocked()) {
+                        door.setUnlocking(false);
+                    }
                 }
             }
 

@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import edu.cornell.gdiac.graphics.SpriteBatch;
@@ -81,7 +82,9 @@ public class UIController {
         interrupted.setAlignment(TextAlign.middleCenter);
         interrupted.setColor(Color.YELLOW);
         //Initializing unlock timer
-        unlockTimer = new CircleTimer(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 30, Color.YELLOW);
+        float centerX = Gdx.graphics.getWidth()/2;
+        float centerY = Gdx.graphics.getHeight()/2;
+        unlockTimer = new CircleTimer(centerX, centerY, 30, Color.YELLOW);
 
         messages = new Array<>();
         messages.add(victory);
@@ -101,11 +104,13 @@ public class UIController {
     }
 
 
-    public void showUnlockProgress(float progress) {
+    public void showUnlockProgress(float progress, Vector2 doorPosition, Camera gameCamera, float tileSize) {
         showUnlockTimer = true;
+
+        Vector3 screenPos = new Vector3(doorPosition.x * tileSize, doorPosition.y * tileSize, 0);
+        gameCamera.project(screenPos);
+        unlockTimer.setPosition(screenPos.x, screenPos.y);
         unlockTimer.setProgress(progress);
-
-
     }
     public void hideUnlockProgress() {
         showUnlockTimer = false;
@@ -124,15 +129,23 @@ public class UIController {
 
 
     public void draw(SpriteBatch batch) {
+        // Save batch state
         boolean wasDrawing = batch.isDrawing();
+
+        // Always end the batch to ensure the CircleTimer draws on top
+        if (wasDrawing) {
+            batch.end();
+        }
+
         if (showUnlockTimer) {
-            if (wasDrawing) {
-                batch.end();
-            }
+            // Clear depth buffer to ensure timer appears on top
+            Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
             unlockTimer.draw();
-            if (wasDrawing){
-                batch.begin(camera);
-            }
+        }
+
+        // Restore batch state
+        if (wasDrawing) {
+            batch.begin(camera);
         }
     }
     public void dispose() {
