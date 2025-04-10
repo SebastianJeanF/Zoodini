@@ -88,11 +88,11 @@ public class Guard extends Enemy {
 
         MapObject path = properties.get("path", MapObject.class);
         if(path instanceof PolylineMapObject line){
-            float[] vertices = line.getPolyline().getVertices();
+            float[] vertices = line.getPolyline().getTransformedVertices();
             for (int i = 0; i < vertices.length; i++) {
                 vertices[i] /= units;
             }
-            setPatrolPoints(line.getPolyline().getVertices());
+            setPatrolPoints(vertices);
         }
 
         String animKey = globals.getString("suspicion");

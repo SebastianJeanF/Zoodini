@@ -183,7 +183,7 @@ public class GameLevel {
 
 
 		world = new World(Vector2.Zero, false);
-        tiledMap = new TmxMapLoader().load(level.getString("1"));
+        tiledMap = new TmxMapLoader().load(level.getString("5"));
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
 
