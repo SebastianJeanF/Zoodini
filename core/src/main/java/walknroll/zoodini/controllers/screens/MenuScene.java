@@ -48,7 +48,7 @@ import com.badlogic.gdx.graphics.g2d.*;
  * progress bar. Once all assets are loaded, the progress bar is replaced
  * by a play button. You are free to adopt this to your needs.
  */
-public class LoadingScene implements Screen, InputProcessor {
+public class MenuScene implements Screen, InputProcessor {
 	/** Default budget for asset loader (do nothing but load 60 fps) */
 	private static int DEFAULT_BUDGET = 15;
 
@@ -200,7 +200,7 @@ public class LoadingScene implements Screen, InputProcessor {
 	 * @param file  The asset directory to load in the background
 	 * @param batch The sprite batch to draw to
 	 */
-	public LoadingScene(String file, SpriteBatch batch) {
+	public MenuScene(String file, SpriteBatch batch) {
 		this(file, batch, DEFAULT_BUDGET);
 	}
 
@@ -217,7 +217,7 @@ public class LoadingScene implements Screen, InputProcessor {
 	 * @param canvas The game canvas to draw to
 	 * @param millis The loading budget in milliseconds
 	 */
-	public LoadingScene(String file, SpriteBatch batch, int millis) {
+	public MenuScene(String file, SpriteBatch batch, int millis) {
 		this.batch = batch;
 		budget = millis;
 

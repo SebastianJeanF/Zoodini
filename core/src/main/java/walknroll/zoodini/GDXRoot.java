@@ -16,7 +16,7 @@ import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.*;
 import walknroll.zoodini.controllers.screens.CreditsScene;
 import walknroll.zoodini.controllers.screens.GameScene;
-import walknroll.zoodini.controllers.screens.LoadingScene;
+import walknroll.zoodini.controllers.screens.MenuScene;
 import walknroll.zoodini.controllers.screens.SettingsScene;
 
 /**
@@ -42,7 +42,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	/** Drawing context to display graphics (VIEW CLASS) */
 	private SpriteBatch batch;
 	/** Player mode for the asset loading screen (CONTROLLER CLASS) */
-	private LoadingScene loading;
+	private MenuScene loading;
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private GameScene gameplay;
 	private SettingsScene settings;
@@ -62,7 +62,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	 */
 	public void create() {
 		batch = new SpriteBatch();
-		loading = new LoadingScene("jsons/assets.json", batch, 1);
+		loading = new MenuScene("jsons/assets.json", batch, 1);
 
 		loading.setScreenListener(this);
 		setScreen(loading);
@@ -137,7 +137,7 @@ public class GDXRoot extends Game implements ScreenListener {
 				disposeExcept(credits);
 				break;
 			case GDXRoot.EXIT_MENU:
-				loading = new LoadingScene("jsons/assets.json", batch, 1);
+				loading = new MenuScene("jsons/assets.json", batch, 1);
 				loading.setScreenListener(this);
 				setScreen(loading);
 				disposeExcept(loading);
