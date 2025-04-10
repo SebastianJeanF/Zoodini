@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import edu.cornell.gdiac.graphics.SpriteBatch;
@@ -103,12 +104,13 @@ public class UIController {
     }
 
 
-    public void showUnlockProgress(float progress) {
+    public void showUnlockProgress(float progress, Vector2 doorPosition, Camera gameCamera, float tileSize) {
         showUnlockTimer = true;
+
+        Vector3 screenPos = new Vector3(doorPosition.x * tileSize, doorPosition.y * tileSize, 0);
+        gameCamera.project(screenPos);
+        unlockTimer.setPosition(screenPos.x, screenPos.y);
         unlockTimer.setProgress(progress);
-
-        keyTimer.setText("Unlocking: " + Math.round(progress * 100) + "%");
-
     }
     public void hideUnlockProgress() {
         showUnlockTimer = false;

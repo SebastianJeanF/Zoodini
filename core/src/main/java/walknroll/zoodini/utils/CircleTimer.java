@@ -27,6 +27,11 @@ public class CircleTimer {
         this.progress = MathUtils.clamp(progress, 0, 1);
     }
 
+    public void setPosition(float x, float y) {
+        this.x = x;
+        this.y = y;
+    }
+
     public void draw() {
 
         // Enable blending for transparency

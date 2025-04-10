@@ -371,7 +371,9 @@ public class GameScene implements Screen, ContactListener {
 
         if(key.isCollected() && !key.isUsed() && door.isUnlocking()){
             float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
-            ui.showUnlockProgress(progress);
+            Vector2 doorPos = door.getObstacle().getPosition().cpy();
+            float tileSize = level.getTileSize();
+            ui.showUnlockProgress(progress, doorPos, camera, tileSize);
         } else {
             door.resetTimer();
             ui.hideUnlockProgress();
