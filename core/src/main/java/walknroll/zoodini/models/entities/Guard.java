@@ -1,6 +1,9 @@
 package walknroll.zoodini.models.entities;
 
+import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.objects.PolygonMapObject;
+import com.badlogic.gdx.maps.objects.PolylineMapObject;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import edu.cornell.gdiac.graphics.SpriteBatch;
@@ -10,14 +13,23 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.graphics.Pixmap;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
+import edu.cornell.gdiac.graphics.SpriteBatch;
+import edu.cornell.gdiac.graphics.SpriteSheet;
 import java.util.Arrays;
 import walknroll.zoodini.models.entities.Enemy;
+import walknroll.zoodini.utils.animation.Animation;
+import walknroll.zoodini.utils.animation.AnimationController;
+import walknroll.zoodini.utils.animation.AnimationState;
+
+import static walknroll.zoodini.utils.animation.AnimationState.SUSPICION_METER;
 
 public class Guard extends Enemy {
     public static final int MAX_CHASE_TIME = 60; // 1 second
     public static final float FOV_DISTANCE = 7.0f; // Maximum detection distance.
     public static final float FOV_ANGLE = 45.0f; // Total cone angle in degrees.
 
+    private float fov;
+    private float viewDistance;
     private boolean isChasing;
     private boolean meowed;
     private int chaseTimer;
@@ -39,6 +51,7 @@ public class Guard extends Enemy {
     private int currentPatrolIndex = 0;
     private static final float PATROL_THRESHOLD = 0.5f; // Distance to switch patrol points
 
+    private final AnimationController suspsicionMeter;
     private float susLevel;
     private float susThreshold;
     private float maxSusLevel;
@@ -52,9 +65,6 @@ public class Guard extends Enemy {
     private static final float BAR_OFFSET_Y = 10.0f;
     private static final float AGGRO_BAR_OFFSET_Y = 20.0f;
 
-    private Texture susBarTexture;
-    private Texture deAggroBarTexture;
-
 
     /**
      * Creates a new dude with degenerate settings
@@ -64,51 +74,43 @@ public class Guard extends Enemy {
      */
     public Guard(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
         super(directory, properties, globals, units);
-
-        // Read patrol points from JSON if available.
-        if (globals.has("patrol")) {
-            JsonValue patrolJson = globals.get("patrol");
-            patrolPoints = new Vector2[patrolJson.size];
-            int index = 0;
-            for (JsonValue point : patrolJson) {
-                float x = point.getFloat(0);
-                float y = point.getFloat(1);
-                patrolPoints[index++] = new Vector2(x, y);
-            }
-        } else {
-            // Fallback to default patrol points if none are provided in JSON.
-            patrolPoints = new Vector2[] {
-                new Vector2(10.5f, 8),
-                new Vector2(14, 8),
-                new Vector2(0, 0),
-            };
-        }
-
-        System.out.println("Patrol Points: " + Arrays.toString(patrolPoints));
-
+        fov = properties.get("fov", Float.class);
         currentPatrolIndex = 0;
         cameraAlerted = false;
         isChasing = false;
         meowed = false;
         chaseTimer = 0;
-        susLevel = 0F;
-        maxSusLevel = 100F;
-        susThreshold = 50F;
-        deAggroTimer = 0F;
+        AnimationState state = AnimationState.SUSPICION_METER;
+        suspsicionMeter = new AnimationController(state);
+        viewDistance = properties.get("viewDistance", Float.class);
 
-        // sus-bar texture
-        Pixmap pixmap = new Pixmap((int) BAR_WIDTH, (int) BAR_HEIGHT, Pixmap.Format.RGBA8888);
-        pixmap.setColor(Color.GREEN);
-        pixmap.fill();
-        susBarTexture = new Texture(pixmap);
-        pixmap.dispose();
+        MapObject path = properties.get("path", MapObject.class);
+        if(path instanceof PolylineMapObject line){
+            float[] vertices = line.getPolyline().getVertices();
+            for (int i = 0; i < vertices.length; i++) {
+                vertices[i] /= units;
+            }
+            setPatrolPoints(line.getPolyline().getVertices());
+        }
 
-        // Aggro-bar texture
-        pixmap = new Pixmap((int) BAR_WIDTH, (int) BAR_HEIGHT, Pixmap.Format.RGBA8888);
-        pixmap.setColor(Color.RED);
-        pixmap.fill();
-        deAggroBarTexture = new Texture(pixmap);
-        pixmap.dispose();
+        String animKey = globals.getString("suspicion");
+        final int START_FRAME = 0;
+        final int FRAME_DELAY = 0;
+        final boolean IS_LOOP = true;
+
+        if (animKey != null) {
+            SpriteSheet animSheet = directory.getEntry(animKey, SpriteSheet.class);
+            System.out.println("Number of frames: " + animSheet.getSize());
+            animSheet.setFrame(START_FRAME);
+            Animation anim = new Animation(
+                animSheet,
+                START_FRAME,
+                animSheet.getSize() - 1,
+                FRAME_DELAY,
+                IS_LOOP
+            );
+            suspsicionMeter.addAnimation(state, anim);
+        }
     }
 
     public void setMaxSusLevel() {
@@ -155,31 +157,26 @@ public class Guard extends Enemy {
         this.deAggroTimer = isCameraAlerted() ? ALERT_DEAGRRO_PERIOD : DEAGRRO_PERIOD;
     }
 
-    public void drawSusLevelBar(SpriteBatch batch) {
-        if (susBarTexture == null) {
-            System.err.println("Error: barTexture is null");
-            return;
-        }
-
-
-        float susPercentage = susLevel / maxSusLevel;
-        float barWidth = BAR_WIDTH * susPercentage;
-
-        Vector2 position = this.getPosition();
-        float barX = position.x;
-        float barY = position.y;
-
-        batch.draw(susBarTexture, barX * 62.5f, barY * 62.5f + BAR_OFFSET_Y, barWidth, BAR_HEIGHT);
-
-        float deAggroPercentage = deAggroTimer / DEAGRRO_PERIOD;
-        barWidth = BAR_WIDTH * deAggroPercentage;
-        batch.draw(deAggroBarTexture, barX * 62.5f, barY * 62.5f + AGGRO_BAR_OFFSET_Y, barWidth, BAR_HEIGHT);
-    }
 
 
     public Vector2[] getPatrolPoints() {
         return patrolPoints;
     }
+
+    public void setPatrolPoints(Vector2[] v){
+        patrolPoints = v;
+    }
+
+    public void setPatrolPoints(float[] points){
+        assert points.length % 2 == 0;
+        Vector2[] vec2s = new Vector2[points.length / 2];
+        for(int i = 0; i < points.length; i+=2){
+            Vector2 v = new Vector2(points[i], points[i+1]);
+            vec2s[i/2] = v;
+        }
+        setPatrolPoints(vec2s);
+    }
+
     public boolean isCameraAlerted() {
         return cameraAlerted;
     }
@@ -191,14 +188,6 @@ public class Guard extends Enemy {
     /** If a guard is "agroed", it is currently chasing a player */
     public boolean isAgroed() {
         return isChasing;
-    }
-
-    /** The value of target is only valid if guard is agroed or is "meowed" */
-    public Vector2 getTarget() {
-        if (meowed == true) {
-            // System.out.print("Guard is getting meow target");
-        }
-        return target;
     }
 
     /** Get current movement direction of guard.
@@ -268,6 +257,15 @@ public class Guard extends Enemy {
         chaseTimer = value;
     }
 
+    public float getFov(){
+        return fov;
+    }
+
+    public float getViewDistance(){
+        return viewDistance;
+    }
+
+
 
     /**
      * Updates the guard's orientation to smoothly turn towards the target direction.
@@ -316,9 +314,51 @@ public class Guard extends Enemy {
         applyForce();
     }
 
-    @Override
+    /** The value of target is only valid if guard is agroed or is "meowed" */
+    public Vector2 getTarget() {
+        if (meowed == true) {
+            // System.out.print("Guard is getting meow target");
+        }
+        return target;
+    }
+
+
+
     public void draw(SpriteBatch batch) {
         super.draw(batch);
-        drawSusLevelBar(batch);
+        drawSuspicionMeter(batch);
+    }
+
+    // Temporary values, until meter is attached to guard AI controller
+    int susTick = 0;
+    final int FRAMES_PER_CHANGE = 20;
+    public void drawSuspicionMeter(SpriteBatch batch) {
+        susTick++;
+        if (susTick % FRAMES_PER_CHANGE == 0) {
+            suspsicionMeter.update();
+            suspsicionMeter.getCurrentSpriteSheet().setFrame(suspsicionMeter.getCurrentFrame());
+        }
+
+        if (suspsicionMeter != null) {
+            float PIXEL_PER_WORLD_UNIT = getObstacle().getPhysicsUnits();
+            float guardXPixel = getPosition().x * PIXEL_PER_WORLD_UNIT;
+            float guardYPixel = getPosition().y * PIXEL_PER_WORLD_UNIT;
+
+            float SCALE = 0.3f;
+            float X_PIXEL_OFFSET = -90f * SCALE;
+            float Y_PIXEL_OFFSET = 30f;
+
+            // Get the original width and height of the sprite sheet
+            float originalWidth = suspsicionMeter.getCurrentSpriteSheet().getRegionWidth();
+            float originalHeight = suspsicionMeter.getCurrentSpriteSheet().getRegionHeight();
+
+            batch.draw(
+                suspsicionMeter.getCurrentSpriteSheet(),
+                guardXPixel + X_PIXEL_OFFSET,
+                guardYPixel + Y_PIXEL_OFFSET,
+                originalWidth * SCALE,
+                originalHeight * SCALE
+            );
+        }
     }
 }

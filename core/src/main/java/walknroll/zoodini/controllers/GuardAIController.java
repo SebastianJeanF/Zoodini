@@ -173,6 +173,9 @@ public class GuardAIController {
             }
         } else { // Guard is chasing
             // not in guard's line of sight and not under camera
+            if (targetPlayer == null) {
+                return;
+            }
             if (!this.guard.isAgroed() && !targetPlayer.isUnderCamera()) {
                 guard.deltaDeAggroTimer(-1); // decrease deAggroTimer
             } else {
@@ -406,10 +409,16 @@ public class GuardAIController {
                 // If guard is sus but not max sus level, slowly move towards player
                 // TODO: in order to move more slowly towards player update vector magnitude in moveGuard function in GameScene
                 targetPlayer = guard.getAggroTarget();
+                if (targetPlayer == null) {
+                    return;
+                }
                 newTarget = getNextWaypointLocation(targetPlayer.getPosition());
                 break;
             case CHASE:
                 targetPlayer = guard.getAggroTarget();
+                if (targetPlayer == null) {
+                    return;
+                }
                 newTarget = getNextWaypointLocation(targetPlayer.getPosition());
                 break;
 //            case RETURN:

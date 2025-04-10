@@ -1,12 +1,7 @@
 {
     "textures": {
-    	"earth": {
-    		"file":	 "textures/dirt.png",
-			"wrapU": "repeated",
-			"wrapV": "repeated"
-    	},
-      "dude-idle": {
-        "file": 	"textures/walking.png",
+      "guard-idle": {
+        "file": 	"textures/guard_walking.png",
         "wrap":  	false,
         "sprites":	{
           "animation" : {
@@ -16,8 +11,8 @@
           }
         }
       },
-      "dude-walk": {
-        "file": 	"textures/walking.png",
+      "guard-walk": {
+        "file": 	"textures/guard_walking.png",
         "wrap":  	false,
         "sprites":	{
           "animation" : {
@@ -61,7 +56,7 @@
         }
       },
       "octopus-walk": {
-        "file": 	"textures/otto_walk.png",
+        "file": 	"textures/octopus_walk.png",
         "wrap":  	false,
         "sprites":	{
           "animation" : {
@@ -71,32 +66,44 @@
           }
         }
       },
-		"ink-projectile": {
-            "file":  "textures/ink_projectile.png",
-            "wrap":   false,
-            "sprites":  {
-                "ink" : {
-                  "size" : 1,
-                  "rows" : 1,
-                  "cols" : 1
-                }
-            }
-        },
-        "security-camera": {
-            "file":  "textures/security_camera.png",
-            "wrap":   false,
-            "sprites":  {
-                "camera" : {
-                  "size" : 1,
-                  "rows" : 1,
-                  "cols" : 1
-                }
-            }
-        },
-        "goal": "textures/helicopter.png",
-        "key": "textures/key-sprite.png",
-        "locked_door": "textures/locked_door.png",
-        "unlocked_door": "textures/panda-sprite.png"
+
+      "ink-projectile": {
+          "file":  "textures/ink_projectile.png",
+          "wrap":   false,
+          "sprites":  {
+              "ink" : {
+                "size" : 1,
+                "rows" : 1,
+                "cols" : 1
+              }
+          }
+      },
+      "security-camera": {
+          "file":  "textures/security_camera.png",
+          "wrap":   false,
+          "sprites":  {
+              "camera" : {
+                "size" : 1,
+                "rows" : 1,
+                "cols" : 1
+              }
+          }
+      },
+      "suspicion-meter": {
+        "file": 	"textures/suspicion_meter.png",
+        "wrap":  	false,
+        "sprites":	{
+          "animation" : {
+            "size" : 11,
+            "rows" : 1,
+            "cols" : 11
+          }
+        }
+      },
+      "goal": "textures/helicopter.png",
+      "key": "textures/key-sprite.png",
+      "locked_door": "textures/locked_door.png",
+      "unlocked_door": "textures/panda-sprite.png"
   	},
   	"fonts": {
   		"display": {
@@ -106,7 +113,7 @@
   	},
 	"jsons" : {
         "constants" : "jsons/constants.json",
-		"level1" : "jsons/level.json",
-		"globals" : "jsons/global-configs.json"
+        "globals" : "jsons/global-configs.json",
+        "levels" : "jsons/levels.json"
 	}
 }

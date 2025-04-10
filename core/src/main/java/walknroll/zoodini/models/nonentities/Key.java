@@ -3,7 +3,12 @@ package walknroll.zoodini.models.nonentities;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.Map;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.utils.JsonValue;
 
@@ -29,6 +34,8 @@ public class Key extends ZoodiniSprite {
     private AvatarType owner;
     /** Whether this key has been used to unlock a door */
     private boolean used;
+    /** Tiled MapObject for this key*/
+    MapObject mapObject;
 
     public boolean isUsed() {
         return used;
@@ -68,33 +75,36 @@ public class Key extends ZoodiniSprite {
      * Creates a key with the given settings
      *
      * @param directory The asset directory (for textures, etc)
-     * @param json      The JSON values defining this key
      * @param globals   The JSON values defining global key properties
      * @param units     The physics units for this key
      */
-    public Key(AssetDirectory directory, JsonValue json, JsonValue globals, float units) {
-        float[] pos = json.get("pos").asFloatArray();
-        float[] size = globals.get("size").asFloatArray();
+    public Key(AssetDirectory directory, MapObject obj, JsonValue globals, float units) {
+        mapObject = obj;
+        MapProperties properties = mapObject.getProperties();
 
-        obstacle = new BoxObstacle(pos[0], pos[1], size[0], size[1]);
-        obstacle.setName(json.name());
+        float[] pos = new float[2];
+        pos[0] = properties.get("x", Float.class) / units;
+        pos[1] = properties.get("y", Float.class) / units;
+        float size = properties.get("size", Float.class);
+
+        obstacle = new BoxObstacle(pos[0], pos[1], size, size);
+        obstacle.setName(properties.get("type", String.class));
         obstacle.setSensor(true); // Keys should be sensors (no physical collision)
         obstacle.setPhysicsUnits(units);
 
-        float w = size[0] * units;
-        float h = size[1] * units;
+        float w = size * units;
+        float h = size * units;
         mesh = new SpriteMesh(-w / 2, -h / 2, w, h);
 
         // Set physics properties from JSON
-        obstacle.setBodyType(globals.get("bodytype").asString().equals("static") ?
-            BodyDef.BodyType.StaticBody : BodyDef.BodyType.DynamicBody);
-        obstacle.setDensity(globals.get("density").asFloat());
-        obstacle.setFriction(globals.get("friction").asFloat());
-        obstacle.setRestitution(globals.get("restitution").asFloat());
+        obstacle.setBodyType(BodyType.StaticBody);
+        obstacle.setDensity(0.0f);
+        obstacle.setFriction(0.0f);
+        obstacle.setRestitution(0.0f);
 
         // Create the collision filter
-        short collideBits = GameLevel.bitStringToShort(globals.get("collide").asString());
-        short excludeBits = GameLevel.bitStringToComplement(globals.get("exclude").asString());
+        short collideBits = GameLevel.bitStringToShort(properties.get("category", String.class));
+        short excludeBits = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
         Filter filter = new Filter();
         filter.categoryBits = collideBits;
         filter.maskBits = excludeBits;
@@ -103,8 +113,10 @@ public class Key extends ZoodiniSprite {
         setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.YELLOW));
 
         // Get texture
-        String key = globals.get("texture").asString();
-        TextureRegion texture = new TextureRegion(directory.getEntry(key, Texture.class));
+        TextureMapObject tObj = (TextureMapObject) obj;
+        //String key = globals.get("texture").asString(); //TODO get texture from tiled.
+        TextureRegion texture = tObj.getTextureRegion();
+        //TextureRegion texture = new TextureRegion(directory.getEntry(key, Texture.class));
         setTextureRegion(texture);
 
         collected = false;
@@ -118,6 +130,10 @@ public class Key extends ZoodiniSprite {
         if (!collected) {
             super.draw(batch);
         }
+    }
+
+    public int getID(){
+        return mapObject.getProperties().get("id", Integer.class);
     }
 
 }

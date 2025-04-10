@@ -222,7 +222,7 @@ public class Avatar extends ZoodiniSprite {
 		obstacle.setFixedRotation(false);
         obstacle.setBodyType(BodyType.DynamicBody);
 		obstacle.setDensity(1.0f);
-		obstacle.setFriction(0.0f);
+		obstacle.setFriction(100.0f);
 		obstacle.setRestitution(0.0f);
 		obstacle.setPhysicsUnits(units);
 
@@ -238,11 +238,11 @@ public class Avatar extends ZoodiniSprite {
 		setMaxSpeed(properties.get("maxSpeed", Float.class));
 
 		// Create the collision filter (used for light penetration)
-		short collideBits = GameLevel.bitStringToShort(properties.get("collide", String.class));
-		short excludeBits = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
 		Filter filter = new Filter();
-		filter.categoryBits = collideBits;
-		filter.maskBits = excludeBits;
+		filter.categoryBits = GameLevel.bitStringToShort(properties.get("category", String.class));
+		filter.maskBits = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
+        System.out.println(filter.categoryBits);
+        System.out.println(filter.maskBits);
 		obstacle.setFilterData(filter);
 
 		setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));
@@ -357,6 +357,7 @@ public class Avatar extends ZoodiniSprite {
             float y = this.obstacle.getY();
             float a = this.obstacle.getAngle();
             float u = this.obstacle.getPhysicsUnits();
+
             this.transform.idt();
             this.transform.preRotate((float)((double)(a * 180.0F) / Math.PI));
             this.transform.preTranslate(x * u, y * u);

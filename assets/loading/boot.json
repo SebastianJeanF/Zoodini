@@ -1,15 +1,30 @@
 {
 	"textures": {
         "splash": {
-            "file": "loading/splash.png",
+            "file": "loading/splash_background.png",
             "minfilter" : "linear",
             "magfilter" : "linear"
         },
 		"play":     {
-			"file" : "loading/play.png",
+			"file" : "loading/start.png",
             "minfilter" : "linear",
             "magfilter" : "linear"
 		},
+        "settings":     {
+			"file" : "loading/settings.png",
+            "minfilter" : "linear",
+            "magfilter" : "linear"
+		},
+        "credits":     {
+			"file" : "loading/credits.png",
+            "minfilter" : "linear",
+            "magfilter" : "linear"
+		},
+        "logo": {
+            "file": "loading/logo.png",
+            "minfilter": "linear",
+            "magfilter": "linear"
+        },
         "progress": {
             "file":   "loading/progress.png",
             "atlas":  {
@@ -27,7 +42,13 @@
         "height" : 576,
         "bar.width" : 0.66,
         "bar.height" : 0.25,
-        "button.scale" : 0.75
+        "button.scale" : 0.75,
+        "button.x": 50,
+        "button.start.y": 170,
+        "button.settings.y": 110,
+        "button.credits.y": 50,
+        "button.width": 335,
+        "button.height": 56
       }
     }
 }

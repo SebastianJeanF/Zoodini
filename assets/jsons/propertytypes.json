@@ -5,24 +5,34 @@
         "id": 1,
         "members": [
             {
+                "name": "alarmDistance",
+                "type": "float",
+                "value": 5
+            },
+            {
                 "name": "angle",
                 "type": "float",
                 "value": 90
             },
             {
-                "name": "collide",
+                "name": "category",
                 "type": "string",
-                "value": "0101"
+                "value": "01000"
             },
             {
                 "name": "disabledTime",
                 "type": "float",
-                "value": 0
+                "value": 5
             },
             {
                 "name": "exclude",
                 "type": "string",
-                "value": "0000"
+                "value": "00000"
+            },
+            {
+                "name": "fov",
+                "type": "float",
+                "value": 60
             },
             {
                 "name": "radius",
@@ -33,6 +43,11 @@
                 "name": "spriteRadius",
                 "type": "float",
                 "value": 0.6
+            },
+            {
+                "name": "viewDistance",
+                "type": "float",
+                "value": 5
             }
         ],
         "name": "Camera",
@@ -54,24 +69,29 @@
                 "value": 5
             },
             {
-                "name": "collide",
+                "name": "category",
                 "type": "string",
-                "value": "0001"
+                "value": "00010"
             },
             {
                 "name": "exclude",
                 "type": "string",
-                "value": "0001"
+                "value": "00010"
             },
             {
                 "name": "force",
                 "type": "float",
-                "value": 110
+                "value": 2
             },
             {
                 "name": "maxSpeed",
                 "type": "float",
                 "value": 10
+            },
+            {
+                "name": "meowExpandSpeed",
+                "type": "float",
+                "value": 2
             },
             {
                 "name": "radius",
@@ -95,22 +115,91 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 3,
+        "id": 6,
         "members": [
             {
-                "name": "collide",
+                "name": "category",
                 "type": "string",
-                "value": "0001"
+                "value": "10000"
             },
             {
                 "name": "exclude",
                 "type": "string",
-                "value": "0000"
+                "value": "00000"
+            },
+            {
+                "name": "excludeUnlocked",
+                "type": "string",
+                "value": "00110"
+            },
+            {
+                "name": "size",
+                "type": "float",
+                "value": 1.25
+            }
+        ],
+        "name": "Door",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "tile",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 7,
+        "members": [
+            {
+                "name": "category",
+                "type": "string",
+                "value": "10000"
+            },
+            {
+                "name": "exclude",
+                "type": "string",
+                "value": "00000"
+            },
+            {
+                "name": "size",
+                "type": "float",
+                "value": 1.25
+            }
+        ],
+        "name": "Exit",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 3,
+        "members": [
+            {
+                "name": "category",
+                "type": "string",
+                "value": "00100"
+            },
+            {
+                "name": "exclude",
+                "type": "string",
+                "value": "00100"
             },
             {
                 "name": "force",
                 "type": "float",
-                "value": 7
+                "value": 1.5
+            },
+            {
+                "name": "fov",
+                "type": "float",
+                "value": 60
             },
             {
                 "name": "maxSpeed",
@@ -126,6 +215,11 @@
                 "name": "spriteRadius",
                 "type": "float",
                 "value": 0.6
+            },
+            {
+                "name": "viewDistance",
+                "type": "float",
+                "value": 5
             }
         ],
         "name": "Guard",
@@ -139,37 +233,22 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 5,
+        "id": 4,
         "members": [
             {
-                "name": "bodyType",
+                "name": "category",
                 "type": "string",
-                "value": "static"
-            },
-            {
-                "name": "collide",
-                "type": "string",
-                "value": "0010"
-            },
-            {
-                "name": "density",
-                "type": "float",
-                "value": 0
+                "value": "10000"
             },
             {
                 "name": "exclude",
                 "type": "string",
-                "value": "0000"
+                "value": "11101"
             },
             {
-                "name": "friction",
+                "name": "size",
                 "type": "float",
-                "value": 0
-            },
-            {
-                "name": "restitution",
-                "type": "float",
-                "value": 0
+                "value": 1
             }
         ],
         "name": "Key",
@@ -183,7 +262,7 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 4,
+        "id": 5,
         "members": [
             {
                 "name": "abilityRange",
@@ -191,19 +270,34 @@
                 "value": 3.5
             },
             {
-                "name": "collide",
+                "name": "category",
                 "type": "string",
-                "value": "0001"
+                "value": "00010"
             },
             {
                 "name": "exclude",
                 "type": "string",
-                "value": "0001"
+                "value": "00010"
             },
             {
                 "name": "force",
                 "type": "float",
-                "value": 80
+                "value": 1
+            },
+            {
+                "name": "inkCapacity",
+                "type": "float",
+                "value": 100
+            },
+            {
+                "name": "inkRegen",
+                "type": "float",
+                "value": 1
+            },
+            {
+                "name": "inkUsage",
+                "type": "float",
+                "value": 25
             },
             {
                 "name": "maxSpeed",
