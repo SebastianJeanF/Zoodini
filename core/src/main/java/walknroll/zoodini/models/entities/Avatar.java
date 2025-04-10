@@ -60,6 +60,8 @@ public class Avatar extends ZoodiniSprite {
 	/** Cache for internal force calculations */
 	private Vector2 forceCache = new Vector2();
 
+    private boolean underCamera;
+
 	public enum AvatarType {
 		CAT,
 		OCTOPUS,
@@ -220,7 +222,7 @@ public class Avatar extends ZoodiniSprite {
 		obstacle.setFixedRotation(false);
         obstacle.setBodyType(BodyType.DynamicBody);
 		obstacle.setDensity(1.0f);
-		obstacle.setFriction(0.0f);
+		obstacle.setFriction(100.0f);
 		obstacle.setRestitution(0.0f);
 		obstacle.setPhysicsUnits(units);
 
@@ -246,6 +248,8 @@ public class Avatar extends ZoodiniSprite {
 
         float r = properties.get("spriteRadius", Float.class) * units;
 		mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
+
+        underCamera = false;
 	}
 
     private void setupAnimations(AssetDirectory directory, JsonValue globals) {
@@ -367,6 +371,7 @@ public class Avatar extends ZoodiniSprite {
             float y = this.obstacle.getY();
             float a = this.obstacle.getAngle();
             float u = this.obstacle.getPhysicsUnits();
+
             this.transform.idt();
             this.transform.preRotate((float)((double)(a * 180.0F) / Math.PI));
             this.transform.preTranslate(x * u, y * u);
@@ -377,5 +382,13 @@ public class Avatar extends ZoodiniSprite {
             batch.drawMesh(this.mesh, this.transform, false);
             batch.setTexture(null);
         }
+    }
+
+    public void setUnderCamera(boolean underCamera) {
+        this.underCamera = underCamera;
+    }
+
+    public boolean isUnderCamera() {
+        return underCamera;
     }
 }

@@ -4,12 +4,18 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.PolygonMapObject;
 import com.badlogic.gdx.maps.objects.PolylineMapObject;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import edu.cornell.gdiac.graphics.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.graphics.Pixmap;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
+import java.util.Arrays;
 import walknroll.zoodini.models.entities.Enemy;
 import walknroll.zoodini.utils.animation.Animation;
 import walknroll.zoodini.utils.animation.AnimationController;
@@ -35,12 +41,30 @@ public class Guard extends Enemy {
     Vector2 movementDirection = null;
     Vector2 targetPosition = null;
 
+    /** Direction guard is currently facing*/
+    private Vector2 currentDirection = new Vector2(0, 1); // Default facing up
+    private Vector2 targetDirection = new Vector2(0, 1);
+    private float turnSpeed = 5.0f;
+
     // --- Patrol Path Variables for Guard ---
     private Vector2[] patrolPoints;
     private int currentPatrolIndex = 0;
     private static final float PATROL_THRESHOLD = 0.5f; // Distance to switch patrol points
 
     private final AnimationController suspsicionMeter;
+    private float susLevel;
+    private float susThreshold;
+    private float maxSusLevel;
+
+    private final float DEAGRRO_PERIOD = 60F;
+    private final float ALERT_DEAGRRO_PERIOD = 300F;
+    private float deAggroTimer;
+
+    private static final float BAR_WIDTH = 50.0f;
+    private static final float BAR_HEIGHT = 5.0f;
+    private static final float BAR_OFFSET_Y = 10.0f;
+    private static final float AGGRO_BAR_OFFSET_Y = 20.0f;
+
 
     /**
      * Creates a new dude with degenerate settings
@@ -89,12 +113,51 @@ public class Guard extends Enemy {
         }
     }
 
-
-
-
-    private void setupAnimations(AssetDirectory directory, JsonValue globals) {
-
+    public void setMaxSusLevel() {
+        this.susLevel = this.maxSusLevel;
     }
+
+    public void setMinSusLevel() {
+        this.susLevel = 0.0F;
+    }
+
+    public float getSusLevel() {
+        return susLevel;
+    }
+
+    public void deltaSusLevel(float delta) {
+        this.susLevel = MathUtils.clamp(susLevel + delta, 0.0F, maxSusLevel);
+    }
+
+    public boolean isMaxSusLevel() {
+        return susLevel == maxSusLevel;
+    }
+
+    /** Check if the guard is "suspicious" of the player.
+     * A guard is suspicious if their susLevel is greater than or equal to
+     * the susThreshold. */
+    public boolean isSus() { return susLevel >= susThreshold; }
+
+    public boolean isMinSusLevel() { return susLevel == 0.0F; }
+
+    public boolean checkDeAggroed() {
+        return deAggroTimer <= 0;
+    }
+
+    public void deltaDeAggroTimer(float delta) {
+        this.deAggroTimer = MathUtils.clamp(deAggroTimer + delta, 0.0F, DEAGRRO_PERIOD);
+    }
+
+    /**
+     * Differentially start the deAggro timer. If the guard is alerted by a camera, set the
+     * timer to ALERT_DEAGRRO_PERIOD. Otherwise, set it to DEAGRRO_PERIOD.
+     * ALERT_DEAGRRO_PERIOD is longer than DEAGRRO_PERIOD.
+     */
+    public void startDeAggroTimer() {
+        this.deAggroTimer = isCameraAlerted() ? ALERT_DEAGRRO_PERIOD : DEAGRRO_PERIOD;
+    }
+
+
 
     public Vector2[] getPatrolPoints() {
         return patrolPoints;
@@ -125,11 +188,6 @@ public class Guard extends Enemy {
     /** If a guard is "agroed", it is currently chasing a player */
     public boolean isAgroed() {
         return isChasing;
-    }
-
-    public void update(float dt) {
-
-        applyForce();
     }
 
     /** Get current movement direction of guard.
@@ -209,7 +267,52 @@ public class Guard extends Enemy {
 
 
 
+    /**
+     * Updates the guard's orientation to smoothly turn towards the target direction.
+     *
+     * @param dt The time delta since the last update
+     * @param targetDirection The direction the guard should face
+     */
+    public void updateOrientation(float dt, Vector2 targetDirection) {
+        if (targetDirection == null || targetDirection.len2() < 0.0001f) {
+            return; // No valid direction to face
+        }
 
+        // Save the target direction
+        this.targetDirection.set(targetDirection).nor();
+
+        // Calculate the current angle in radians
+        float currentAngle = currentDirection.angleRad();
+        // Calculate the target angle in radians
+        float targetAngle = this.targetDirection.angleRad();
+
+        // Determine the shortest turning direction
+        float angleDiff = targetAngle - currentAngle;
+        // Normalize to [-PI, PI]
+        while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+        while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+
+        // Calculate how much to turn this frame
+        float turnAmount = Math.min(Math.abs(angleDiff), turnSpeed * dt);
+        // Apply the turn in the correct direction
+        float newAngle = currentAngle + Math.signum(angleDiff) * turnAmount;
+
+        // Update the current direction
+        currentDirection.set(MathUtils.cos(newAngle), MathUtils.sin(newAngle)).nor();
+
+        // Set the guard's sprite angle (offset by -90 degrees since up is 0)
+        setAngle(newAngle - (float)Math.PI/2);
+    }
+
+
+
+    public void update(float dt) {
+        // If we have a movement direction, update orientation
+        if (movementDirection != null && movementDirection.len2() > 0.0001f) {
+            updateOrientation(dt, movementDirection);
+        }
+        applyForce();
+    }
 
     /** The value of target is only valid if guard is agroed or is "meowed" */
     public Vector2 getTarget() {

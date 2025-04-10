@@ -43,6 +43,8 @@ import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 
 import java.util.HashMap;
+import walknroll.zoodini.utils.VisionCone;
+import walknroll.zoodini.utils.ZoodiniSprite;
 
 /**
  * Gameplay controller for the game.
@@ -57,7 +59,7 @@ import java.util.HashMap;
  */
 public class GameScene implements Screen, ContactListener {
 
-    private boolean debug = false;
+    private boolean debug = true;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
@@ -156,6 +158,7 @@ public class GameScene implements Screen, ContactListener {
         ui.init();
 
         graph = new TileGraph<>(level.getMap(), false);
+        initializeAIControllers();
 
 		setComplete(false);
 		setFailure(false);
@@ -185,6 +188,7 @@ public class GameScene implements Screen, ContactListener {
         // Reload the json each time
         level.populate(directory, levelID, levelGlobals);
         level.getWorld().setContactListener(this);
+        initializeAIControllers();
     }
 
 
@@ -264,10 +268,12 @@ public class GameScene implements Screen, ContactListener {
     public void update(float dt) {
         InputController input = InputController.getInstance();
         processPlayerAction(input, dt);
-        processNPCAction(dt);
         level.update(dt); //collisions
-        updateSecurityCameraVisionCones(); //vision cone requires separate collision detection, so we have to put this here.
+        updateVisionCones();
+        // updateSecurityCameraVisionCones(); //vision cone requires separate collision detection, so we have to put this here.
         updateCamera(dt);
+        updateGuardAI();
+        processNPCAction(dt);
     }
 
 
@@ -279,22 +285,118 @@ public class GameScene implements Screen, ContactListener {
 
     }
 
+//    private void updateSecurityCameraVisionCones() {
+//        ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
+//        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
+//            if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
+//                Vector2 catPos = level.getCat().getPosition();
+//                Vector2 octPos = level.getOctopus().getPosition();
+//
+//                if (entry.value.contains(catPos) || entry.value.contains(octPos)) {
+//                    ((SecurityCamera) entry.key).activateRing();
+//                }
+//            }
+//        }
+//    }
+
+    /**
+     * Checks if the player is in the vision cones of any security cameras
+     * and updates both camera and guard states accordingly.
+     */
     private void updateSecurityCameraVisionCones() {
         ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
-        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
-            if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
-                Vector2 catPos = level.getCat().getPosition();
-                Vector2 octPos = level.getOctopus().getPosition();
 
-                if (entry.value.contains(catPos) || entry.value.contains(octPos)) {
-                    ((SecurityCamera) entry.key).activateRing();
+        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry: visions.entries()) {
+            // Skip if not a security camera or if the camera is disabled
+            if (!(entry.key instanceof SecurityCamera) || ((SecurityCamera) entry.key).isDisabled()) {
+                continue;
+            }
+
+            SecurityCamera camera = (SecurityCamera) entry.key;
+            VisionCone visionCone = entry.value;
+
+            Vector2 catPos = level.getCat().getPosition();
+            Vector2 octPos = level.getOctopus().getPosition();
+
+            // Check if either player is detected by the camera
+            if (visionCone.contains(catPos) || visionCone.contains(octPos)) {
+                // Activate the camera's visual indicator
+                camera.activateRing();
+
+                // Alert all guards
+                Avatar detectedPlayer = visionCone.contains(catPos) ? level.getCat() : level.getOctopus();
+
+                for (Guard guard : level.getGuards()) {
+                    if (guard != null) {
+                        guard.setAggroTarget(detectedPlayer);
+                        guard.setCameraAlerted(true);
+
+                        // Optionally set target position directly if needed
+                        guard.setTarget(detectedPlayer.getPosition());
+                    }
+                }
+
+                System.out.println("Security camera detected player, alerting guards");
+            }
+        }
+    }
+
+    /**
+     * Checks if the player is in the vision cones of any guards and updates their states accordingly.
+     * This function specifically handles guard vision detection, separate from security cameras.
+     */
+    private void updateGuardVisionCones() {
+        ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
+
+        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry: visions.entries()) {
+            // Skip if not a guard
+            if (!(entry.key instanceof Guard)) {
+                continue;
+            }
+
+            Guard guard = (Guard) entry.key;
+            VisionCone visionCone = entry.value;
+
+            Vector2 catPos = level.getCat().getPosition();
+            Vector2 octPos = level.getOctopus().getPosition();
+
+            // Check if cat is detected
+            if (visionCone.contains(catPos)) {
+                guard.setAgroed(true);
+                guard.setAggroTarget(level.getCat());
+                guard.setTarget(level.getCat().getPosition());
+                System.out.println("Guard detected cat: " + guard.getAggroTarget());
+            }
+
+            // Check if octopus is detected
+            else if (visionCone.contains(octPos)) {
+                guard.setAgroed(true);
+                guard.setAggroTarget(level.getOctopus());
+                guard.setTarget(level.getOctopus().getPosition());
+                System.out.println("Guard detected octopus: " + guard.getAggroTarget());
+            }
+            // No player detected
+            else {
+                // Only set to false if the guard isn't being alerted by a camera
+                if (!guard.isCameraAlerted()) {
+                    guard.setAgroed(false);
                 }
             }
         }
     }
 
+    /**
+     * Updates all vision cone detection in the game.
+     * Delegates to specific functions for guards and security cameras.
+     */
+    public void updateVisionCones() {
+        updateSecurityCameraVisionCones();
+        updateGuardVisionCones();
+    }
+
     private Vector3 tmp = new Vector3();
     private Vector2 tmp2 = new Vector2();
+
     /**
      * Applies movement forces to the avatar and change firing states.
      */
@@ -409,6 +511,16 @@ public class GameScene implements Screen, ContactListener {
 
 
         if(debug) {
+            graph.clearTargetNodes();
+
+            // For each guard, mark their target nodes for display
+            guardToAIController.forEach((guard, controller) -> {
+                Vector2 targetLocation = controller.getNextTargetLocation();
+                if (targetLocation != null) {
+                    graph.markPositionAsTarget(targetLocation);
+                }
+            });
+
             graph.draw(batch, camera, level.getTileSize());
             InputController ic = InputController.getInstance();
             if(ic.didLeftClick()) {
@@ -433,6 +545,34 @@ public class GameScene implements Screen, ContactListener {
 
 
     //-----------------Helper Methods--------------------//
+
+    public void initializeAIControllers() {
+
+        graph = new TileGraph<>(level.getMap(), true);
+
+//        this.gameGraph = new GameGraph(12, 16, level.getBounds().x, level.getBounds().y, level.getSprites());
+        Array<Guard> guards = level.getGuards();
+        for (Guard g : guards) {
+            GuardAIController aiController = new GuardAIController(g, level, graph);
+            guardToAIController.put(g, aiController);
+        }
+    }
+
+    private void updateGuardAI() {
+        guardToAIController.forEach((guard, controller) -> {
+            controller.update();
+            guard.think(controller.getMovementDirection(), controller.getNextTargetLocation());
+        });
+    }
+
+
+//    private void checkDeactivateKeyOnCollect() {
+//        // Deactivate collected key's physics body if needed
+//        if (keyCollected && level.getKey() != null && level.getKey().getObstacle().isActive()) {
+//            // This is the safe time to modify physics bodies
+//            level.getKey().getObstacle().setActive(false);
+//        }
+//    }
 
     private void onSwap(InputController input) {
         if (input.didSwap()) {
@@ -552,19 +692,22 @@ public class GameScene implements Screen, ContactListener {
 	void moveGuard(Guard guard) {
         Vector2 direction = guard.getMovementDirection();
         if(direction == null){ //ideally should never be null.
+            System.out.println("Guard direction is null");
             return;
         }
 
 		if (direction.len() > 0) {
 			direction.nor().scl(guard.getForce());
 			if (guard.isMeowed()) {
-				direction.scl(0.25f);
+				direction.scl(1.25f);
 			} else if (guard.isCameraAlerted()) {
                 direction.scl(2.0f);
             }
             else if (guard.isAgroed()) {
-				direction.scl(1.25f);
-			}
+				direction.scl(1.75f);
+			} else if (guard.isSus()) {
+                direction.scl(1.1f);
+            }
 
 			guard.setMovement(direction.x, direction.y);
 		}
@@ -854,4 +997,5 @@ public class GameScene implements Screen, ContactListener {
     public boolean isActive() {
         return active;
     }
+
 }

@@ -23,8 +23,11 @@ public class TileEdge extends DefaultConnection<TileNode> {
 
     @Override
     public float getCost() {
-        if (graph.diagonal) return 1;
-        return getToNode().x != graph.startNode.x && getToNode().y != graph.startNode.y ? NON_DIAGONAL_COST : 1;
+        int dx = Math.abs(to.x - from.x);
+        int dy = Math.abs(to.y - from.y);
+        return dx + dy;
+//        if (graph.diagonal) return 1;
+//        return getToNode().x != graph.startNode.x && getToNode().y != graph.startNode.y ? NON_DIAGONAL_COST : 1;
     }
 
     @Override

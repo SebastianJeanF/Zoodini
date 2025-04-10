@@ -2,7 +2,10 @@ package walknroll.zoodini.controllers.aitools;
 
 
 import com.badlogic.gdx.ai.pfa.Connection;
+import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
+import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.PathFinder;
+import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
@@ -23,6 +26,11 @@ import edu.cornell.gdiac.math.Path2;
 import edu.cornell.gdiac.math.PathFactory;
 import edu.cornell.gdiac.math.Poly2;
 import edu.cornell.gdiac.math.PolyFactory;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import walknroll.zoodini.utils.GameGraph.Node;
 
 public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
 
@@ -31,6 +39,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
 
     protected Array<TileNode> nodes;
     public TileNode startNode;
+    private Set<TileNode> targetNodes = new HashSet<>();
 
     boolean diagonal;
 
@@ -144,6 +153,11 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
             if(node.equals(selected)){
                 c = Color.MAGENTA;
             }
+
+            if (targetNodes.contains(node)) {
+                c = Color.RED;
+            }
+
             Poly2 polygon = pf.makeNgon(node.x + 0.5f, node.y + 0.5f, 0.1f, 10);
             Path2 rect = pathFactory.makeRect(node.x, node.y, 0.95f, 0.95f);
             batch.setColor(c);
@@ -186,4 +200,92 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
     public TileNode markNearestTile(Camera cam, Vector2 screenCoord, float units) {
         return markNearestTile(cam, screenCoord.x, screenCoord.y, units);
     }
+
+
+    /**
+     * Marks a node as a target node that will be highlighted in red during debug drawing.
+     *
+     * @param node The node to mark as a target
+     */
+    public void markAsTarget(TileNode node) {
+        if (node != null) {
+            targetNodes.add(node);
+        }
+    }
+
+    /**
+     * Clears all marked target nodes.
+     */
+    public void clearTargetNodes() {
+        targetNodes.clear();
+    }
+
+    /**
+     * Marks a world position as a target that will be highlighted in red during debug drawing.
+     *
+     * @param worldPos The world position to mark
+     */
+    public void markPositionAsTarget(Vector2 worldPos) {
+        TileNode node = worldToTile(worldPos);
+        if (node != null) {
+            markAsTarget(node);
+        }
+    }
+
+    /**
+     * Converts world coordinates to a TileNode.
+     * World coordinates represent the bottom-left corner of each 1x1 meter tile.
+     *
+     * @param worldCoords the world coordinates to convert
+     * @return the TileNode at the specified world coordinates, or null if out of bounds
+     */
+    public TileNode worldToTile(Vector2 worldCoords) {
+        // Simply floor the coordinates since tiles are 1x1 and world coords are at bottom-left
+        int tileX = MathUtils.floor(worldCoords.x);
+        int tileY = MathUtils.floor(worldCoords.y);
+
+        // Make sure coordinates are within bounds
+        tileX = MathUtils.clamp(tileX, 0, WIDTH - 1);
+        tileY = MathUtils.clamp(tileY, 0, HEIGHT - 1);
+
+        if (tileX >= 0 && tileX < WIDTH && tileY >= 0 && tileY < HEIGHT) {
+            return getNode(tileX, tileY);
+        }
+        return null;
+    }
+
+    /**
+     * Converts tile grid coordinates to world center coordinates.
+     * Returns the center point of the specified tile.
+     *
+     * @param tile the TileNode to convert
+     * @return a Vector2 containing the world coordinates of the tile's center
+     */
+    public Vector2 tileToWorld(TileNode tile) {
+        // Add 0.5 to get to the center of the tile
+        return new Vector2(tile.x + 0.5f, tile.y + 0.5f);
+    }
+
+    public TileNode findNearestNonObstacleNode(Vector2 pos) {
+        TileNode targetNode = this.worldToTile(pos);
+        if (targetNode == null || !targetNode.isWall) {
+            return targetNode;
+        }
+
+        float minDistance = Float.MAX_VALUE;
+        TileNode nearestNode = null;
+
+        for (TileNode node : nodes) {
+            if (!node.isWall) {
+                float distance = tileToWorld(node).dst(pos);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestNode = node;
+                }
+            }
+        }
+
+        return nearestNode;
+    }
+
 }
