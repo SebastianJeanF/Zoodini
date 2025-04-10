@@ -83,6 +83,8 @@ public class Guard extends Enemy {
         AnimationState state = AnimationState.SUSPICION_METER;
         suspsicionMeter = new AnimationController(state);
         viewDistance = properties.get("viewDistance", Float.class);
+        susThreshold = 50F;
+        maxSusLevel = 100F;
 
         MapObject path = properties.get("path", MapObject.class);
         if(path instanceof PolylineMapObject line){

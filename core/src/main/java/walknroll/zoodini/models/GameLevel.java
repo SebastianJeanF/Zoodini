@@ -416,7 +416,7 @@ public class GameLevel {
                 key.update(dt);
             }
 
-            checkPlayerInVisionCones();
+            // checkPlayerInVisionCones();
         }
     }
 

@@ -173,9 +173,6 @@ public class GuardAIController {
             }
         } else { // Guard is chasing
             // not in guard's line of sight and not under camera
-            if (targetPlayer == null) {
-                return;
-            }
             if (!this.guard.isAgroed() && !targetPlayer.isUnderCamera()) {
                 guard.deltaDeAggroTimer(-1); // decrease deAggroTimer
             } else {
@@ -206,6 +203,8 @@ public class GuardAIController {
             case PATROL:
                 // Guard is not max sus level but is suspicious; PATROL -> SUSPICIOUS
                 if (guard.isSus()) {
+                    System.out.println("Guard is suspicious");
+                    System.out.println(guard.getSusLevel());
                     currState = GuardState.SUSPICIOUS;
                     lastStateChangeTime = ticks;
                 }
@@ -409,17 +408,26 @@ public class GuardAIController {
                 // If guard is sus but not max sus level, slowly move towards player
                 // TODO: in order to move more slowly towards player update vector magnitude in moveGuard function in GameScene
                 targetPlayer = guard.getAggroTarget();
-                if (targetPlayer == null) {
-                    return;
+                if (targetPlayer != null) {
+                    newTarget = getNextWaypointLocation(targetPlayer.getPosition());
+                } else {
+                    // Fall back to patrol behavior or some default position
+                    newTarget = waypoints.length > 0 ?
+                        getNextWaypointLocation(waypoints[currentWaypointIndex]) :
+                        guard.getPosition();
                 }
-                newTarget = getNextWaypointLocation(targetPlayer.getPosition());
                 break;
             case CHASE:
                 targetPlayer = guard.getAggroTarget();
-                if (targetPlayer == null) {
-                    return;
+                if (targetPlayer != null) {
+                    newTarget = getNextWaypointLocation(targetPlayer.getPosition());
+                } else {
+                    // If no target, maybe return to patrol or stay in place
+                    currState = GuardState.PATROL;
+                    newTarget = waypoints.length > 0 ?
+                        getNextWaypointLocation(waypoints[currentWaypointIndex]) :
+                        guard.getPosition();
                 }
-                newTarget = getNextWaypointLocation(targetPlayer.getPosition());
                 break;
 //            case RETURN:
 //                // TODO: Make guard be distract-able in this stage
