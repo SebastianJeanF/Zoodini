@@ -534,17 +534,22 @@ public class LoadingScene implements Screen, InputProcessor {
 		return true;
 	}
 
-	// UNSUPPORTED METHODS FROM InputProcessor
-
 	/**
-	 * Called when a key is pressed (UNSUPPORTED)
+	 * Called when a key is pressed
+	 * 
+	 * Used to process quitting the game with the ESC key
 	 *
 	 * @param keycode the key pressed
 	 * @return whether to hand the event to other listeners.
 	 */
 	public boolean keyDown(int keycode) {
+		if (keycode == Input.Keys.ESCAPE) {
+			pressState = GDXRoot.EXIT_QUIT;
+		}
 		return true;
 	}
+
+	// UNSUPPORTED METHODS FROM InputProcessor
 
 	/**
 	 * Called when a key is typed (UNSUPPORTED)
