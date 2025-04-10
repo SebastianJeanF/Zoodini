@@ -119,7 +119,7 @@
     <property name="exclude" value="00010"/>
     <property name="force" type="float" value="1.5"/>
     <property name="inkCapacity" type="float" value="100"/>
-    <property name="inkRegen" type="float" value="1"/>
+    <property name="inkRegen" type="float" value="25"/>
     <property name="inkUsage" type="float" value="25"/>
     <property name="maxSpeed" type="float" value="5"/>
     <property name="radius" type="float" value="0.4"/>
