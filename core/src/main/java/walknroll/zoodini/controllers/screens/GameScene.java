@@ -270,10 +270,9 @@ public class GameScene implements Screen, ContactListener {
         processPlayerAction(input, dt);
         level.update(dt); //collisions
         updateVisionCones();
-        // updateSecurityCameraVisionCones(); //vision cone requires separate collision detection, so we have to put this here.
-        updateCamera(dt);
         updateGuardAI();
         processNPCAction(dt);
+        updateCamera(dt);
     }
 
 
@@ -285,58 +284,29 @@ public class GameScene implements Screen, ContactListener {
 
     }
 
-//    private void updateSecurityCameraVisionCones() {
-//        ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
-//        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
-//            if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
-//                Vector2 catPos = level.getCat().getPosition();
-//                Vector2 octPos = level.getOctopus().getPosition();
-//
-//                if (entry.value.contains(catPos) || entry.value.contains(octPos)) {
-//                    ((SecurityCamera) entry.key).activateRing();
-//                }
-//            }
-//        }
-//    }
-
-    /**
-     * Checks if the player is in the vision cones of any security cameras
-     * and updates both camera and guard states accordingly.
-     */
     private void updateSecurityCameraVisionCones() {
         ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
+        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
+            if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
+                Vector2 catPos = level.getCat().getPosition();
+                Vector2 octPos = level.getOctopus().getPosition();
 
-        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry: visions.entries()) {
-            // Skip if not a security camera or if the camera is disabled
-            if (!(entry.key instanceof SecurityCamera) || ((SecurityCamera) entry.key).isDisabled()) {
-                continue;
-            }
+                if (entry.value.contains(catPos) || entry.value.contains(octPos)) {
+                    ((SecurityCamera) entry.key).activateRing();
+                    // Alert all guards
 
-            SecurityCamera camera = (SecurityCamera) entry.key;
-            VisionCone visionCone = entry.value;
+                    Avatar detectedPlayer = entry.value.contains(catPos) ? level.getCat() : level.getOctopus();
 
-            Vector2 catPos = level.getCat().getPosition();
-            Vector2 octPos = level.getOctopus().getPosition();
+                    for (Guard guard : level.getGuards()) {
+                        if (guard != null) {
+                            guard.setAggroTarget(detectedPlayer);
+                            guard.setCameraAlerted(true);
 
-            // Check if either player is detected by the camera
-            if (visionCone.contains(catPos) || visionCone.contains(octPos)) {
-                // Activate the camera's visual indicator
-                camera.activateRing();
-
-                // Alert all guards
-                Avatar detectedPlayer = visionCone.contains(catPos) ? level.getCat() : level.getOctopus();
-
-                for (Guard guard : level.getGuards()) {
-                    if (guard != null) {
-                        guard.setAggroTarget(detectedPlayer);
-                        guard.setCameraAlerted(true);
-
-                        // Optionally set target position directly if needed
-                        guard.setTarget(detectedPlayer.getPosition());
+                            // Optionally set target position directly if needed
+                            guard.setTarget(detectedPlayer.getPosition());
+                        }
                     }
                 }
-
-                System.out.println("Security camera detected player, alerting guards");
             }
         }
     }
@@ -704,7 +674,7 @@ public class GameScene implements Screen, ContactListener {
                 direction.scl(2.0f);
             }
             else if (guard.isAgroed()) {
-				direction.scl(1.75f);
+				direction.scl(5f);
 			} else if (guard.isSus()) {
                 direction.scl(1.1f);
             }
