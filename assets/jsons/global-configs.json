@@ -8,9 +8,9 @@
     },
     "frameDelays": {
       "idle" : 16,
-      "walk" : 8,
-        "walk-up" : 8,
-        "walk-down" : 8
+      "walk" : 6,
+        "walk-up" : 6,
+        "walk-down" : 6
     },
     "startFrames": {
       "idle" : 0,

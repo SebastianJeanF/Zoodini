@@ -49,9 +49,9 @@
         "wrap":  	false,
         "sprites":	{
           "animation" : {
-            "size" : 3,
+            "size" : 5,
             "rows" : 1,
-            "cols" : 3
+            "cols" : 5
           }
         }
       },
