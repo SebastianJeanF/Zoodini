@@ -81,7 +81,9 @@ public class UIController {
         interrupted.setAlignment(TextAlign.middleCenter);
         interrupted.setColor(Color.YELLOW);
         //Initializing unlock timer
-        unlockTimer = new CircleTimer(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 30, Color.YELLOW);
+        float centerX = Gdx.graphics.getWidth()/2;
+        float centerY = Gdx.graphics.getHeight()/2;
+        unlockTimer = new CircleTimer(centerX, centerY, 30, Color.YELLOW);
 
         messages = new Array<>();
         messages.add(victory);
@@ -105,6 +107,7 @@ public class UIController {
         showUnlockTimer = true;
         unlockTimer.setProgress(progress);
 
+        keyTimer.setText("Unlocking: " + Math.round(progress * 100) + "%");
 
     }
     public void hideUnlockProgress() {
@@ -124,15 +127,23 @@ public class UIController {
 
 
     public void draw(SpriteBatch batch) {
+        // Save batch state
         boolean wasDrawing = batch.isDrawing();
+
+        // Always end the batch to ensure the CircleTimer draws on top
+        if (wasDrawing) {
+            batch.end();
+        }
+
         if (showUnlockTimer) {
-            if (wasDrawing) {
-                batch.end();
-            }
+            // Clear depth buffer to ensure timer appears on top
+            Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
             unlockTimer.draw();
-            if (wasDrawing){
-                batch.begin(camera);
-            }
+        }
+
+        // Restore batch state
+        if (wasDrawing) {
+            batch.begin(camera);
         }
     }
     public void dispose() {

@@ -373,6 +373,7 @@ public class GameScene implements Screen, ContactListener {
             float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
             ui.showUnlockProgress(progress);
         } else {
+            door.resetTimer();
             ui.hideUnlockProgress();
         }
 
@@ -410,6 +411,9 @@ public class GameScene implements Screen, ContactListener {
 
         // batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         // Final message
+        System.out.println("About to draw UI");
+
+        ui.draw(batch);
         ui.draw(batch, level);
     }
 

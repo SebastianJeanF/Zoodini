@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Matrix4;
 
 public class CircleTimer {
     private float progress; // 0 to 1
@@ -32,7 +33,13 @@ public class CircleTimer {
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
+        shapeRenderer.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0,
+            Gdx.graphics.getWidth(),
+            Gdx.graphics.getHeight()));
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        System.out.println("CircleTimer drawing at position: (" + x + ", " + y + ") with radius: " + radius);
+        System.out.println("Screen dimensions: " + Gdx.graphics.getWidth() + "x" + Gdx.graphics.getHeight());
 
         // Draw background circle
         shapeRenderer.setColor(0.2f, 0.2f, 0.2f, 0.7f);
