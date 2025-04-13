@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.math.Affine2;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
 
@@ -22,6 +23,7 @@ public class Cat extends Avatar {
     private final float abilityRange;
 
     // Ring effect properties
+    private Vector2 centerPosition; // In Physics Units
     private float currentRadius;
     private float maxRadius;
     private float expansionSpeed;
@@ -110,6 +112,7 @@ public class Cat extends Avatar {
         ringThickness = globals.getFloat("ringThickness", 0.3f);
         ringColor = new Color(211f, 211f, 211f, 0.5f); // Semi-transparent green
         currentRadius = 0f;
+        centerPosition = new Vector2(0, 0);
         isRingActive = false;
         affineCache = new Affine2();
 
@@ -118,6 +121,7 @@ public class Cat extends Avatar {
         meowCooldownRemaining = 0;
         onCooldown = false;
         keys = new Array<Key>();
+
     }
 
     /**
@@ -127,6 +131,7 @@ public class Cat extends Avatar {
         if (!isRingActive) {
             isRingActive = true;
             currentRadius = 0f;
+            centerPosition.set(getPosition().x, getPosition().y);
         }
     }
 
@@ -172,12 +177,8 @@ public class Cat extends Avatar {
             // Set color for the ring
             batch.setColor(ringColor);
 
-            // Draw ring using PathFactory and PathExtruder
-            float x = getPosition().x;
-            float y = getPosition().y;
-
             // Create n-gon path for the ring
-            Path2 ringPath = pf.makeNgon(x, y, currentRadius, 64);
+            Path2 ringPath = pf.makeNgon(centerPosition.x, centerPosition.y, currentRadius, 64);
 
             // Create extruder for the ring outline
             pe.set(ringPath);
