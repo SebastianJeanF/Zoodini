@@ -849,27 +849,23 @@ public class GameScene implements Screen, ContactListener {
 
             ObjectMap<Door, Key> doors = level.getDoors();
             for(Door door : doors.keys()) {
+
+                doors.get(door);
                 Obstacle doorObs = door.getObstacle();
-                Key theRightKey = doors.get(door);
+                Key rightKey = doors.get(door);
 
-                AvatarType type = theRightKey.getOwnerType();
+                if (o1 == doorObs || o2 == doorObs) {
+                    Obstacle other = (o1 == doorObs) ? o2 : o1;
 
+                    boolean canUnlock =
+                        (other == cat   && level.getCat().getKeys().contains(rightKey, true))
+                            || (other == oct  && level.getOctopus().getKeys().contains(rightKey, true));
 
-
-                if (
-                    (o1 == doorObs && (o2 == cat && level.getCat().getKeys().contains(theRightKey, true)))
-                    || (o1 == doorObs && (o2 == oct && level.getOctopus().getKeys().contains(theRightKey, true)))
-                    || (o2 == doorObs && (o1 == cat && level.getCat().getKeys().contains(theRightKey, true)))
-                    || (o2 == doorObs && (o1 == oct && level.getOctopus().getKeys().contains(theRightKey, true)))
-                )
-                { //owner of the key does not matter for now.
-                    if (theRightKey.isCollected() && !theRightKey.isUsed()
-                        && door.isLocked()) { //TODO: not sure whether we check if
-                        // key's collected at collision resolution or in the update().
-                        System.out.println("DOOR UNLOCKING");
+                    if (canUnlock && rightKey.isCollected() && !rightKey.isUsed() && door.isLocked()) {
                         door.setUnlocking(true);
                     }
                 }
+
             }
 
             // Handle exit collision (only if door is unlocked)
@@ -918,19 +914,20 @@ public class GameScene implements Screen, ContactListener {
 
                 doors.get(door);
                 Obstacle doorObs = door.getObstacle();
-                Key theRightKey = doors.get(door);
-                AvatarType type = doors.get(door).getOwnerType();
+                Key rightKey = doors.get(door);
 
+                if (o1 == doorObs || o2 == doorObs) {
+                    Obstacle other = (o1 == doorObs) ? o2 : o1;
 
-                if ((o1 == doorObs && (o2 == cat && level.getCat().getKeys().contains(theRightKey, true)))
-                    || (o1 == doorObs && (o2 == oct && level.getOctopus().getKeys().contains(theRightKey, true)))
-                    || (o2 == doorObs && (o1 == cat && level.getCat().getKeys().contains(theRightKey, true)))
-                    || (o2 == doorObs && (o1 == oct && level.getOctopus().getKeys().contains(theRightKey, true)))
-                ) { //owner of the key does not matter for now.
-                    if (door.isLocked()) {
+                    boolean canUnlock =
+                        (other == cat   && level.getCat().getKeys().contains(rightKey, true))
+                            || (other == oct  && level.getOctopus().getKeys().contains(rightKey, true));
+
+                    if (canUnlock && rightKey.isCollected() && !rightKey.isUsed() && door.isLocked()) {
                         door.setUnlocking(false);
                     }
                 }
+
             }
 
 
