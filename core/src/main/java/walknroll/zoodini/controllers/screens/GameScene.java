@@ -193,6 +193,7 @@ public class GameScene implements Screen, ContactListener {
         setFailure(false);
         countdown = -1;
 
+        map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString(""+this.currentLevel));
         // Reload the json each time
         level.populate(directory, map, levelGlobals);
         level.getWorld().setContactListener(this);

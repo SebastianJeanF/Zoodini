@@ -519,7 +519,6 @@ public class GameLevel {
         mapRenderer.render();
 
 
-
         batch.begin(camera);
 		for (ZoodiniSprite obj : sprites) {
 			if (obj.isDrawingEnabled()) {
