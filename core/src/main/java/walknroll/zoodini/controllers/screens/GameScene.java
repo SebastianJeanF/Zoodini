@@ -63,7 +63,7 @@ import walknroll.zoodini.utils.ZoodiniSprite;
  */
 public class GameScene implements Screen, ContactListener {
 
-    private boolean debug = false;
+    private boolean debug = true;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
@@ -524,7 +524,7 @@ public class GameScene implements Screen, ContactListener {
         // Final message
 
 //        ui.draw(batch);
-        ui.draw(batch, level);
+        ui.draw(batch, camera, level);
     }
 
     /**
@@ -935,6 +935,10 @@ public class GameScene implements Screen, ContactListener {
                     }
                 }
 
+                if(!door.isLocked()){
+                    Vector2 doorPos = door.getObstacle().getPosition();
+                    graph.getNode((int)doorPos.x, (int)doorPos.y).isWall = false;
+                }
             }
 
 

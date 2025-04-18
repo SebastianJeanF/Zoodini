@@ -172,7 +172,9 @@ public class UIController {
         batch.setColor(Color.WHITE);
     }
 
-    public void draw(SpriteBatch batch, GameLevel level) {
+
+
+    public void draw(SpriteBatch batch, OrthographicCamera gameCamera, GameLevel level) {
         batch.begin(camera);
         Avatar avatar = level.getAvatar();
 
