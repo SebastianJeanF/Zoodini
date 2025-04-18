@@ -41,7 +41,6 @@ import com.badlogic.gdx.maps.objects.EllipseMapObject;
 import com.badlogic.gdx.maps.objects.PolygonMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
@@ -127,8 +126,6 @@ public class GameLevel {
 	protected World world;
 	/** The boundary of the world */
 	protected Rectangle bounds;
-    /** Map */
-    private TiledMap tiledMap;
     /** Size of one tile. This serves as scaling factor for all drawings */
     private float units;
 
@@ -172,7 +169,7 @@ public class GameLevel {
 	 * @param directory   the asset manager
 	 * @param levelGlobals the JSON file defining configs global to every level
 	 */
-	public void populate(AssetDirectory directory, JsonValue level, JsonValue levelGlobals) {
+	public void populate(AssetDirectory directory, TiledMap map, JsonValue levelGlobals) {
         // Compute the FPS
         int[] fps = {20, 60};
         maxFPS = fps[1];
@@ -183,21 +180,20 @@ public class GameLevel {
 
 
 		world = new World(Vector2.Zero, false);
-        tiledMap = new TmxMapLoader().load(level.getString("5"));
-        mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
+        mapRenderer = new OrthogonalTiledMapRenderer(map);
 
 
-        MapProperties props = tiledMap.getProperties();
+        MapProperties props = map.getProperties();
         int width = props.get("width", Integer.class);
         int height = props.get("height", Integer.class);
         units = props.get("tilewidth", Integer.class);
         bounds = new Rectangle(0,0,width,height);
 
-        MapLayer walls = tiledMap.getLayers().get("walls");
+        MapLayer walls = map.getLayers().get("walls");
         createWallBodies(walls);
 
 
-        MapLayer playerSpawn = tiledMap.getLayers().get("objects");
+        MapLayer playerSpawn = map.getLayers().get("objects");
         for(MapObject obj : playerSpawn.getObjects()){
             MapProperties properties = obj.getProperties();
             String type = properties.get("type", String.class);
@@ -863,10 +859,6 @@ public class GameLevel {
      */
     public void setMinFPS(int value) {
         minFPS = value;
-    }
-
-    public TiledMap getMap(){
-        return tiledMap;
     }
 
     public float getTileSize(){
