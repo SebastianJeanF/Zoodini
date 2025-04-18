@@ -13,6 +13,8 @@
 package walknroll.zoodini.controllers.screens;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.*;
@@ -70,10 +72,11 @@ public class GameScene implements Screen, ContactListener {
 	private JsonValue levelFormat;
 	/** The JSON defining the default entity configs */
 	private JsonValue levelGlobals;
+    /** Value for current level */
+    private int currentLevel;
 
-    private JsonValue levelID;
 
-	/** How many frames after winning/losing do we continue? */
+    /** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
 
 	/** The orthographic camera */
@@ -92,6 +95,9 @@ public class GameScene implements Screen, ContactListener {
     /** The current level */
     private final HashMap<Guard, GuardAIController> guardToAIController = new HashMap<>();
 
+    /** TiledMap read from TMX */
+    private TiledMap map;
+    /** Graph representing the map */
     private TileGraph<TileNode> graph;
 
 
@@ -122,14 +128,14 @@ public class GameScene implements Screen, ContactListener {
 	 * The physics bounds and drawing scale are now stored in the LevelModel and
 	 * defined by the appropriate JSON file.
 	 */
-	public GameScene(AssetDirectory directory, SpriteBatch batch) {
+	public GameScene(AssetDirectory directory, SpriteBatch batch, int currentLevel) {
 		this.directory = directory;
 		this.batch = batch;
-
-		level = new GameLevel();
+        this.currentLevel = currentLevel;
+        level = new GameLevel();
         levelGlobals = directory.getEntry("globals", JsonValue.class);
-        levelID = directory.getEntry("levels", JsonValue.class);
-		level.populate(directory, levelID, levelGlobals);
+        map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString(""+this.currentLevel));
+		level.populate(directory, map, levelGlobals);
 		level.getWorld().setContactListener(this);
 
 		complete = false;
@@ -159,7 +165,7 @@ public class GameScene implements Screen, ContactListener {
         ui.setOctopusIcon(octopusIcon);
         ui.init();
 
-        graph = new TileGraph<>(level.getMap(), false);
+        graph = new TileGraph<>(map, false);
         initializeAIControllers();
 
 		setComplete(false);
@@ -188,7 +194,7 @@ public class GameScene implements Screen, ContactListener {
         countdown = -1;
 
         // Reload the json each time
-        level.populate(directory, levelID, levelGlobals);
+        level.populate(directory, map, levelGlobals);
         level.getWorld().setContactListener(this);
         initializeAIControllers();
     }
@@ -533,7 +539,7 @@ public class GameScene implements Screen, ContactListener {
 
     public void initializeAIControllers() {
 
-        graph = new TileGraph<>(level.getMap(), true);
+        graph = new TileGraph<>(map, true);
 
 //        this.gameGraph = new GameGraph(12, 16, level.getBounds().x, level.getBounds().y, level.getSprites());
         Array<Guard> guards = level.getGuards();
@@ -1014,4 +1020,10 @@ public class GameScene implements Screen, ContactListener {
         return active;
     }
 
+    /**
+     * Sets the levelID
+     * */
+    public void setCurrentLevel(int v){
+        currentLevel = v;
+    }
 }
