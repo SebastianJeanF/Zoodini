@@ -354,6 +354,8 @@ public class GameLevel {
 		}
 
         visions.clear();
+        guards.clear();
+        securityCameras.clear();
 
 		sprites.clear();
 		if (world != null) {
