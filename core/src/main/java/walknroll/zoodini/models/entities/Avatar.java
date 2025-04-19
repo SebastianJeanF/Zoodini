@@ -14,6 +14,9 @@
  */
 package walknroll.zoodini.models.entities;
 
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
@@ -68,6 +71,8 @@ public class Avatar extends ZoodiniSprite {
 	private final AvatarType avatarType;
 
     private boolean flipped = false;
+
+    private Animation<TextureRegion> idleAnim;
 
 	/**
 	 * Returns the avatar type.
@@ -239,6 +244,9 @@ public class Avatar extends ZoodiniSprite {
 		mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 
         underCamera = false;
+
+
+        TextureAtlas idleAtlas = new TextureAtlas();
 	}
 
     /**
