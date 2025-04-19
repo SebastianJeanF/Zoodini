@@ -182,12 +182,14 @@
       "cat-icon": "textures/cat-icon.png",
         "octopus-icon": "textures/octopus-icon.png"
   	},
+
   	"fonts": {
   		"display": {
   			"file": 	"fonts/MarkerFelt.ttf",
   			"size": 	64
   		}
   	},
+
 	"jsons" : {
         "constants" : "jsons/constants.json",
         "globals" : "jsons/global-configs.json",

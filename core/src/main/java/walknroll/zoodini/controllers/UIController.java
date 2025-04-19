@@ -39,31 +39,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 public class UIController {
 
-    public static final int VICTORY = 0;
-    public static final int FAILURE = 1;
-    public static final int KEY_TIMER = 2;
-    public static final int UNLOCKED = 3;
-    public static final int KEY_COLLECTED = 4;
-    public static final int INTERRUPTED = 5;
-
     private CircleTimer unlockTimer;
     private boolean showUnlockTimer = false;
 
-    protected OrthographicCamera camera;
-    /** The font for giving messages to the player */
     protected BitmapFont displayFont;
-
-    // All texts are displayed by default. Call hideMessage to hide them.
-    protected TextLayout victory;
-    protected TextLayout failure;
-    public TextLayout keyTimer;
-    protected TextLayout unlocked;
-    protected TextLayout collected;
-    protected TextLayout interrupted;
-
-    protected Array<TextLayout> messages;
-    /** message location is pixel coordinate of the screen */
-    protected ObjectMap<TextLayout, Vector2> messageLocations;
 
     private TextureRegion catIcon;
     private TextureRegion octopusIcon;
@@ -83,9 +62,6 @@ public class UIController {
     private Table rootTable;
 
     public UIController() {
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
         //Scene2d
         viewport = new ScreenViewport();
         stage = new Stage(viewport);
@@ -97,49 +73,11 @@ public class UIController {
         if (displayFont == null) {
             return;
         }
-        victory = new TextLayout("Victory!", displayFont);
-        victory.setAlignment(TextAlign.middleCenter);
-        victory.setColor(Color.YELLOW);
-
-        failure = new TextLayout("Failure!", displayFont);
-        failure.setAlignment(TextAlign.middleCenter);
-        failure.setColor(Color.RED);
-
-        keyTimer = new TextLayout("Unlocking Door: " + 0 + "%", displayFont);
-        keyTimer.setAlignment(TextAlign.middleCenter);
-        keyTimer.setColor(Color.YELLOW);
-
-        unlocked = new TextLayout("Door Unlocked!", displayFont);
-        unlocked.setAlignment(TextAlign.middleCenter);
-        unlocked.setColor(Color.GREEN);
-
-        collected = new TextLayout("Key Collected!", displayFont);
-        collected.setAlignment(TextAlign.middleCenter);
-        collected.setColor(Color.YELLOW);
-
-        interrupted = new TextLayout("Unlocking Interrupted!", displayFont);
-        interrupted.setAlignment(TextAlign.middleCenter);
-        interrupted.setColor(Color.YELLOW);
         //Initializing unlock timer
-        float centerX = Gdx.graphics.getWidth()/2;
-        float centerY = Gdx.graphics.getHeight()/2;
+        float centerX = Gdx.graphics.getWidth()/2.0f;
+        float centerY = Gdx.graphics.getHeight()/2.0f;
         unlockTimer = new CircleTimer(centerX, centerY, 30, Color.YELLOW);
 
-        messages = new Array<>();
-        messages.add(victory);
-        messages.add(failure);
-        messages.add(keyTimer);
-        messages.add(unlocked);
-        messages.add(collected);
-        messages.add(interrupted);
-
-        messageLocations = new ObjectMap<>();
-        messageLocations.put(victory, new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2));
-        messageLocations.put(failure, new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2));
-        messageLocations.put(keyTimer, new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2));
-        messageLocations.put(unlocked, new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2));
-        messageLocations.put(collected, new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2));
-        messageLocations.put(interrupted, new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2));
         // Temporarily commented to help with transition
         // Gdx.input.setInputProcessor(stage);
 
@@ -201,14 +139,6 @@ public class UIController {
     }
 
 
-    public void showUnlockProgress(float progress, Vector2 doorPosition, Camera gameCamera, float tileSize) {
-        showUnlockTimer = true;
-
-        Vector3 screenPos = new Vector3(doorPosition.x * tileSize, doorPosition.y * tileSize, 0);
-        gameCamera.project(screenPos);
-        unlockTimer.setPosition(screenPos.x, screenPos.y);
-        unlockTimer.setProgress(progress);
-    }
     public void hideUnlockProgress() {
         showUnlockTimer = false;
     }
@@ -228,7 +158,7 @@ public class UIController {
     }
 
     public void update() {
-        camera.update();
+
     }
 
     public void resize(int width, int height){
@@ -248,114 +178,34 @@ public class UIController {
         }
     }
 
-    public void drawCatIcon(SpriteBatch batch) {
-        batch.setTextureRegion(catIcon);
-        batch.setColor(Color.WHITE);
-        // Using 0.7f scale to make the icon 70% of its original size
-        batch.draw(catIcon, 45, 30, 0, 0, catIcon.getRegionWidth(), catIcon.getRegionHeight(), 0.7f, 0.7f, 0);
-        batch.setColor(Color.WHITE);
-    }
 
-    public void drawOctopusIcon(SpriteBatch batch) {
-        batch.setTextureRegion(octopusIcon);
-        batch.setColor(Color.WHITE);
-        // Using 0.7f scale to make the icon 70% of its original size
-        batch.draw(octopusIcon, 45, 30, 0, 0, octopusIcon.getRegionWidth(), octopusIcon.getRegionHeight(), 0.7f, 0.7f, 0);
-        batch.setColor(Color.WHITE);
-    }
+    public void draw(GameLevel level) {
+        Avatar avatar = level.getAvatar();
+        boolean isOcto = avatar.getAvatarType() == AvatarType.OCTOPUS;
 
-    private void drawInkMeter(SpriteBatch batch, Octopus octopus) {
-        batch.setTexture(null);
-        batch.setColor(Color.BLACK);
-        batch.outline(165, 85, 210, 35);
-        batch.setColor(octopus.canUseAbility() ? Color.FOREST : Color.BLACK);
-        batch.fill(170, 90, (octopus.getInkRemaining() / octopus.getInkCapacity()) * 200f, 25);
-        batch.setColor(Color.WHITE);
-    }
+        // Icons
+        if (catIconImage  != null) catIconImage.setVisible(!isOcto);
+        if (octopusIconImage != null) octopusIconImage.setVisible(isOcto);
 
+        // Progress bar background + fill
+        progressBg.setVisible(isOcto);
+        progressFill.setVisible(isOcto);
 
-
-//    public void draw(SpriteBatch batch, OrthographicCamera gameCamera, GameLevel level) {
-////        batch.begin(camera);
-////        Avatar avatar = level.getAvatar();
-////
-////        if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
-////            drawInkMeter(batch, (Octopus) avatar);
-////            drawOctopusIcon(batch);
-////        } else {
-////            drawCatIcon(batch);
-////        }
-//
-////        ObjectMap<Door, Key>  doors =  level.getDoors();
-////        for (ObjectMap.Entry<Door, Key> entry : doors.entries()) {
-////            Door door = entry.key;
-////            Key key = entry.value;
-////            if (key.isUnlocking()) {
-////                showUnlockProgress(key.getUnlockProgress(), door.getPosition(), camera, level.getTileSize());
-////            }
-////        }
-////        drawDoorUnlocking(batch, );
-//        Avatar avatar = level.getAvatar();
-//        if (catIconImage != null) {
-//            catIconImage.setVisible(avatar.getAvatarType() == AvatarType.CAT);
-//        }
-//        if (octopusIconImage != null) {
-//            octopusIconImage.setVisible(avatar.getAvatarType() == AvatarType.OCTOPUS);
-//        }
-//        if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
-//            Octopus octopus = (Octopus) avatar;
-//
-//            // Make sure ink meter is visible
-//            inkMeter.setVisible(true);
-//
-//            // Update the progress value (convert to percentage)
-//            float inkPercentage = (octopus.getInkRemaining() / octopus.getInkCapacity()) * 100;
-//            inkMeter.setValue(inkPercentage);
-//
-//            // Update color based on ink availability
-//            ProgressBar.ProgressBarStyle style = inkMeter.getStyle();
-//            if (octopus.canUseAbility()) {
-//                style.knobBefore = skin.newDrawable("white", new Color(0, 0.8f, 0, 1)); // Green when can use ability
-//            } else {
-//                style.knobBefore = skin.newDrawable("white", Color.BLACK); // Black when cannot
-//            }
-//        } else {
-//            // Hide ink meter for non-Octopus characters
-//            inkMeter.setVisible(false);
-//        }
-//        // Stage Rendering
-//        stage.act(Gdx.graphics.getDeltaTime());
-//        stage.draw();
-
-//    }
-public void draw(SpriteBatch batch, OrthographicCamera gameCamera, GameLevel level) {
-    Avatar avatar = level.getAvatar();
-    boolean isOcto = avatar.getAvatarType() == AvatarType.OCTOPUS;
-
-    // Icons
-    if (catIconImage  != null) catIconImage.setVisible(!isOcto);
-    if (octopusIconImage != null) octopusIconImage.setVisible(isOcto);
-
-    // Progress bar background + fill
-    progressBg.setVisible(isOcto);
-    progressFill.setVisible(isOcto);
-
-    if (isOcto) {
-        Octopus octo = (Octopus)avatar;
-        // compute 0→1 fill ratio
-        float pct = octo.getInkRemaining() / octo.getInkCapacity();
-        // resize the green fill bar
-        progressFill.setWidth(BAR_WIDTH * pct);
-        if (octo.canUseAbility()) {
-            progressFill.setColor(Color.GREEN);  // green
-        } else {
-            progressFill.setColor(Color.BLACK);       // black
+        if (isOcto) {
+            Octopus octo = (Octopus)avatar;
+            // compute 0→1 fill ratio
+            float pct = octo.getInkRemaining() / octo.getInkCapacity();
+            // resize the green fill bar
+            progressFill.setWidth(BAR_WIDTH * pct);
+            if (octo.canUseAbility()) {
+                progressFill.setColor(Color.GREEN);  // green
+            } else {
+                progressFill.setColor(Color.BLACK);       // black
+            }
         }
+
+        // finally… draw the stage
+        stage.act(Gdx.graphics.getDeltaTime());
+        stage.draw();
     }
-
-    // finally… draw the stage
-    stage.act(Gdx.graphics.getDeltaTime());
-    stage.draw();
-}
-
 }
