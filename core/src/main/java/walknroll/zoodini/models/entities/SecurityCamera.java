@@ -29,7 +29,6 @@ public class SecurityCamera extends ZoodiniSprite {
     private float fov;
     private float viewDistance;
 
-    private int startFrame;
     private boolean disabled;
     private float disabledTime; //in seconds
     private float disabledTimeRemaining;
@@ -73,21 +72,6 @@ public class SecurityCamera extends ZoodiniSprite {
         filter.maskBits = excludeBits;
         obstacle.setFilterData(filter);
 
-        setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));
-
-//        String key = globals.getString("texture"); //TODO somehow pull texture from tiled?
-//        startFrame = globals.getInt("startframe");
-//        sprite = directory.getEntry(key, SpriteSheet.class);
-//        sprite.setFrame(startFrame);
-//
-//        float r = properties.get("spriteRadius", Float.class) * units;
-//        mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
-
-        // Initialize animation controller
-        animationController = new AnimationController(AnimationState.IDLE);
-        // Load animations from JSON
-        setupAnimations(directory, globals);
-
         float r = properties.get("spriteRadius", Float.class) * units;
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 
@@ -104,44 +88,11 @@ public class SecurityCamera extends ZoodiniSprite {
         isRingActive = false;
         fov = properties.get("fov",Float.class);
         viewDistance = properties.get("viewDistance", Float.class);
-    }
 
-    // TODO: generalize this for avatar animation code as well to avoid redundancy
-    private void setupAnimations(AssetDirectory directory, JsonValue globals) {
-        JsonValue anims = globals.get("animations");
-        JsonValue startFrames = globals.get("startFrames");
-        if (anims != null) {
-            JsonValue frameDelays = globals.get("frameDelays");
-            addAnimation(directory, anims, "idle", AnimationState.IDLE, frameDelays, true, startFrames.getInt("idle", 0));
-        }
 
-        assert anims != null;
-        sprite = directory.getEntry(anims.getString("idle"), SpriteSheet.class);
-        sprite.setFrame(startFrames.getInt("idle", 0));
-    }
-
-    private void addAnimation(
-        AssetDirectory directory,
-        JsonValue anims, String name,
-        AnimationState state,
-        JsonValue frameDelays,
-        boolean loop,
-        int startFrame
-    ) {
-        String animKey = anims.getString(name, null);
-        int frameDelay = frameDelays.getInt(name, 1);
-
-        if (animKey != null) {
-            SpriteSheet animSheet = directory.getEntry(animKey, SpriteSheet.class);
-            Animation anim = new Animation(
-                animSheet,
-                startFrame,
-                animSheet.getSize() - 1,
-                frameDelay,
-                loop
-            );
-            animationController.addAnimation(state, anim);
-        }
+        animationController = new AnimationController(AnimationState.IDLE);
+        SpriteSheet sheet = directory.getEntry("camera-idle.animation", SpriteSheet.class);
+        animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
     }
 
     public float getAlarmDistance(){
