@@ -170,7 +170,8 @@
       "unlocked_door": "textures/panda-sprite.png",
       "cat-icon": "textures/cat-icon.png",
       "octopus-icon": "textures/octopus-icon.png",
-      "exit": "textures/panda-sprite.png"
+      "exit": "textures/panda-sprite.png",
+      "ink" : "textures/ink_projectile.png"
     },
 
   	"fonts": {
@@ -182,7 +183,6 @@
 
 	"jsons" : {
         "constants" : "jsons/constants.json",
-        "globals" : "jsons/global-configs.json",
         "levels" : "jsons/levels.json"
 	}
 }

@@ -68,10 +68,6 @@ public class GameScene implements Screen, ContactListener {
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
 	protected AssetDirectory directory;
-	/** The JSON defining the level model */
-	private JsonValue levelFormat;
-	/** The JSON defining the default entity configs */
-	private JsonValue levelGlobals;
     /** Value for current level */
     private int currentLevel;
 
@@ -133,9 +129,8 @@ public class GameScene implements Screen, ContactListener {
 		this.batch = batch;
         this.currentLevel = currentLevel;
         level = new GameLevel();
-        levelGlobals = directory.getEntry("globals", JsonValue.class);
         map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString(""+this.currentLevel));
-		level.populate(directory, map, levelGlobals);
+		level.populate(directory, map);
 		level.getWorld().setContactListener(this);
 
 		complete = false;
@@ -194,7 +189,7 @@ public class GameScene implements Screen, ContactListener {
 
         map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString(""+this.currentLevel));
         // Reload the json each time
-        level.populate(directory, map, levelGlobals);
+        level.populate(directory, map);
         level.getWorld().setContactListener(this);
         initializeAIControllers();
     }

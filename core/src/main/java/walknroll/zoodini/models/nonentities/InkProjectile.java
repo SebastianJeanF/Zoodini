@@ -118,11 +118,10 @@ public class InkProjectile extends ZoodiniSprite {
     /**
      * Creates a exit with the given settings
      *
-     * @param directory The asset directory (for textures, etc)
      * @param json      The JSON values defining this avatar
      * @param units     The physics units for this avatar
      */
-    public InkProjectile(AssetDirectory directory, JsonValue json, float units) {
+    public InkProjectile(JsonValue json, float units) {
         float radius = json.getFloat("radius");
         obstacle = new WheelObstacle(0, 0, radius);
         obstacle.setName(json.name());
@@ -142,10 +141,6 @@ public class InkProjectile extends ZoodiniSprite {
         obstacle.setFilterData(filter);
 
         setDebugColor(ParserUtils.parseColor(json.get("debug"), Color.WHITE));
-
-        startFrame = json.getInt("startframe");
-        sprite = directory.getEntry("ink-projectile.animation", SpriteSheet.class);
-        sprite.setFrame(startFrame);
 
         float r = json.getFloat("spriterad") * units;
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);

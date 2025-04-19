@@ -169,9 +169,8 @@ public class GameLevel {
 	 * Lays out the game geography from the given JSON file
 	 *
 	 * @param directory   the asset manager
-	 * @param levelGlobals the JSON file defining configs global to every level
 	 */
-	public void populate(AssetDirectory directory, TiledMap map, JsonValue levelGlobals) {
+	public void populate(AssetDirectory directory, TiledMap map) {
         // Compute the FPS
         int[] fps = {20, 60};
         maxFPS = fps[1];
@@ -253,8 +252,9 @@ public class GameLevel {
 
 		// Initialize an ink projectile (but do not add it to the physics world, we only
 		// do that on demand)
-		JsonValue projectileData = levelGlobals.get("ink");
-		inkProjectile = new InkProjectile(directory, projectileData, units);
+		JsonValue projectileData = directory.getEntry("constants", JsonValue.class).get("ink");
+		inkProjectile = new InkProjectile(projectileData, units);
+        inkProjectile.setTexture(directory.getEntry("ink-projectile", Texture.class));
 		activate(inkProjectile);
 		inkProjectile.setDrawingEnabled(false);
 		inkProjectile.getObstacle().setActive(false);
