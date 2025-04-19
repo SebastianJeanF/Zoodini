@@ -1,193 +1,198 @@
 {
-    "textures": {
+    "animations": {
       "guard-idle": {
-        "file": 	"textures/guard_walking.png",
-        "wrap":  	false,
-        "sprites":	{
-          "animation" : {
-            "size" : 4,
-            "rows" : 1,
-            "cols" : 4
+        "file": "textures/guard_walking.png",
+        "wrap": false,
+        "sprites": {
+          "animation": {
+            "size": 4,
+            "rows": 1,
+            "cols": 4
           }
         }
       },
       "guard-walk": {
-        "file": 	"textures/guard_walking.png",
-        "wrap":  	false,
-        "sprites":	{
-          "animation" : {
-            "size" : 4,
-            "rows" : 1,
-            "cols" : 4
+        "file": "textures/guard_walking.png",
+        "wrap": false,
+        "sprites": {
+          "animation": {
+            "size": 4,
+            "rows": 1,
+            "cols": 4
           }
         }
       },
-        "guard-walk-up": {
-            "file": 	"textures/guard_walk_up.png",
-            "wrap":  	false,
-            "sprites":	{
-            "animation" : {
-                "size" : 4,
-                "rows" : 1,
-                "cols" : 4
-            }
-            }
-        },
-        "guard-walk-down": {
-            "file": 	"textures/guard_walk_down.png",
-            "wrap":  	false,
-            "sprites":	{
-            "animation" : {
-                "size" : 5,
-                "rows" : 1,
-                "cols" : 5
-            }
-            }
-        },
-        "cat-idle": {
-            "file": 	"textures/cat_idle.png",
-            "wrap":  	false,
-            "sprites":	{
-            "animation" : {
-                "size" : 4,
-                "rows" : 1,
-                "cols" : 4
-            }
-            }
-        },
+      "guard-walk-up": {
+        "file": "textures/guard_walk_up.png",
+        "wrap": false,
+        "sprites": {
+          "animation": {
+            "size": 4,
+            "rows": 1,
+            "cols": 4
+          }
+        }
+      },
+      "guard-walk-down": {
+        "file": "textures/guard_walk_down.png",
+        "wrap": false,
+        "sprites": {
+          "animation": {
+            "size": 5,
+            "rows": 1,
+            "cols": 5
+          }
+        }
+      },
+      "cat-idle": {
+        "file": "textures/cat_idle.png",
+        "wrap": false,
+        "sprites": {
+          "animation": {
+            "size": 4,
+            "rows": 1,
+            "cols": 4
+          }
+        }
+      },
       "cat-walk": {
-        "file": 	"textures/cat_walk.png",
-        "wrap":  	false,
-        "sprites":	{
-          "animation" : {
-            "size" : 4,
-            "rows" : 1,
-            "cols" : 4
+        "file": "textures/cat_walk.png",
+        "wrap": false,
+        "sprites": {
+          "animation": {
+            "size": 4,
+            "rows": 1,
+            "cols": 4
           }
         }
       },
       "cat-walk-up": {
-        "file": 	"textures/cat_walk_up.png",
-        "wrap":  	false,
-        "sprites":	{
-          "animation" : {
-            "size" : 5,
-            "rows" : 1,
-            "cols" : 5
+        "file": "textures/cat_walk_up.png",
+        "wrap": false,
+        "sprites": {
+          "animation": {
+            "size": 5,
+            "rows": 1,
+            "cols": 5
           }
         }
       },
       "cat-walk-down": {
-        "file": 	"textures/cat_walk_down.png",
-        "wrap":  	false,
-        "sprites":	{
-          "animation" : {
-            "size" : 3,
-            "rows" : 1,
-            "cols" : 3
+        "file": "textures/cat_walk_down.png",
+        "wrap": false,
+        "sprites": {
+          "animation": {
+            "size": 3,
+            "rows": 1,
+            "cols": 3
           }
         }
       },
       "octopus-idle": {
-        "file": 	"textures/octopus_idle.png",
-        "wrap":  	false,
-        "sprites":	{
-          "animation" : {
-            "size" : 4,
-            "rows" : 1,
-            "cols" : 4
+        "file": "textures/octopus_idle.png",
+        "wrap": false,
+        "sprites": {
+          "animation": {
+            "size": 4,
+            "rows": 1,
+            "cols": 4
           }
         }
       },
       "octopus-walk": {
-        "file": 	"textures/octopus_walk.png",
-        "wrap":  	false,
-        "sprites":	{
-          "animation" : {
-            "size" : 4,
-            "rows" : 1,
-            "cols" : 4
+        "file": "textures/octopus_walk.png",
+        "wrap": false,
+        "sprites": {
+          "animation": {
+            "size": 4,
+            "rows": 1,
+            "cols": 4
           }
         }
       },
       "octopus-walk-up": {
-        "file": 	"textures/octopus_walk_up.png",
-        "wrap":  	false,
-        "sprites":	{
-          "animation" : {
-            "size" : 4,
-            "rows" : 1,
-            "cols" : 4
+        "file": "textures/octopus_walk_up.png",
+        "wrap": false,
+        "sprites": {
+          "animation": {
+            "size": 4,
+            "rows": 1,
+            "cols": 4
           }
         }
       },
-        "octopus-walk-down": {
-            "file": 	"textures/octopus_walk_down.png",
-            "wrap":  	false,
-            "sprites":	{
-            "animation" : {
-                "size" : 4,
-                "rows" : 1,
-                "cols" : 4
-            }
-            }
-        },
+      "octopus-walk-down": {
+        "file": "textures/octopus_walk_down.png",
+        "wrap": false,
+        "sprites": {
+          "animation": {
+            "size": 4,
+            "rows": 1,
+            "cols": 4
+          }
+        }
+      },
       "camera-idle": {
-        "file": 	"textures/camera_idle.png",
-        "wrap":  	false,
-        "sprites":	{
-          "animation" : {
-            "size" : 7,
-            "rows" : 1,
-            "cols" : 7
+        "file": "textures/camera_idle.png",
+        "wrap": false,
+        "sprites": {
+          "animation": {
+            "size": 7,
+            "rows": 1,
+            "cols": 7
           }
         }
       },
       "ink-projectile": {
-          "file":  "textures/ink_projectile.png",
-          "wrap":   false,
-          "sprites":  {
-              "ink" : {
-                "size" : 1,
-                "rows" : 1,
-                "cols" : 1
-              }
-          }
-      },
-      "security-camera": {
-          "file":  "textures/security_camera.png",
-          "wrap":   false,
-          "sprites":  {
-              "camera" : {
-                "size" : 1,
-                "rows" : 1,
-                "cols" : 1
-              }
-          }
-      },
-      "suspicion-meter": {
-        "file": 	"textures/suspicion_meter.png",
-        "wrap":  	false,
-        "sprites":	{
-          "animation" : {
-            "size" : 12,
-            "rows" : 1,
-            "cols" : 12
+        "file": "textures/ink_projectile.png",
+        "wrap": false,
+        "sprites": {
+          "ink": {
+            "size": 1,
+            "rows": 1,
+            "cols": 1
           }
         }
       },
+      "security-camera": {
+        "file": "textures/security_camera.png",
+        "wrap": false,
+        "sprites": {
+          "camera": {
+            "size": 1,
+            "rows": 1,
+            "cols": 1
+          }
+        }
+      },
+      "suspicion-meter": {
+        "file": "textures/suspicion_meter.png",
+        "wrap": false,
+        "sprites": {
+          "animation": {
+            "size": 12,
+            "rows": 1,
+            "cols": 12
+          }
+        }
+      }
+    },
+
+    "images" :{
       "key": "textures/key-sprite.png",
       "locked_door": "textures/locked_door.png",
       "unlocked_door": "textures/panda-sprite.png",
       "cat-icon": "textures/cat-icon.png",
         "octopus-icon": "textures/octopus-icon.png"
   	},
+
   	"fonts": {
   		"display": {
   			"file": 	"fonts/MarkerFelt.ttf",
   			"size": 	64
   		}
   	},
+
 	"jsons" : {
         "constants" : "jsons/constants.json",
         "globals" : "jsons/global-configs.json",
