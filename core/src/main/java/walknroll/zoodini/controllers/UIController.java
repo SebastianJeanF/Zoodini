@@ -39,9 +39,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 public class UIController {
 
-    private CircleTimer unlockTimer;
-    private boolean showUnlockTimer = false;
-
     protected BitmapFont displayFont;
 
     private TextureRegion catIcon;
@@ -73,10 +70,6 @@ public class UIController {
         if (displayFont == null) {
             return;
         }
-        //Initializing unlock timer
-        float centerX = Gdx.graphics.getWidth()/2.0f;
-        float centerY = Gdx.graphics.getHeight()/2.0f;
-        unlockTimer = new CircleTimer(centerX, centerY, 30, Color.YELLOW);
 
         // Temporarily commented to help with transition
         // Gdx.input.setInputProcessor(stage);
@@ -138,12 +131,7 @@ public class UIController {
 //        stage.addActor(inkMeter);
     }
 
-
-    public void hideUnlockProgress() {
-        showUnlockTimer = false;
-    }
     public void reset(){
-        hideUnlockProgress();
     }
 
     public void setFont(BitmapFont f) {
@@ -166,10 +154,6 @@ public class UIController {
     }
 
     public void dispose() {
-        if (unlockTimer != null) {
-            unlockTimer.dispose();
-        }
-
         if (stage != null){
             stage.dispose();
         }
