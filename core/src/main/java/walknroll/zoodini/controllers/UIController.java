@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Matrix4;
@@ -19,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
+import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.TextAlign;
 import edu.cornell.gdiac.graphics.TextLayout;
@@ -58,12 +60,13 @@ public class UIController {
     private static final float BAR_Y      = 85f;
     private Table rootTable;
 
-    public UIController() {
-        //Scene2d
+    public UIController(AssetDirectory directory) {
         viewport = new ScreenViewport();
         stage = new Stage(viewport);
-        // Temporary Skin
-        skin = new Skin(Gdx.files.internal("skins/uiskin.json"));
+        skin = new Skin(Gdx.files.internal("skins/uiskin.json")); //TODO: use AssetDirectory to load skins.
+        setFont(directory.getEntry("display", BitmapFont.class));
+        setCatIcon(new TextureRegion(directory.getEntry("cat-icon", Texture.class)));
+        setOctopusIcon(new TextureRegion(directory.getEntry("octopus-icon", Texture.class)));
     }
 
     public void init() {
