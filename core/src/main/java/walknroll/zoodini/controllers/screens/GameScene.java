@@ -539,6 +539,7 @@ public class GameScene implements Screen, ContactListener {
     //-----------------Helper Methods--------------------//
 
     public void initializeAIControllers() {
+        guardToAIController.clear();
 
         graph = new TileGraph<>(map, true);
 

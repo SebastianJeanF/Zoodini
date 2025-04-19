@@ -198,7 +198,11 @@ public class GuardAIController {
 //            return;
 //        }
         updateSusLevel();
-//        System.out.println(guard.getSusLevel());
+
+        // Guard State
+        System.out.print("Guard state: " + currState);
+        System.out.print(" Guard Sus: " + guard.getSusLevel());
+        System.out.println(" Guard Deggro Timer: " + guard.getDeAggroTimer());
 
         switch(this.currState) {
             case PATROL:
@@ -288,7 +292,7 @@ public class GuardAIController {
 //                break;
             case DISTRACTED:
                 // If guard has reached meow location; DISTRACTED -> PATROL
-                if (guard.getPosition().dst(distractPosition) <= WAYPOINT_RADIUS) {
+                if (guard.getPosition().dst(distractPosition) <= WAYPOINT_RADIUS * 4) {
                     currState = GuardState.PATROL;
                     guard.setMeow(false);
                     lastStateChangeTime = ticks;

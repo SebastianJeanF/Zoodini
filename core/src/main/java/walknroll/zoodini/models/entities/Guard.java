@@ -146,6 +146,10 @@ public class Guard extends Enemy {
         return deAggroTimer <= 0;
     }
 
+    public float getDeAggroTimer() {
+        return deAggroTimer;
+    }
+
     public void deltaDeAggroTimer(float delta) {
         this.deAggroTimer = MathUtils.clamp(deAggroTimer + delta, 0.0F, DEAGRRO_PERIOD);
     }

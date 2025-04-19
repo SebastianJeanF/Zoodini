@@ -81,20 +81,20 @@
    </properties>
    <point/>
   </object>
-  <object id="30" type="Guard" x="881.72" y="440.86">
-   <properties>
-    <property name="category" value="00100"/>
-    <property name="exclude" value="00100"/>
-    <property name="force" type="float" value="1.5"/>
-    <property name="fov" type="float" value="60"/>
-    <property name="maxSpeed" type="float" value="5"/>
-    <property name="path" type="object" value="31"/>
-    <property name="radius" type="float" value="0.2"/>
-    <property name="spriteRadius" type="float" value="0.8"/>
-    <property name="viewDistance" type="float" value="5"/>
-   </properties>
-   <point/>
-  </object>
+<!--   <object id="30" type="Guard" x="881.72" y="440.86"> -->
+<!--    <properties> -->
+<!--     <property name="category" value="00100"/> -->
+<!--     <property name="exclude" value="00100"/> -->
+<!--     <property name="force" type="float" value="1.5"/> -->
+<!--     <property name="fov" type="float" value="60"/> -->
+<!--     <property name="maxSpeed" type="float" value="5"/> -->
+<!--     <property name="path" type="object" value="31"/> -->
+<!--     <property name="radius" type="float" value="0.2"/> -->
+<!--     <property name="spriteRadius" type="float" value="0.8"/> -->
+<!--     <property name="viewDistance" type="float" value="5"/> -->
+<!--    </properties> -->
+<!--    <point/> -->
+<!--   </object> -->
   <object id="31" x="877.419" y="421.505">
    <polyline points="0,0 -96.7742,36.5591 -208.602,6.45161"/>
   </object>
