@@ -54,6 +54,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
+import edu.cornell.gdiac.graphics.SpriteSheet;
 import edu.cornell.gdiac.math.Path2;
 import edu.cornell.gdiac.math.PathExtruder;
 import edu.cornell.gdiac.math.PathFactory;
@@ -69,6 +70,7 @@ import walknroll.zoodini.models.nonentities.*;
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 import edu.cornell.gdiac.physics2.*;
+import walknroll.zoodini.utils.animation.AnimationState;
 
 /**
  * Represents a single level in our game
@@ -209,7 +211,8 @@ public class GameLevel {
                 guards.add(g);
                 activate(g);
             } else if("Camera".equalsIgnoreCase(type)){
-                SecurityCamera cam = new SecurityCamera(directory, properties, levelGlobals.get("camera"), units);
+                SecurityCamera cam = new SecurityCamera(properties, units);
+                cam.setAnimation(AnimationState.IDLE, directory.getEntry("camera-idle.animation", SpriteSheet.class));
                 securityCameras.add(cam);
                 activate(cam);
             } else if("Door".equalsIgnoreCase(type)){

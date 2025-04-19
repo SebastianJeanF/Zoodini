@@ -48,7 +48,7 @@ public class SecurityCamera extends ZoodiniSprite {
     PathFactory pf = new PathFactory();
     PathExtruder extruder = new PathExtruder();
 
-    public SecurityCamera(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
+    public SecurityCamera(MapProperties properties, float units) {
         float[] pos = new float[2];
         pos[0] = properties.get("x", Float.class) / units;
         pos[1] = properties.get("y", Float.class) / units;
@@ -56,7 +56,6 @@ public class SecurityCamera extends ZoodiniSprite {
         angle = properties.get("angle", Float.class);
         obstacle = new WheelObstacle(pos[0], pos[1], radius);
         obstacle.setName(properties.get("type", String.class));
-//        System.out.println(properties.get("type", String.class));
         obstacle.setFixedRotation(false);
 
         obstacle.setBodyType(BodyDef.BodyType.StaticBody);
@@ -91,8 +90,19 @@ public class SecurityCamera extends ZoodiniSprite {
 
 
         animationController = new AnimationController(AnimationState.IDLE);
-        SpriteSheet sheet = directory.getEntry("camera-idle.animation", SpriteSheet.class);
-        animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
+    }
+
+
+    /**
+     * Adds spritesheet to animate for a given state.
+     * */
+    public void setAnimation(AnimationState state, SpriteSheet sheet){
+        switch(state){
+            case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
+            case WALK -> animationController.addAnimation(AnimationState.WALK, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
+            case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
+            case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
+        }
     }
 
     public float getAlarmDistance(){
