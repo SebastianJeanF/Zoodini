@@ -30,9 +30,6 @@ import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.physics2.WheelObstacle;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.utils.ZoodiniSprite;
-import walknroll.zoodini.utils.animation.Animation;
-import walknroll.zoodini.utils.animation.AnimationController;
-import walknroll.zoodini.utils.animation.AnimationState;
 
 /**
  * Player avatar for the lighting demo.
@@ -72,7 +69,6 @@ public class Avatar extends ZoodiniSprite {
 
     private boolean flipped = false;
 
-    private final AnimationController animationController;
 	/**
 	 * Returns the avatar type.
 	 *
@@ -235,62 +231,15 @@ public class Avatar extends ZoodiniSprite {
 		Filter filter = new Filter();
 		filter.categoryBits = GameLevel.bitStringToShort(properties.get("category", String.class));
 		filter.maskBits = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
-//        System.out.println(filter.categoryBits);
-//        System.out.println(filter.maskBits);
 		obstacle.setFilterData(filter);
 
 		setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));
-
-        // Initialize animation controller
-        animationController = new AnimationController(AnimationState.IDLE);
-        // Load animations from JSON
-        setupAnimations(directory, globals);
 
         float r = properties.get("spriteRadius", Float.class) * units;
 		mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 
         underCamera = false;
 	}
-
-    private void setupAnimations(AssetDirectory directory, JsonValue globals) {
-        JsonValue anims = globals.get("animations");
-        JsonValue startFrames = globals.get("startFrames");
-        if (anims != null) {
-            JsonValue frameDelays = globals.get("frameDelays");
-            addAnimation(directory, anims, "walk", AnimationState.WALK, frameDelays, true, startFrames.getInt("walk", 0));
-            addAnimation(directory, anims, "idle", AnimationState.IDLE, frameDelays, true, startFrames.getInt("idle", 0));
-            addAnimation(directory, anims, "walk-up", AnimationState.WALK_UP, frameDelays, true, startFrames.getInt("walk-up", 0));
-            addAnimation(directory, anims, "walk-down", AnimationState.WALK_DOWN, frameDelays, true, startFrames.getInt("walk-down", 0));
-        }
-
-        assert anims != null;
-        sprite = directory.getEntry(anims.getString("idle"), SpriteSheet.class);
-        sprite.setFrame(startFrames.getInt("idle", 0));
-    }
-
-    private void addAnimation(
-        AssetDirectory directory,
-        JsonValue anims, String name,
-        AnimationState state,
-        JsonValue frameDelays,
-        boolean loop,
-        int startFrame
-    ) {
-        String animKey = anims.getString(name, null);
-        int frameDelay = frameDelays.getInt(name, 1);
-
-        if (animKey != null) {
-            SpriteSheet animSheet = directory.getEntry(animKey, SpriteSheet.class);
-            Animation anim = new Animation(
-                animSheet,
-                startFrame,
-                animSheet.getSize() - 1,
-                frameDelay,
-                loop
-            );
-            animationController.addAnimation(state, anim);
-        }
-    }
 
     /**
 	 * Applies the force to the body of this avatar
@@ -310,31 +259,9 @@ public class Avatar extends ZoodiniSprite {
         if (getMovement().len2() > 0f) {
             forceCache.set(getMovement());
             obstacle.getBody().applyForce(forceCache, obstacle.getPosition(), true);
-
-            // Determine animation based on direction
-            float dx = getMovement().x;
-            float dy = getMovement().y;
-
-            if (Math.abs(dy) > Math.abs(dx)) {
-                // Vertical movement is dominant
-                if (dy > 0) {
-                    animationController.setState(AnimationState.WALK_UP);
-                } else {
-                    animationController.setState(AnimationState.WALK_DOWN);
-                }
-            } else {
-                // Horizontal movement is dominant
-                animationController.setState(AnimationState.WALK);
-            }
-        } else {
-            animationController.setState(AnimationState.IDLE);
 		}
 	}
 
-    // Method to manually set animation state (for attacks, jumps, etc.)
-    public void setAnimationState(AnimationState state) {
-        animationController.setState(state);
-    }
 
 	/**
 	 * Updates the object's physics state (NOT GAME LOGIC).
@@ -344,20 +271,6 @@ public class Avatar extends ZoodiniSprite {
 	 * @param dt number of seconds since last animation frame
 	 */
 	public void update(float dt) {
-        // Update animation controller
-        animationController.update();
-
-        // This is the key fix - update the sprite reference itself
-        SpriteSheet currentSheet = animationController.getCurrentSpriteSheet();
-        if (currentSheet != null) {
-            sprite = currentSheet;  // Switch to the current animation's spritesheet
-        }
-
-        // Now setting the frame will work correctly
-        if (sprite != null) {
-            sprite.setFrame(animationController.getCurrentFrame());
-        }
-
         obstacle.update(dt);
 	}
 
