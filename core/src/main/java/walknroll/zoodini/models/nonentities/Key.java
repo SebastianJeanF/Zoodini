@@ -78,7 +78,7 @@ public class Key extends ZoodiniSprite {
      * @param globals   The JSON values defining global key properties
      * @param units     The physics units for this key
      */
-    public Key(AssetDirectory directory, MapObject obj, JsonValue globals, float units) {
+    public Key(AssetDirectory directory, MapObject obj, float units) {
         mapObject = obj;
         MapProperties properties = mapObject.getProperties();
 
@@ -110,14 +110,7 @@ public class Key extends ZoodiniSprite {
         filter.maskBits = excludeBits;
         obstacle.setFilterData(filter);
 
-        setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.YELLOW));
-
-        // Get texture
-        TextureMapObject tObj = (TextureMapObject) obj;
-        //String key = globals.get("texture").asString(); //TODO get texture from tiled.
-        TextureRegion texture = tObj.getTextureRegion();
-        //TextureRegion texture = new TextureRegion(directory.getEntry(key, Texture.class));
-        setTextureRegion(texture);
+        setTextureRegion(new TextureRegion(directory.getEntry("key", Texture.class)));
 
         collected = false;
         used = false;

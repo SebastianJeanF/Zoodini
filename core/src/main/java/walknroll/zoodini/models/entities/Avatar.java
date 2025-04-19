@@ -239,7 +239,7 @@ public class Avatar extends ZoodiniSprite {
 //        System.out.println(filter.maskBits);
 		obstacle.setFilterData(filter);
 
-		setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));
+		//setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));
 
         // Initialize animation controller
         animationController = new AnimationController(AnimationState.IDLE);

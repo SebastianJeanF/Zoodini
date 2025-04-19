@@ -156,11 +156,10 @@ public class GameScene implements Screen, ContactListener {
 
 
         //UI controller is not working as intended. Someone fix plz
-        JsonValue avatarIcons = levelGlobals.get("avatarIcons");
         ui = new UIController();
         ui.setFont(directory.getEntry("display", BitmapFont.class));
-        TextureRegion catIcon = new TextureRegion(directory.getEntry(avatarIcons.get("cat-texture").asString(), Texture.class));
-        TextureRegion octopusIcon = new TextureRegion(directory.getEntry(avatarIcons.get("octopus-texture").asString(), Texture.class));
+        TextureRegion catIcon = new TextureRegion(directory.getEntry("cat-icon", Texture.class));
+        TextureRegion octopusIcon = new TextureRegion(directory.getEntry("octopus-icon", Texture.class));
         ui.setCatIcon(catIcon);
         ui.setOctopusIcon(octopusIcon);
         ui.init();

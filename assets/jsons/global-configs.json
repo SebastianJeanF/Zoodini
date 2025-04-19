@@ -75,26 +75,7 @@
     },
     "startFrames": {
       "idle" : 0
-    },
-  },
-  "key": {
-    "texture": "key",
-    "debug": "#ffff00C8"
-  },
-  "door": {
-    "texture": "locked_door",
-    "locked_texture": "locked_door",
-    "unlocked_texture" : "unlocked_door",
-    "debug": "#ffff00C8"
-  },
-  "exit": {
-    "texture": "unlocked_door",
-    "locked_texture": "unlocked_door",
-    "debug": "#ffff00C8"
-  },
-  "avatarIcons": {
-    "cat-texture": "cat-icon",
-    "octopus-texture": "octopus-icon"
+    }
   },
   "ink": {
     "radius":       0.2,

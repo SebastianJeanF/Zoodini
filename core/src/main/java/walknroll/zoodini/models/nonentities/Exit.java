@@ -65,7 +65,7 @@ public class Exit extends ZoodiniSprite {
      * @param directory The asset directory (for textures, etc)
      * @param units     The physics units for this avatar
      */
-    public Exit(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
+    public Exit(AssetDirectory directory, MapProperties properties, float units) {
         float[] pos = {properties.get("x", Float.class) / units, properties.get("y", Float.class) / units};
         float size = properties.get("size", Float.class);
 
@@ -93,17 +93,7 @@ public class Exit extends ZoodiniSprite {
         filter.maskBits = excludeBits;
         obstacle.setFilterData(filter);
 
-        setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));
-
-        // Get textures for locked and unlocked states
-        String lockedKey = globals.has("locked_texture") ?
-            globals.get("locked_texture").asString() :
-            globals.get("texture").asString();
-        String unlockedKey = globals.get("texture").asString();
-
-
-//        lockedTexture = new TextureRegion(directory.getEntry(lockedKey, Texture.class));
-        unlockedTexture = new TextureRegion(directory.getEntry(unlockedKey, Texture.class));
+        unlockedTexture = new TextureRegion(directory.getEntry("exit", Texture.class));
 
         // Set initial state (locked by default)
         locked = true;

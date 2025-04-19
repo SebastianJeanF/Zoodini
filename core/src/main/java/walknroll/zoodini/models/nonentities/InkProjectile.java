@@ -143,9 +143,8 @@ public class InkProjectile extends ZoodiniSprite {
 
         setDebugColor(ParserUtils.parseColor(json.get("debug"), Color.WHITE));
 
-        String key = json.getString("texture");
         startFrame = json.getInt("startframe");
-        sprite = directory.getEntry(key, SpriteSheet.class);
+        sprite = directory.getEntry("ink-projectile.animation", SpriteSheet.class);
         sprite.setFrame(startFrame);
 
         float r = json.getFloat("spriterad") * units;

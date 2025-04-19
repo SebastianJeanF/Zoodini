@@ -213,14 +213,14 @@ public class GameLevel {
                 securityCameras.add(cam);
                 activate(cam);
             } else if("Door".equalsIgnoreCase(type)){
-                Door door = new Door(directory, obj, levelGlobals.get("door"), units);
-                Key key = new Key(directory, obj.getProperties().get("key", MapObject.class), levelGlobals.get("key"), units);
+                Door door = new Door(directory, obj, units);
+                Key key = new Key(directory, obj.getProperties().get("key", MapObject.class), units);
                 doors.put(door, key);
                 keys.add(key);
                 activate(door);
                 activate(key);
             } else if("Exit".equalsIgnoreCase(type)){
-                exit = new Exit(directory, properties, levelGlobals.get("exit"), units);
+                exit = new Exit(directory, properties, units);
                 activate(exit);
             }
 

@@ -116,7 +116,7 @@ public class Door extends ZoodiniSprite {
 	 * @param directory The asset directory (for textures, etc)
 	 * @param units     The physics units for this avatar
 	 */
-	public Door(AssetDirectory directory, MapObject obj, JsonValue globals, float units) {
+	public Door(AssetDirectory directory, MapObject obj, float units) {
         mapObject = obj;
         MapProperties properties = mapObject.getProperties();
 		float[] pos = {properties.get("x",Float.class) / units, properties.get("y", Float.class) / units};
@@ -147,17 +147,8 @@ public class Door extends ZoodiniSprite {
 		filter.maskBits = this.excludeBitsLocked;
 		obstacle.setFilterData(filter);
 
-		setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));
-
-        // Get textures for locked and unlocked states
-        String lockedKey = globals.has("locked_texture") ?
-            globals.get("locked_texture").asString() :
-            globals.get("texture").asString();
-        String unlockedKey = globals.get("texture").asString();
-
-
-        lockedTexture = new TextureRegion(directory.getEntry(lockedKey, Texture.class));
-        unlockedTexture = new TextureRegion(directory.getEntry(unlockedKey, Texture.class));
+        lockedTexture = new TextureRegion(directory.getEntry("locked_door", Texture.class));
+        unlockedTexture = new TextureRegion(directory.getEntry("unlocked_door", Texture.class));
         unlockTimer = new CircleTimer(0, 0, 30, Color.YELLOW);
 
         // Set initial state (locked by default)
