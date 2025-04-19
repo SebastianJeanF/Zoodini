@@ -22,7 +22,10 @@ import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Avatar.AvatarType;
 import walknroll.zoodini.models.entities.Octopus;
-
+//Scene2d stuff
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 public class UIController {
 
     public static final int VICTORY = 0;
@@ -54,9 +57,20 @@ public class UIController {
     private TextureRegion catIcon;
     private TextureRegion octopusIcon;
 
+    //Scene 2d components
+    private Stage stage;
+    private Skin skin;
+    private ScreenViewport viewport;
+
     public UIController() {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        //Scene2d
+        viewport = new ScreenViewport();
+        stage = new Stage(viewport);
+        // Temporary Skin
+        skin = new Skin(Gdx.files.internal("skins/uiskin.json"));
     }
 
     public void init() {
@@ -106,6 +120,8 @@ public class UIController {
         messageLocations.put(unlocked, new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2));
         messageLocations.put(collected, new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2));
         messageLocations.put(interrupted, new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2));
+        // Temporarily commented to help with transition
+        // Gdx.input.setInputProcessor(stage);
     }
 
 
@@ -139,11 +155,20 @@ public class UIController {
         camera.update();
     }
 
-
+    public void resize(int width, int height){
+        viewport.update(width, height, true);
+    }
 
     public void dispose() {
         if (unlockTimer != null) {
             unlockTimer.dispose();
+        }
+
+        if (stage != null){
+            stage.dispose();
+        }
+        if (skin != null){
+            skin.dispose();
         }
     }
 
@@ -196,6 +221,9 @@ public class UIController {
 //        drawDoorUnlocking(batch, );
 
         batch.end();
+        // Stage Rendering
+        stage.act(Gdx.graphics.getDeltaTime());
+        stage.draw();
 
     }
 }
