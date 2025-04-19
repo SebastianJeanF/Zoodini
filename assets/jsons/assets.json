@@ -196,6 +196,7 @@
 	"jsons" : {
         "constants" : "jsons/constants.json",
         "globals" : "jsons/global-configs.json",
-        "levels" : "jsons/levels.json"
+        "levels" : "jsons/levels.json",
+        "spritesheets" : "jsons/spritesheets.json"
 	}
 }
