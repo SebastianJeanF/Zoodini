@@ -88,7 +88,6 @@ public class SecurityCamera extends ZoodiniSprite {
         fov = properties.get("fov",Float.class);
         viewDistance = properties.get("viewDistance", Float.class);
 
-
         animationController = new AnimationController(AnimationState.IDLE);
     }
 

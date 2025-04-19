@@ -72,8 +72,8 @@ public class Guard extends Enemy {
      * The main purpose of this constructor is to set the initial capsule
      * orientation.
      */
-    public Guard(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
-        super(directory, properties, globals, units);
+    public Guard(MapProperties properties, float units) {
+        super(properties, units);
         fov = properties.get("fov", Float.class);
         currentPatrolIndex = 0;
         cameraAlerted = false;
@@ -95,20 +95,22 @@ public class Guard extends Enemy {
             setPatrolPoints(vertices);
         }
 
+    }
+
+    public void setSusMeter(SpriteSheet sheet){
         final int START_FRAME = 0;
         final int FRAME_DELAY = 0;
         final boolean IS_LOOP = true;
 
-        SpriteSheet animSheet = directory.getEntry("suspicion-meter.animation", SpriteSheet.class);
-        animSheet.setFrame(START_FRAME);
+        sheet.setFrame(START_FRAME);
         Animation anim = new Animation(
-            animSheet,
+            sheet,
             START_FRAME,
-            animSheet.getSize() - 1,
+            sheet.getSize() - 1,
             FRAME_DELAY,
             IS_LOOP
         );
-        suspsicionMeter.addAnimation(state, anim);
+        suspsicionMeter.addAnimation(SUSPICION_METER, anim);
     }
 
     public void setMaxSusLevel() {

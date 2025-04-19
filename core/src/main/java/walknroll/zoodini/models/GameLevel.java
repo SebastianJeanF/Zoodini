@@ -195,19 +195,32 @@ public class GameLevel {
         createWallBodies(walls);
 
 
-        MapLayer playerSpawn = map.getLayers().get("objects");
-        for(MapObject obj : playerSpawn.getObjects()){
+        MapLayer objectLayer = map.getLayers().get("objects");
+        for(MapObject obj : objectLayer.getObjects()){
             MapProperties properties = obj.getProperties();
             String type = properties.get("type", String.class);
 
             if("Cat".equalsIgnoreCase(type)){
-                avatarCat = new Cat(directory, properties, levelGlobals.get("avatarCat"), units);
+                avatarCat = new Cat(properties, units);
+                avatarCat.setAnimation(AnimationState.IDLE, directory.getEntry("cat-idle.animation", SpriteSheet.class));
+                avatarCat.setAnimation(AnimationState.WALK, directory.getEntry("cat-walk.animation", SpriteSheet.class));
+                avatarCat.setAnimation(AnimationState.WALK_DOWN, directory.getEntry("cat-walk-down.animation", SpriteSheet.class));
+                avatarCat.setAnimation(AnimationState.WALK_UP, directory.getEntry("cat-walk-up.animation", SpriteSheet.class));
                 activate(avatarCat);
             } else if("Octopus".equalsIgnoreCase(type)){
-                avatarOctopus = new Octopus(directory, properties, levelGlobals.get("avatarOctopus"), units);
+                avatarOctopus = new Octopus(properties, units);
+                avatarOctopus.setAnimation(AnimationState.IDLE, directory.getEntry("octopus-idle.animation", SpriteSheet.class));
+                avatarOctopus.setAnimation(AnimationState.WALK, directory.getEntry("octopus-walk.animation", SpriteSheet.class));
+                avatarOctopus.setAnimation(AnimationState.WALK_DOWN, directory.getEntry("octopus-walk-down.animation", SpriteSheet.class));
+                avatarOctopus.setAnimation(AnimationState.WALK_UP, directory.getEntry("octopus-walk-up.animation", SpriteSheet.class));
                 activate(avatarOctopus);
             } else if("Guard".equalsIgnoreCase(type)){
-                Guard g = new Guard(directory, properties, levelGlobals.get("guard"), units);
+                Guard g = new Guard(properties, units);
+                g.setAnimation(AnimationState.IDLE, directory.getEntry("guard-idle.animation", SpriteSheet.class));
+                g.setAnimation(AnimationState.WALK, directory.getEntry("guard-walk.animation", SpriteSheet.class));
+                g.setAnimation(AnimationState.WALK_DOWN, directory.getEntry("guard-walk-down.animation", SpriteSheet.class));
+                g.setAnimation(AnimationState.WALK_UP, directory.getEntry("guard-walk-up.animation", SpriteSheet.class));
+                g.setSusMeter(directory.getEntry("suspicion-meter.animation", SpriteSheet.class)); //TODO: There must be a better way to do this
                 guards.add(g);
                 activate(g);
             } else if("Camera".equalsIgnoreCase(type)){
