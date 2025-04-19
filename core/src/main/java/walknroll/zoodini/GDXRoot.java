@@ -154,6 +154,7 @@ public class GDXRoot extends Game implements ScreenListener {
 				break;
 			case GDXRoot.EXIT_SETTINGS:
 				settings = new SettingsScene(batch);
+				settings.create();
 				settings.setScreenListener(this);
 				setScreen(settings);
 				disposeExcept(settings);

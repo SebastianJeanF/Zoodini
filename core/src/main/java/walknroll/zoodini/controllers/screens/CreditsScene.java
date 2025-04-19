@@ -36,7 +36,7 @@ public class CreditsScene implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(0.702f, 0.1255f, 0.145f, 1.0f);
+        ScreenUtils.clear(1f, 1f, 1f, 1.0f);
         // TODO Auto-generated method stub
         // throw new UnsupportedOperationException("Unimplemented method 'render'");
     }
