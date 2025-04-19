@@ -95,24 +95,20 @@ public class Guard extends Enemy {
             setPatrolPoints(vertices);
         }
 
-        String animKey = globals.getString("suspicion");
         final int START_FRAME = 0;
         final int FRAME_DELAY = 0;
         final boolean IS_LOOP = true;
 
-        if (animKey != null) {
-            SpriteSheet sharedSheet = directory.getEntry(animKey, SpriteSheet.class);
-            SpriteSheet animSheet = new SpriteSheet(sharedSheet);
-            animSheet.setFrame(START_FRAME);
-            Animation anim = new Animation(
-                animSheet,
-                START_FRAME,
-                animSheet.getSize() - 1,
-                FRAME_DELAY,
-                IS_LOOP
-            );
-            suspsicionMeter.addAnimation(state, anim);
-        }
+        SpriteSheet animSheet = directory.getEntry("suspicion-meter.animation", SpriteSheet.class);
+        animSheet.setFrame(START_FRAME);
+        Animation anim = new Animation(
+            animSheet,
+            START_FRAME,
+            animSheet.getSize() - 1,
+            FRAME_DELAY,
+            IS_LOOP
+        );
+        suspsicionMeter.addAnimation(state, anim);
     }
 
     public void setMaxSusLevel() {

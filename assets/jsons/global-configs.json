@@ -60,7 +60,6 @@
         "walk-up" : 0,
         "walk-down" : 0
     },
-    "suspicion": "suspicion-meter.animation",
     "debug": "#ffffffC0"
   },
   "camera": {
