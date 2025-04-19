@@ -10,6 +10,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar.ProgressBarStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import edu.cornell.gdiac.graphics.SpriteBatch;
@@ -26,6 +31,9 @@ import walknroll.zoodini.models.entities.Octopus;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 public class UIController {
 
     public static final int VICTORY = 0;
@@ -61,6 +69,11 @@ public class UIController {
     private Stage stage;
     private Skin skin;
     private ScreenViewport viewport;
+
+    private Image catIconImage;
+    private Image octopusIconImage;
+    private ProgressBar inkMeter;
+    private Table rootTable;
 
     public UIController() {
         camera = new OrthographicCamera();
@@ -122,6 +135,44 @@ public class UIController {
         messageLocations.put(interrupted, new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2));
         // Temporarily commented to help with transition
         // Gdx.input.setInputProcessor(stage);
+        skin.add("default", displayFont);
+        // UI Element Style
+        Label.LabelStyle labelStyle = new LabelStyle();
+        labelStyle.font = displayFont;
+        skin.add("default", labelStyle);
+        //Create button style
+        TextButton.TextButtonStyle textButtonStyle = new TextButtonStyle();
+        textButtonStyle.up = skin.newDrawable("white", Color.DARK_GRAY);
+        textButtonStyle.down = skin.newDrawable("white", Color.DARK_GRAY);
+        textButtonStyle.checked = skin.newDrawable("white", Color.BLUE);
+        textButtonStyle.over = skin.newDrawable("white", Color.LIGHT_GRAY);
+        textButtonStyle.font = displayFont;
+        skin.add("default", textButtonStyle);
+        //Progress Bar
+        ProgressBar.ProgressBarStyle progressBarStyle = new ProgressBarStyle();
+        progressBarStyle.background = skin.newDrawable("white", Color.DARK_GRAY);
+        progressBarStyle.knob = skin.newDrawable("white", new Color(0, 0.8f, 0, 1)); // Green knob
+        progressBarStyle.knobBefore = skin.newDrawable("white", new Color(0, 0.8f, 0, 1)); // Green fill
+        skin.add("default-horizontal", progressBarStyle);
+        // Create root table for layout
+        rootTable = new Table();
+        rootTable.setFillParent(true);
+        stage.addActor(rootTable);
+
+        if (catIcon != null) {
+            catIconImage = new Image(catIcon);
+            catIconImage.setSize(catIcon.getRegionWidth() * 0.7f, catIcon.getRegionHeight() * 0.7f);
+            catIconImage.setPosition(45, 30);
+            stage.addActor(catIconImage);
+        }
+
+        if (octopusIcon != null){
+            octopusIconImage = new Image(octopusIcon);
+            octopusIconImage.setSize(octopusIcon.getRegionWidth() * 0.7f, octopusIcon.getRegionHeight() * 0.7f);
+            octopusIconImage.setPosition(45, 30);
+            octopusIconImage.setVisible(false); // Hide initially, we'll toggle visibility
+            stage.addActor(octopusIconImage);
+        }
     }
 
 
@@ -200,15 +251,15 @@ public class UIController {
 
 
     public void draw(SpriteBatch batch, OrthographicCamera gameCamera, GameLevel level) {
-        batch.begin(camera);
-        Avatar avatar = level.getAvatar();
-
-        if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
-            drawInkMeter(batch, (Octopus) avatar);
-            drawOctopusIcon(batch);
-        } else {
-            drawCatIcon(batch);
-        }
+//        batch.begin(camera);
+//        Avatar avatar = level.getAvatar();
+//
+//        if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
+//            drawInkMeter(batch, (Octopus) avatar);
+//            drawOctopusIcon(batch);
+//        } else {
+//            drawCatIcon(batch);
+//        }
 
 //        ObjectMap<Door, Key>  doors =  level.getDoors();
 //        for (ObjectMap.Entry<Door, Key> entry : doors.entries()) {
@@ -219,7 +270,18 @@ public class UIController {
 //            }
 //        }
 //        drawDoorUnlocking(batch, );
-
+        Avatar avatar = level.getAvatar();
+        if (catIconImage != null) {
+            catIconImage.setVisible(avatar.getAvatarType() == AvatarType.CAT);
+        }
+        if (octopusIconImage != null) {
+            octopusIconImage.setVisible(avatar.getAvatarType() == AvatarType.OCTOPUS);
+        }
+        //ink meter still uses old system
+        batch.begin(camera);
+        if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
+            drawInkMeter(batch, (Octopus) avatar);
+        }
         batch.end();
         // Stage Rendering
         stage.act(Gdx.graphics.getDeltaTime());
