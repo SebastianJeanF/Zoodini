@@ -815,10 +815,10 @@ public class GameScene implements Screen, ContactListener {
 					if (o1 == camObstacle || o2 == camObstacle) {
 						cam.disable();
                         contact.setEnabled(false);
-                        level.getProjectile().setShouldDestroy(true);
 						break;
 					}
 				}
+                level.getProjectile().setShouldDestroy(true);
 			}
 
 
