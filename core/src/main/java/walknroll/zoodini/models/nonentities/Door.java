@@ -9,8 +9,11 @@
  */
 package walknroll.zoodini.models.nonentities;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
@@ -19,10 +22,12 @@ import com.badlogic.gdx.physics.box2d.*;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.assets.ParserUtils;
+import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.physics2.*;
 import java.util.Iterator;
 import walknroll.zoodini.models.GameLevel;
+import walknroll.zoodini.utils.CircleTimer;
 import walknroll.zoodini.utils.ZoodiniSprite;
 
 /**
@@ -45,6 +50,9 @@ public class Door extends ZoodiniSprite {
     private static final float UNLOCK_DURATION = 3.0f;
     /** Tiled MapObject for this door*/
     private MapObject mapObject;
+
+    private CircleTimer unlockTimer;
+    private boolean showUnlockTimer = false;
 
     private short collideBits;
     private short excludeBitsLocked;
@@ -150,6 +158,7 @@ public class Door extends ZoodiniSprite {
 
         lockedTexture = new TextureRegion(directory.getEntry(lockedKey, Texture.class));
         unlockedTexture = new TextureRegion(directory.getEntry(unlockedKey, Texture.class));
+        unlockTimer = new CircleTimer(0, 0, 30, Color.YELLOW);
 
         // Set initial state (locked by default)
         setLocked(true);
@@ -165,13 +174,54 @@ public class Door extends ZoodiniSprite {
         super.update(dt);
         if(isLocked() && isUnlocking()){
             remainingTimeToUnlock -= dt;
-            System.out.println(remainingTimeToUnlock);
+//            System.out.println(remainingTimeToUnlock);
         } else {
             resetTimer();
         }
 
         if(remainingTimeToUnlock <= 0.0f){
             setLocked(false);
+        }
+    }
+
+    public void showUnlockProgress(float progress, Vector2 doorPosition, Camera gameCamera, float tileSize) {
+        showUnlockTimer = true;
+        Vector3 screenPos = new Vector3(doorPosition.x * tileSize, doorPosition.y * tileSize, 0);
+        gameCamera.project(screenPos);
+        unlockTimer.setPosition(screenPos.x, screenPos.y);
+        unlockTimer.setProgress(progress);
+    }
+
+    public void hideUnlockProgress() {
+        showUnlockTimer = false;
+    }
+
+    @Override
+    public void draw(SpriteBatch batch) {
+        super.draw(batch);
+
+
+
+    }
+
+    public void drawDoorUnlocking(SpriteBatch batch, Camera camera) {
+        // Save batch state
+        boolean wasDrawing = batch.isDrawing();
+
+        // Always end the batch to ensure the CircleTimer draws on top
+        if (wasDrawing) {
+            batch.end();
+        }
+
+        if (showUnlockTimer) {
+            // Clear depth buffer to ensure timer appears on top
+            Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
+            unlockTimer.draw();
+        }
+
+        // Restore batch state
+        if (wasDrawing) {
+            batch.begin(camera);
         }
     }
 }

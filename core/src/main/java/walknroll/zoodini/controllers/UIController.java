@@ -15,6 +15,8 @@ import com.badlogic.gdx.utils.ObjectMap;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.TextAlign;
 import edu.cornell.gdiac.graphics.TextLayout;
+import walknroll.zoodini.models.nonentities.Door;
+import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.utils.CircleTimer;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
@@ -119,7 +121,7 @@ public class UIController {
         showUnlockTimer = false;
     }
     public void reset(){
-    hideUnlockProgress();
+        hideUnlockProgress();
     }
 
     public void setFont(BitmapFont f) {
@@ -138,26 +140,7 @@ public class UIController {
     }
 
 
-    public void draw(SpriteBatch batch) {
-        // Save batch state
-        boolean wasDrawing = batch.isDrawing();
 
-        // Always end the batch to ensure the CircleTimer draws on top
-        if (wasDrawing) {
-            batch.end();
-        }
-
-        if (showUnlockTimer) {
-            // Clear depth buffer to ensure timer appears on top
-            Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
-            unlockTimer.draw();
-        }
-
-        // Restore batch state
-        if (wasDrawing) {
-            batch.begin(camera);
-        }
-    }
     public void dispose() {
         if (unlockTimer != null) {
             unlockTimer.dispose();
@@ -199,6 +182,16 @@ public class UIController {
         } else {
             drawCatIcon(batch);
         }
+
+//        ObjectMap<Door, Key>  doors =  level.getDoors();
+//        for (ObjectMap.Entry<Door, Key> entry : doors.entries()) {
+//            Door door = entry.key;
+//            Key key = entry.value;
+//            if (key.isUnlocking()) {
+//                showUnlockProgress(key.getUnlockProgress(), door.getPosition(), camera, level.getTileSize());
+//            }
+//        }
+//        drawDoorUnlocking(batch, );
 
         batch.end();
 

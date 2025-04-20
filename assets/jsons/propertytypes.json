@@ -64,6 +64,11 @@
         "id": 2,
         "members": [
             {
+                "name": "abilityCooldown",
+                "type": "float",
+                "value": 5
+            },
+            {
                 "name": "abilityRange",
                 "type": "float",
                 "value": 5
@@ -81,7 +86,7 @@
             {
                 "name": "force",
                 "type": "float",
-                "value": 2
+                "value": 3
             },
             {
                 "name": "maxSpeed",
@@ -115,7 +120,7 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 6,
+        "id": 3,
         "members": [
             {
                 "name": "category",
@@ -150,7 +155,7 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 7,
+        "id": 4,
         "members": [
             {
                 "name": "category",
@@ -179,7 +184,7 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 3,
+        "id": 5,
         "members": [
             {
                 "name": "category",
@@ -204,7 +209,7 @@
             {
                 "name": "maxSpeed",
                 "type": "float",
-                "value": 5
+                "value": 10
             },
             {
                 "name": "radius",
@@ -214,7 +219,7 @@
             {
                 "name": "spriteRadius",
                 "type": "float",
-                "value": 0.6
+                "value": 1
             },
             {
                 "name": "viewDistance",
@@ -233,7 +238,7 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 4,
+        "id": 6,
         "members": [
             {
                 "name": "category",
@@ -262,7 +267,7 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 5,
+        "id": 7,
         "members": [
             {
                 "name": "abilityRange",
@@ -292,7 +297,7 @@
             {
                 "name": "inkRegen",
                 "type": "float",
-                "value": 1
+                "value": 25
             },
             {
                 "name": "inkUsage",

@@ -43,6 +43,8 @@ import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 
 import java.util.HashMap;
+import java.util.Map;
+
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 
@@ -59,7 +61,7 @@ import walknroll.zoodini.utils.ZoodiniSprite;
  */
 public class GameScene implements Screen, ContactListener {
 
-    private boolean debug = true;
+    private boolean debug = false;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
@@ -269,7 +271,7 @@ public class GameScene implements Screen, ContactListener {
         InputController input = InputController.getInstance();
         processPlayerAction(input, dt);
         level.update(dt); //collisions
-        updateVisionCones();
+        updateVisionCones(dt);
         updateGuardAI();
         processNPCAction(dt);
         updateCamera(dt);
@@ -301,7 +303,8 @@ public class GameScene implements Screen, ContactListener {
                     detectedPlayer.setUnderCamera(true);
 
                     for (Guard guard : level.getGuards()) {
-                        if (guard != null) {
+                        float guardToCameraDistance = guard.getPosition().dst(((SecurityCamera) entry.key).getPosition());
+                        if (guardToCameraDistance <= ((SecurityCamera) entry.key).getAlarmDistance()) {
                             guard.setAggroTarget(detectedPlayer);
                             guard.setCameraAlerted(true);
 
@@ -320,7 +323,7 @@ public class GameScene implements Screen, ContactListener {
      * Checks if the player is in the vision cones of any guards and updates their states accordingly.
      * This function specifically handles guard vision detection, separate from security cameras.
      */
-    private void updateGuardVisionCones() {
+    private void updateGuardVisionCones(float dt) {
         ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
 
         for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry: visions.entries()) {
@@ -331,6 +334,10 @@ public class GameScene implements Screen, ContactListener {
 
             Guard guard = (Guard) entry.key;
             VisionCone visionCone = entry.value;
+
+            Vector2 movementDir = guard.getMovementDirection();
+            visionCone.updateFacingDirection(dt, movementDir);
+
 
             Vector2 catPos = level.getCat().getPosition();
             Vector2 octPos = level.getOctopus().getPosition();
@@ -371,9 +378,9 @@ public class GameScene implements Screen, ContactListener {
      * Updates all vision cone detection in the game.
      * Delegates to specific functions for guards and security cameras.
      */
-    public void updateVisionCones() {
+    public void updateVisionCones(float dt) {
         updateSecurityCameraVisionCones();
-        updateGuardVisionCones();
+        updateGuardVisionCones(dt);
     }
 
     private Vector3 tmp = new Vector3();
@@ -458,20 +465,28 @@ public class GameScene implements Screen, ContactListener {
 
         Array<SecurityCamera> cams = level.getSecurityCameras();
 
-//        if(key.isCollected() && !key.isUsed() && door.isUnlocking()){
-//            float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
-//            Vector2 doorPos = door.getObstacle().getPosition().cpy();
-//            float tileSize = level.getTileSize();
-//            ui.showUnlockProgress(progress, doorPos, camera, tileSize);
-//        } else {
-//            door.resetTimer();
-//            ui.hideUnlockProgress();
-//        }
-//
-//        if(door.getRemainingTimeToUnlock() <= 0){
-//            key.setUsed(true);
-//            ui.hideUnlockProgress();
-//        }
+
+        // TODO: Might need to comment out again
+        for (ObjectMap.Entry<Door, Key> entry : doors.entries()) {
+            Door door = entry.key;
+            Key key = entry.value;
+
+            if(key.isCollected() && !key.isUsed() && door.isUnlocking()){
+
+                float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
+                Vector2 doorPos = door.getObstacle().getPosition().cpy();
+                float tileSize = level.getTileSize();
+                door.showUnlockProgress(progress, doorPos, camera, tileSize);
+            } else {
+                door.resetTimer();
+                door.hideUnlockProgress();
+            }
+
+            if(door.getRemainingTimeToUnlock() <= 0){
+                key.setUsed(true);
+                door.hideUnlockProgress();
+            }
+        }
 
     }
 
@@ -513,7 +528,7 @@ public class GameScene implements Screen, ContactListener {
         // batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         // Final message
 
-        ui.draw(batch);
+//        ui.draw(batch);
         ui.draw(batch, level);
     }
 
@@ -621,15 +636,12 @@ public class GameScene implements Screen, ContactListener {
         float viewWidth = camera.viewportWidth / level.getTileSize();
         float viewHeight = camera.viewportHeight / level.getTileSize();
 
-        // Camera margin - how much dead space to allow (smaller = more centered)
-        float horizontalMargin = viewWidth * 0.15f; // 15% of view width
-        float verticalMargin = viewHeight * 0.15f; // 15% of view height
 
         // Calculate soft boundaries that allow partial dead space
-        float minX = level.getBounds().x + (viewWidth * 0.5f) - horizontalMargin;
-        float maxX = level.getBounds().x + (level.getBounds().width) - (viewWidth * 0.5f) + horizontalMargin;
-        float minY = level.getBounds().y + (viewHeight * 0.5f) - verticalMargin;
-        float maxY = level.getBounds().y + (level.getBounds().height) - (viewHeight * 0.5f) + verticalMargin;
+        float minX = level.getBounds().x + (viewWidth * 0.5f);
+        float maxX = level.getBounds().x + (level.getBounds().width) - (viewWidth * 0.5f);
+        float minY = level.getBounds().y + (viewHeight * 0.5f);
+        float maxY = level.getBounds().y + (level.getBounds().height) - (viewHeight * 0.5f);
 
         // Clamp camera position with soft boundaries
         cameraTargetPosition.x = Math.max(minX, Math.min(cameraTargetPosition.x, maxX));
@@ -681,16 +693,16 @@ public class GameScene implements Screen, ContactListener {
 		if (direction.len() > 0) {
 			direction.nor().scl(guard.getForce());
 			if (guard.isMeowed()) {
-				direction.scl(1.25f);
+				direction.scl(4.25f);
 			} else if (guard.isCameraAlerted()) {
-                direction.scl(2.0f);
+                direction.scl(6.0f);
             }
             else if (guard.isAgroed()) {
-				direction.scl(5f);
+				direction.scl(7f);
 			} else if (guard.isSus()) {
-                direction.scl(4f);
+                direction.scl(6f);
             } else {
-                direction.scl(3f);
+                direction.scl(5f);
             }
 
 
@@ -764,6 +776,8 @@ public class GameScene implements Screen, ContactListener {
 		this.listener = listener;
 	}
 
+
+
 	/**
 	 * Callback method for the start of a collision
 	 *
@@ -806,10 +820,11 @@ public class GameScene implements Screen, ContactListener {
 					Obstacle camObstacle = cam.getObstacle();
 					if (o1 == camObstacle || o2 == camObstacle) {
 						cam.disable();
+                        contact.setEnabled(false);
+                        level.getProjectile().setShouldDestroy(true);
 						break;
 					}
 				}
-				level.getProjectile().setShouldDestroy(true);
 			}
 
 
@@ -820,19 +835,28 @@ public class GameScene implements Screen, ContactListener {
                 }
             }
 
+            // CAT
             for(Key key : level.getKeys()) {
+                if (key.isCollected()) { continue;} //skip if the key is not collected
+
                 Obstacle keyObs = key.getObstacle();
                 if ((o1 == cat && o2 == keyObs) || (o2 == cat && o1 == keyObs)) {
                     key.setCollected(true);
                     key.setOwner(AvatarType.CAT);
                     System.out.println("COLLISION");
+                    level.getCat().assignKey(key);
                 }
             }
+
+            // OCTOPUS
             for(Key key : level.getKeys()) {
+                if (key.isCollected()) { continue;} //skip if the key is not collected
+
                 Obstacle keyObs = key.getObstacle();
                 if ((o1 == oct && o2 == keyObs) || (o2 == oct && o1 == keyObs)) {
                     key.setCollected(true);
                     key.setOwner(AvatarType.OCTOPUS);
+                    level.getOctopus().assignKey(key);
                 }
             }
 
@@ -840,10 +864,22 @@ public class GameScene implements Screen, ContactListener {
             for(Door door : doors.keys()) {
                 Obstacle doorObs = door.getObstacle();
                 Key theRightKey = doors.get(door);
-                if ((o1 == doorObs && (o2 == cat || o2 == oct)) || (o2 == doorObs && (o1 == cat
-                    || o1 == oct))) { //owner of the key does not matter for now.
+
+                AvatarType type = theRightKey.getOwnerType();
+
+
+
+                if (
+                    (o1 == doorObs && (o2 == cat && level.getCat().getKeys().contains(theRightKey, true)))
+                    || (o1 == doorObs && (o2 == oct && level.getOctopus().getKeys().contains(theRightKey, true)))
+                    || (o2 == doorObs && (o1 == cat && level.getCat().getKeys().contains(theRightKey, true)))
+                    || (o2 == doorObs && (o1 == oct && level.getOctopus().getKeys().contains(theRightKey, true)))
+                )
+                { //owner of the key does not matter for now.
                     if (theRightKey.isCollected() && !theRightKey.isUsed()
-                        && door.isLocked()) { //TODO: not sure whether we check if key's collected at collision resolution or in the update().
+                        && door.isLocked()) { //TODO: not sure whether we check if
+                        // key's collected at collision resolution or in the update().
+                        System.out.println("DOOR UNLOCKING");
                         door.setUnlocking(true);
                     }
                 }
@@ -868,6 +904,7 @@ public class GameScene implements Screen, ContactListener {
 		}
 	}
 
+
 	/** Unused ContactListener method */
 	public void endContact(Contact contact) {
         Fixture fix1 = contact.getFixtureA();
@@ -891,9 +928,18 @@ public class GameScene implements Screen, ContactListener {
             ObjectMap<Door,Key> doors = level.getDoors();
 
             for(Door door : doors.keys()) {
+
+                doors.get(door);
                 Obstacle doorObs = door.getObstacle();
-                if ((o1 == doorObs && (o2 == cat || o2 == oct)) || (o2 == doorObs && (o1 == cat
-                    || o1 == oct))) { //owner of the key does not matter for now.
+                Key theRightKey = doors.get(door);
+                AvatarType type = doors.get(door).getOwnerType();
+
+
+                if ((o1 == doorObs && (o2 == cat && level.getCat().getKeys().contains(theRightKey, true)))
+                    || (o1 == doorObs && (o2 == oct && level.getOctopus().getKeys().contains(theRightKey, true)))
+                    || (o2 == doorObs && (o1 == cat && level.getCat().getKeys().contains(theRightKey, true)))
+                    || (o2 == doorObs && (o1 == oct && level.getOctopus().getKeys().contains(theRightKey, true)))
+                ) { //owner of the key does not matter for now.
                     if (door.isLocked()) {
                         door.setUnlocking(false);
                     }

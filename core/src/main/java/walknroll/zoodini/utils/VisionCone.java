@@ -40,6 +40,10 @@ public class VisionCone implements RayCastCallback{
     private Array<Vector2> rayEndPoints;
     private Body body; //body this cone is attached to
 
+    private float currentFacingAngle = 0f; // Current angle in degrees
+    private float targetFacingAngle = 0f;  // Target angle to rotate toward
+    private float turnSpeed = 5.0f;        // Rotation speed in radians per second
+
 
     public Vector2 getPosition(){
         return this.origin;
@@ -154,6 +158,47 @@ public class VisionCone implements RayCastCallback{
     }
 
 
+
+    /**
+     * Smoothly updates the vision cone's facing direction to match the guard's orientation.
+     * This method should be called during the update cycle, separate from the guard's update.
+     *
+     * @param dt The time delta since the last update
+     * @param guardDirection The current direction vector that the guard is facing
+     */
+    public void updateFacingDirection(float dt, Vector2 guardDirection) {
+        if (guardDirection == null || guardDirection.len2() < 0.0001f) {
+            return; // No valid direction to face
+        }
+
+        // Calculate target angle from guard direction (in degrees)
+        targetFacingAngle = MathUtils.radiansToDegrees * MathUtils.atan2(guardDirection.y, guardDirection.x);
+
+        // Convert current and target angles to radians for calculations
+        float currentAngleRad = MathUtils.degreesToRadians * currentFacingAngle;
+        float targetAngleRad = MathUtils.degreesToRadians * targetFacingAngle;
+
+        // Determine the shortest turning direction
+        float angleDiff = targetAngleRad - currentAngleRad;
+
+        // Normalize to [-PI, PI] for shortest rotation path
+        while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+        while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+
+        // Calculate how much to turn this frame (limited by turn speed)
+        float turnAmount = Math.min(Math.abs(angleDiff), turnSpeed * dt);
+
+        // Apply the turn in the correct direction
+        float newAngleRad = currentAngleRad + Math.signum(angleDiff) * turnAmount;
+
+        // Convert back to degrees and update the current facing angle
+        currentFacingAngle = MathUtils.radiansToDegrees * newAngleRad;
+
+        // Apply the new angle to the vision cone's internal direction
+//        setFacingDirection(currentFacingAngle);
+        this.facingAngle = currentFacingAngle;
+    }
+
     float closestFraction = 1.0f;
     @Override
     public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
@@ -182,7 +227,8 @@ public class VisionCone implements RayCastCallback{
         int k = 0;
 
         for (int i = 0; i < numRays; ++i) {
-            float degrees = MathUtils.radiansToDegrees * body.getAngle() + facingAngle;
+//            float degrees = MathUtils.radiansToDegrees * body.getAngle() + facingAngle;
+            float degrees = facingAngle;
             degrees += (i - (numRays - 1) / 2f) * coef;
             float rads = MathUtils.degreesToRadians * degrees;
 

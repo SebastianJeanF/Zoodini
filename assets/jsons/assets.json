@@ -38,9 +38,9 @@
             "wrap":  	false,
             "sprites":	{
             "animation" : {
-                "size" : 4,
+                "size" : 5,
                 "rows" : 1,
-                "cols" : 4
+                "cols" : 5
             }
             }
         },
@@ -132,6 +132,17 @@
             }
             }
         },
+      "camera-idle": {
+        "file": 	"textures/camera_idle.png",
+        "wrap":  	false,
+        "sprites":	{
+          "animation" : {
+            "size" : 7,
+            "rows" : 1,
+            "cols" : 7
+          }
+        }
+      },
       "ink-projectile": {
           "file":  "textures/ink_projectile.png",
           "wrap":   false,

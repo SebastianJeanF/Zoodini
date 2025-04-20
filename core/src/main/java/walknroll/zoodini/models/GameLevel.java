@@ -183,7 +183,7 @@ public class GameLevel {
 
 
 		world = new World(Vector2.Zero, false);
-        tiledMap = new TmxMapLoader().load(level.getString("1"));
+        tiledMap = new TmxMapLoader().load(level.getString("5"));
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
 
@@ -540,7 +540,16 @@ public class GameLevel {
                 }
             }
         }
-
+        for (ObjectMap.Entry<Door, Key> entry : doors.entries()) {
+            Door door = entry.key;
+            Key key = entry.value;
+//            if (key.isUnlocking()) {
+//                door.showUnlockProgress(key.getUnlockProgress(), door.getPosition(), camera, units);
+//            }
+            if (door.isUnlocking()) {
+                door.drawDoorUnlocking(batch, camera);
+            }
+        }
 
 		batch.end();
         for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
@@ -555,7 +564,7 @@ public class GameLevel {
             rayHandler.render();
         }
 
-		// Draw debugging on top of everything.
+		// d debugging on top of everything.
 		if (debug) {
 			batch.begin(camera);
 			for (ObstacleSprite obj : sprites) {

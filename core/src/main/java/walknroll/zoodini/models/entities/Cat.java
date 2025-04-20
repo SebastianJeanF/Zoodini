@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.math.Affine2;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
@@ -11,6 +12,9 @@ import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.math.Path2;
 import edu.cornell.gdiac.math.PathExtruder;
 import edu.cornell.gdiac.math.PathFactory;
+import walknroll.zoodini.models.nonentities.Key;
+
+import java.util.ArrayList;
 
 public class Cat extends Avatar {
     /// Whether or not this Gar instance has triggered the meow action
@@ -31,6 +35,18 @@ public class Cat extends Avatar {
     private float meowCooldown;          // Total cooldown duration
     private float meowCooldownRemaining; // Time remaining on cooldown
     private boolean onCooldown;          // Whether ability is on cooldown
+
+    // Keys of doors
+    private Array<Key> keys;
+
+    public void assignKey(Key key) {
+        keys.add(key);
+    }
+
+    public Array<Key> getKeys() {
+        return keys;
+    }
+
 
     public float getAbilityRange() {
         return abilityRange;
@@ -86,7 +102,7 @@ public class Cat extends Avatar {
 
     public Cat(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
         super(AvatarType.CAT, directory, properties, globals, units);
-        this.abilityRange = globals.getFloat("abilityRange", 4.0f);
+        this.abilityRange = globals.getFloat("abilityRange", 5.0f);
 
         // Initialize ring effect properties
         maxRadius = abilityRange;
@@ -101,6 +117,7 @@ public class Cat extends Avatar {
         meowCooldown = globals.getFloat("meowCooldown", 10.0f); // 10 seconds default
         meowCooldownRemaining = 0;
         onCooldown = false;
+        keys = new Array<Key>();
     }
 
     /**

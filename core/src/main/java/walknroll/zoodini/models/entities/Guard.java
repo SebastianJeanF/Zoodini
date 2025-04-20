@@ -90,11 +90,11 @@ public class Guard extends Enemy {
 
         MapObject path = properties.get("path", MapObject.class);
         if(path instanceof PolylineMapObject line){
-            float[] vertices = line.getPolyline().getVertices();
+            float[] vertices = line.getPolyline().getTransformedVertices();
             for (int i = 0; i < vertices.length; i++) {
                 vertices[i] /= units;
             }
-            setPatrolPoints(line.getPolyline().getVertices());
+            setPatrolPoints(vertices);
         }
 
         String animKey = globals.getString("suspicion");
@@ -285,8 +285,6 @@ public class Guard extends Enemy {
         return viewDistance;
     }
 
-
-
     /**
      * Updates the guard's orientation to smoothly turn towards the target direction.
      *
@@ -323,8 +321,6 @@ public class Guard extends Enemy {
         // Set the guard's sprite angle (offset by -90 degrees since up is 0)
         setAngle(newAngle - (float)Math.PI/2);
     }
-
-
 
     public void update(float dt) {
         // If we have a movement direction, update orientation

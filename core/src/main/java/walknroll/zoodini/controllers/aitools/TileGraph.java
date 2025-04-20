@@ -66,8 +66,8 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
             }
         }
 
-        MapLayer objectLayer = map.getLayers().get("walls");
-        for (MapObject obj : objectLayer.getObjects()) {
+        MapLayer wallLayer = map.getLayers().get("walls");
+        for (MapObject obj : wallLayer.getObjects()) {
             if (!(obj instanceof RectangleMapObject)) continue;
 
             Rectangle rect = ((RectangleMapObject) obj).getRectangle();
@@ -78,7 +78,27 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
             int endY = (int)((rect.y + rect.height) / tileHeight);
 
             for (int x = startX; x < endX; x++) {
-                for (int y = startY; y < endY; y++) {
+                for (int y = startY; y <= endY; y++) {
+                    getNode(x, y).isWall = true;
+                }
+            }
+        }
+
+        MapLayer objectLayer = map.getLayers().get("objects");
+        for (MapObject obj : objectLayer.getObjects()) {
+            if (!(obj instanceof RectangleMapObject)
+                || !"Camera".equalsIgnoreCase(obj.getProperties().get("type", String.class))) continue;
+
+            System.out.println(obj.getProperties().get("id", Integer.class));
+            Rectangle rect = ((RectangleMapObject) obj).getRectangle();
+
+            int startX = (int)(rect.x / tileWidth);
+            int startY = (int)(rect.y / tileHeight);
+            int endX = (int)((rect.x + rect.width) / tileWidth);
+            int endY = (int)((rect.y + rect.height) / tileHeight);
+
+            for (int x = startX; x <= endX; x++) {
+                for (int y = startY; y <= endY; y++) {
                     getNode(x, y).isWall = true;
                 }
             }
