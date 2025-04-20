@@ -552,14 +552,13 @@ public class GameScene implements Screen, ContactListener {
 //    }
 
     private void onSwap(InputController input) {
-        if (input.didSwap()) {
+        if (input.didSwap() && !inCameraTransition) {
             // stop active character movement
             level.getAvatar().setMovement(0, 0);
             level.getAvatar().applyForce();
             // Save previous camera position before swapping
             cameraPreviousPosition.set(cameraTargetPosition);
-            // Save previous camera position before swapping
-            cameraPreviousPosition.set(cameraTargetPosition);
+
             // swap the active character
             level.swapActiveAvatar();
 
