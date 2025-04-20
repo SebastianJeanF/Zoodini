@@ -107,6 +107,9 @@ public class GameScene implements Screen, ContactListener {
     /** Countdown active for winning or losing */
     private int countdown;
 
+    /** Constant scale used for player movement */
+    private final float MOVEMENT_SCALE = 32f;
+
 	// Camera movement fields
 	private Vector2 cameraTargetPosition;
 	private Vector2 cameraPreviousPosition;
@@ -590,7 +593,7 @@ public class GameScene implements Screen, ContactListener {
             avatar.getObstacle().setAngle(angle);
         }
 
-        angleCache.scl(avatar.getForce()).scl(level.getTileSize());
+        angleCache.scl(avatar.getForce()).scl(MOVEMENT_SCALE);
         avatar.setMovement(angleCache.x, angleCache.y);
         avatar.applyForce();
     }
@@ -671,6 +674,7 @@ public class GameScene implements Screen, ContactListener {
 
 		if (direction.len() > 0) {
 			direction.nor().scl(guard.getForce());
+
 			if (guard.isMeowed()) {
 				direction.scl(4.25f);
 			} else if (guard.isCameraAlerted()) {

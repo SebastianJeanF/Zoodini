@@ -326,6 +326,7 @@ public class Guard extends Enemy {
     }
 
     public void drawSuspicionMeter(SpriteBatch batch) {
+        float BASELINE_PX = 32;
         if (suspsicionMeter == null || suspsicionMeter.getCurrentSpriteSheet() == null) {
             return;
         }
@@ -349,20 +350,20 @@ public class Guard extends Enemy {
         float guardXPixel = getPosition().x * PIXEL_PER_WORLD_UNIT;
         float guardYPixel = getPosition().y * PIXEL_PER_WORLD_UNIT;
 
-        float SCALE = 0.3f;
-        float X_PIXEL_OFFSET = -90f * SCALE;
-        float Y_PIXEL_OFFSET = 30f;
+        float SCALE = 0.3f * (PIXEL_PER_WORLD_UNIT / BASELINE_PX);
+        float X_PIXEL_OFFSET = (-68f * SCALE);
+        float Y_PIXEL_OFFSET = 80f * SCALE;
 
         // Get the original width and height of the sprite sheet
-        float originalWidth = suspsicionMeter.getCurrentSpriteSheet().getRegionWidth();
-        float originalHeight = suspsicionMeter.getCurrentSpriteSheet().getRegionHeight();
+        float originalWidthPx = suspsicionMeter.getCurrentSpriteSheet().getRegionWidth();
+        float originalHeightPx = suspsicionMeter.getCurrentSpriteSheet().getRegionHeight();
 
         batch.draw(
             suspsicionMeter.getCurrentSpriteSheet(),
             guardXPixel + X_PIXEL_OFFSET,
             guardYPixel + Y_PIXEL_OFFSET,
-            originalWidth * SCALE,
-            originalHeight * SCALE
+            originalWidthPx * SCALE,
+            originalHeightPx * SCALE
         );
     }
 }
