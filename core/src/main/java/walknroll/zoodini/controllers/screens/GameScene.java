@@ -61,7 +61,7 @@ import walknroll.zoodini.utils.ZoodiniSprite;
  */
 public class GameScene implements Screen, ContactListener {
 
-    private boolean debug = false;
+    private boolean debug = true;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
@@ -516,6 +516,10 @@ public class GameScene implements Screen, ContactListener {
                 if (targetLocation != null) {
                     graph.markPositionAsTarget(targetLocation);
                 }
+                Vector2 cameraTargetLocation = controller.getCameraAlertPosition();
+                graph.markPositionAsTarget(cameraTargetLocation);
+                Vector2 distractedTargetLocation = controller.getDistractPosition();
+                graph.markPositionAsTarget(distractedTargetLocation);
             });
 
             graph.draw(batch, camera, level.getTileSize());
@@ -707,7 +711,6 @@ public class GameScene implements Screen, ContactListener {
 
 
             guard.setMovement(direction.x, direction.y);
-            guard.setMovement(0, 0);
 		}
 
 		// Update the guard's orientation to face the direction of movement.

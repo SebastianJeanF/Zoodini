@@ -8,12 +8,14 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.Heuristic;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 
 
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import java.util.ArrayList;
+import java.util.Arrays;
 import walknroll.zoodini.controllers.aitools.ManhattanHeuristic;
 import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
@@ -57,7 +59,7 @@ public class GuardAIController {
 
     private final long STATE_CHANGE_COOLDOWN = 10;
 
-    private final float CAT_MEOW_RADIUS = 5f;
+    private final float CAT_MEOW_RADIUS = 10f;
 
     /** Graph representation of the game */
     private TileGraph tileGraph;
@@ -71,8 +73,11 @@ public class GuardAIController {
 
 
     /** Min distance from waypoint where the guard will recalculate to next waypoint*/
-    private final float WAYPOINT_RADIUS = 0.25F;
+    private final float WAYPOINT_RADIUS = 1F;
 
+    private final float CAMERA_WAYPOINT_RADIUS = 1F;
+
+    private final float DISTRACTED_WAYPOINT_RADIUS = 1F;
 
 
     /**
@@ -128,7 +133,19 @@ public class GuardAIController {
             return true;
         }
         // Check if guard is close enough to the nearest waypoint
-        return distanceFromGuard(nextTargetLocation) <= WAYPOINT_RADIUS;
+        return hasReachedTargetLocation(waypoints[currentWaypointIndex]);
+        // return distanceFromGuard(waypoints[currentWaypointIndex]) <= WAYPOINT_RADIUS;
+
+        // return distanceFromGuard(nextTargetLocation) <= WAYPOINT_RADIUS;
+
+    }
+
+    public Vector2 getCameraAlertPosition() {
+        return cameraAlertPosition;
+    }
+
+    public Vector2 getDistractPosition() {
+        return distractPosition;
     }
 
     /**
@@ -156,6 +173,14 @@ public class GuardAIController {
         }
 
         return nearest;
+    }
+
+    private boolean hasReachedTargetLocation(Vector2 target) {
+        Vector2 guardTile = tileGraph.worldToTile(guard.getPosition()).getCoords();
+        Vector2 targetTile = tileGraph.worldToTile(target).getCoords();
+        System.out.println(guardTile);
+        System.out.println(targetTile);
+        return guardTile.x == targetTile.x && guardTile.y == targetTile.y;
     }
 
     /**
@@ -211,7 +236,7 @@ public class GuardAIController {
                 // If player deaggros the guard; CHASE -> PATROL
                 // This happens if the guard is not in line of sight and the deAggroTimer is 0
                 if (guard.checkDeAggroed()) {
-                    currState = GuardState.PATROL;
+                    currState = GuardState.SUSPICIOUS;
                     // If guard was previously alerted by a camera
                     guard.setCameraAlerted(false);
                     lastStateChangeTime = ticks;
@@ -234,7 +259,7 @@ public class GuardAIController {
                 break;
             case DISTRACTED:
                 // If guard has reached meow location; DISTRACTED -> PATROL
-                if (guard.getPosition().dst(distractPosition) <= WAYPOINT_RADIUS) {
+                if (hasReachedTargetLocation(distractPosition)) {
                     currState = GuardState.PATROL;
                     guard.setMeow(false);
                     lastStateChangeTime = ticks;
@@ -247,7 +272,7 @@ public class GuardAIController {
                 break;
             case AlERTED:
                 // If guard has reached camera location; ALERTED -> PATROL
-                if (guard.getPosition().dst(cameraAlertPosition) <= WAYPOINT_RADIUS) {
+                if (hasReachedTargetLocation(cameraAlertPosition)) {
                     currState = GuardState.PATROL;
                     guard.setMeow(false);
                     lastStateChangeTime = ticks;
@@ -278,8 +303,8 @@ public class GuardAIController {
                 // Guard shouldn't deaggro if other player touches camera
                 else if (guard.isCameraAlerted()) {
                     currState = GuardState.AlERTED;
-                    guard.startDeAggroTimer();
-                    guard.setMaxSusLevel();
+//                    guard.startDeAggroTimer();
+//                    guard.setMaxSusLevel();
                     cameraAlertPosition.set(getActivePlayer().getPosition());
                     lastStateChangeTime = ticks;
                 }
@@ -306,6 +331,7 @@ public class GuardAIController {
         if (ticks % 5 != 0) {
             return;
         }
+        System.out.println("Before Guard state: " + currState);
         updateSusLevel();
 //        System.out.println(guard.getSusLevel());
         updateGuardState();
@@ -413,7 +439,7 @@ public class GuardAIController {
 //                break;
 //        }
 
-        System.out.println("Guard state: " + currState);
+        System.out.println("After Guard state: " + currState);
 
         setNextTargetLocation();
 
@@ -496,9 +522,11 @@ public class GuardAIController {
                 if (hasReachedPatrolTarget()) {
                     currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.length;
                     newTarget = getNextWaypointLocation(waypoints[currentWaypointIndex]);
+                    System.out.println("reached waypoint");
                 }
                 // Guard hasn't reached waypoint, so continue to current target
                 else {
+                    System.out.println("hasn't reached waypoint");
                     newTarget = getNextWaypointLocation(waypoints[currentWaypointIndex]);
                 }
                 break;
@@ -521,7 +549,7 @@ public class GuardAIController {
                     newTarget = getNextWaypointLocation(targetPlayer.getPosition());
                 } else {
                     // If no target, maybe return to patrol or stay in place
-                    currState = GuardState.PATROL;
+//                    currState = GuardState.PATROL;
                     newTarget = waypoints.length > 0 ?
                         getNextWaypointLocation(waypoints[currentWaypointIndex]) :
                         guard.getPosition();
