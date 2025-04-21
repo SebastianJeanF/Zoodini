@@ -7,7 +7,10 @@ import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteMesh;
+import edu.cornell.gdiac.graphics.SpriteSheet;
 import walknroll.zoodini.models.nonentities.Key;
+import walknroll.zoodini.utils.animation.Animation;
+import walknroll.zoodini.utils.animation.AnimationState;
 
 /**
  * Player avatar for the plaform game.
@@ -125,6 +128,20 @@ public class Octopus extends Avatar {
      */
     public void consumeInk() {
         this.inkRemaining -= inkUsage;
+    }
+
+    /**
+     * Adds spritesheet to animate for a given state.
+     * */
+    @Override
+    public void setAnimation(AnimationState state, SpriteSheet sheet){
+        switch(state){
+            //TODO: frame delays (number of frames elapsed before rendering the next sprite) is set to 16 for all states. This needs to be adjusted.
+            case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
+            case WALK -> animationController.addAnimation(AnimationState.WALK, new Animation(sheet, 0, sheet.getSize()-1, 6, true));
+            case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN, new Animation(sheet, 0, sheet.getSize()-1, 8, true));
+            case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP, new Animation(sheet, 0, sheet.getSize()-1, 6, true));
+        }
     }
 
     /**

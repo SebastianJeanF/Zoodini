@@ -72,7 +72,7 @@ public class Avatar extends ZoodiniSprite {
 
     private boolean flipped = false;
 
-    private final AnimationController animationController;
+    protected final AnimationController animationController;
 	/**
 	 * Returns the avatar type.
 	 *

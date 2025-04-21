@@ -93,9 +93,9 @@
         "wrap":  	false,
         "sprites":	{
           "animation" : {
-            "size" : 4,
+            "size" : 5,
             "rows" : 1,
-            "cols" : 4
+            "cols" : 5
           }
         }
       },
@@ -167,7 +167,7 @@
       },
       "key": "textures/key-sprite.png",
       "locked_door": "textures/locked_door.png",
-      "unlocked_door": "textures/panda-sprite.png",
+      "unlocked_door": "textures/unlocked_door.png",
       "cat-icon": "textures/cat-icon.png",
       "octopus-icon": "textures/octopus-icon.png",
       "exit": "textures/panda-sprite.png",
