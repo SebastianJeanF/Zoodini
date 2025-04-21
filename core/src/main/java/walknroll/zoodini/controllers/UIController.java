@@ -34,7 +34,7 @@ import walknroll.zoodini.utils.InkMeterActor;
 
 public class UIController {
 
-    private final boolean debug = true;
+    private final boolean debug = false;
 
     public interface PauseMenuListener {
         void onPauseStateChanged(boolean paused);
@@ -67,7 +67,6 @@ public class UIController {
     private Image overlayBackground;
     private Table pauseMenuTable;
     private Image resumeButtonImage;
-    private Table rootTable;
 
     private boolean isPaused = false;
     private PauseMenuListener pauseListener;
@@ -230,7 +229,7 @@ public class UIController {
             });
         }
         if (resumeButtonImage != null) {
-            resumeButtonImage.setSize(resumeButtonImage.getRegionWidth() * 0.25f, resumeButton.getRegionHeight() * 0.25f);
+            resumeButtonImage.setSize(resumeButtonImage.getWidth() * 0.25f, resumeButtonImage.getHeight() * 0.25f);
             resumeButtonImage.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -252,8 +251,8 @@ public class UIController {
         if (pauseBannerImage != null) {
             float scale = 1.0f;
             pauseBannerImage.setSize(
-                pauseBanner.getRegionWidth() * scale,
-                pauseBanner.getRegionHeight() * scale
+                pauseBannerImage.getWidth() * scale,
+                pauseBannerImage.getHeight() * scale
             );
             Stack bannerStack = new Stack();
             bannerStack.setSize(pauseBannerImage.getWidth(), pauseBannerImage.getHeight());
@@ -378,5 +377,13 @@ public class UIController {
         if (pauseListener != null) {
             pauseListener.onPauseStateChanged(paused);
         }
+    }
+
+    public void setPauseMenuListener(PauseMenuListener listener) {
+        this.pauseListener = listener;
+    }
+
+    public void dispose(){
+        stage.dispose();
     }
 }
