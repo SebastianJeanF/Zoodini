@@ -43,6 +43,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
     private Set<TileNode> waypoints = new HashSet<>();
     public int tileWidth;
     public int tileHeight;
+    private int density;
 
     boolean diagonal;
 
@@ -51,12 +52,13 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
      *
      * @param diagonal whether diagonal movement is allowed
      */
-    public TileGraph(TiledMap map, boolean diagonal) {
+    public TileGraph(TiledMap map, boolean diagonal, int density) {
+        this.density = density;
         MapProperties props = map.getProperties();
-        WIDTH = props.get("width", Integer.class);
-        HEIGHT = props.get("height", Integer.class);
-        int tileWidth = map.getProperties().get("tilewidth", Integer.class);
-        int tileHeight = map.getProperties().get("tileheight", Integer.class);
+        WIDTH = props.get("width", Integer.class) * density;
+        HEIGHT = props.get("height", Integer.class) * density;
+        int tileWidth = map.getProperties().get("tilewidth", Integer.class) / density;
+        int tileHeight = map.getProperties().get("tileheight", Integer.class) / density;
 
         this.nodes = new Array<TileNode>(WIDTH * HEIGHT);
         this.startNode = null;
@@ -164,7 +166,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         batch.begin(camera);
 
         cache.idt();
-        cache.scale(units, units);
+        cache.scale(units / density, units / density);
         for (TileNode node : nodes) {
             //TODO: Some colors are not working idk why
             if (node.isWall) {
@@ -226,7 +228,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
      * Thus, the selected tile's origin is marked as a different color in debug mode.
      * */
     public TileNode markNearestTile(Camera cam, Vector2 screenCoord, float units) {
-        return markNearestTile(cam, screenCoord.x, screenCoord.y, units);
+        return markNearestTile(cam, screenCoord.x, screenCoord.y, units / density);
     }
 
 

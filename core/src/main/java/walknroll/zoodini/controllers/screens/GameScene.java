@@ -161,7 +161,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         ui = new UIController(directory, level);
         ui.setPauseMenuListener(this);
 
-        graph = new TileGraph<>(map, false);
+        graph = new TileGraph<>(map, false, 2);
         initializeAIControllers();
 
 		setComplete(false);
@@ -569,7 +569,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     public void initializeAIControllers() {
 
-        graph = new TileGraph<>(map, true);
+        graph = new TileGraph<>(map, true, 2);
 
 //        this.gameGraph = new GameGraph(12, 16, level.getBounds().x, level.getBounds().y, level.getSprites());
         Array<Guard> guards = level.getGuards();
