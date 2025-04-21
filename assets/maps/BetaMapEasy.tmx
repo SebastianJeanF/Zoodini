@@ -22,7 +22,6 @@
  <tileset firstgid="8978" name="IMG_6849" tilewidth="32" tileheight="32" tilecount="195" columns="15">
   <image source="../tilesets/IMG_6849.png" width="500" height="440"/>
  </tileset>
- <tileset firstgid="9173" source="../tilesets/new_IMG_6849.tsx"/>
  <layer id="1" name="ground" width="21" height="28">
   <data encoding="csv">
 8847,8848,8849,8850,8851,8852,8853,8854,8784,8785,8786,8787,8788,8789,8790,8791,8792,8793,8794,8795,8796,
@@ -64,8 +63,8 @@
   <object id="46" x="162" y="516.667" width="64" height="171.333"/>
   <object id="56" x="546.098" y="289.366" width="97.7726" height="189.139"/>
   <object id="57" x="342.629" y="374.533" width="44.742" height="198.935"/>
-  <object id="58" x="417.879" y="610.283" width="90.4693" height="53.4123"/>
-  <object id="59" x="469.129" y="513.033" width="47.242" height="121.435"/>
+  <object id="58" x="417.879" y="610.283" width="94.8329" height="61.5941"/>
+  <object id="59" x="469.129" y="512.533" width="43.992" height="121.935"/>
   <object id="60" x="384.754" y="512.533" width="96.492" height="62.185"/>
   <object id="61" x="599.129" y="357.699" width="42.4086" height="501.268"/>
   <object id="66" x="513.477" y="289.612" width="31.0453" height="124.048"/>
@@ -94,11 +93,11 @@
   <object id="64" type="Camera" x="563.333" y="488">
    <properties>
     <property name="alarmDistance" type="float" value="5"/>
-    <property name="angle" type="float" value="180"/>
+    <property name="angle" type="float" value="220"/>
     <property name="category" value="01000"/>
     <property name="disabledTime" type="float" value="5"/>
     <property name="exclude" value="00000"/>
-    <property name="fov" type="float" value="60"/>
+    <property name="fov" type="float" value="80"/>
     <property name="radius" type="float" value="0.2"/>
     <property name="spriteRadius" type="float" value="0.6"/>
     <property name="viewDistance" type="float" value="5"/>
