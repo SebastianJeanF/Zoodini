@@ -73,7 +73,7 @@
   <object id="77" x="579.252" y="834.048" width="90.662" height="61.9032"/>
   <object id="78" x="642.818" y="707.616" width="31.8631" height="150.268"/>
   <object id="81" x="90.6667" y="103.333" width="28" height="31.3333"/>
-  <object id="92" x="64" y="288" width="322" height="96"/>
+  <object id="92" x="64" y="290" width="322" height="94"/>
  </objectgroup>
  <objectgroup id="3" name="objects" visible="0">
   <object id="31" x="877.419" y="677.51">
