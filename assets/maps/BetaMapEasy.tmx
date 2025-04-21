@@ -54,25 +54,25 @@
 8948,8949,8950,8951,8952,8953,8954,8955,8954,8955,8956,8957,8958,8959,8960,8961,8954,8955,8956,8957,8958
 </data>
  </layer>
- <objectgroup id="2" name="walls" visible="0">
-  <object id="39" x="189.312" y="782.88" width="448.495" height="79.5699"/>
+ <objectgroup id="2" name="walls">
+  <object id="39" x="42.312" y="782.88" width="595.495" height="79.5699"/>
   <object id="40" x="60" y="290" width="318.742" height="87.6017"/>
   <object id="41" x="263" y="37.205" width="400" height="83"/>
   <object id="42" x="0" y="162.089" width="64" height="701.911"/>
-  <object id="45" x="130.151" y="430.108" width="54.516" height="258.559"/>
+  <object id="45" x="130.151" y="430.108" width="64.516" height="258.559"/>
   <object id="46" x="162" y="516.667" width="64" height="171.333"/>
   <object id="56" x="546.098" y="289.366" width="97.7726" height="189.139"/>
-  <object id="57" x="342.629" y="374.533" width="44.742" height="198.935"/>
+  <object id="57" x="353.538" y="374.533" width="33.8329" height="165.662"/>
   <object id="58" x="417.879" y="610.283" width="94.8329" height="61.5941"/>
-  <object id="59" x="469.129" y="512.533" width="43.992" height="121.935"/>
-  <object id="60" x="384.754" y="512.533" width="96.492" height="62.185"/>
-  <object id="61" x="599.129" y="357.699" width="42.4086" height="501.268"/>
+  <object id="59" x="483.254" y="512.533" width="29.867" height="121.935"/>
+  <object id="60" x="390.39" y="512.533" width="90.8556" height="62.185"/>
+  <object id="61" x="609.674" y="357.699" width="31.8631" height="501.268"/>
   <object id="66" x="513.477" y="289.612" width="31.0453" height="124.048"/>
   <object id="73" x="626.161" y="126.505" width="37.6774" height="228.989"/>
   <object id="75" x="29.7527" y="166.882" width="260.495" height="79.5699"/>
   <object id="76" x="245.752" y="108.215" width="47.1617" height="79.5699"/>
  </objectgroup>
- <objectgroup id="3" name="objects" visible="0">
+ <objectgroup id="3" name="objects">
   <object id="31" x="877.419" y="677.51">
    <polyline points="-466.667,-188 -313.804,-157.324 -317.691,-178.441 -387.31,-194.715"/>
   </object>
@@ -90,7 +90,7 @@
    </properties>
    <point/>
   </object>
-  <object id="64" type="Camera" x="563.333" y="488">
+  <object id="64" type="Camera" x="588.208" y="493.5">
    <properties>
     <property name="alarmDistance" type="float" value="5"/>
     <property name="angle" type="float" value="220"/>
