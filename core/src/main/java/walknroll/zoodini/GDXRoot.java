@@ -62,7 +62,8 @@ public class GDXRoot extends Game implements ScreenListener {
 	 */
 	public void create() {
 		batch = new SpriteBatch();
-		loading = new MenuScene("jsons/assets.json", batch, 1);
+		directory = new AssetDirectory("jsons/assets.json");
+		loading = new MenuScene(directory, batch, 1);
 
 		loading.setScreenListener(this);
 		setScreen(loading);
@@ -129,6 +130,16 @@ public class GDXRoot extends Game implements ScreenListener {
 	 * @param exitCode The state of the screen upon exit
 	 */
 	public void exitScreen(Screen screen, int exitCode) {
+		if (screen == gameplay) {
+			// nothing to extract from a gameplay screen
+		} else if (screen == loading) {
+			// this.directory = loading.getAssets();
+		} else if (screen == settings) {
+			// extract settings info from settings screen here
+		} else if (screen == credits) {
+			// nothing to extract here
+		}
+
 		switch (exitCode) {
 			case GDXRoot.EXIT_CREDITS:
 				credits = new CreditsScene(batch);
@@ -137,13 +148,15 @@ public class GDXRoot extends Game implements ScreenListener {
 				disposeExcept(credits);
 				break;
 			case GDXRoot.EXIT_MENU:
-				loading = new MenuScene("jsons/assets.json", batch, 1);
+				loading = new MenuScene(directory, batch, 1);
 				loading.setScreenListener(this);
 				setScreen(loading);
 				disposeExcept(loading);
 				break;
 			case GDXRoot.EXIT_PLAY:
-				directory = loading.getAssets();
+				if (directory == null) {
+					throw new RuntimeException("Asset directory was somehow not loaded after initial boot");
+				}
 				gameplay = new GameScene(directory, batch, 5);
 				gameplay.setScreenListener(this);
 				setScreen(gameplay);
@@ -175,5 +188,4 @@ public class GDXRoot extends Game implements ScreenListener {
 		// Gdx.app.exit();
 		// }
 	}
-
 }
