@@ -193,7 +193,7 @@ public class GuardAIController {
 
     private boolean hasReachedTargetLocation(Vector2 target) {
         // Use world coordinates and a reasonable threshold
-        float arrivalDistance = 0.5f;
+        float arrivalDistance = 1f;
         float distance = guard.getPosition().dst(target);
 
         // Optional debugging
