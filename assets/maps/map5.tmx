@@ -60,7 +60,7 @@
   <object id="46" x="256" y="288" width="64" height="128"/>
  </objectgroup>
  <objectgroup id="3" name="objects">
-  <object id="18" type="Door" x="751.527" y="345.934">
+  <object id="18" type="Door" x="751.527" y="352.663">
    <properties>
     <property name="category" value="10000"/>
     <property name="exclude" value="00000"/>
@@ -74,7 +74,7 @@
    <properties>
     <property name="category" value="10000"/>
     <property name="exclude" value="00000"/>
-    <property name="size" type="float" value="1.25"/>
+    <property name="size" type="float" value="2"/>
    </properties>
    <point/>
   </object>
@@ -135,7 +135,7 @@
    </properties>
    <point/>
   </object>
-  <object id="36" type="Guard" x="378.495" y="421.559">
+  <object id="36" type="Guard" x="378.495" y="236.559">
    <properties>
     <property name="category" value="00100"/>
     <property name="exclude" value="00100"/>
