@@ -124,6 +124,13 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     // Game Paused Menu
     private boolean gamePaused = false;
 
+    /** Whether the game has been lost **/
+    private boolean gameLost = false;
+
+
+    public int getCurrentLevel() {
+        return currentLevel;
+    }
 
 	/**
 	 * Creates a new game world
@@ -258,6 +265,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             reset();
         }
 
+        if (gameLost) {
+            listener.exitScreen(this, GDXRoot.EXIT_LOSE);
+            return false;
+        }
+
         // Now it is time to maybe switch screens.
         if (input.didExit()) {
             listener.exitScreen(this, GDXRoot.EXIT_MENU);
@@ -370,6 +382,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 guard.setTarget(level.getCat().getPosition());
                 level.getCat().setUnderVisionCone(true);
                 guard.setSeesPlayer(true);
+                guard.setSeenPlayer(level.getCat());
 //                System.out.println("Guard detected cat: " + guard.getAggroTarget());
             }
 
@@ -380,6 +393,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 guard.setTarget(level.getOctopus().getPosition());
                 level.getOctopus().setUnderVisionCone(true);
                 guard.setSeesPlayer(true);
+                guard.setSeenPlayer(level.getOctopus());
 //                System.out.println("Guard detected octopus: " + guard.getAggroTarget());
             }
             // No player detected
@@ -388,6 +402,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 level.getOctopus().setUnderVisionCone(false);
                 level.getCat().setUnderVisionCone(false);
                 guard.setSeesPlayer(false);
+                guard.setSeenPlayer(null);
                 if (!guard.isCameraAlerted()) {
                     guard.setAgroed(false);
                 }
@@ -852,6 +867,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 Obstacle enemy = guard.getObstacle();
                 if((o1 == cat && o2 == enemy) || (o2 == cat && o1 == enemy) || (o1 == oct && o2 == enemy) || (o2 == oct && o1 == enemy)){
                     setFailure(true);
+                    gameLost = true;
                 }
             }
 

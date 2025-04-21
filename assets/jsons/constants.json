@@ -10,5 +10,15 @@
     "density":      1.0,
     "friction":     0.0,
     "restitution":  0.0
+  },
+  "gameOverScreen": {
+    "height" : 576,
+    "bar.width" : 0.66,
+    "bar.height" : 0.25,
+    "button.y": 50,
+    "button.restart.x": 50,
+    "button.menu.x": 170,
+    "button.width": 100,
+    "button.height": 100
   }
 }

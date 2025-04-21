@@ -76,7 +76,7 @@ public class UIController {
     public UIController(AssetDirectory directory, GameLevel level) {
         viewport = new ScreenViewport();
         stage = new Stage(viewport);
-        skin = new Skin(Gdx.files.internal("skins/uiskin.json")); //TODO: use AssetDirectory to load skins.
+        skin = new Skin(Gdx.files.internal("uiskins/default/uiskin.json")); //TODO: use AssetDirectory to load skins.
         initializeActors(directory, level);
         setupStageLayout();
     }
