@@ -193,7 +193,9 @@
       "exit": "textures/panda-sprite.png",
       "ink" : "textures/ink_projectile.png",
       "splash": "loading/splash_background.png",
-      "logo": "loading/logo.png"
+      "logo": "loading/logo.png",
+      "level-bg": "textures/level_bg.png",
+      "level-cell": "textures/level_cell.png"
     },
 
   	"fonts": {
@@ -206,5 +208,10 @@
 	"jsons" : {
         "constants" : "jsons/constants.json",
         "levels" : "jsons/levels.json"
-	}
+	},
+  "skins": {
+    "default": "uiskins/default/uiskin.json",
+    "orange": "uiskins/orange/uiskin.json",
+    "levelselect": "uiskins/levelselect/uiskin.json"
+  }
 }

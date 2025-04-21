@@ -59,7 +59,7 @@ public class GuardAIController {
 
     private final long STATE_CHANGE_COOLDOWN = 10;
 
-    private final float CAT_MEOW_RADIUS = 7f;
+    private final float CAT_MEOW_RADIUS = Float.MAX_VALUE;
 
 
     /** Graph representation of the game */
@@ -221,8 +221,9 @@ public class GuardAIController {
      */
     private void updateSusLevel() {
         if (currState != GuardState.CHASE) { // Only update when not chasing
-            if (guard.isSeesPlayer()) { // In guard's line of sight
-                guard.deltaSusLevel(2); // Increase suspicion
+            if (guard.isSeesPlayer() && guard.getSeenPlayer() != null) { // In guard's line of sight
+                int susIncrease = guard.calculateSusIncrease(guard.getSeenPlayer().getPosition());
+                guard.deltaSusLevel(susIncrease); // Increase suspicion
             } else {
                 // Only decrease suspicion if not in ALERTED state
                 if (currState != GuardState.AlERTED) {
@@ -360,10 +361,10 @@ public class GuardAIController {
 //        if (!canStateTransition()) {
 //            return;
 //        }
-        System.out.println("Before Guard state: " + currState);
+        // System.out.println("Before Guard state: " + currState);
         updateSusLevel();
         updateGuardState();
-        System.out.println("After Guard state: " + currState);
+        // System.out.println("After Guard state: " + currState);
 
         setNextTargetLocation();
 

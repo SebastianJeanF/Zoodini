@@ -246,7 +246,7 @@ public class MenuScene implements Screen, InputProcessor {
 		float buttonHeight = constants.getFloat("button.height");
 		buttons = Array.with(
 				new MenuButton(buttonX, constants.getFloat("button.start.y"), buttonWidth, buttonHeight, "play",
-						GDXRoot.EXIT_PLAY),
+						GDXRoot.EXIT_LEVEL_SELECT),
 				new MenuButton(buttonX, constants.getFloat("button.settings.y"), buttonWidth, buttonHeight, "settings",
 						GDXRoot.EXIT_SETTINGS),
 				new MenuButton(buttonX, constants.getFloat("button.credits.y"), buttonWidth, buttonHeight, "credits",
