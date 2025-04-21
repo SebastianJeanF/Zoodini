@@ -175,6 +175,7 @@
       "restart_icon": "textures/restart_icon.png",
       "resume_icon": "textures/resume_icon.png",
       "game_paused": "textures/game_paused.png",
+      "resume_button": "textures/resume_button.png",
       "exit": "textures/panda-sprite.png",
       "ink" : "textures/ink_projectile.png"
     },

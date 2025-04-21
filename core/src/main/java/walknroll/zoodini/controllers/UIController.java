@@ -60,6 +60,7 @@ public class UIController {
     private TextureRegion homeIcon;
     private TextureRegion pauseBanner;
     private TextureRegion resumeIcon;
+    private TextureRegion resumeButton;
 
     //Scene 2d components
     private Stage stage;
@@ -75,6 +76,7 @@ public class UIController {
     private Image resumeIconImage;
     private Image overlayBackground;
     private Table pauseMenuTable;
+    private Image resumeButtonImage;
     private Image progressBg, progressFill;
     private static final float BAR_WIDTH  = 210f;
     private static final float BAR_HEIGHT = 25f;
@@ -97,6 +99,7 @@ public class UIController {
         setHomeIcon(new TextureRegion(directory.getEntry("home_icon", Texture.class)));
         setPausedBanner(new TextureRegion(directory.getEntry("game_paused", Texture.class)));
         setResumeIcon(new TextureRegion(directory.getEntry("resume_icon", Texture.class)));
+        setResumeButton(new TextureRegion(directory.getEntry("resume_button", Texture.class)));
     }
 
     public void init() {
@@ -208,7 +211,7 @@ public class UIController {
         if (restartIcon != null) {
             restartButton = new Image(restartIcon);
             restartButton.setSize(64, 64);
-            buttonTable.add(restartButton).pad(10).size(64);
+            buttonTable.add(restartButton).pad(10).size(48);
             restartButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -224,7 +227,7 @@ public class UIController {
         if (homeIcon != null) {
             homeButton = new Image(homeIcon);
             homeButton.setSize(64, 64);
-            buttonTable.add(homeButton).pad(10).size(64);
+            buttonTable.add(homeButton).pad(10).size(48);
             homeButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -233,6 +236,16 @@ public class UIController {
                     if (pauseListener != null) {
                         pauseListener.onReturnToMenu();
                     }
+                }
+            });
+        }
+        if (resumeButton != null) {
+            resumeButtonImage = new Image(resumeButton);
+            resumeButtonImage.setSize(resumeButton.getRegionWidth() * 0.25f, resumeButton.getRegionHeight() * 0.25f);
+            resumeButtonImage.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    togglePauseMenu(false);
                 }
             });
         }
@@ -261,7 +274,13 @@ public class UIController {
             overlayTable.setFillParent(true);
             overlayTable.center();
 
-            overlayTable.add(buttonTable).padTop(40);
+//            overlayTable.add(buttonTable).padTop(40);
+            if (resumeButtonImage != null) {
+                Table resumeRow = new Table();
+                resumeRow.add(resumeButtonImage).padTop(67).padLeft(22).padRight(22);
+                overlayTable.add(resumeRow).padTop(5).row();
+            }
+            overlayTable.add(buttonTable).padTop(0).row();
 
             bannerStack.addActor(pauseBannerImage);
             bannerStack.addActor(overlayTable);
@@ -330,6 +349,10 @@ public class UIController {
 
     public void setResumeIcon(TextureRegion icon) {
         resumeIcon = icon;
+    }
+
+    public void setResumeButton(TextureRegion icon) {
+        resumeButton = icon;
     }
 
     public void update() {
