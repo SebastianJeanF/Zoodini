@@ -368,6 +368,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             Guard guard = (Guard) entry.key;
             VisionCone visionCone = entry.value;
 
+            visionCone.setRadius(guard.getViewDistance());
+            visionCone.setWideness(guard.getFov());
+
             Vector2 movementDir = guard.getMovementDirection();
             visionCone.updateFacingDirection(dt, movementDir);
 
@@ -728,17 +731,18 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 		if (direction.len() > 0) {
 			direction.nor().scl(guard.getForce());
 
+            float speedScale = 16f;
 			if (guard.isMeowed()) {
-				direction.scl(3.5f);
+				direction.scl(3.5f * speedScale);
 			} else if (guard.isCameraAlerted()) {
-                direction.scl(6.5f);
+                direction.scl(7.5f * speedScale);
             }
             else if (guard.isAgroed()) {
-				direction.scl(6.0f);
+				direction.scl(6.5f * speedScale);
 			} else if (guard.isSus()) {
-                direction.scl(5.5f);
+                direction.scl(5.5f * speedScale);
             } else {
-                direction.scl(5f);
+                direction.scl(5f * speedScale);
             }
 
 
@@ -859,6 +863,12 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 						break;
 					}
 				}
+                for (Guard guard : guards) {
+                    Obstacle enemy = guard.getObstacle();
+                    if (o1 == enemy || o2 == enemy){
+                        applyInkEffect(guard);
+                    }
+                }
                 level.getProjectile().setShouldDestroy(true);
 			}
 
@@ -935,6 +945,25 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 		}
 	}
 
+    private void applyInkEffect(Guard guard) {
+        System.out.println("Guard hit by ink!");
+        // Set ink effect duration (in seconds)
+        final float INK_EFFECT_DURATION = 5.0f;
+
+        // Store original vision parameters and apply reduction
+        guard.setInkBlinded(true);
+        guard.setInkBlindTimer(INK_EFFECT_DURATION);
+
+        final float MIN_VIEW_DISTANCE = 3f;
+        final float MIN_FOV = 50f;
+
+        // Reduce the view distance and FOV angle with minimum thresholds
+        float reducedViewDistance = Math.max(guard.getViewDistance() * 0.6f, MIN_VIEW_DISTANCE);
+        float reducedFov = Math.max(guard.getFov() * 0.6f, MIN_FOV);
+        // Reduce the view distance and FOV angle
+        guard.setTempViewDistance(reducedViewDistance); // 60% reduction
+        guard.setTempFov(reducedFov); // 60% reduction
+    }
 
 	/** Unused ContactListener method */
 	public void endContact(Contact contact) {

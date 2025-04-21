@@ -412,6 +412,7 @@ public class GameLevel {
 
             for (Guard g : guards) {
                 g.update(dt);
+                g.updateInkBlindTimer(dt);
                 updateFlipSprite(g);
             }
 

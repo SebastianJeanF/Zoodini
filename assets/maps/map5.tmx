@@ -86,7 +86,7 @@
     <property name="fov" type="float" value="60"/>
     <property name="maxSpeed" type="float" value="5"/>
     <property name="path" type="object" value="31"/>
-    <property name="radius" type="float" value="0.2"/>
+    <property name="radius" type="float" value="0.8"/>
     <property name="spriteRadius" type="float" value="0.8"/>
     <property name="viewDistance" type="float" value="5"/>
    </properties>
@@ -146,7 +146,7 @@
     <property name="fov" type="float" value="60"/>
     <property name="maxSpeed" type="float" value="5"/>
     <property name="path" type="object" value="37"/>
-    <property name="radius" type="float" value="0.2"/>
+    <property name="radius" type="float" value="0.8"/>
     <property name="spriteRadius" type="float" value="0.8"/>
     <property name="viewDistance" type="float" value="5"/>
    </properties>

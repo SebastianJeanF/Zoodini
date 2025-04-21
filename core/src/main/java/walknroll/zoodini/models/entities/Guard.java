@@ -70,6 +70,12 @@ public class Guard extends Enemy {
     private static final int MEDIUM_ZONE_SUS_INCREASE = 2;
     private static final int FAR_ZONE_SUS_INCREASE = 1;
 
+    private boolean inkBlinded = false;
+    private float inkBlindTimer = 0;
+    private float tempViewDistance;
+    private float tempFov;
+    private float originalViewDistance;
+    private float originalFov;
 
     /**
      * Creates a new dude with degenerate settings
@@ -100,6 +106,9 @@ public class Guard extends Enemy {
             }
             setPatrolPoints(vertices);
         }
+
+        originalViewDistance = viewDistance;
+        originalFov = fov;
 
     }
 
@@ -271,7 +280,7 @@ public class Guard extends Enemy {
             baseSuspicionIncrease = FAR_ZONE_SUS_INCREASE;
         }
 
-        System.out.println("sus increase is " + baseSuspicionIncrease);
+//        System.out.println("sus increase is " + baseSuspicionIncrease);
         return baseSuspicionIncrease;
     }
 
@@ -303,11 +312,11 @@ public class Guard extends Enemy {
     }
 
     public float getFov(){
-        return fov;
+        return isInkBlinded() ? tempFov : originalFov;
     }
 
     public float getViewDistance(){
-        return viewDistance;
+        return isInkBlinded() ? tempViewDistance : originalViewDistance;
     }
 
     /**
@@ -418,4 +427,37 @@ public class Guard extends Enemy {
             originalHeightPx * SCALE
         );
     }
+
+    public boolean isInkBlinded() {
+        return inkBlinded;
+    }
+
+    public void setInkBlinded(boolean blinded) {
+        this.inkBlinded = blinded;
+    }
+
+    public void setInkBlindTimer(float duration) {
+        this.inkBlindTimer = duration;
+    }
+
+    public void updateInkBlindTimer(float dt) {
+        if (inkBlinded) {
+            inkBlindTimer -= dt;
+            if (inkBlindTimer <= 0) {
+                inkBlinded = false;
+                // Restore original vision
+                tempViewDistance = originalViewDistance;
+                tempFov = originalFov;
+            }
+        }
+    }
+
+    public void setTempViewDistance(float distance) {
+        this.tempViewDistance = distance;
+    }
+
+    public void setTempFov(float fov) {
+        this.tempFov = fov;
+    }
+
 }

@@ -197,9 +197,9 @@ public class GuardAIController {
         float distance = guard.getPosition().dst(target);
 
         // Optional debugging
-        if (distance < 1.0f) {
-            System.out.println("Distance to target: " + distance);
-        }
+//        if (distance < 1.0f) {
+//            System.out.println("Distance to target: " + distance);
+//        }
 
         return distance < arrivalDistance;
 //        if (!tileGraph.isValidTile(target)) {

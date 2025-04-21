@@ -32,7 +32,7 @@
 8843,8844,8861,8862,8863,8864,8865,8866,8867,8862,8863,8862,8863,8861,8862,8876,8876,8877,8878,8840,8841,0,0,0,0,0,0,0,0,0,0,
 8858,8859,8861,8862,8878,8879,8880,8881,8882,8877,8878,8863,8864,8876,8877,8876,8876,8877,8878,8855,8856,0,0,0,0,0,0,0,0,0,0,
 8873,8799,8216,8217,8218,8219,8220,8221,8222,8223,8810,9081,8864,8876,8877,8878,8876,8877,8878,8900,8901,0,0,0,0,0,0,0,0,0,0,
-8843,8814,8815,8232,8233,8234,8235,8236,8237,8238,9018,9018,8879,8880,8861,8861,8861,8861,8861,8900,8901,0,0,0,0,0,0,0,0,0,0,
+8843,8814,8815,8232,8233,8234,8235,8236,8237,8238,9018,9018,8861,8880,8861,8861,8861,8861,8861,8900,8901,0,0,0,0,0,0,0,0,0,0,
 8798,8844,8830,8247,8248,8249,8250,8251,8252,9031,9032,9033,8861,8862,8863,8864,8859,8221,8222,8915,8916,0,0,0,0,0,0,0,0,0,0,
 8813,8844,8275,8276,8261,8262,8261,8262,8261,8261,8261,8262,9058,9058,8863,8864,8874,8236,8237,8930,8931,0,0,0,0,0,0,0,0,0,0,
 8843,8844,8275,8276,8312,8313,8312,8313,8283,8277,8277,8284,9073,9073,8863,8864,8889,8251,8252,8945,8946,0,0,0,0,0,0,0,0,0,0,
@@ -115,7 +115,7 @@
     <property name="fov" type="float" value="60"/>
     <property name="maxSpeed" type="float" value="5"/>
     <property name="path" type="object" value="31"/>
-    <property name="radius" type="float" value="0.2"/>
+    <property name="radius" type="float" value="0.8"/>
     <property name="spriteRadius" type="float" value="0.8"/>
     <property name="viewDistance" type="float" value="5"/>
    </properties>
@@ -143,7 +143,7 @@
     <property name="fov" type="float" value="60"/>
     <property name="maxSpeed" type="float" value="5"/>
     <property name="path" type="object" value="84"/>
-    <property name="radius" type="float" value="0.2"/>
+    <property name="radius" type="float" value="0.8"/>
     <property name="spriteRadius" type="float" value="0.8"/>
     <property name="viewDistance" type="float" value="5"/>
    </properties>
@@ -160,7 +160,7 @@
     <property name="fov" type="float" value="60"/>
     <property name="maxSpeed" type="float" value="5"/>
     <property name="path" type="object" value="90"/>
-    <property name="radius" type="float" value="0.2"/>
+    <property name="radius" type="float" value="0.8"/>
     <property name="spriteRadius" type="float" value="0.8"/>
     <property name="viewDistance" type="float" value="5"/>
    </properties>
