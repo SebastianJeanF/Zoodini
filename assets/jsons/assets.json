@@ -192,6 +192,8 @@
       "resume_button": "textures/resume_button.png",
       "exit": "textures/panda-sprite.png",
       "ink" : "textures/ink_projectile.png",
+      "splash": "loading/splash_background.png",
+      "logo": "loading/logo.png"
     },
 
   	"fonts": {
