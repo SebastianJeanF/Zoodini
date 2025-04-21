@@ -44,8 +44,8 @@ public class GDXRoot extends Game implements ScreenListener {
 	public static final int EXIT_PLAY = 2;
 	public static final int EXIT_SETTINGS = 3;
 	public static final int EXIT_CREDITS = 4;
-    public static final int EXIT_LOSE = 6;
 	public static final int EXIT_LEVEL_SELECT = 5;
+	public static final int EXIT_LOSE = 6;
 
 	/** AssetManager to load game assets (textures, data, etc.) */
 	AssetDirectory directory;
@@ -57,7 +57,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	private GameScene gameplay;
 	private SettingsScene settings;
 	private CreditsScene credits;
-    private GameOverScene gameOver;
+	private GameOverScene gameOver;
 	private LevelSelectScene levelSelect;
 
 	private GameSettings gameSettings;
@@ -107,6 +107,9 @@ public class GDXRoot extends Game implements ScreenListener {
 		if (levelSelect != null) {
 			levelSelect.dispose();
 		}
+		if (gameOver != null) {
+			gameOver.dispose();
+		}
 
 		batch.dispose();
 		batch = null;
@@ -132,7 +135,7 @@ public class GDXRoot extends Game implements ScreenListener {
 		Integer selectedLevel = null;
 
 		if (screen == gameplay) {
-			// nothing to extract from a gameplay screen
+			selectedLevel = gameplay.getCurrentLevel();
 		} else if (screen == loading) {
 			if (!LevelPortal.isLoaded()) {
 				LevelPortal.setTextures(directory.getEntry("level-bg", Texture.class),
@@ -158,6 +161,8 @@ public class GDXRoot extends Game implements ScreenListener {
 			// nothing to extract here
 		} else if (screen == levelSelect) {
 			selectedLevel = levelSelect.getSelectedLevel();
+		} else if (screen == gameOver) {
+			selectedLevel = gameOver.getLostLevel();
 		}
 
 		switch (exitCode) {
@@ -168,7 +173,6 @@ public class GDXRoot extends Game implements ScreenListener {
 				disposeExcept(credits);
 				break;
 			case GDXRoot.EXIT_MENU:
-                System.out.println("Game Over");
 				loading = new MenuScene(directory, batch, 1);
 				loading.setScreenListener(this);
 				setScreen(loading);
@@ -189,7 +193,8 @@ public class GDXRoot extends Game implements ScreenListener {
 					throw new RuntimeException("Asset directory was somehow not loaded after initial boot");
 				}
 				if (selectedLevel == null) {
-					throw new RuntimeException("Tried to change to GameScene without using the the level selector");
+					throw new RuntimeException(
+							"Tried to change to GameScene without properly setting the target level");
 				}
 				gameplay = new GameScene(directory, batch, selectedLevel);
 				gameplay.setScreenListener(this);
@@ -206,13 +211,12 @@ public class GDXRoot extends Game implements ScreenListener {
 				setScreen(settings);
 				disposeExcept(settings);
 				break;
-            case GDXRoot.EXIT_LOSE:
-                System.out.println("Game Over");
-                gameOver = new GameOverScene(directory, batch);
-                gameOver.setScreenListener(this);
-                setScreen(gameOver);
-                disposeExcept(gameOver);
-                break;
+			case GDXRoot.EXIT_LOSE:
+				gameOver = new GameOverScene(directory, batch, selectedLevel);
+				gameOver.setScreenListener(this);
+				setScreen(gameOver);
+				disposeExcept(gameOver);
+				break;
 			default:
 				break;
 		}
@@ -238,6 +242,10 @@ public class GDXRoot extends Game implements ScreenListener {
 		if (levelSelect != null && screen != levelSelect) {
 			levelSelect.dispose();
 			levelSelect = null;
+		}
+		if (gameOver != null && screen != gameOver) {
+			gameOver.dispose();
+			gameOver = null;
 		}
 	}
 }

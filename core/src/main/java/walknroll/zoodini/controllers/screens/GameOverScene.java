@@ -49,110 +49,6 @@ import com.badlogic.gdx.graphics.g2d.*;
  * by a play button. You are free to adopt this to your needs.
  */
 public class GameOverScene implements Screen, InputProcessor {
-    /** Default budget for asset loader (do nothing but load 60 fps) */
-    private static int DEFAULT_BUDGET = 15;
-
-    // There are TWO asset managers.
-    // One to load the loading screen. The other to load the assets
-    /** The actual assets to be loaded */
-    private AssetDirectory assets;
-
-    /** The drawing camera for this scene */
-    private OrthographicCamera camera;
-    /** Reference to sprite batch created by the root */
-    private SpriteBatch batch;
-    /** Affine transform for displaying images */
-    private Affine2 affine;
-    /** Listener that will update the player mode when we are done */
-    private ScreenListener listener;
-
-    /** The width of this scene */
-    private int width;
-    /** The height of this scene */
-    private int height;
-
-    /** The constants for arranging images on the screen */
-    JsonValue constants;
-
-    /** Scaling factor for when the student changes the resolution. */
-    private float scale;
-    /** The current state of the play button */
-    private Integer pressState;
-    /**
-     * The amount of time to devote to loading assets (as opposed to on screen
-     * hints, etc.)
-     */
-    private int budget;
-
-    /** Whether or not this player mode is still active */
-    private boolean active;
-
-    private Array<MenuButton> buttons;
-
-    /**
-     * Returns the budget for the asset loader.
-     *
-     * The budget is the number of milliseconds to spend loading assets each
-     * animation frame. This allows you to do something other than load assets.
-     * An animation frame is ~16 milliseconds. So if the budget is 10, you have
-     * 6 milliseconds to do something else. This is how game companies animate
-     * their loading screens.
-     *
-     * @return the budget in milliseconds
-     */
-    public int getBudget() {
-        return budget;
-    }
-
-    /**
-     * Sets the budget for the asset loader.
-     *
-     * The budget is the number of milliseconds to spend loading assets each
-     * animation frame. This allows you to do something other than load assets.
-     * An animation frame is ~16 milliseconds. So if the budget is 10, you have
-     * 6 milliseconds to do something else. This is how game companies animate
-     * their loading screens.
-     *
-     * @param millis the budget in milliseconds
-     */
-    public void setBudget(int millis) {
-        budget = millis;
-    }
-
-    /**
-     * Returns true if all assets are loaded and the player is ready to go.
-     *
-     * @return true if the player is ready to go
-     */
-    public boolean isReady() {
-        return pressState != null;
-    }
-
-    /**
-     * Returns the asset directory produced by this loading screen
-     *
-     * This asset loader is NOT owned by this loading scene, so it persists even
-     * after the scene is disposed. It is your responsbility to unload the
-     * assets in this directory.
-     *
-     * @return the asset directory produced by this loading screen
-     */
-    public AssetDirectory getAssets() {
-        return assets;
-    }
-
-    @Override
-    public void dispose() {
-
-    }
-
-    private enum PressState {
-        NONE,
-        PLAY,
-        SETTINGS,
-        CREDITS
-    }
-
     /** Wrapper class for instantiating menu buttons */
     private class MenuButton {
         public float x;
@@ -196,6 +92,36 @@ public class GameOverScene implements Screen, InputProcessor {
     }
 
 
+    // There are TWO asset managers.
+    // One to load the loading screen. The other to load the assets
+    /** The actual assets to be loaded */
+    private AssetDirectory assets;
+    /** The drawing camera for this scene */
+    private OrthographicCamera camera;
+    /** Reference to sprite batch created by the root */
+    private SpriteBatch batch;
+
+    /** Listener that will update the player mode when we are done */
+    private ScreenListener listener;
+    /** The width of this scene */
+    private int width;
+
+    /** The height of this scene */
+    private int height;
+
+    private int lostLevel;
+
+    /** The constants for arranging images on the screen */
+    JsonValue constants;
+    private float scale;
+
+    /** The current state of the play button */
+    private Integer pressState;
+
+    /** Whether or not this player mode is still active */
+    private boolean active;
+
+    private Array<MenuButton> buttons;
 
     /**
      * Creates a LoadingMode with the default size and position.
@@ -210,86 +136,45 @@ public class GameOverScene implements Screen, InputProcessor {
      * @param canvas The game canvas to draw to
      * @param millis The loading budget in milliseconds
      */
-    public GameOverScene(AssetDirectory assets, SpriteBatch batch) {
+    public GameOverScene(AssetDirectory assets, SpriteBatch batch, int lostLevel) {
         this.batch = batch;
         this.assets = assets;
+        this.lostLevel = lostLevel;
 
         constants = assets.getEntry("constants", JsonValue.class).get("gameOverScreen");
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         pressState = null;
-
-        affine = new Affine2();
         Gdx.input.setInputProcessor(this);
-
-        // Start loading the REAL assets
-        active = true;
 
         float buttonY = constants.getFloat("button.y");
         float buttonWidth = constants.getFloat("button.width");
         float buttonHeight = constants.getFloat("button.height");
         buttons = Array.with(
-            new MenuButton( constants.getFloat("button.restart.x"), buttonY, buttonWidth, buttonHeight, "game-over-restart-button",
-                GDXRoot.EXIT_PLAY),
-            new MenuButton( constants.getFloat("button.menu.x"), buttonY, buttonWidth, buttonHeight, "game-over-menu-button",
-                GDXRoot.EXIT_MENU)
-    );
-    }
-
-
-
-    /**
-     * Update the status of this player mode.
-     *
-     * We prefer to separate update and draw from one another as separate methods,
-     * instead
-     * of using the single render() method that LibGDX does. We will talk about why
-     * we
-     * prefer this in lecture.
-     *
-     * @param delta Number of seconds since last animation frame
-     */
-    private void update(float delta) {
-
+                new MenuButton(constants.getFloat("button.restart.x"), buttonY, buttonWidth, buttonHeight,
+                        "game-over-restart-button",
+                        GDXRoot.EXIT_PLAY),
+                new MenuButton(constants.getFloat("button.menu.x"), buttonY, buttonWidth, buttonHeight,
+                        "game-over-menu-button",
+                        GDXRoot.EXIT_MENU));
     }
 
     /**
-     * Draw the status of this player mode.
+     * Returns true if all assets are loaded and the player is ready to go.
      *
-     * We prefer to separate update and draw from one another as separate methods,
-     * instead
-     * of using the single render() method that LibGDX does. We will talk about why
-     * we
-     * prefer this in lecture.
+     * @return true if the player is ready to go
      */
-    private void draw() {
-        // Cornell colors
-        ScreenUtils.clear(0.702f, 0.1255f, 0.145f, 1.0f);
-
-        batch.begin(camera);
-        batch.setColor(Color.WHITE);
-
-        // Height lock the logo
-        Texture texture = assets.getEntry("game-over-splash", Texture.class);
-        float ratio = (float) width / (float) texture.getWidth();
-        batch.draw(texture, 0, 0, width, ratio * texture.getHeight());
-
-//        texture = internal.getEntry("logo", Texture.class);
-//        batch.draw(texture, (width / 2f) - (texture.getWidth() / 2f), height - (texture.getHeight() + 50),
-//            texture.getWidth(),
-//            texture.getHeight());
-//
-//
-        for (MenuButton menuButton : buttons) {
-            Color tint = menuButton.isPressed() ? Color.GRAY : Color.WHITE;
-            texture = assets.getEntry(menuButton.getAssetName(), Texture.class);
-
-            batch.setColor(tint);
-            batch.draw(texture, menuButton.x, menuButton.y, menuButton.width, menuButton.height);
-        }
-        batch.end();
+    public boolean isReady() {
+        return pressState != null;
     }
 
+    @Override
+    public void dispose() {
+    }
+
+    public int getLostLevel() {
+        return lostLevel;
+    }
 
     // ADDITIONAL SCREEN METHODS
     /**
@@ -396,7 +281,6 @@ public class GameOverScene implements Screen, InputProcessor {
      */
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 
-
         // Flip to match graphics coordinates
         screenY = height - screenY;
 
@@ -465,8 +349,6 @@ public class GameOverScene implements Screen, InputProcessor {
         return true;
     }
 
-    // UNSUPPORTED METHODS FROM InputProcessor
-
     /**
      * Called when a key is typed (UNSUPPORTED)
      *
@@ -486,6 +368,8 @@ public class GameOverScene implements Screen, InputProcessor {
     public boolean keyUp(int keycode) {
         return true;
     }
+
+    // UNSUPPORTED METHODS FROM InputProcessor
 
     /**
      * Called when the mouse was moved without any buttons being pressed.
@@ -538,6 +422,59 @@ public class GameOverScene implements Screen, InputProcessor {
      */
     public boolean touchDragged(int screenX, int screenY, int pointer) {
         return true;
+    }
+
+    /**
+     * Update the status of this player mode.
+     *
+     * We prefer to separate update and draw from one another as separate methods,
+     * instead
+     * of using the single render() method that LibGDX does. We will talk about why
+     * we
+     * prefer this in lecture.
+     *
+     * @param delta Number of seconds since last animation frame
+     */
+    private void update(float delta) {
+
+    }
+
+    /**
+     * Draw the status of this player mode.
+     *
+     * We prefer to separate update and draw from one another as separate methods,
+     * instead
+     * of using the single render() method that LibGDX does. We will talk about why
+     * we
+     * prefer this in lecture.
+     */
+    private void draw() {
+        // Cornell colors
+        ScreenUtils.clear(0.702f, 0.1255f, 0.145f, 1.0f);
+
+        batch.begin(camera);
+        batch.setColor(Color.WHITE);
+
+        // Height lock the logo
+        Texture texture = assets.getEntry("game-over-splash", Texture.class);
+        float ratio = (float) width / (float) texture.getWidth();
+        batch.draw(texture, 0, 0, width, ratio * texture.getHeight());
+
+        // texture = internal.getEntry("logo", Texture.class);
+        // batch.draw(texture, (width / 2f) - (texture.getWidth() / 2f), height -
+        // (texture.getHeight() + 50),
+        // texture.getWidth(),
+        // texture.getHeight());
+        //
+        //
+        for (MenuButton menuButton : buttons) {
+            Color tint = menuButton.isPressed() ? Color.GRAY : Color.WHITE;
+            texture = assets.getEntry(menuButton.getAssetName(), Texture.class);
+
+            batch.setColor(tint);
+            batch.draw(texture, menuButton.x, menuButton.y, menuButton.width, menuButton.height);
+        }
+        batch.end();
     }
 
 }
