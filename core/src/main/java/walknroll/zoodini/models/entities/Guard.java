@@ -109,6 +109,8 @@ public class Guard extends Enemy {
 
         originalViewDistance = viewDistance;
         originalFov = fov;
+        tempViewDistance = viewDistance;
+        tempFov = fov;
 
     }
 
@@ -312,11 +314,11 @@ public class Guard extends Enemy {
     }
 
     public float getFov(){
-        return isInkBlinded() ? tempFov : originalFov;
+        return tempFov;
     }
 
     public float getViewDistance(){
-        return isInkBlinded() ? tempViewDistance : originalViewDistance;
+        return tempViewDistance;
     }
 
     /**
@@ -360,6 +362,12 @@ public class Guard extends Enemy {
         // If we have a movement direction, update orientation
         if (movementDirection != null && movementDirection.len2() > 0.0001f) {
             updateOrientation(dt, movementDirection);
+        }
+        if (tempViewDistance < originalViewDistance && !inkBlinded) {
+            tempViewDistance += dt;
+        }
+        if (tempFov < originalFov && !inkBlinded) {
+            tempFov += dt;
         }
         applyForce();
         super.update(dt);
@@ -445,9 +453,6 @@ public class Guard extends Enemy {
             inkBlindTimer -= dt;
             if (inkBlindTimer <= 0) {
                 inkBlinded = false;
-                // Restore original vision
-                tempViewDistance = originalViewDistance;
-                tempFov = originalFov;
             }
         }
     }
