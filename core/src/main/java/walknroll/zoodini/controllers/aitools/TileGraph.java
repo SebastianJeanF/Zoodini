@@ -40,6 +40,9 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
     protected Array<TileNode> nodes;
     public TileNode startNode;
     private Set<TileNode> targetNodes = new HashSet<>();
+    private Set<TileNode> waypoints = new HashSet<>();
+    public int tileWidth;
+    public int tileHeight;
 
     boolean diagonal;
 
@@ -58,7 +61,6 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         this.nodes = new Array<TileNode>(WIDTH * HEIGHT);
         this.startNode = null;
         this.diagonal = diagonal;
-
 
         for (int x = 0; x < WIDTH; x++) {
             for (int y = 0; y < HEIGHT; y++) {
@@ -172,6 +174,10 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
                 c = Color.GOLD;
             }
 
+            if (waypoints.contains(node)) {
+                c = Color.GREEN;
+            }
+
             if(node.equals(selected)){
                 c = Color.MAGENTA;
             }
@@ -179,6 +185,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
             if (targetNodes.contains(node)) {
                 c = Color.RED;
             }
+
 
             Poly2 polygon = pf.makeNgon(node.x + 0.5f, node.y + 0.5f, 0.1f, 10);
             Path2 rect = pathFactory.makeRect(node.x, node.y, 0.95f, 0.95f);
@@ -235,11 +242,21 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         }
     }
 
+    public void markWaypoints(Vector2[] worldPos) {
+        for (Vector2 pos : worldPos) {
+            TileNode node = worldToTile(pos);
+            if (node != null) {
+                waypoints.add(node);
+            }
+        }
+    }
+
     /**
      * Clears all marked target nodes.
      */
-    public void clearTargetNodes() {
+    public void clearMarkedNodes() {
         targetNodes.clear();
+        waypoints.clear();
     }
 
     /**
@@ -321,14 +338,14 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
     }
 
     /**
-     * Returns the Tile Coords of the nearest non-wall tile to the given target location
+     * Returns the Tile of the nearest non-wall tile to the given target location
      * If the target location is not a wall, it returns the target location itself.
      * This function only looks 1 layer away from the target location (unlike findNearestNonObstacleNode).
      *
      * @param targetLocation the target location to check (in World Coords)
-     * @return the nearest valid tile location
+     * @return the nearest valid tile
      */
-    public Vector2 getNearestValidTargetLocation(Vector2 targetLocation) {
+    public TileNode getNearestValidTile(Vector2 targetLocation) {
         TileNode targetTile = worldToTile(targetLocation);
         int[][] horizontal = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
         // Check all 4 directions for valid tile
@@ -336,7 +353,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
             int newX = targetTile.x + coord[0];
             int newY = targetTile.y + coord[1];
             if (!(getNode(newX, newY)).isWall) {
-                return getNode(newX, newY).getCoords();
+                return getNode(newX, newY);
             }
         }
         // Check all 4 corners if needed
@@ -345,11 +362,15 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
             int newX = targetTile.x + coord[0];
             int newY = targetTile.y + coord[1];
             if (!(getNode(newX, newY)).isWall) {
-                return getNode(newX, newY).getCoords();
+                return getNode(newX, newY);
             }
         }
         // Nearest non-wall tile is not 1 layer away (shouldn't happen)
-        return targetTile.getCoords();
+        return targetTile;
+    }
+
+    public int getTileWidth() {
+        return tileWidth;
     }
 
 }

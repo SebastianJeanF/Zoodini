@@ -144,7 +144,7 @@ public class GDXRoot extends Game implements ScreenListener {
 				break;
 			case GDXRoot.EXIT_PLAY:
 				directory = loading.getAssets();
-				gameplay = new GameScene(directory, batch, 5);
+				gameplay = new GameScene(directory, batch, 6);
 				gameplay.setScreenListener(this);
 				setScreen(gameplay);
 				disposeExcept(gameplay);

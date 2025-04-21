@@ -94,6 +94,47 @@ public class GuardAIController {
         this.nextTargetLocation = new Vector2(0, 0);
     }
 
+    /**
+     * Validates waypoints and updates any that are in wall tiles to be in valid non-wall tiles.
+     *
+     * @param waypoints The array of waypoints to validate
+     * @return A new array of valid waypoints in world coordinates
+     */
+    private Vector2[] getValidWaypoints(Vector2[] waypoints) {
+        if (waypoints == null || waypoints.length == 0) {
+            return new Vector2[0];
+        }
+
+        Vector2[] validWaypoints = new Vector2[waypoints.length];
+
+        for (int i = 0; i < waypoints.length; i++) {
+            Vector2 waypoint = waypoints[i];
+            TileNode waypointTile = tileGraph.worldToTile(waypoint);
+
+            // Check if waypoint is in a wall tile
+            if (waypointTile == null || waypointTile.isWall) {
+                // Find the nearest non-wall tile
+                TileNode validTile = tileGraph.findNearestNonObstacleNode(waypoint);
+
+                if (validTile != null) {
+                    // Convert the valid tile to world coordinates (use the center of the tile)
+                    validWaypoints[i] = tileGraph.tileToWorld(validTile);
+                    System.out.println("Updated waypoint " + i + " from " + waypoint +
+                        " to " + validWaypoints[i] + " (was in wall)");
+                } else {
+                    // This should not happen if your graph has at least one non-wall tile
+                    System.err.println("Warning: Could not find a valid non-wall tile for waypoint " + i);
+                    validWaypoints[i] = waypoint; // Keep the original as fallback
+                }
+            } else {
+                // Waypoint is already valid, so keep it
+                validWaypoints[i] = waypoint;
+            }
+        }
+
+        return validWaypoints;
+    }
+
 
     /**
      * Helper function to retrieve the currently active player avatar.
@@ -151,15 +192,26 @@ public class GuardAIController {
     }
 
     private boolean hasReachedTargetLocation(Vector2 target) {
-        if (!tileGraph.isValidTile(target)) {
-            target = tileGraph.getNearestValidTargetLocation(target);
+        // Use world coordinates and a reasonable threshold
+        float arrivalDistance = 0.5f;
+        float distance = guard.getPosition().dst(target);
+
+        // Optional debugging
+        if (distance < 1.0f) {
+            System.out.println("Distance to target: " + distance);
         }
-        Vector2 guardTile = tileGraph.worldToTile(guard.getPosition()).getCoords();
-        Vector2 targetTile = tileGraph.worldToTile(target).getCoords();
-        System.out.println("Current guard tile " + guardTile);
-        System.out.println("Current target tile " + targetTile);
-        System.out.println(tileGraph.worldToTile(target).isWall);
-        return guardTile.x == targetTile.x && guardTile.y == targetTile.y;
+
+        return distance < arrivalDistance;
+//        if (!tileGraph.isValidTile(target)) {
+//            target = tileGraph.getNearestValidTile(target).getCoords();
+//        }
+//        Vector2 guardTile = tileGraph.worldToTile(guard.getPosition()).getCoords();
+//        Vector2 targetTile = tileGraph.worldToTile(target).getCoords();
+//        System.out.println("Current guard tile " + guardTile);
+//        System.out.println("Current target tile " + targetTile);
+//        System.out.println(tileGraph.worldToTile(guard.getPosition()).isWall);
+//        System.out.println(tileGraph.worldToTile(target).isWall);
+//        return guardTile.x == targetTile.x && guardTile.y == targetTile.y;
     }
 
     /**
@@ -307,9 +359,6 @@ public class GuardAIController {
 //        if (!canStateTransition()) {
 //            return;
 //        }
-        if (ticks % 5 != 0) {
-            return;
-        }
         System.out.println("Before Guard state: " + currState);
         updateSusLevel();
         updateGuardState();
@@ -352,10 +401,12 @@ public class GuardAIController {
     public Vector2 getValidTileCoords(Vector2 target) {
         TileNode targetTile = tileGraph.worldToTile(target);
         if (!targetTile.isWall) {
-            return targetTile.getCoords();
+            return target;
         } else {
+            System.out.println("Target tile is a wall: " + targetTile.getCoords());
             // If the target tile is a wall, find the nearest non-wall tile
-            return tileGraph.getNearestValidTargetLocation(target);
+            TileNode newTile = tileGraph.getNearestValidTile(target);
+            return tileGraph.tileToWorld(newTile);
         }
     }
 
@@ -430,7 +481,7 @@ public class GuardAIController {
                 if (targetPlayer != null) {
                     newTarget = getNextWaypointLocation(targetPlayer.getPosition());
                 } else {
-                    // If no target, maybe return to patrol or stay in place
+                    // If no target, maybe return to patrol
                     newTarget = waypoints.length > 0 ?
                         getNextWaypointLocation(waypoints[currentWaypointIndex]) :
                         guard.getPosition();
@@ -453,25 +504,9 @@ public class GuardAIController {
                 break;
         }
 
-        nextTargetLocation = getNextWaypointLocation(newTarget);
+        nextTargetLocation = getValidTileCoords(newTarget);
+//        nextTargetLocation = newTarget;
 
-        // Only update the target if we have a valid new position and it's significantly different
-        // This prevents micromovements that cause flickering
-//        if (newTarget != null) {
-//            if (nextTargetLocation == null) {
-//                nextTargetLocation = getNextWaypointLocation(newTarget);
-//            } else {
-//                // Only update target if it's significantly different from current target
-//                // or we've reached the current target
-//                float currentTargetDist = distanceFromGuard(nextTargetLocation);
-//
-//                // If target is close or significantly changed, update it
-//                if (currentTargetDist <= WAYPOINT_RADIUS ||
-//                    newTarget.dst(nextTargetLocation) > 0.5f) {
-//                    nextTargetLocation = getNextWaypointLocation(newTarget);
-//                }
-//            }
-//        }
     }
 
     /**

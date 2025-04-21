@@ -506,10 +506,12 @@ public class GameScene implements Screen, ContactListener {
 
 
         if(debug) {
-            graph.clearTargetNodes();
+            graph.clearMarkedNodes();
+
 
             // For each guard, mark their target nodes for display
             guardToAIController.forEach((guard, controller) -> {
+                graph.markWaypoints(guard.getPatrolPoints());
                 Vector2 targetLocation = controller.getNextTargetLocation();
                 if (targetLocation != null) {
                     graph.markPositionAsTarget(targetLocation);
