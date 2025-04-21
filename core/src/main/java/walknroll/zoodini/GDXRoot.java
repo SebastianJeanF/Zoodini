@@ -9,11 +9,13 @@
  */
 package walknroll.zoodini;
 
-import com.badlogic.gdx.*;
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
-import edu.cornell.gdiac.util.*;
+import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.controllers.screens.CreditsScene;
 import walknroll.zoodini.controllers.screens.GameScene;
@@ -107,25 +109,6 @@ public class GDXRoot extends Game implements ScreenListener {
 		super.dispose();
 	}
 
-	private void disposeExcept(Screen screen) {
-		if (gameplay != null && screen != gameplay) {
-			gameplay.dispose();
-			gameplay = null;
-		}
-		if (loading != null && screen != loading) {
-			loading.dispose();
-			loading = null;
-		}
-		if (settings != null && screen != settings) {
-			settings.dispose();
-			settings = null;
-		}
-		if (credits != null && screen != credits) {
-			credits.dispose();
-			credits = null;
-		}
-	}
-
 	/**
 	 * The given screen has made a request to exit its player mode.
 	 *
@@ -144,6 +127,17 @@ public class GDXRoot extends Game implements ScreenListener {
 			gameSettings = settings.getSettings();
 			InputController.getInstance().setAbilityKey(gameSettings.getAbilityKey());
 			InputController.getInstance().setSwapKey(gameSettings.getSwapKey());
+			switch (gameSettings.getResolution()) {
+				case BIG:
+					Gdx.graphics.setWindowedMode(1920, 1080);
+					break;
+				case SMALL:
+					Gdx.graphics.setWindowedMode(1280, 720);
+					break;
+				default:
+					break;
+
+			}
 		} else if (screen == credits) {
 			// nothing to extract here
 		}
@@ -195,5 +189,24 @@ public class GDXRoot extends Game implements ScreenListener {
 		// // We quit the main application
 		// Gdx.app.exit();
 		// }
+	}
+
+	private void disposeExcept(Screen screen) {
+		if (gameplay != null && screen != gameplay) {
+			gameplay.dispose();
+			gameplay = null;
+		}
+		if (loading != null && screen != loading) {
+			loading.dispose();
+			loading = null;
+		}
+		if (settings != null && screen != settings) {
+			settings.dispose();
+			settings = null;
+		}
+		if (credits != null && screen != credits) {
+			credits.dispose();
+			credits = null;
+		}
 	}
 }

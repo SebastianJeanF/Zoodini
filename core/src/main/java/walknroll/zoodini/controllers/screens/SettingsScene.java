@@ -4,10 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -19,22 +17,17 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
-import edu.cornell.gdiac.graphics.TextLayout;
 import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.GDXRoot;
-import walknroll.zoodini.controllers.InputController;
-import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.GameSettings;
+import walknroll.zoodini.utils.enums.AppResolution;
 
 public class SettingsScene implements Screen {
     private ScreenListener listener;
@@ -49,11 +42,7 @@ public class SettingsScene implements Screen {
     private int width;
     private int height;
 
-    private TextLayout todoMessage;
-
     private Stage stage;
-    private Table table;
-    private TextureAtlas atlas;
     private Skin skin;
 
     private boolean waitingForAbilityKey;
@@ -61,30 +50,40 @@ public class SettingsScene implements Screen {
 
     private int abilityKey;
     private int swapKey;
+    private AppResolution resolution;
+
+    public SettingsScene(SpriteBatch batch, AssetDirectory assets, GameSettings currentSettings) {
+        this.batch = batch;
+        this.assets = assets;
+        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        this.abilityKey = currentSettings.getAbilityKey();
+        this.swapKey = currentSettings.getSwapKey();
+        this.resolution = currentSettings.getResolution();
+    }
 
     public void create() {
         stage = new Stage(new ScreenViewport(camera));
         Gdx.input.setInputProcessor(stage);
 
-        // table = new Table();
-        // table.setFillParent(true);
-        // stage.addActor(table);
-
-        // tables.
-
-        // atlas = new TextureAtlas(Gdx.files.internal("uiskin/uiskin.atlas"));
         skin = new Skin(Gdx.files.internal("uiskin/uiskin.json"));
-        // Add widgets here
 
         Window window = new Window("Edit Keybinds", skin, "maroon");
+        Container<Window> windowContainer = makeKeybindsContainer(window);
+
+        Table table = makeSettingsTable(window);
+
+        stage.addActor(table);
+        stage.addActor(windowContainer);
+    }
+
+    private Container<Window> makeKeybindsContainer(Window window) {
         Container<Window> container = new Container<>(window);
         container.setFillParent(true);
 
-        // window.setSize(this.width / 2, this.height / 2);
         window.setModal(true);
         window.setMovable(false);
         window.setVisible(false);
-
         window.defaults().spaceBottom(10f);
 
         TextButton closeWindow = new TextButton("Done", skin, "maroon");
@@ -95,7 +94,6 @@ public class SettingsScene implements Screen {
         });
         window.getTitleTable().add(closeWindow).height(window.getPadTop());
         window.row().fill().expandX();
-        // window;
 
         window.add(new Label("Use Ability", skin, "title")).width(Value.percentWidth(0.25f, container))
                 .pad(Value.percentWidth(0.01f, container));
@@ -141,11 +139,15 @@ public class SettingsScene implements Screen {
             }
         });
 
-        // window.pack();
-        window.center();
-        // window.setPosition(this.width / 2f - window.getWidth() / 2f,
-        // this.height / 2f - window.getHeight() / 2f);
+        window.row();
+        window.add(new Label("Change a keybind by clicking its respective button, then typing the new key", skin))
+                .colspan(2);
 
+        window.center();
+        return container;
+    }
+
+    private Table makeSettingsTable(Window window) {
         Table table = new Table();
         // table.setSize(this.width, this.height);
         table.setFillParent(true);
@@ -163,8 +165,14 @@ public class SettingsScene implements Screen {
 
         table.row();
         table.add(new Label("Resolution", skin, "title")).left().width(labelWidth);
-        SelectBox<String> resolutionSelect = new SelectBox<>(skin);
-        resolutionSelect.setItems("1280x720", "1920x1080", "Fullscreen");
+        SelectBox<AppResolution> resolutionSelect = new SelectBox<>(skin);
+        resolutionSelect.setItems(AppResolution.SMALL, AppResolution.BIG);
+        resolutionSelect.setSelected(this.resolution);
+        resolutionSelect.addListener(new ChangeListener() {
+            public void changed(ChangeEvent event, Actor actor) {
+                SettingsScene.this.resolution = resolutionSelect.getSelected();
+            }
+        });
         table.add(resolutionSelect).left().width(controlWidth);
 
         table.row();
@@ -185,13 +193,11 @@ public class SettingsScene implements Screen {
             }
         });
         table.add(menuReturn).left().width(labelWidth).expandY().bottom();
-
-        stage.addActor(table);
-        stage.addActor(container);
+        return table;
     }
 
     public GameSettings getSettings() {
-        return new GameSettings(this.abilityKey, this.swapKey);
+        return new GameSettings(this.abilityKey, this.swapKey, this.resolution);
     }
 
     public void resize(int width, int height) {
@@ -208,7 +214,6 @@ public class SettingsScene implements Screen {
     }
 
     public void render(float delta) {
-        // Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(delta);
 
         batch.begin(camera);
@@ -228,16 +233,7 @@ public class SettingsScene implements Screen {
 
     public void dispose() {
         stage.dispose();
-    }
-
-    public SettingsScene(SpriteBatch batch, AssetDirectory assets, GameSettings currentSettings) {
-        this.batch = batch;
-        this.assets = assets;
-        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-        this.abilityKey = currentSettings.getAbilityKey();
-        this.swapKey = currentSettings.getSwapKey();
-        // todoMessage = new TextLayout("todo lol", );
+        skin.dispose();
     }
 
     /**
@@ -260,19 +256,6 @@ public class SettingsScene implements Screen {
         // throw new UnsupportedOperationException("Unimplemented method 'show'");
     }
 
-    // @Override
-    // public void render(float delta) {
-    // ScreenUtils.clear(0.702f, 0.1255f, 0.145f, 1.0f);
-    // // TODO Auto-generated method stub
-    // // throw new UnsupportedOperationException("Unimplemented method 'render'");
-    // }
-
-    // @Override
-    // public void resize(int width, int height) {
-    // // TODO Auto-generated method stub
-    // // throw new UnsupportedOperationException("Unimplemented method 'resize'");
-    // }
-
     @Override
     public void pause() {
         // TODO Auto-generated method stub
@@ -290,11 +273,4 @@ public class SettingsScene implements Screen {
         // TODO Auto-generated method stub
         // throw new UnsupportedOperationException("Unimplemented method 'hide'");
     }
-
-    // @Override
-    // public void dispose() {
-    // // TODO Auto-generated method stub
-    // throw new UnsupportedOperationException("Unimplemented method 'dispose'");
-    // }
-
 }
