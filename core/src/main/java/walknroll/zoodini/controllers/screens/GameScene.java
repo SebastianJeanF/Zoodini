@@ -12,6 +12,7 @@
  */
 package walknroll.zoodini.controllers.screens;
 
+
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -63,7 +64,7 @@ import walknroll.zoodini.utils.ZoodiniSprite;
  */
 public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener {
 
-    private boolean debug = true;
+    private boolean debug = false;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
@@ -157,8 +158,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
 
         //UI Controller
-        ui = new UIController(directory);
-        ui.init();
+        ui = new UIController(directory, level);
         ui.setPauseMenuListener(this);
 
         graph = new TileGraph<>(map, false);
@@ -182,8 +182,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         catArrived = false;
         octopusArrived = false;
-
-        ui.reset();
 
         setComplete(false);
         setFailure(false);
@@ -297,6 +295,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         updateGuardAI();
         processNPCAction(dt);
         updateCamera(dt);
+
+        ui.update(dt);
     }
 
 
@@ -559,6 +559,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     public void dispose() {
         level.dispose();
         level = null;
+        ui.dispose();
     }
 
 
@@ -863,7 +864,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 if ((o1 == cat && o2 == keyObs) || (o2 == cat && o1 == keyObs)) {
                     key.setCollected(true);
                     key.setOwner(AvatarType.CAT);
-                    System.out.println("COLLISION");
                     level.getCat().assignKey(key);
                 }
             }

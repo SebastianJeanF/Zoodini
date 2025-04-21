@@ -165,6 +165,17 @@
           }
         }
       },
+      "ink-meter": {
+        "file": 	"textures/inkbar.png",
+        "wrap":  	false,
+        "sprites":	{
+          "animation" : {
+            "size" : 20,
+            "rows" : 1,
+            "cols" : 20
+          }
+        }
+      },
       "key": "textures/key-sprite.png",
       "locked_door": "textures/locked_door.png",
       "unlocked_door": "textures/unlocked_door.png",
@@ -180,7 +191,7 @@
       "game_paused": "textures/game_paused.png",
       "resume_button": "textures/resume_button.png",
       "exit": "textures/panda-sprite.png",
-      "ink" : "textures/ink_projectile.png"
+      "ink" : "textures/ink_projectile.png",
     },
 
   	"fonts": {
