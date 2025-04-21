@@ -207,11 +207,9 @@ public class GuardAIController {
             // Not under camera and not deaggroed, normal de-aggro logic
             else if (!guard.isSeesPlayer()) {
                 guard.deltaDeAggroTimer(-5); // Normal decrease
-                System.out.println("Not seeing player: decreasing de-aggro timer");
             } else {
                 // Guard sees player directly, reset de-aggro timer
                 guard.deltaDeAggroTimer(10);
-                System.out.println("Seeing player: resetting de-aggro timer");
             }
         }
     }
@@ -272,9 +270,9 @@ public class GuardAIController {
                 break;
             case AlERTED:
                 // If guard has reached camera location; ALERTED -> PATROL
-                if (hasReachedTargetLocation(cameraAlertPosition)) {
+                if (hasReachedTargetLocation(cameraAlertPosition) && !targetPlayer.isUnderCamera()) {
                     currState = GuardState.PATROL;
-                    guard.setMeow(false);
+                    guard.setCameraAlerted(false);
                     lastStateChangeTime = ticks;
                 }
                 // Guard has not reached camera location, sus level is above threshold; ALERTED -> SUSPICIOUS
@@ -293,7 +291,6 @@ public class GuardAIController {
                 // Due to ordering of checks, this will only happen if the guard is not suspicious
                 // This makes sense since we don't want the guard to deagrro by being meowed
                 else if (didDistractionOccur()) {
-                    System.out.println("MEOWED");
                     currState = GuardState.DISTRACTED;
                     guard.setMeow(true);
                     Vector2 newDistractPosition = getActivePlayer().getPosition();
@@ -452,11 +449,9 @@ public class GuardAIController {
                 if (hasReachedPatrolTarget()) {
                     currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.length;
                     newTarget = getNextWaypointLocation(waypoints[currentWaypointIndex]);
-                    System.out.println("reached waypoint");
                 }
                 // Guard hasn't reached waypoint, so continue to current target
                 else {
-                    System.out.println("hasn't reached waypoint");
                     newTarget = getNextWaypointLocation(waypoints[currentWaypointIndex]);
                 }
                 break;

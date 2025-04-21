@@ -292,13 +292,11 @@ public class GameScene implements Screen, ContactListener {
             if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
                 Vector2 catPos = level.getCat().getPosition();
                 Vector2 octPos = level.getOctopus().getPosition();
-
-                Avatar detectedPlayer = entry.value.contains(catPos) ? level.getCat() : level.getOctopus();
-
                 if (entry.value.contains(catPos) || entry.value.contains(octPos)) {
 
                     ((SecurityCamera) entry.key).activateRing();
-                    // Alert all guards
+
+                    Avatar detectedPlayer = entry.value.contains(catPos) ? level.getCat() : level.getOctopus();
 
                     detectedPlayer.setUnderCamera(true);
 
@@ -313,7 +311,8 @@ public class GameScene implements Screen, ContactListener {
                         }
                     }
                 } else {
-                    detectedPlayer.setUnderCamera(false);
+                    level.getCat().setUnderCamera(false);
+                    level.getOctopus().setUnderCamera(false);
                 }
             }
         }
