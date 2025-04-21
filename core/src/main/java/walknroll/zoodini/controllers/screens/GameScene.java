@@ -64,7 +64,7 @@ import walknroll.zoodini.utils.ZoodiniSprite;
  */
 public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener {
 
-    private boolean debug = false;
+    private boolean debug = true;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
@@ -161,7 +161,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         ui = new UIController(directory, level);
         ui.setPauseMenuListener(this);
 
-        graph = new TileGraph<>(map, false);
+        graph = new TileGraph<>(map, false, 1);
         initializeAIControllers();
 
 		setComplete(false);
@@ -370,6 +370,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 guard.setTarget(level.getCat().getPosition());
                 level.getCat().setUnderVisionCone(true);
                 guard.setSeesPlayer(true);
+                guard.setSeenPlayer(level.getCat());
 //                System.out.println("Guard detected cat: " + guard.getAggroTarget());
             }
 
@@ -380,6 +381,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 guard.setTarget(level.getOctopus().getPosition());
                 level.getOctopus().setUnderVisionCone(true);
                 guard.setSeesPlayer(true);
+                guard.setSeenPlayer(level.getOctopus());
 //                System.out.println("Guard detected octopus: " + guard.getAggroTarget());
             }
             // No player detected
@@ -388,6 +390,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 level.getOctopus().setUnderVisionCone(false);
                 level.getCat().setUnderVisionCone(false);
                 guard.setSeesPlayer(false);
+                guard.setSeenPlayer(null);
                 if (!guard.isCameraAlerted()) {
                     guard.setAgroed(false);
                 }
@@ -548,7 +551,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             graph.draw(batch, camera, level.getTileSize());
             InputController ic = InputController.getInstance();
             if(ic.didLeftClick()) {
-                TileNode t = graph.markNearestTile(camera, ic.getAiming(), level.getTileSize());
+                graph.markNearestTile(camera, ic.getAiming(), level.getTileSize());
             }
         }
 
@@ -568,9 +571,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     //-----------------Helper Methods--------------------//
 
     public void initializeAIControllers() {
-
-        graph = new TileGraph<>(map, true);
-
 //        this.gameGraph = new GameGraph(12, 16, level.getBounds().x, level.getBounds().y, level.getSprites());
         Array<Guard> guards = level.getGuards();
         for (Guard g : guards) {
@@ -717,14 +717,14 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 			direction.nor().scl(guard.getForce());
 
 			if (guard.isMeowed()) {
-				direction.scl(2.25f);
+				direction.scl(3.5f);
 			} else if (guard.isCameraAlerted()) {
-                direction.scl(6.0f);
+                direction.scl(6.5f);
             }
             else if (guard.isAgroed()) {
-				direction.scl(7f);
+				direction.scl(6.0f);
 			} else if (guard.isSus()) {
-                direction.scl(6f);
+                direction.scl(5.5f);
             } else {
                 direction.scl(5f);
             }
