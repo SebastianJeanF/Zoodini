@@ -599,8 +599,8 @@ public class GameLevel {
     //------------------Helpers-----------------------//
 
     private boolean isInDanger(Avatar avatar) {
-        for (Guard guard : guards) {
-            if (guard.getPosition().dst(avatar.getPosition()) <= guard.getViewDistance()) {
+        for(VisionCone cone : visions.values()) {
+            if(cone.contains(avatar.getPosition())){
                 return true;
             }
         }
