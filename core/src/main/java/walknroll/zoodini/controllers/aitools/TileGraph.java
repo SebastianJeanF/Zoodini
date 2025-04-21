@@ -310,10 +310,24 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         return nearestNode;
     }
 
+    /**
+     * Returns whether the tile at the given world coordinates is a valid tile (not a wall).
+     *
+     * @param targetLocation the target location to check (in World Coords)
+     * @return true if the target location is a valid tile, false otherwise
+     */
     public boolean isValidTile(Vector2 targetLocation) {
         return worldToTile(targetLocation).isWall;
     }
 
+    /**
+     * Returns the Tile Coords of the nearest non-wall tile to the given target location
+     * If the target location is not a wall, it returns the target location itself.
+     * This function only looks 1 layer away from the target location (unlike findNearestNonObstacleNode).
+     *
+     * @param targetLocation the target location to check (in World Coords)
+     * @return the nearest valid tile location
+     */
     public Vector2 getNearestValidTargetLocation(Vector2 targetLocation) {
         TileNode targetTile = worldToTile(targetLocation);
         int[][] horizontal = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
