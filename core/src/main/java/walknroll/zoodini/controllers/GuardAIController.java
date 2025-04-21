@@ -179,6 +179,7 @@ public class GuardAIController {
     private boolean hasReachedTargetLocation(Vector2 target) {
         Vector2 guardTile = tileGraph.worldToTile(guard.getPosition()).getCoords();
         Vector2 targetTile = tileGraph.worldToTile(target).getCoords();
+
         System.out.println(guardTile);
         System.out.println(targetTile);
         return guardTile.x == targetTile.x && guardTile.y == targetTile.y;
@@ -271,7 +272,7 @@ public class GuardAIController {
                 break;
             case AlERTED:
                 // If guard has reached camera location; ALERTED -> PATROL
-                if (hasReachedTargetLocation(cameraAlertPosition) && !targetPlayer.isUnderCamera()) {
+                if (hasReachedTargetLocation(cameraAlertPosition)) {
                     currState = GuardState.PATROL;
                     guard.setCameraAlerted(false);
                     lastStateChangeTime = ticks;
