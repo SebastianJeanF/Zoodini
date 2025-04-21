@@ -45,6 +45,9 @@ public class UIController {
 
     private TextureRegion catIcon;
     private TextureRegion octopusIcon;
+    private TextureRegion smallCatIcon;
+    private TextureRegion smallOctopusIcon;
+    private TextureRegion dangerIcon;
 
     //Scene 2d components
     private Stage stage;
@@ -53,6 +56,9 @@ public class UIController {
 
     private Image catIconImage;
     private Image octopusIconImage;
+    private Image smallCatIconImage;
+    private Image smallOctopusIconImage;
+    private Image dangerIconImage;
     private Image progressBg, progressFill;
     private static final float BAR_WIDTH  = 210f;
     private static final float BAR_HEIGHT = 25f;
@@ -67,6 +73,9 @@ public class UIController {
         setFont(directory.getEntry("display", BitmapFont.class));
         setCatIcon(new TextureRegion(directory.getEntry("cat-icon", Texture.class)));
         setOctopusIcon(new TextureRegion(directory.getEntry("octopus-icon", Texture.class)));
+        setSmallCatIcon(new TextureRegion(directory.getEntry("small-cat-icon", Texture.class)));
+        setSmallOctopusIcon(new TextureRegion(directory.getEntry("small-octopus-icon", Texture.class)));
+        setDangerIcon(new TextureRegion(directory.getEntry("danger-icon", Texture.class)));
     }
 
     public void init() {
@@ -124,6 +133,29 @@ public class UIController {
             stage.addActor(octopusIconImage);
         }
 
+        if (smallCatIcon != null) {
+            smallCatIconImage = new Image(smallCatIcon);
+            smallCatIconImage.setPosition(45, 600);
+            smallCatIconImage.setVisible(false);
+            stage.addActor(smallCatIconImage);
+        }
+
+        if (smallOctopusIcon != null) {
+            smallOctopusIconImage = new Image(smallOctopusIcon);
+            smallOctopusIconImage.setPosition(45, 600);
+            smallOctopusIconImage.setVisible(false); // Hide initially, we'll toggle visibility
+            stage.addActor(smallOctopusIconImage);
+        }
+
+        if (dangerIcon != null) {
+            dangerIconImage = new Image(dangerIcon);
+            dangerIconImage.setPosition(105, 615);
+            dangerIconImage.setVisible(false);
+            stage.addActor(dangerIconImage);
+        }
+
+
+
 //        inkMeter = new ProgressBar(0, 100, 1, false, skin.get("default-horizontal", ProgressBar.ProgressBarStyle.class));
 //        inkMeter.setWidth(210);
 //        inkMeter.setHeight(35);
@@ -146,6 +178,15 @@ public class UIController {
     }
     public void setOctopusIcon(TextureRegion icon) {
         octopusIcon = icon;
+    }
+    public void setSmallCatIcon(TextureRegion icon) {
+        smallCatIcon = icon;
+    }
+    public void setSmallOctopusIcon(TextureRegion icon) {
+        smallOctopusIcon = icon;
+    }
+    public void setDangerIcon(TextureRegion icon) {
+        dangerIcon = icon;
     }
 
     public void update() {
@@ -173,6 +214,23 @@ public class UIController {
         // Icons
         if (catIconImage  != null) catIconImage.setVisible(!isOcto);
         if (octopusIconImage != null) octopusIconImage.setVisible(isOcto);
+
+        if (dangerIconImage != null && smallCatIconImage != null && smallOctopusIconImage != null) {
+            if (level.isInactiveAvatarInDanger()){
+                dangerIconImage.setVisible(true);
+                if (isOcto) {
+                    smallCatIconImage.setVisible(true);
+                    smallOctopusIconImage.setVisible(false);
+                } else {
+                    smallOctopusIconImage.setVisible(true);
+                    smallCatIconImage.setVisible(false);
+                }
+            } else {
+                dangerIconImage.setVisible(false);
+                smallCatIconImage.setVisible(false);
+                smallOctopusIconImage.setVisible(false);
+            }
+        }
 
         // Progress bar background + fill
         progressBg.setVisible(isOcto);
