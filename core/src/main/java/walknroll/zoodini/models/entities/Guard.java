@@ -36,6 +36,7 @@ public class Guard extends Enemy {
     private boolean cameraAlerted;
     private Avatar aggroTarget;
     private boolean seesPlayer;
+    private Avatar seenPlayer;
 
     /** The position that this guard should move to */
     Vector2 target = null;
@@ -61,8 +62,8 @@ public class Guard extends Enemy {
     private final float ALERT_DEAGRRO_PERIOD = 300F;
     private float deAggroTimer;
 
-    private static final float CLOSE_DISTANCE_FACTOR = 0.8f; // 80% of view distance is "close"
-    private static final float MEDIUM_DISTANCE_FACTOR = 0.6f; // 60% of view distance is "medium"
+    private static final float CLOSE_DISTANCE_FACTOR = 0.4f; //
+    private static final float MEDIUM_DISTANCE_FACTOR = 0.8f; //
 
     // Suspicion increase amounts for each zone
     private static final int CLOSE_ZONE_SUS_INCREASE = 3;
@@ -211,6 +212,14 @@ public class Guard extends Enemy {
         return seesPlayer;
     }
 
+    public void setSeenPlayer(Avatar seenPlayer) {
+        this.seenPlayer = seenPlayer;
+    }
+
+    public Avatar getSeenPlayer() {
+        return seenPlayer;
+    }
+
     /** Get current movement direction of guard.
      *
      * @INVARIANT: Must call guard.think() to get the most recent movement direction
@@ -262,6 +271,7 @@ public class Guard extends Enemy {
             baseSuspicionIncrease = FAR_ZONE_SUS_INCREASE;
         }
 
+        System.out.println("sus increase is " + baseSuspicionIncrease);
         return baseSuspicionIncrease;
     }
 

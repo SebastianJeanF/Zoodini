@@ -161,7 +161,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         ui = new UIController(directory, level);
         ui.setPauseMenuListener(this);
 
-        graph = new TileGraph<>(map, false, 2);
+        graph = new TileGraph<>(map, false, 1);
         initializeAIControllers();
 
 		setComplete(false);
@@ -370,6 +370,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 guard.setTarget(level.getCat().getPosition());
                 level.getCat().setUnderVisionCone(true);
                 guard.setSeesPlayer(true);
+                guard.setSeenPlayer(level.getCat());
 //                System.out.println("Guard detected cat: " + guard.getAggroTarget());
             }
 
@@ -380,6 +381,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 guard.setTarget(level.getOctopus().getPosition());
                 level.getOctopus().setUnderVisionCone(true);
                 guard.setSeesPlayer(true);
+                guard.setSeenPlayer(level.getOctopus());
 //                System.out.println("Guard detected octopus: " + guard.getAggroTarget());
             }
             // No player detected
@@ -388,6 +390,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 level.getOctopus().setUnderVisionCone(false);
                 level.getCat().setUnderVisionCone(false);
                 guard.setSeesPlayer(false);
+                guard.setSeenPlayer(null);
                 if (!guard.isCameraAlerted()) {
                     guard.setAgroed(false);
                 }

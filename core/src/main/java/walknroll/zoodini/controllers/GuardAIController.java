@@ -221,16 +221,9 @@ public class GuardAIController {
      */
     private void updateSusLevel() {
         if (currState != GuardState.CHASE) { // Only update when not chasing
-            if (guard.isSeesPlayer()) { // In guard's line of sight
-                if (level.getOctopus().isInGuardVisionCone()) {
-                    int susIncrease = guard.calculateSusIncrease(level.getOctopus().getPosition());
-                    guard.deltaSusLevel(susIncrease);
-                }
-                else if (level.getCat().isInGuardVisionCone()) {
-                    int susIncrease = guard.calculateSusIncrease(level.getCat().getPosition());
-                    guard.deltaSusLevel(susIncrease);
-                }
-//                guard.deltaSusLevel(2); // Increase suspicion
+            if (guard.isSeesPlayer() && guard.getSeenPlayer() != null) { // In guard's line of sight
+                int susIncrease = guard.calculateSusIncrease(guard.getSeenPlayer().getPosition());
+                guard.deltaSusLevel(susIncrease); // Increase suspicion
             } else {
                 // Only decrease suspicion if not in ALERTED state
                 if (currState != GuardState.AlERTED) {
@@ -368,10 +361,10 @@ public class GuardAIController {
 //        if (!canStateTransition()) {
 //            return;
 //        }
-        System.out.println("Before Guard state: " + currState);
+        // System.out.println("Before Guard state: " + currState);
         updateSusLevel();
         updateGuardState();
-        System.out.println("After Guard state: " + currState);
+        // System.out.println("After Guard state: " + currState);
 
         setNextTargetLocation();
 
