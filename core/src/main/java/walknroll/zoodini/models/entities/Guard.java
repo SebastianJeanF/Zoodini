@@ -61,10 +61,13 @@ public class Guard extends Enemy {
     private final float ALERT_DEAGRRO_PERIOD = 300F;
     private float deAggroTimer;
 
-    private static final float BAR_WIDTH = 50.0f;
-    private static final float BAR_HEIGHT = 5.0f;
-    private static final float BAR_OFFSET_Y = 10.0f;
-    private static final float AGGRO_BAR_OFFSET_Y = 20.0f;
+    private static final float CLOSE_DISTANCE_FACTOR = 0.8f; // 80% of view distance is "close"
+    private static final float MEDIUM_DISTANCE_FACTOR = 0.6f; // 60% of view distance is "medium"
+
+    // Suspicion increase amounts for each zone
+    private static final int CLOSE_ZONE_SUS_INCREASE = 3;
+    private static final int MEDIUM_ZONE_SUS_INCREASE = 2;
+    private static final int FAR_ZONE_SUS_INCREASE = 1;
 
 
     /**
@@ -235,18 +238,32 @@ public class Guard extends Enemy {
         this.meowed = meowed;
     }
 
-//    public void updatePatrol() {
-//        if (patrolPoints == null || patrolPoints.length <= 0 || isAgroed() || isMeowed()) {
-//            return;
-//        }
-//
-//        Vector2 patrolTarget = patrolPoints[currentPatrolIndex];
-//        if (getPosition().dst(patrolTarget) < PATROL_THRESHOLD) {
-//            currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.length;
-//            patrolTarget = patrolPoints[currentPatrolIndex];
-//        }
-//        setTarget(patrolTarget);
-//    }
+    public int calculateSusIncrease(Vector2 playerPosition) {
+        // Calculate distance and angle to player
+        Vector2 toPlayer = new Vector2(playerPosition).sub(getPosition());
+        float distance = toPlayer.len();
+
+        // Calculate angle between guard's facing direction and player
+        float angleToPlayer = Math.abs(currentDirection.angleRad(toPlayer));
+
+        // Convert FOV from degrees to radians for calculations
+        float fovRadians = (float) Math.toRadians(fov);
+        float halfFOV = fovRadians / 2;
+
+        // Base suspicion increase based on distance
+        int baseSuspicionIncrease;
+
+        // Zone calculation - close, medium, or far
+        if (distance <= viewDistance * CLOSE_DISTANCE_FACTOR) {
+            baseSuspicionIncrease = CLOSE_ZONE_SUS_INCREASE;
+        } else if (distance <= viewDistance * MEDIUM_DISTANCE_FACTOR) {
+            baseSuspicionIncrease = MEDIUM_ZONE_SUS_INCREASE;
+        } else {
+            baseSuspicionIncrease = FAR_ZONE_SUS_INCREASE;
+        }
+
+        return baseSuspicionIncrease;
+    }
 
     /** If a guard is "meowed", it is currently patrolling to the spot of the meow,
      * but they are not chasing a player. When either alerted by a security camera,
