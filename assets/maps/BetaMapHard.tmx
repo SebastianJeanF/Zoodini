@@ -55,14 +55,14 @@
 </data>
  </layer>
  <objectgroup id="2" name="walls">
-  <object id="39" x="189.312" y="782.88" width="448.495" height="79.5699"/>
+  <object id="39" x="189.312" y="801.63" width="448.495" height="60.8199"/>
   <object id="40" x="65" y="224.727" width="319.628" height="94.1017"/>
   <object id="41" x="37" y="37.205" width="626" height="119"/>
   <object id="42" x="0" y="65.089" width="64" height="798.911"/>
   <object id="45" x="130.151" y="385.108" width="251.516" height="89.559"/>
   <object id="56" x="515.098" y="289.366" width="128.773" height="188.639"/>
-  <object id="57" x="348.629" y="384.533" width="36.0147" height="434.935"/>
-  <object id="61" x="599.129" y="357.699" width="42.4086" height="501.268"/>
+  <object id="57" x="352.879" y="384.533" width="31.7647" height="434.935"/>
+  <object id="61" x="608.674" y="357.699" width="32.8631" height="501.268"/>
   <object id="73" x="626.161" y="126.505" width="37.6774" height="228.989"/>
   <object id="75" x="43.7527" y="793.882" width="260.495" height="79.5699"/>
  </objectgroup>
@@ -152,20 +152,20 @@
   <object id="84" x="232" y="636">
    <polyline points="-140,-106 -131.804,128.009 95.6427,120.226 52.023,-123.382"/>
   </object>
-    <object id="89" type="Guard" x="508" y="576.667">
-     <properties>
-      <property name="category" value="00100"/>
-      <property name="exclude" value="00100"/>
-      <property name="force" type="float" value="1.5"/>
-      <property name="fov" type="float" value="60"/>
-      <property name="maxSpeed" type="float" value="5"/>
-      <property name="path" type="object" value="90"/>
-      <property name="radius" type="float" value="0.2"/>
-      <property name="spriteRadius" type="float" value="0.8"/>
-      <property name="viewDistance" type="float" value="5"/>
-     </properties>
-     <point/>
-    </object>
+  <object id="89" type="Guard" x="508" y="576.667">
+   <properties>
+    <property name="category" value="00100"/>
+    <property name="exclude" value="00100"/>
+    <property name="force" type="float" value="1.5"/>
+    <property name="fov" type="float" value="60"/>
+    <property name="maxSpeed" type="float" value="5"/>
+    <property name="path" type="object" value="90"/>
+    <property name="radius" type="float" value="0.2"/>
+    <property name="spriteRadius" type="float" value="0.8"/>
+    <property name="viewDistance" type="float" value="5"/>
+   </properties>
+   <point/>
+  </object>
   <object id="85" type="Door" x="494.63" y="660.46">
    <properties>
     <property name="category" value="10000"/>
@@ -183,9 +183,8 @@
     <property name="size" type="float" value="1"/>
    </properties>
   </object>
-
-  <object id="90" x="868.667" y="777">
-   <polyline points="-466.667,-188 -376.471,-213.991 -281.691,-175.108 -375.31,-212.049"/>
+  <object id="90" x="862.991" y="710.958">
+   <polyline points="-460.991,-129.98 -371.892,-147.949 -278.265,-121.066 -370.745,-146.607"/>
   </object>
  </objectgroup>
 </map>
