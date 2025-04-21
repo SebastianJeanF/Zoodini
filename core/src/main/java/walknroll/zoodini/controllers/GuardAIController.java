@@ -179,8 +179,9 @@ public class GuardAIController {
     private boolean hasReachedTargetLocation(Vector2 target) {
         Vector2 guardTile = tileGraph.worldToTile(guard.getPosition()).getCoords();
         Vector2 targetTile = tileGraph.worldToTile(target).getCoords();
-        System.out.println(guardTile);
-        System.out.println(targetTile);
+        System.out.println("Current guard tile " + guardTile);
+        System.out.println("Current target tile " + targetTile);
+        System.out.println(tileGraph.worldToTile(target).isWall);
         return guardTile.x == targetTile.x && guardTile.y == targetTile.y;
     }
 
@@ -271,7 +272,7 @@ public class GuardAIController {
                 break;
             case AlERTED:
                 // If guard has reached camera location; ALERTED -> PATROL
-                if (hasReachedTargetLocation(cameraAlertPosition) && !targetPlayer.isUnderCamera()) {
+                if (hasReachedTargetLocation(cameraAlertPosition)) {
                     currState = GuardState.PATROL;
                     guard.setCameraAlerted(false);
                     lastStateChangeTime = ticks;
@@ -290,7 +291,7 @@ public class GuardAIController {
                 }
                 // Guard is not sus and is meowed; PATROL -> DISTRACTED
                 // Due to ordering of checks, this will only happen if the guard is not suspicious
-                // This makes sense since we don't want the guard to deagrro by being meowed
+                // This makes sense snce we don't want the guard to deagrro by being meowed
                 else if (didDistractionOccur()) {
                     currState = GuardState.DISTRACTED;
                     guard.setMeow(true);
