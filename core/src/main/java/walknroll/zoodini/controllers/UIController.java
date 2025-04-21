@@ -36,15 +36,29 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+
+
 public class UIController {
+
+    public interface PauseMenuListener {
+        void onPauseStateChanged(boolean paused);
+        void onRestart();
+        void onReturnToMenu();
+    }
 
     protected BitmapFont displayFont;
 
     private TextureRegion catIcon;
     private TextureRegion octopusIcon;
+    private TextureRegion pauseIcon;
+    private TextureRegion restartIcon;
+    private TextureRegion homeIcon;
+    private TextureRegion pauseBanner;
 
     //Scene 2d components
     private Stage stage;
@@ -53,12 +67,21 @@ public class UIController {
 
     private Image catIconImage;
     private Image octopusIconImage;
+    private Image pauseIconImage;
+    private Image restartButton;
+    private Image homeButton;
+    private Image pauseBannerImage;
+    private Image overlayBackground;
+    private Table pauseMenuTable;
     private Image progressBg, progressFill;
     private static final float BAR_WIDTH  = 210f;
     private static final float BAR_HEIGHT = 25f;
     private static final float BAR_X      = 165f;
     private static final float BAR_Y      = 85f;
     private Table rootTable;
+
+    private boolean isPaused = false;
+    private PauseMenuListener pauseListener;
 
     public UIController(AssetDirectory directory) {
         viewport = new ScreenViewport();
@@ -67,6 +90,10 @@ public class UIController {
         setFont(directory.getEntry("display", BitmapFont.class));
         setCatIcon(new TextureRegion(directory.getEntry("cat-icon", Texture.class)));
         setOctopusIcon(new TextureRegion(directory.getEntry("octopus-icon", Texture.class)));
+        setPauseIcon(new TextureRegion(directory.getEntry("pause_icon", Texture.class)));
+        setRestartIcon(new TextureRegion(directory.getEntry("restart_icon", Texture.class)));
+        setHomeIcon(new TextureRegion(directory.getEntry("home_icon", Texture.class)));
+        setPausedBanner(new TextureRegion(directory.getEntry("game_paused", Texture.class)));
     }
 
     public void init() {
@@ -124,6 +151,105 @@ public class UIController {
             stage.addActor(octopusIconImage);
         }
 
+        if (pauseIcon != null) {
+            pauseIconImage = new Image(pauseIcon);
+            float iconSize = 40f;
+            pauseIconImage.setSize(iconSize, iconSize);
+            float xPos = Gdx.graphics.getWidth() - iconSize - 20;
+            float yPos = Gdx.graphics.getHeight() - iconSize - 20;
+            pauseIconImage.setPosition(xPos, yPos);
+            pauseIconImage.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    togglePauseMenu(true);
+                }
+            });
+            stage.addActor(pauseIconImage);
+        }
+
+        Drawable darkOverlay = skin.newDrawable("white", new Color(0, 0, 0, 0.7f));
+        overlayBackground = new Image(darkOverlay);
+        overlayBackground.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        overlayBackground.setVisible(false); // Hide initially
+        stage.addActor(overlayBackground);
+
+        pauseMenuTable = new Table();
+        pauseMenuTable.setBackground(skin.newDrawable("white", new Color(0.2f, 0.2f, 0.2f, 0.9f)));
+        pauseMenuTable.setSize(300, 200);
+        pauseMenuTable.setPosition(
+            (Gdx.graphics.getWidth() - 300) / 2,
+            (Gdx.graphics.getHeight() - 200) / 2
+        );
+        pauseMenuTable.setVisible(false); // Hide initially
+
+        Table buttonTable = new Table();
+
+        if (restartIcon != null) {
+            restartButton = new Image(restartIcon);
+            restartButton.setSize(64, 64);
+            buttonTable.add(restartButton).pad(10).size(64);
+            restartButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    // We'll add the restart logic later
+                    togglePauseMenu(false);
+                    if (pauseListener != null) {
+                        pauseListener.onRestart();
+                    }
+                }
+            });
+        }
+
+        if (homeIcon != null) {
+            homeButton = new Image(homeIcon);
+            homeButton.setSize(64, 64);
+            buttonTable.add(homeButton).pad(10).size(64);
+            homeButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    // We'll add the home menu logic later
+                    togglePauseMenu(false);
+                    if (pauseListener != null) {
+                        pauseListener.onReturnToMenu();
+                    }
+                }
+            });
+        }
+
+        overlayBackground.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // Only close if clicked on the background, not on menu
+                if (!pauseMenuTable.isAscendantOf(event.getTarget())) {
+                    togglePauseMenu(false);
+                }
+            }
+        });
+
+        if (pauseBanner != null) {
+            pauseBannerImage = new Image(pauseBanner);
+            float scale = 1.0f;
+            pauseBannerImage.setSize(
+                pauseBanner.getRegionWidth() * scale,
+                pauseBanner.getRegionHeight() * scale
+            );
+            Stack bannerStack = new Stack();
+            bannerStack.setSize(pauseBannerImage.getWidth(), pauseBannerImage.getHeight());
+
+            Table overlayTable = new Table();
+            overlayTable.setFillParent(true);
+            overlayTable.center();
+
+            overlayTable.add(buttonTable).padTop(40);
+
+            bannerStack.addActor(pauseBannerImage);
+            bannerStack.addActor(overlayTable);
+            pauseMenuTable.add(bannerStack).padTop(20).row();
+        }
+
+        stage.addActor(pauseMenuTable);
+
+
 //        inkMeter = new ProgressBar(0, 100, 1, false, skin.get("default-horizontal", ProgressBar.ProgressBarStyle.class));
 //        inkMeter.setWidth(210);
 //        inkMeter.setHeight(35);
@@ -132,6 +258,23 @@ public class UIController {
 //        inkMeter.setVisible(false); // Hide initially
 //        inkMeter.setValue(100f);
 //        stage.addActor(inkMeter);
+    }
+    public void togglePauseMenu(boolean paused) {
+        isPaused = paused;
+        overlayBackground.setVisible(paused);
+        pauseMenuTable.setVisible(paused);
+
+        if (pauseListener != null) {
+            pauseListener.onPauseStateChanged(paused);
+        }
+    }
+
+    public void setPauseMenuListener(PauseMenuListener listener) {
+        this.pauseListener = listener;
+    }
+
+    public boolean isPaused(){
+        return isPaused;
     }
 
     public void reset(){
@@ -147,6 +290,19 @@ public class UIController {
     public void setOctopusIcon(TextureRegion icon) {
         octopusIcon = icon;
     }
+    public void setPauseIcon(TextureRegion icon) {pauseIcon = icon;}
+
+    public void setRestartIcon(TextureRegion icon) {
+        restartIcon = icon;
+    }
+
+    public void setHomeIcon(TextureRegion icon) {
+        homeIcon = icon;
+    }
+
+    public void setPausedBanner(TextureRegion icon) {
+        pauseBanner = icon;
+    }
 
     public void update() {
 
@@ -154,6 +310,19 @@ public class UIController {
 
     public void resize(int width, int height){
         viewport.update(width, height, true);
+
+        if (pauseIconImage != null) {
+            float iconSize = pauseIconImage.getWidth();
+            pauseIconImage.setPosition(width - iconSize - 20, height -iconSize - 20);
+        }
+        if (overlayBackground != null) {
+            overlayBackground.setSize(width, height);
+        }
+        if (pauseMenuTable != null) {
+            float menuWidth = pauseMenuTable.getWidth();
+            float menuHeight = pauseMenuTable.getHeight();
+            pauseMenuTable.setPosition((width - menuWidth) / 2, (height - menuHeight) / 2);
+        }
     }
 
     public void dispose() {
@@ -167,6 +336,9 @@ public class UIController {
 
 
     public void draw(GameLevel level) {
+        if (Gdx.input.getInputProcessor() != stage) {
+            Gdx.input.setInputProcessor(stage);
+        }
         Avatar avatar = level.getAvatar();
         boolean isOcto = avatar.getAvatarType() == AvatarType.OCTOPUS;
 
