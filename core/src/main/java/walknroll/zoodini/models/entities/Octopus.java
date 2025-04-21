@@ -55,6 +55,13 @@ public class Octopus extends Avatar {
         return keys;
     }
 
+    public float getInkRegen(){
+        return this.inkRegen;
+    }
+
+    public float getInkCost(){
+        return this.inkUsage;
+    }
 
     public float getAbilityRange() {
         return abilityRange;

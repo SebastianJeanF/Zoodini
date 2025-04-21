@@ -12,6 +12,7 @@
  */
 package walknroll.zoodini.controllers.screens;
 
+
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -25,8 +26,10 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
+import edu.cornell.gdiac.graphics.RenderTarget;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.*;
+import java.nio.IntBuffer;
 import org.w3c.dom.Text;
 import walknroll.zoodini.GDXRoot;
 import walknroll.zoodini.controllers.GuardAIController;
@@ -63,7 +66,7 @@ import walknroll.zoodini.utils.ZoodiniSprite;
  */
 public class GameScene implements Screen, ContactListener {
 
-    private boolean debug = true;
+    private boolean debug = false;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
@@ -154,8 +157,7 @@ public class GameScene implements Screen, ContactListener {
 
 
         //UI controller is not working as intended. Someone fix plz
-        ui = new UIController(directory);
-        ui.init();
+        ui = new UIController(directory, level);
 
         graph = new TileGraph<>(map, false);
         initializeAIControllers();
@@ -178,8 +180,6 @@ public class GameScene implements Screen, ContactListener {
 
         catArrived = false;
         octopusArrived = false;
-
-        ui.reset();
 
         setComplete(false);
         setFailure(false);
@@ -274,6 +274,8 @@ public class GameScene implements Screen, ContactListener {
         updateGuardAI();
         processNPCAction(dt);
         updateCamera(dt);
+
+        ui.update(dt);
     }
 
 
@@ -341,7 +343,6 @@ public class GameScene implements Screen, ContactListener {
                 guard.setAgroed(true);
                 guard.setAggroTarget(level.getCat());
                 guard.setTarget(level.getCat().getPosition());
-//                System.out.println("Guard detected cat: " + guard.getAggroTarget());
             }
 
             // Check if octopus is detected
@@ -349,7 +350,6 @@ public class GameScene implements Screen, ContactListener {
                 guard.setAgroed(true);
                 guard.setAggroTarget(level.getOctopus());
                 guard.setTarget(level.getOctopus().getPosition());
-//                System.out.println("Guard detected octopus: " + guard.getAggroTarget());
             }
             // No player detected
             else {
@@ -521,6 +521,7 @@ public class GameScene implements Screen, ContactListener {
     public void dispose() {
         level.dispose();
         level = null;
+        ui.dispose();
     }
 
 
@@ -825,7 +826,6 @@ public class GameScene implements Screen, ContactListener {
                 if ((o1 == cat && o2 == keyObs) || (o2 == cat && o1 == keyObs)) {
                     key.setCollected(true);
                     key.setOwner(AvatarType.CAT);
-                    System.out.println("COLLISION");
                     level.getCat().assignKey(key);
                 }
             }
