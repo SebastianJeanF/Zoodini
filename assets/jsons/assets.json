@@ -173,6 +173,12 @@
       "small-cat-icon": "textures/small-cat-icon.png",
       "small-octopus-icon": "textures/small-octopus-icon.png",
       "danger-icon": "textures/danger-icon.png",
+      "pause_icon": "textures/pause_icon.png",
+      "home_icon": "textures/home_icon.png",
+      "restart_icon": "textures/restart_icon.png",
+      "resume_icon": "textures/resume_icon.png",
+      "game_paused": "textures/game_paused.png",
+      "resume_button": "textures/resume_button.png",
       "exit": "textures/panda-sprite.png",
       "ink" : "textures/ink_projectile.png"
     },

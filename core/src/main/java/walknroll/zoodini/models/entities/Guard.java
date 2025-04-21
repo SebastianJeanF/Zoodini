@@ -329,6 +329,26 @@ public class Guard extends Enemy {
         super.update(dt);
     }
 
+
+    /** Update the animation frame for the suspicion meter*/
+    private void updateSuspicionAnimation() {
+        // Update the animation controller
+        // Calculate which frame to display based on suspicion level
+        int totalFrames = suspsicionMeter.getCurrentSpriteSheet().getSize() - 1;
+        if (totalFrames <= 0) {
+            return; // No valid frames
+        }
+
+        // Map suspicion level (0 to maxSusLevel) to frame index (0 to totalFrames)
+        int frameIndex = Math.round((susLevel / maxSusLevel) * totalFrames);
+
+        // Ensure frame index is within valid range
+        frameIndex = MathUtils.clamp(frameIndex, 0, totalFrames);
+
+        // Update the animation to show the correct frame
+        suspsicionMeter.getCurrentSpriteSheet().setFrame(frameIndex);
+    }
+
     /** The value of target is only valid if guard is agroed or is "meowed" */
     public Vector2 getTarget() {
         if (meowed == true) {
@@ -349,20 +369,7 @@ public class Guard extends Enemy {
             return;
         }
 
-        // Calculate which frame to display based on suspicion level
-        int totalFrames = suspsicionMeter.getCurrentSpriteSheet().getSize() - 1;
-        if (totalFrames <= 0) {
-            return; // No valid frames
-        }
-
-        // Map suspicion level (0 to maxSusLevel) to frame index (0 to totalFrames)
-        int frameIndex = Math.round((susLevel / maxSusLevel) * totalFrames);
-
-        // Ensure frame index is within valid range
-        frameIndex = MathUtils.clamp(frameIndex, 0, totalFrames);
-
-        // Update the animation to show the correct frame
-        suspsicionMeter.getCurrentSpriteSheet().setFrame(frameIndex);
+        updateSuspicionAnimation();
 
         float PIXEL_PER_WORLD_UNIT = getObstacle().getPhysicsUnits();
         float guardXPixel = getPosition().x * PIXEL_PER_WORLD_UNIT;
