@@ -97,9 +97,9 @@
     <property name="abilityRange" type="float" value="3.5"/>
     <property name="category" value="00010"/>
     <property name="exclude" value="00010"/>
-    <property name="force" type="float" value="1.5"/>
+    <property name="force" type="float" value="2"/>
     <property name="inkCapacity" type="float" value="100"/>
-    <property name="inkRegen" type="float" value="25"/>
+    <property name="inkRegen" type="float" value="5"/>
     <property name="inkUsage" type="float" value="25"/>
     <property name="maxSpeed" type="float" value="5"/>
     <property name="radius" type="float" value="0.4"/>
@@ -124,12 +124,12 @@
   <object id="80" type="Cat" x="151.333" y="168">
    <properties>
     <property name="abilityCooldown" type="float" value="5"/>
-    <property name="abilityRange" type="float" value="5"/>
+    <property name="abilityRange" type="float" value="7"/>
     <property name="category" value="00010"/>
     <property name="exclude" value="00010"/>
     <property name="force" type="float" value="3"/>
     <property name="maxSpeed" type="float" value="10"/>
-    <property name="meowExpandSpeed" type="float" value="2"/>
+    <property name="meowExpandSpeed" type="float" value="7"/>
     <property name="radius" type="float" value="0.4"/>
     <property name="spriteRadius" type="float" value="0.6"/>
    </properties>
