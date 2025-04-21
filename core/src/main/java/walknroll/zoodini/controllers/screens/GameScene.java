@@ -676,7 +676,7 @@ public class GameScene implements Screen, ContactListener {
 			direction.nor().scl(guard.getForce());
 
 			if (guard.isMeowed()) {
-				direction.scl(4.25f);
+				direction.scl(2.25f);
 			} else if (guard.isCameraAlerted()) {
                 direction.scl(6.0f);
             }
