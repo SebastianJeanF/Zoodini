@@ -61,7 +61,7 @@ import walknroll.zoodini.utils.ZoodiniSprite;
  * You will notice that asset loading is very different. It relies on the
  * singleton asset manager to manage the various assets.
  */
-public class GameScene implements Screen, ContactListener {
+public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener {
 
     private boolean debug = true;
 
@@ -120,6 +120,9 @@ public class GameScene implements Screen, ContactListener {
 	// general-purpose cache vector
 	private Vector2 cacheVec = new Vector2();
 
+    // Game Paused Menu
+    private boolean gamePaused = false;
+
 
 	/**
 	 * Creates a new game world
@@ -153,9 +156,10 @@ public class GameScene implements Screen, ContactListener {
 		inCameraTransition = false;
 
 
-        //UI controller is not working as intended. Someone fix plz
+        //UI Controller
         ui = new UIController(directory);
         ui.init();
+        ui.setPauseMenuListener(this);
 
         graph = new TileGraph<>(map, false);
         initializeAIControllers();
@@ -208,6 +212,22 @@ public class GameScene implements Screen, ContactListener {
                 update(delta);
                 draw();
             }
+        }
+    }
+    @Override
+    public void onPauseStateChanged(boolean paused) {
+        gamePaused = paused;
+    }
+
+    @Override
+    public void onRestart() {
+        reset();
+    }
+
+    @Override
+    public void onReturnToMenu() {
+        if (listener != null) {
+            listener.exitScreen(this, GDXRoot.EXIT_MENU);
         }
     }
 
@@ -267,6 +287,9 @@ public class GameScene implements Screen, ContactListener {
      * @param dt Number of seconds since last animation frame
      */
     public void update(float dt) {
+        if (gamePaused) {
+            return;
+        }
         InputController input = InputController.getInstance();
         processPlayerAction(input, dt);
         level.update(dt); //collisions
@@ -291,12 +314,13 @@ public class GameScene implements Screen, ContactListener {
             if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
                 Vector2 catPos = level.getCat().getPosition();
                 Vector2 octPos = level.getOctopus().getPosition();
-
                 if (entry.value.contains(catPos) || entry.value.contains(octPos)) {
+
                     ((SecurityCamera) entry.key).activateRing();
-                    // Alert all guards
 
                     Avatar detectedPlayer = entry.value.contains(catPos) ? level.getCat() : level.getOctopus();
+
+                    detectedPlayer.setUnderCamera(true);
 
                     for (Guard guard : level.getGuards()) {
                         float guardToCameraDistance = guard.getPosition().dst(((SecurityCamera) entry.key).getPosition());
@@ -308,6 +332,9 @@ public class GameScene implements Screen, ContactListener {
                             guard.setTarget(detectedPlayer.getPosition());
                         }
                     }
+                } else {
+                    level.getCat().setUnderCamera(false);
+                    level.getOctopus().setUnderCamera(false);
                 }
             }
         }
@@ -341,6 +368,8 @@ public class GameScene implements Screen, ContactListener {
                 guard.setAgroed(true);
                 guard.setAggroTarget(level.getCat());
                 guard.setTarget(level.getCat().getPosition());
+                level.getCat().setUnderVisionCone(true);
+                guard.setSeesPlayer(true);
 //                System.out.println("Guard detected cat: " + guard.getAggroTarget());
             }
 
@@ -349,11 +378,16 @@ public class GameScene implements Screen, ContactListener {
                 guard.setAgroed(true);
                 guard.setAggroTarget(level.getOctopus());
                 guard.setTarget(level.getOctopus().getPosition());
+                level.getOctopus().setUnderVisionCone(true);
+                guard.setSeesPlayer(true);
 //                System.out.println("Guard detected octopus: " + guard.getAggroTarget());
             }
             // No player detected
             else {
                 // Only set to false if the guard isn't being alerted by a camera
+                level.getOctopus().setUnderVisionCone(false);
+                level.getCat().setUnderVisionCone(false);
+                guard.setSeesPlayer(false);
                 if (!guard.isCameraAlerted()) {
                     guard.setAgroed(false);
                 }
@@ -503,6 +537,10 @@ public class GameScene implements Screen, ContactListener {
                 if (targetLocation != null) {
                     graph.markPositionAsTarget(targetLocation);
                 }
+                Vector2 cameraTargetLocation = controller.getCameraAlertPosition();
+                graph.markPositionAsTarget(cameraTargetLocation);
+                Vector2 distractedTargetLocation = controller.getDistractPosition();
+                graph.markPositionAsTarget(distractedTargetLocation);
             });
 
             graph.draw(batch, camera, level.getTileSize());
@@ -676,7 +714,7 @@ public class GameScene implements Screen, ContactListener {
 			direction.nor().scl(guard.getForce());
 
 			if (guard.isMeowed()) {
-				direction.scl(4.25f);
+				direction.scl(2.25f);
 			} else if (guard.isCameraAlerted()) {
                 direction.scl(6.0f);
             }
@@ -689,7 +727,7 @@ public class GameScene implements Screen, ContactListener {
             }
 
 
-			guard.setMovement(direction.x, direction.y);
+            guard.setMovement(direction.x, direction.y);
 		}
 
 		// Update the guard's orientation to face the direction of movement.
@@ -1019,4 +1057,6 @@ public class GameScene implements Screen, ContactListener {
     public void setCurrentLevel(int v){
         currentLevel = v;
     }
+
+
 }

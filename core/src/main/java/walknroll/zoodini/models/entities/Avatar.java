@@ -62,6 +62,8 @@ public class Avatar extends ZoodiniSprite {
 
     private boolean underCamera;
 
+    private boolean underVisionCone;
+
 	public enum AvatarType {
 		CAT,
 		OCTOPUS,
@@ -72,7 +74,7 @@ public class Avatar extends ZoodiniSprite {
 
     private boolean flipped = false;
 
-    private final AnimationController animationController;
+    protected final AnimationController animationController;
 	/**
 	 * Returns the avatar type.
 	 *
@@ -237,6 +239,7 @@ public class Avatar extends ZoodiniSprite {
 		mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 
         underCamera = false;
+        underVisionCone = false;
         animationController = new AnimationController(AnimationState.IDLE);
     }
 
@@ -347,7 +350,15 @@ public class Avatar extends ZoodiniSprite {
         this.underCamera = underCamera;
     }
 
+    public void setUnderVisionCone(boolean underVisionCone) {
+        this.underVisionCone = underVisionCone;
+    }
+
     public boolean isUnderCamera() {
         return underCamera;
+    }
+
+    public boolean isInGuardVisionCone() {
+        return underVisionCone;
     }
 }

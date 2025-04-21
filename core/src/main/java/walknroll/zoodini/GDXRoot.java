@@ -165,7 +165,7 @@ public class GDXRoot extends Game implements ScreenListener {
 				if (directory == null) {
 					throw new RuntimeException("Asset directory was somehow not loaded after initial boot");
 				}
-				gameplay = new GameScene(directory, batch, 5);
+				gameplay = new GameScene(directory, batch, 7);
 				gameplay.setScreenListener(this);
 				setScreen(gameplay);
 				disposeExcept(gameplay);

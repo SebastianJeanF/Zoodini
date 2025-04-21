@@ -35,6 +35,7 @@ public class Guard extends Enemy {
     private int chaseTimer;
     private boolean cameraAlerted;
     private Avatar aggroTarget;
+    private boolean seesPlayer;
 
     /** The position that this guard should move to */
     Vector2 target = null;
@@ -85,6 +86,7 @@ public class Guard extends Enemy {
         viewDistance = properties.get("viewDistance", Float.class);
         susThreshold = 50F;
         maxSusLevel = 100F;
+        seesPlayer = false;
 
         MapObject path = properties.get("path", MapObject.class);
         if(path instanceof PolylineMapObject line){
@@ -131,6 +133,14 @@ public class Guard extends Enemy {
 
     public boolean isMaxSusLevel() {
         return susLevel == maxSusLevel;
+    }
+
+    public float getMaxSusLevel() {
+        return maxSusLevel;
+    }
+
+    public float getSusThreshold() {
+        return susThreshold;
     }
 
     /** Check if the guard is "suspicious" of the player.
@@ -188,6 +198,14 @@ public class Guard extends Enemy {
     /** If a guard is "agroed", it is currently chasing a player */
     public boolean isAgroed() {
         return isChasing;
+    }
+
+    public void setSeesPlayer(boolean seesPlayer) {
+        this.seesPlayer = seesPlayer;
+    }
+
+    public boolean isSeesPlayer() {
+        return seesPlayer;
     }
 
     /** Get current movement direction of guard.
@@ -311,6 +329,26 @@ public class Guard extends Enemy {
         super.update(dt);
     }
 
+
+    /** Update the animation frame for the suspicion meter*/
+    private void updateSuspicionAnimation() {
+        // Update the animation controller
+        // Calculate which frame to display based on suspicion level
+        int totalFrames = suspsicionMeter.getCurrentSpriteSheet().getSize() - 1;
+        if (totalFrames <= 0) {
+            return; // No valid frames
+        }
+
+        // Map suspicion level (0 to maxSusLevel) to frame index (0 to totalFrames)
+        int frameIndex = Math.round((susLevel / maxSusLevel) * totalFrames);
+
+        // Ensure frame index is within valid range
+        frameIndex = MathUtils.clamp(frameIndex, 0, totalFrames);
+
+        // Update the animation to show the correct frame
+        suspsicionMeter.getCurrentSpriteSheet().setFrame(frameIndex);
+    }
+
     /** The value of target is only valid if guard is agroed or is "meowed" */
     public Vector2 getTarget() {
         if (meowed == true) {
@@ -331,20 +369,7 @@ public class Guard extends Enemy {
             return;
         }
 
-        // Calculate which frame to display based on suspicion level
-        int totalFrames = suspsicionMeter.getCurrentSpriteSheet().getSize() - 1;
-        if (totalFrames <= 0) {
-            return; // No valid frames
-        }
-
-        // Map suspicion level (0 to maxSusLevel) to frame index (0 to totalFrames)
-        int frameIndex = Math.round((susLevel / maxSusLevel) * totalFrames);
-
-        // Ensure frame index is within valid range
-        frameIndex = MathUtils.clamp(frameIndex, 0, totalFrames);
-
-        // Update the animation to show the correct frame
-        suspsicionMeter.getCurrentSpriteSheet().setFrame(frameIndex);
+        updateSuspicionAnimation();
 
         float PIXEL_PER_WORLD_UNIT = getObstacle().getPhysicsUnits();
         float guardXPixel = getPosition().x * PIXEL_PER_WORLD_UNIT;

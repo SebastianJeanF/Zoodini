@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
@@ -30,7 +31,7 @@ public class SecurityCamera extends ZoodiniSprite {
     private float viewDistance;
 
     private boolean disabled;
-    private float disabledTime; //in seconds
+    private float maxDisabledTime; //in seconds
     private float disabledTimeRemaining;
     private float angle;
 
@@ -75,12 +76,12 @@ public class SecurityCamera extends ZoodiniSprite {
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 
 
-        disabledTime = properties.get("disabledTime", Float.class);
+        maxDisabledTime = properties.get("disabledTime", Float.class);
         disabled = false;
 
         // Initialize ring effect properties
         alarmDistance = properties.get("alarmDistance", Float.class);
-        expansionSpeed = 1.0f;
+        expansionSpeed = 5.0f;
         ringThickness = 0.1f;
         ringColor = new Color(1, 0, 0, 0.5f); // Semi-transparent red
         currentRadius = 0f; //in meters
@@ -121,8 +122,7 @@ public class SecurityCamera extends ZoodiniSprite {
     @Override
     public void update(float dt) {
 
-        // Update animation controller
-        animationController.update();
+
 
         // This is the key fix - update the sprite reference itself
         SpriteSheet currentSheet = animationController.getCurrentSpriteSheet();
@@ -137,13 +137,59 @@ public class SecurityCamera extends ZoodiniSprite {
 
         super.update(dt);
 
-        if (disabled == true) {
+        updateRing(dt);
+
+        updateAnimation(dt);
+    }
+
+    private void updateAnimation(float dt) {
+        if (disabled) {
             disabledTimeRemaining -= dt;
         }
 
         if (disabledTimeRemaining <= 0) {
             disabled = false;
+            animationController.getCurrentSpriteSheet().setFrame(
+                0
+            );
         }
+
+        // Calculate which frame to display based on suspicion level
+        int totalFrames = animationController.getCurrentSpriteSheet().getSize() - 1;
+        if (totalFrames <= 0) {
+            return; // No valid frames
+        }
+
+        // Map suspicion level (0 to maxSusLevel) to frame index (0 to totalFrames)
+        int frameIndex = Math.round( (disabledTimeRemaining/ maxDisabledTime) * totalFrames);
+
+        // Ensure frame index is within valid range
+        frameIndex = MathUtils.clamp(frameIndex, 0, totalFrames);
+
+        frameIndex = totalFrames - frameIndex; // Invert the frame index for the animation
+
+        // Update the animation to show the correct frame
+        animationController.getCurrentSpriteSheet().setFrame(frameIndex);
+
+    }
+
+    private void updateAnimation() {
+        if (disabled) {
+            animationController.setState(AnimationState.IDLE);
+        } else {
+            animationController.setState(AnimationState.WALK);
+        }
+
+
+    }
+
+    /**
+     * Updates the ring effect based on the time delta.
+     *
+     * @param dt The time delta since the last update.
+     */
+    private void updateRing(float dt) {
+
 
         // Update ring animation
         if (isRingActive) {
@@ -218,7 +264,7 @@ public class SecurityCamera extends ZoodiniSprite {
 
     public void disable() {
         this.disabled = true;
-        disabledTimeRemaining = disabledTime;
+        disabledTimeRemaining = maxDisabledTime;
     }
 
     public float getAngle() {
