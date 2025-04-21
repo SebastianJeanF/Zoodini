@@ -87,7 +87,9 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         MapLayer objectLayer = map.getLayers().get("objects");
         for (MapObject obj : objectLayer.getObjects()) {
             if (!(obj instanceof RectangleMapObject)
-                || !"Camera".equalsIgnoreCase(obj.getProperties().get("type", String.class))) continue;
+                || (!"Camera".equalsIgnoreCase(obj.getProperties().get("type", String.class))
+                && !"Door".equalsIgnoreCase(obj.getProperties().get("type", String.class)))
+                ) continue;
 
             System.out.println(obj.getProperties().get("id", Integer.class));
             Rectangle rect = ((RectangleMapObject) obj).getRectangle();

@@ -73,8 +73,8 @@ public class Guard extends Enemy {
      * The main purpose of this constructor is to set the initial capsule
      * orientation.
      */
-    public Guard(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
-        super(directory, properties, globals, units);
+    public Guard(MapProperties properties, float units) {
+        super(properties, units);
         fov = properties.get("fov", Float.class);
         currentPatrolIndex = 0;
         cameraAlerted = false;
@@ -97,24 +97,22 @@ public class Guard extends Enemy {
             setPatrolPoints(vertices);
         }
 
-        String animKey = globals.getString("suspicion");
+    }
+
+    public void setSusMeter(SpriteSheet sheet){
         final int START_FRAME = 0;
         final int FRAME_DELAY = 0;
         final boolean IS_LOOP = true;
 
-        if (animKey != null) {
-            SpriteSheet sharedSheet = directory.getEntry(animKey, SpriteSheet.class);
-            SpriteSheet animSheet = new SpriteSheet(sharedSheet);
-            animSheet.setFrame(START_FRAME);
-            Animation anim = new Animation(
-                animSheet,
-                START_FRAME,
-                animSheet.getSize() - 1,
-                FRAME_DELAY,
-                IS_LOOP
-            );
-            suspsicionMeter.addAnimation(state, anim);
-        }
+        sheet.setFrame(START_FRAME);
+        Animation anim = new Animation(
+            sheet,
+            START_FRAME,
+            sheet.getSize() - 1,
+            FRAME_DELAY,
+            IS_LOOP
+        );
+        suspsicionMeter.addAnimation(SUSPICION_METER, anim);
     }
 
     public void setMaxSusLevel() {
@@ -346,6 +344,7 @@ public class Guard extends Enemy {
     }
 
     public void drawSuspicionMeter(SpriteBatch batch) {
+        float BASELINE_PX = 32;
         if (suspsicionMeter == null || suspsicionMeter.getCurrentSpriteSheet() == null) {
             return;
         }
@@ -369,20 +368,20 @@ public class Guard extends Enemy {
         float guardXPixel = getPosition().x * PIXEL_PER_WORLD_UNIT;
         float guardYPixel = getPosition().y * PIXEL_PER_WORLD_UNIT;
 
-        float SCALE = 0.3f;
-        float X_PIXEL_OFFSET = -90f * SCALE;
-        float Y_PIXEL_OFFSET = 30f;
+        float SCALE = 0.3f * (PIXEL_PER_WORLD_UNIT / BASELINE_PX);
+        float X_PIXEL_OFFSET = (-68f * SCALE);
+        float Y_PIXEL_OFFSET = 80f * SCALE;
 
         // Get the original width and height of the sprite sheet
-        float originalWidth = suspsicionMeter.getCurrentSpriteSheet().getRegionWidth();
-        float originalHeight = suspsicionMeter.getCurrentSpriteSheet().getRegionHeight();
+        float originalWidthPx = suspsicionMeter.getCurrentSpriteSheet().getRegionWidth();
+        float originalHeightPx = suspsicionMeter.getCurrentSpriteSheet().getRegionHeight();
 
         batch.draw(
             suspsicionMeter.getCurrentSpriteSheet(),
             guardXPixel + X_PIXEL_OFFSET,
             guardYPixel + Y_PIXEL_OFFSET,
-            originalWidth * SCALE,
-            originalHeight * SCALE
+            originalWidthPx * SCALE,
+            originalHeightPx * SCALE
         );
     }
 }

@@ -13,6 +13,8 @@
 package walknroll.zoodini.controllers.screens;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.*;
@@ -66,14 +68,11 @@ public class GameScene implements Screen, ContactListener {
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
 	protected AssetDirectory directory;
-	/** The JSON defining the level model */
-	private JsonValue levelFormat;
-	/** The JSON defining the default entity configs */
-	private JsonValue levelGlobals;
+    /** Value for current level */
+    private int currentLevel;
 
-    private JsonValue levelID;
 
-	/** How many frames after winning/losing do we continue? */
+    /** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
 
 	/** The orthographic camera */
@@ -92,6 +91,9 @@ public class GameScene implements Screen, ContactListener {
     /** The current level */
     private final HashMap<Guard, GuardAIController> guardToAIController = new HashMap<>();
 
+    /** TiledMap read from TMX */
+    private TiledMap map;
+    /** Graph representing the map */
     private TileGraph<TileNode> graph;
 
 
@@ -104,6 +106,9 @@ public class GameScene implements Screen, ContactListener {
     private boolean failed;
     /** Countdown active for winning or losing */
     private int countdown;
+
+    /** Constant scale used for player movement */
+    private final float MOVEMENT_SCALE = 32f;
 
 	// Camera movement fields
 	private Vector2 cameraTargetPosition;
@@ -122,14 +127,13 @@ public class GameScene implements Screen, ContactListener {
 	 * The physics bounds and drawing scale are now stored in the LevelModel and
 	 * defined by the appropriate JSON file.
 	 */
-	public GameScene(AssetDirectory directory, SpriteBatch batch) {
+	public GameScene(AssetDirectory directory, SpriteBatch batch, int currentLevel) {
 		this.directory = directory;
 		this.batch = batch;
-
-		level = new GameLevel();
-        levelGlobals = directory.getEntry("globals", JsonValue.class);
-        levelID = directory.getEntry("levels", JsonValue.class);
-		level.populate(directory, levelID, levelGlobals);
+        this.currentLevel = currentLevel;
+        level = new GameLevel();
+        map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString(""+this.currentLevel));
+		level.populate(directory, map);
 		level.getWorld().setContactListener(this);
 
 		complete = false;
@@ -150,16 +154,10 @@ public class GameScene implements Screen, ContactListener {
 
 
         //UI controller is not working as intended. Someone fix plz
-        JsonValue avatarIcons = levelGlobals.get("avatarIcons");
-        ui = new UIController();
-        ui.setFont(directory.getEntry("display", BitmapFont.class));
-        TextureRegion catIcon = new TextureRegion(directory.getEntry(avatarIcons.get("cat-texture").asString(), Texture.class));
-        TextureRegion octopusIcon = new TextureRegion(directory.getEntry(avatarIcons.get("octopus-texture").asString(), Texture.class));
-        ui.setCatIcon(catIcon);
-        ui.setOctopusIcon(octopusIcon);
+        ui = new UIController(directory);
         ui.init();
 
-        graph = new TileGraph<>(level.getMap(), false);
+        graph = new TileGraph<>(map, false);
         initializeAIControllers();
 
 		setComplete(false);
@@ -187,8 +185,9 @@ public class GameScene implements Screen, ContactListener {
         setFailure(false);
         countdown = -1;
 
+        map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString(""+this.currentLevel));
         // Reload the json each time
-        level.populate(directory, levelID, levelGlobals);
+        level.populate(directory, map);
         level.getWorld().setContactListener(this);
         initializeAIControllers();
     }
@@ -528,11 +527,7 @@ public class GameScene implements Screen, ContactListener {
             }
         }
 
-        // batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
-        // Final message
-
-//        ui.draw(batch);
-        ui.draw(batch, level);
+        ui.draw(level);
     }
 
     /**
@@ -548,7 +543,7 @@ public class GameScene implements Screen, ContactListener {
 
     public void initializeAIControllers() {
 
-        graph = new TileGraph<>(level.getMap(), true);
+        graph = new TileGraph<>(map, true);
 
 //        this.gameGraph = new GameGraph(12, 16, level.getBounds().x, level.getBounds().y, level.getSprites());
         Array<Guard> guards = level.getGuards();
@@ -575,14 +570,13 @@ public class GameScene implements Screen, ContactListener {
 //    }
 
     private void onSwap(InputController input) {
-        if (input.didSwap()) {
+        if (input.didSwap() && !inCameraTransition) {
             // stop active character movement
             level.getAvatar().setMovement(0, 0);
             level.getAvatar().applyForce();
             // Save previous camera position before swapping
             cameraPreviousPosition.set(cameraTargetPosition);
-            // Save previous camera position before swapping
-            cameraPreviousPosition.set(cameraTargetPosition);
+
             // swap the active character
             level.swapActiveAvatar();
 
@@ -614,7 +608,7 @@ public class GameScene implements Screen, ContactListener {
             avatar.getObstacle().setAngle(angle);
         }
 
-        angleCache.scl(avatar.getForce()).scl(level.getTileSize());
+        angleCache.scl(avatar.getForce()).scl(MOVEMENT_SCALE);
         avatar.setMovement(angleCache.x, angleCache.y);
         avatar.applyForce();
     }
@@ -695,6 +689,7 @@ public class GameScene implements Screen, ContactListener {
 
 		if (direction.len() > 0) {
 			direction.nor().scl(guard.getForce());
+
 			if (guard.isMeowed()) {
 				direction.scl(4.25f);
 			} else if (guard.isCameraAlerted()) {
@@ -823,10 +818,10 @@ public class GameScene implements Screen, ContactListener {
 					if (o1 == camObstacle || o2 == camObstacle) {
 						cam.disable();
                         contact.setEnabled(false);
-                        level.getProjectile().setShouldDestroy(true);
 						break;
 					}
 				}
+                level.getProjectile().setShouldDestroy(true);
 			}
 
 
@@ -864,27 +859,23 @@ public class GameScene implements Screen, ContactListener {
 
             ObjectMap<Door, Key> doors = level.getDoors();
             for(Door door : doors.keys()) {
+
+                doors.get(door);
                 Obstacle doorObs = door.getObstacle();
-                Key theRightKey = doors.get(door);
+                Key rightKey = doors.get(door);
 
-                AvatarType type = theRightKey.getOwnerType();
+                if (o1 == doorObs || o2 == doorObs) {
+                    Obstacle other = (o1 == doorObs) ? o2 : o1;
 
+                    boolean canUnlock =
+                        (other == cat   && level.getCat().getKeys().contains(rightKey, true))
+                            || (other == oct  && level.getOctopus().getKeys().contains(rightKey, true));
 
-
-                if (
-                    (o1 == doorObs && (o2 == cat && level.getCat().getKeys().contains(theRightKey, true)))
-                    || (o1 == doorObs && (o2 == oct && level.getOctopus().getKeys().contains(theRightKey, true)))
-                    || (o2 == doorObs && (o1 == cat && level.getCat().getKeys().contains(theRightKey, true)))
-                    || (o2 == doorObs && (o1 == oct && level.getOctopus().getKeys().contains(theRightKey, true)))
-                )
-                { //owner of the key does not matter for now.
-                    if (theRightKey.isCollected() && !theRightKey.isUsed()
-                        && door.isLocked()) { //TODO: not sure whether we check if
-                        // key's collected at collision resolution or in the update().
-                        System.out.println("DOOR UNLOCKING");
+                    if (canUnlock && rightKey.isCollected() && !rightKey.isUsed() && door.isLocked()) {
                         door.setUnlocking(true);
                     }
                 }
+
             }
 
             // Handle exit collision (only if door is unlocked)
@@ -933,18 +924,23 @@ public class GameScene implements Screen, ContactListener {
 
                 doors.get(door);
                 Obstacle doorObs = door.getObstacle();
-                Key theRightKey = doors.get(door);
-                AvatarType type = doors.get(door).getOwnerType();
+                Key rightKey = doors.get(door);
 
+                if (o1 == doorObs || o2 == doorObs) {
+                    Obstacle other = (o1 == doorObs) ? o2 : o1;
 
-                if ((o1 == doorObs && (o2 == cat && level.getCat().getKeys().contains(theRightKey, true)))
-                    || (o1 == doorObs && (o2 == oct && level.getOctopus().getKeys().contains(theRightKey, true)))
-                    || (o2 == doorObs && (o1 == cat && level.getCat().getKeys().contains(theRightKey, true)))
-                    || (o2 == doorObs && (o1 == oct && level.getOctopus().getKeys().contains(theRightKey, true)))
-                ) { //owner of the key does not matter for now.
-                    if (door.isLocked()) {
+                    boolean canUnlock =
+                        (other == cat   && level.getCat().getKeys().contains(rightKey, true))
+                            || (other == oct  && level.getOctopus().getKeys().contains(rightKey, true));
+
+                    if (canUnlock && rightKey.isCollected() && !rightKey.isUsed() && door.isLocked()) {
                         door.setUnlocking(false);
                     }
+                }
+
+                if(!door.isLocked()){
+                    Vector2 doorPos = door.getObstacle().getPosition();
+                    graph.getNode((int)doorPos.x, (int)doorPos.y).isWall = false;
                 }
             }
 
@@ -1032,4 +1028,10 @@ public class GameScene implements Screen, ContactListener {
         return active;
     }
 
+    /**
+     * Sets the levelID
+     * */
+    public void setCurrentLevel(int v){
+        currentLevel = v;
+    }
 }

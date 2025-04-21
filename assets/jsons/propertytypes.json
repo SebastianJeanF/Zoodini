@@ -71,7 +71,7 @@
             {
                 "name": "abilityRange",
                 "type": "float",
-                "value": 5
+                "value": 7
             },
             {
                 "name": "category",
@@ -96,7 +96,7 @@
             {
                 "name": "meowExpandSpeed",
                 "type": "float",
-                "value": 2
+                "value": 10
             },
             {
                 "name": "radius",

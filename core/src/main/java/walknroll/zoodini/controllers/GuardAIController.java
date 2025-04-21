@@ -61,6 +61,7 @@ public class GuardAIController {
 
     private final float CAT_MEOW_RADIUS = Float.MAX_VALUE;
 
+
     /** Graph representation of the game */
     private TileGraph tileGraph;
 
