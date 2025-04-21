@@ -313,6 +313,7 @@ public class GuardAIController {
                 // Guard has not reached camera location, sus level is above threshold; ALERTED -> SUSPICIOUS
                 else if (guard.isSus()) {
                     currState = GuardState.SUSPICIOUS;
+                    guard.setCameraAlerted(true); // TODO: Make this false (if we want guard to lose momentum after spotting)
                     lastStateChangeTime = ticks;
                 }
                 break;
@@ -337,6 +338,7 @@ public class GuardAIController {
                 // Guard shouldn't deaggro if other player touches camera
                 else if (guard.isCameraAlerted()) {
                     currState = GuardState.AlERTED;
+                    guard.setCameraAlerted(true);
                     Vector2 playerPosition = getActivePlayer().getPosition();
                     cameraAlertPosition.set(getValidTileCoords(playerPosition));
                     lastStateChangeTime = ticks;
