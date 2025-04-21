@@ -161,7 +161,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         ui = new UIController(directory, level);
         ui.setPauseMenuListener(this);
 
-        graph = new TileGraph<>(map, false);
+        graph = new TileGraph<>(map, false, 2);
         initializeAIControllers();
 
 		setComplete(false);
@@ -548,7 +548,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             graph.draw(batch, camera, level.getTileSize());
             InputController ic = InputController.getInstance();
             if(ic.didLeftClick()) {
-                TileNode t = graph.markNearestTile(camera, ic.getAiming(), level.getTileSize());
+                graph.markNearestTile(camera, ic.getAiming(), level.getTileSize());
             }
         }
 
@@ -568,9 +568,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     //-----------------Helper Methods--------------------//
 
     public void initializeAIControllers() {
-
-        graph = new TileGraph<>(map, true);
-
 //        this.gameGraph = new GameGraph(12, 16, level.getBounds().x, level.getBounds().y, level.getSprites());
         Array<Guard> guards = level.getGuards();
         for (Guard g : guards) {
