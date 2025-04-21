@@ -193,7 +193,7 @@ public class GuardAIController {
 
     private boolean hasReachedTargetLocation(Vector2 target) {
         // Use world coordinates and a reasonable threshold
-        float arrivalDistance = 0.5f;
+        float arrivalDistance = 1f;
         float distance = guard.getPosition().dst(target);
 
         // Optional debugging
@@ -222,11 +222,11 @@ public class GuardAIController {
     private void updateSusLevel() {
         if (currState != GuardState.CHASE) { // Only update when not chasing
             if (guard.isSeesPlayer()) { // In guard's line of sight
-                guard.deltaSusLevel(10); // Increase suspicion
+                guard.deltaSusLevel(2); // Increase suspicion
             } else {
                 // Only decrease suspicion if not in ALERTED state
                 if (currState != GuardState.AlERTED) {
-                    guard.deltaSusLevel(-5); // Decrease suspicion
+                    guard.deltaSusLevel(-1); // Decrease suspicion
                 }
             }
         } else { // Guard is chasing
@@ -237,10 +237,10 @@ public class GuardAIController {
             }
             // Not under camera and not deaggroed, normal de-aggro logic
             else if (!guard.isSeesPlayer()) {
-                guard.deltaDeAggroTimer(-5); // Normal decrease
+                guard.deltaDeAggroTimer(-1); // Normal decrease
             } else {
                 // Guard sees player directly, reset de-aggro timer
-                guard.deltaDeAggroTimer(10);
+                guard.deltaDeAggroTimer(2);
             }
         }
     }
