@@ -96,6 +96,7 @@ public class UIController {
         Octopus o = level.getOctopus();
         inkMeter = new InkMeterActor(inkSprites, o.getInkCapacity(), o.getInkCost() ,o.getInkRegen());
 
+
         setSmallCatIcon(new TextureRegion(directory.getEntry("small-cat-icon", Texture.class)));
         setSmallOctopusIcon(new TextureRegion(directory.getEntry("small-octopus-icon", Texture.class)));
         setDangerIcon(new TextureRegion(directory.getEntry("danger-icon", Texture.class)));
@@ -107,6 +108,7 @@ public class UIController {
         setResumeButton(new TextureRegion(directory.getEntry("resume_button", Texture.class)));
 
         counter = new CounterActor(displayFont, 10);
+        counter.setVisible(false); //invisible until fully implemented
     }
 
 
@@ -129,10 +131,12 @@ public class UIController {
         Stack stack = new Stack();
         stack.add(catIconImage);
         stack.add(octopusIconImage);
-        bottomLeftTable.add(stack);
-        bottomLeftTable.add(inkMeter).align(Align.bottom);
+        bottomLeftTable.add(stack).pad(30);
+        bottomLeftTable.add(inkMeter).align(Align.bottomLeft).padBottom(30);
         bottomLeftTable.add(counter);
 
+
+        //TODO: don't hardcode positions. Use tables.
         if (smallCatIconImage != null) {
             smallCatIconImage.setPosition(45, 600);
             smallCatIconImage.setVisible(false);
@@ -150,6 +154,7 @@ public class UIController {
             dangerIconImage.setVisible(false);
             stage.addActor(dangerIconImage);
         }
+
         if (pauseIconImage != null) {
             float iconSize = 40f;
             pauseIconImage.setSize(iconSize, iconSize);
@@ -378,12 +383,11 @@ public class UIController {
             pauseListener.onPauseStateChanged(paused);
         }
     }
-
-    public void setPauseMenuListener(PauseMenuListener listener) {
-        this.pauseListener = listener;
-    }
-
     public void dispose(){
         stage.dispose();
+    }
+
+    public void setPauseMenuListener(PauseMenuListener l){
+        pauseListener = l;
     }
 }
