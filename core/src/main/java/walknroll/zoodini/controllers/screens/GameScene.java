@@ -51,6 +51,7 @@ import java.util.Map;
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 
+
 /**
  * Gameplay controller for the game.
  *
@@ -64,7 +65,7 @@ import walknroll.zoodini.utils.ZoodiniSprite;
  */
 public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener {
 
-    private boolean debug = true;
+    private boolean debug = false;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
@@ -643,7 +644,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         // Rotate the avatar to face the direction of movement
         angleCache.set(horizontalForce, verticalForce);
         if (angleCache.len2() > 0.0f) {
-            // Prevent faster movement when going diagonally
+            // Prevent faster movement when going diagonallyd
             if (angleCache.len() > 1.0f) {
                 angleCache.nor();
             }
@@ -736,7 +737,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 		if (direction.len() > 0) {
 			direction.nor().scl(guard.getForce());
 
-            float speedScale = 16f;
+            float radius = ((WheelObstacle) guard.getObstacle()).getRadius();
+            float speedScale = (float)(16 * Math.pow( (radius/ .8f) , 2));
 			if (guard.isMeowed()) {
 				direction.scl(3.5f * speedScale);
 			} else if (guard.isCameraAlerted()) {

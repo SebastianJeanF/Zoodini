@@ -216,4 +216,8 @@ public class Cat extends Avatar {
             batch.setColor(originalColor);
         }
     }
+
+    public float getAbilityRadius() {
+        return maxRadius;
+    }
 }

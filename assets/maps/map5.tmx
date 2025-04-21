@@ -97,7 +97,7 @@
   </object>
   <object id="33" type="Camera" x="653.763" y="341.935">
    <properties>
-    <property name="alarmDistance" type="float" value="5"/>
+    <property name="alarmDistance" type="float" value="10"/>
     <property name="angle" type="float" value="180"/>
     <property name="category" value="01000"/>
     <property name="disabledTime" type="float" value="5"/>
@@ -111,7 +111,7 @@
   </object>
   <object id="34" type="Octopus" x="96.7742" y="419.355">
    <properties>
-    <property name="abilityRange" type="float" value="3.5"/>
+    <property name="abilityRange" type="float" value="5"/>
     <property name="category" value="00010"/>
     <property name="exclude" value="00010"/>
     <property name="force" type="float" value="2"/>
@@ -132,7 +132,7 @@
     <property name="exclude" value="00010"/>
     <property name="force" type="float" value="3"/>
     <property name="maxSpeed" type="float" value="10"/>
-    <property name="meowExpandSpeed" type="float" value="7"/>
+    <property name="meowExpandSpeed" type="float" value="10"/>
     <property name="radius" type="float" value="0.4"/>
     <property name="spriteRadius" type="float" value="0.6"/>
    </properties>
@@ -157,7 +157,7 @@
   </object>
   <object id="38" type="Camera" x="333.333" y="421.505">
    <properties>
-    <property name="alarmDistance" type="float" value="5"/>
+    <property name="alarmDistance" type="float" value="10"/>
     <property name="angle" type="float" value="270"/>
     <property name="category" value="01000"/>
     <property name="disabledTime" type="float" value="5"/>

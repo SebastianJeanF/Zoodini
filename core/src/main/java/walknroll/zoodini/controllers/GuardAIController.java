@@ -59,7 +59,7 @@ public class GuardAIController {
 
     private final long STATE_CHANGE_COOLDOWN = 10;
 
-    private final float CAT_MEOW_RADIUS = Float.MAX_VALUE;
+    private float CAT_MEOW_RADIUS;
 
 
     /** Graph representation of the game */
@@ -92,6 +92,7 @@ public class GuardAIController {
         this.pathFinder = new IndexedAStarPathFinder<>(tileGraph);
         this.heuristic = new ManhattanHeuristic<>();
         this.nextTargetLocation = new Vector2(0, 0);
+        this.CAT_MEOW_RADIUS = level.getCat().getAbilityRadius();
     }
 
     /**
@@ -222,7 +223,13 @@ public class GuardAIController {
     private void updateSusLevel() {
         if (currState != GuardState.CHASE) { // Only update when not chasing
             if (guard.isSeesPlayer() && guard.getSeenPlayer() != null) { // In guard's line of sight
-                int susIncrease = guard.calculateSusIncrease(guard.getSeenPlayer().getPosition());
+
+                // If guard is alerted by a camera, increase suspicion to max
+                // otherwise, calculate the increase based on distance to player
+                int susIncrease = currState == GuardState.AlERTED
+                    ? (int) guard.getMaxSusLevel()
+                    : guard.calculateSusIncrease(guard.getSeenPlayer().getPosition());
+
                 guard.deltaSusLevel(susIncrease); // Increase suspicion
             } else {
                 // Only decrease suspicion if not in ALERTED state
