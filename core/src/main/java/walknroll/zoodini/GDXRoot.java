@@ -18,11 +18,6 @@ import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.controllers.InputController;
-import walknroll.zoodini.controllers.screens.CreditsScene;
-import walknroll.zoodini.controllers.screens.GameScene;
-import walknroll.zoodini.controllers.screens.MenuScene;
-import walknroll.zoodini.controllers.screens.SettingsScene;
-import walknroll.zoodini.controllers.screens.LevelSelectScene;
 import walknroll.zoodini.controllers.screens.*;
 import walknroll.zoodini.utils.GameSettings;
 import walknroll.zoodini.utils.LevelPortal;
@@ -46,6 +41,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	public static final int EXIT_CREDITS = 4;
 	public static final int EXIT_LEVEL_SELECT = 5;
 	public static final int EXIT_LOSE = 6;
+	public static final int EXIT_WIN = 7;
 
 	/** AssetManager to load game assets (textures, data, etc.) */
 	AssetDirectory directory;
@@ -58,6 +54,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	private SettingsScene settings;
 	private CreditsScene credits;
 	private GameOverScene gameOver;
+	private GameWinScene gameWin;
 	private LevelSelectScene levelSelect;
 
 	private GameSettings gameSettings;
@@ -109,6 +106,9 @@ public class GDXRoot extends Game implements ScreenListener {
 		}
 		if (gameOver != null) {
 			gameOver.dispose();
+		}
+		if (gameWin != null) {
+			gameWin.dispose();
 		}
 
 		batch.dispose();
@@ -163,6 +163,8 @@ public class GDXRoot extends Game implements ScreenListener {
 			selectedLevel = levelSelect.getSelectedLevel();
 		} else if (screen == gameOver) {
 			selectedLevel = gameOver.getLostLevel();
+		} else if (screen == gameWin) {
+			selectedLevel = gameWin.getNextLevel();
 		}
 
 		switch (exitCode) {
@@ -217,6 +219,13 @@ public class GDXRoot extends Game implements ScreenListener {
 				setScreen(gameOver);
 				disposeExcept(gameOver);
 				break;
+			case GDXRoot.EXIT_WIN:
+				// TODO: in the future, each level will have a point to the next level
+				gameWin = new GameWinScene(directory, batch, selectedLevel + 1);
+				gameWin.setScreenListener(this);
+				setScreen(gameWin);
+				disposeExcept(gameWin);
+				break;
 			default:
 				break;
 		}
@@ -246,6 +255,10 @@ public class GDXRoot extends Game implements ScreenListener {
 		if (gameOver != null && screen != gameOver) {
 			gameOver.dispose();
 			gameOver = null;
+		}
+		if (gameWin != null && screen != gameWin) {
+			gameWin.dispose();
+			gameWin = null;
 		}
 	}
 }

@@ -270,6 +270,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             return false;
         }
 
+        if (complete) {
+            listener.exitScreen(this, GDXRoot.EXIT_WIN);
+            return false;
+        }
+
         // Now it is time to maybe switch screens.
         if (input.didExit()) {
             listener.exitScreen(this, GDXRoot.EXIT_MENU);
