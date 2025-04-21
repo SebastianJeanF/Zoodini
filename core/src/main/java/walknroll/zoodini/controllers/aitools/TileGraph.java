@@ -310,4 +310,32 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         return nearestNode;
     }
 
+    public boolean isValidTile(Vector2 targetLocation) {
+        return worldToTile(targetLocation).isWall;
+    }
+
+    public Vector2 getNearestValidTargetLocation(Vector2 targetLocation) {
+        TileNode targetTile = worldToTile(targetLocation);
+        int[][] horizontal = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        // Check all 4 directions for valid tile
+        for (int[] coord: horizontal) {
+            int newX = targetTile.x + coord[0];
+            int newY = targetTile.y + coord[1];
+            if (!(getNode(newX, newY)).isWall) {
+                return getNode(newX, newY).getCoords();
+            }
+        }
+        // Check all 4 corners if needed
+        int[][] corners = {{1, 1}, {-1, 1}, {-1, 1}, {-1, 1}};
+        for (int[] coord: corners) {
+            int newX = targetTile.x + coord[0];
+            int newY = targetTile.y + coord[1];
+            if (!(getNode(newX, newY)).isWall) {
+                return getNode(newX, newY).getCoords();
+            }
+        }
+        // Nearest non-wall tile is not 1 layer away (shouldn't happen)
+        return targetTile.getCoords();
+    }
+
 }

@@ -69,16 +69,7 @@ public class GuardAIController {
 
     private Heuristic heuristic;
 
-
     private Vector2 nextTargetLocation;
-
-
-    /** Min distance from waypoint where the guard will recalculate to next waypoint*/
-    private final float WAYPOINT_RADIUS = 1F;
-
-    private final float CAMERA_WAYPOINT_RADIUS = 1F;
-
-    private final float DISTRACTED_WAYPOINT_RADIUS = 1F;
 
 
     /**
@@ -124,23 +115,6 @@ public class GuardAIController {
         return input.didAbility() && getActivePlayer().getAvatarType() == Avatar.AvatarType.CAT && guardToPlayerDistance <= CAT_MEOW_RADIUS;
     }
 
-    /**
-     * Helper function that checks if the guard has reached its patrol path.
-     *
-     * @return true if the guard is close enough to its next waypoint or if there are no waypoints, false otherwise
-     */
-    private boolean hasReachedPatrolTarget() {
-        if (waypoints.length == 0) {
-            return true;
-        }
-        // Check if guard is close enough to the nearest waypoint
-        return hasReachedTargetLocation(waypoints[currentWaypointIndex]);
-        // return distanceFromGuard(waypoints[currentWaypointIndex]) <= WAYPOINT_RADIUS;
-
-        // return distanceFromGuard(nextTargetLocation) <= WAYPOINT_RADIUS;
-
-    }
-
     public Vector2 getCameraAlertPosition() {
         return cameraAlertPosition;
     }
@@ -177,6 +151,9 @@ public class GuardAIController {
     }
 
     private boolean hasReachedTargetLocation(Vector2 target) {
+        if (!tileGraph.isValidTile(target)) {
+            target = tileGraph.getNearestValidTargetLocation(target);
+        }
         Vector2 guardTile = tileGraph.worldToTile(guard.getPosition()).getCoords();
         Vector2 targetTile = tileGraph.worldToTile(target).getCoords();
         System.out.println("Current guard tile " + guardTile);
@@ -219,6 +196,8 @@ public class GuardAIController {
     public boolean canStateTransition() {
         return ticks - lastStateChangeTime > STATE_CHANGE_COOLDOWN;
     }
+
+
 
     /**
      * Updates the guard's state based on current conditions and state priority.
@@ -295,11 +274,8 @@ public class GuardAIController {
                 else if (didDistractionOccur()) {
                     currState = GuardState.DISTRACTED;
                     guard.setMeow(true);
-                    Vector2 newDistractPosition = getActivePlayer().getPosition();
-                    if (!isValidTile(newDistractPosition)) {
-                        newDistractPosition = getNearestValidTargetLocation(getActivePlayer().getPosition());
-                    }
-                    distractPosition.set(newDistractPosition);
+                    Vector2 playerPosition = getActivePlayer().getPosition();
+                    distractPosition.set(getValidTileCoords(playerPosition));
                     lastStateChangeTime = ticks;
                 }
                 // Guard is not sus, not meowed, but player under camera; PATROL -> ALERTED
@@ -307,11 +283,8 @@ public class GuardAIController {
                 // Guard shouldn't deaggro if other player touches camera
                 else if (guard.isCameraAlerted()) {
                     currState = GuardState.AlERTED;
-                    Vector2 newCameraAlertPosition = getActivePlayer().getPosition();
-                    if (!isValidTile(newCameraAlertPosition)) {
-                        newCameraAlertPosition = getNearestValidTargetLocation(getActivePlayer().getPosition());
-                    }
-                    cameraAlertPosition.set(newCameraAlertPosition);
+                    Vector2 playerPosition = getActivePlayer().getPosition();
+                    cameraAlertPosition.set(getValidTileCoords(playerPosition));
                     lastStateChangeTime = ticks;
                 }
                 // Otherwise, stay in PATROL state
@@ -376,32 +349,14 @@ public class GuardAIController {
         return currState;
     }
 
-    public boolean isValidTile(Vector2 targetLocation) {
-        return !tileGraph.worldToTile(targetLocation).isWall;
-    }
-
-    public Vector2 getNearestValidTargetLocation(Vector2 targetLocation) {
-        TileNode targetTile = tileGraph.worldToTile(targetLocation);
-        int[][] horizontal = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-        // Check all 4 directions for valid tile
-        for (int[] coord: horizontal) {
-            int newX = targetTile.x + coord[0];
-            int newY = targetTile.y + coord[1];
-            if (!(tileGraph.getNode(newX, newY)).isWall) {
-                return tileGraph.getNode(newX, newY).getCoords();
-            }
+    public Vector2 getValidTileCoords(Vector2 target) {
+        TileNode targetTile = tileGraph.worldToTile(target);
+        if (!targetTile.isWall) {
+            return targetTile.getCoords();
+        } else {
+            // If the target tile is a wall, find the nearest non-wall tile
+            return tileGraph.getNearestValidTargetLocation(target);
         }
-        // Check all 4 corners if needed
-        int[][] corners = {{1, 1}, {-1, 1}, {-1, 1}, {-1, 1}};
-        for (int[] coord: corners) {
-            int newX = targetTile.x + coord[0];
-            int newY = targetTile.y + coord[1];
-            if (!(tileGraph.getNode(newX, newY)).isWall) {
-                return tileGraph.getNode(newX, newY).getCoords();
-            }
-        }
-        // Nearest non-wall tile is not 1 layer away (shouldn't happen)
-        return targetTile.getCoords();
     }
 
 
@@ -448,7 +403,7 @@ public class GuardAIController {
                 // If guard reaches waypoint, move to next waypoint
                 // This target can be either the next waypoint on the patrol path or the nearest
                 // waypoint to return to after distracted or alerted.
-                if (hasReachedPatrolTarget()) {
+                if (hasReachedTargetLocation(waypoints[currentWaypointIndex])) {
                     currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.length;
                     newTarget = getNextWaypointLocation(waypoints[currentWaypointIndex]);
                 }
@@ -476,7 +431,6 @@ public class GuardAIController {
                     newTarget = getNextWaypointLocation(targetPlayer.getPosition());
                 } else {
                     // If no target, maybe return to patrol or stay in place
-//                    currState = GuardState.PATROL;
                     newTarget = waypoints.length > 0 ?
                         getNextWaypointLocation(waypoints[currentWaypointIndex]) :
                         guard.getPosition();
