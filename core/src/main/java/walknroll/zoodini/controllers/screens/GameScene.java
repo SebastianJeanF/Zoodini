@@ -161,7 +161,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         ui = new UIController(directory, level);
         ui.setPauseMenuListener(this);
 
-        graph = new TileGraph<>(map, false, 2);
+        graph = new TileGraph<>(map, false, 1);
         initializeAIControllers();
 
 		setComplete(false);
