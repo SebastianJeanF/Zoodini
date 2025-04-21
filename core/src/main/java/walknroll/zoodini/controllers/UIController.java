@@ -59,6 +59,7 @@ public class UIController {
     private TextureRegion restartIcon;
     private TextureRegion homeIcon;
     private TextureRegion pauseBanner;
+    private TextureRegion resumeIcon;
 
     //Scene 2d components
     private Stage stage;
@@ -71,6 +72,7 @@ public class UIController {
     private Image restartButton;
     private Image homeButton;
     private Image pauseBannerImage;
+    private Image resumeIconImage;
     private Image overlayBackground;
     private Table pauseMenuTable;
     private Image progressBg, progressFill;
@@ -94,6 +96,7 @@ public class UIController {
         setRestartIcon(new TextureRegion(directory.getEntry("restart_icon", Texture.class)));
         setHomeIcon(new TextureRegion(directory.getEntry("home_icon", Texture.class)));
         setPausedBanner(new TextureRegion(directory.getEntry("game_paused", Texture.class)));
+        setResumeIcon(new TextureRegion(directory.getEntry("resume_icon", Texture.class)));
     }
 
     public void init() {
@@ -158,6 +161,7 @@ public class UIController {
             float xPos = Gdx.graphics.getWidth() - iconSize - 20;
             float yPos = Gdx.graphics.getHeight() - iconSize - 20;
             pauseIconImage.setPosition(xPos, yPos);
+            pauseIconImage.setVisible(true);
             pauseIconImage.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -165,6 +169,23 @@ public class UIController {
                 }
             });
             stage.addActor(pauseIconImage);
+        }
+
+        if (resumeIcon != null) {
+            resumeIconImage = new Image(resumeIcon);
+            float iconSize = 40f;
+            resumeIconImage.setSize(iconSize, iconSize);
+            float xPos = Gdx.graphics.getWidth() - iconSize - 20;
+            float yPos = Gdx.graphics.getHeight() - iconSize - 20;
+            resumeIconImage.setPosition(xPos, yPos);
+            resumeIconImage.setVisible(false);
+            resumeIconImage.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    togglePauseMenu(false);
+                }
+            });
+            stage.addActor(resumeIconImage);
         }
 
         Drawable darkOverlay = skin.newDrawable("white", new Color(0, 0, 0, 0.7f));
@@ -264,6 +285,9 @@ public class UIController {
         overlayBackground.setVisible(paused);
         pauseMenuTable.setVisible(paused);
 
+        if (pauseIconImage != null) {pauseIconImage.setVisible(!paused);}
+        if (resumeIconImage != null) {resumeIconImage.setVisible(paused);}
+
         if (pauseListener != null) {
             pauseListener.onPauseStateChanged(paused);
         }
@@ -304,6 +328,10 @@ public class UIController {
         pauseBanner = icon;
     }
 
+    public void setResumeIcon(TextureRegion icon) {
+        resumeIcon = icon;
+    }
+
     public void update() {
 
     }
@@ -314,6 +342,11 @@ public class UIController {
         if (pauseIconImage != null) {
             float iconSize = pauseIconImage.getWidth();
             pauseIconImage.setPosition(width - iconSize - 20, height -iconSize - 20);
+        }
+
+        if (resumeIconImage != null) {
+            float iconSize = resumeIconImage.getWidth();
+            resumeIconImage.setPosition(width - iconSize - 20, height - iconSize - 20);
         }
         if (overlayBackground != null) {
             overlayBackground.setSize(width, height);

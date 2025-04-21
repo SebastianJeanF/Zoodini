@@ -173,6 +173,7 @@
       "pause_icon": "textures/pause_icon.png",
       "home_icon": "textures/home_icon.png",
       "restart_icon": "textures/restart_icon.png",
+      "resume_icon": "textures/resume_icon.png",
       "game_paused": "textures/game_paused.png",
       "exit": "textures/panda-sprite.png",
       "ink" : "textures/ink_projectile.png"
