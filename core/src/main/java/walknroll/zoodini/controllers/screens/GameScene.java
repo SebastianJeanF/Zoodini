@@ -124,6 +124,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     // Game Paused Menu
     private boolean gamePaused = false;
 
+    /** Whether the game has been lost **/
+    private boolean gameLost = false;
+
 
 	/**
 	 * Creates a new game world
@@ -256,6 +259,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         // Handle resets
         if (input.didReset()) {
             reset();
+        }
+
+        if (gameLost) {
+            listener.exitScreen(this, GDXRoot.EXIT_LOSE);
+            return false;
         }
 
         // Now it is time to maybe switch screens.
@@ -855,6 +863,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 Obstacle enemy = guard.getObstacle();
                 if((o1 == cat && o2 == enemy) || (o2 == cat && o1 == enemy) || (o1 == oct && o2 == enemy) || (o2 == oct && o1 == enemy)){
                     setFailure(true);
+                    gameLost = true;
                 }
             }
 

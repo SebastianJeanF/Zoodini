@@ -23,6 +23,7 @@ import walknroll.zoodini.controllers.screens.GameScene;
 import walknroll.zoodini.controllers.screens.MenuScene;
 import walknroll.zoodini.controllers.screens.SettingsScene;
 import walknroll.zoodini.controllers.screens.LevelSelectScene;
+import walknroll.zoodini.controllers.screens.*;
 import walknroll.zoodini.utils.GameSettings;
 import walknroll.zoodini.utils.LevelPortal;
 
@@ -43,6 +44,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	public static final int EXIT_PLAY = 2;
 	public static final int EXIT_SETTINGS = 3;
 	public static final int EXIT_CREDITS = 4;
+    public static final int EXIT_LOSE = 6;
 	public static final int EXIT_LEVEL_SELECT = 5;
 
 	/** AssetManager to load game assets (textures, data, etc.) */
@@ -55,6 +57,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	private GameScene gameplay;
 	private SettingsScene settings;
 	private CreditsScene credits;
+    private GameOverScene gameOver;
 	private LevelSelectScene levelSelect;
 
 	private GameSettings gameSettings;
@@ -165,6 +168,7 @@ public class GDXRoot extends Game implements ScreenListener {
 				disposeExcept(credits);
 				break;
 			case GDXRoot.EXIT_MENU:
+                System.out.println("Game Over");
 				loading = new MenuScene(directory, batch, 1);
 				loading.setScreenListener(this);
 				setScreen(loading);
@@ -202,6 +206,13 @@ public class GDXRoot extends Game implements ScreenListener {
 				setScreen(settings);
 				disposeExcept(settings);
 				break;
+            case GDXRoot.EXIT_LOSE:
+                System.out.println("Game Over");
+                gameOver = new GameOverScene(directory, batch);
+                gameOver.setScreenListener(this);
+                setScreen(gameOver);
+                disposeExcept(gameOver);
+                break;
 			default:
 				break;
 		}
