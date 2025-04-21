@@ -716,7 +716,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 			if (guard.isMeowed()) {
 				direction.scl(3.5f);
 			} else if (guard.isCameraAlerted()) {
-                direction.scl(6.5f);
+                direction.scl(10f);
             }
             else if (guard.isAgroed()) {
 				direction.scl(6.0f);
