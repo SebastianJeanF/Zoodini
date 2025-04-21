@@ -128,6 +128,10 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private boolean gameLost = false;
 
 
+    public int getCurrentLevel() {
+        return currentLevel;
+    }
+
 	/**
 	 * Creates a new game world
 	 *
