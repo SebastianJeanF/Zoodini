@@ -26,7 +26,7 @@ import edu.cornell.gdiac.util.XBoxController;
  * only detected the X-Box controller on start-up. This class allows us to
  * hot-swap in a controller via the new XBoxController class.
  */
-public class InputController extends InputAdapter{
+public class InputController extends InputAdapter {
 	/** The singleton instance of the input controller */
 	private static InputController theController = null;
 
@@ -62,13 +62,13 @@ public class InputController extends InputAdapter{
 	private boolean swapPressed;
 	private boolean swapPrevious;
 
-    /** Whether the ability button was pressed. */
-    private boolean abilityPressed;
-    private boolean abilityPrevious;
+	/** Whether the ability button was pressed. */
+	private boolean abilityPressed;
+	private boolean abilityPrevious;
 
-    /** Whether the left click was pressed. */
-    private boolean leftClicked;
-    private boolean leftPrevious;
+	/** Whether the left click was pressed. */
+	private boolean leftClicked;
+	private boolean leftPrevious;
 
 	/** How much did we move horizontally? */
 	private float horizontal;
@@ -77,6 +77,9 @@ public class InputController extends InputAdapter{
 
 	/** Where are we targeting? */
 	private Vector2 aiming;
+
+	private int abilityKey;
+	private int swapKey;
 
 	/** An X-Box controller (if it is connected) */
 	XBoxController xbox;
@@ -179,7 +182,17 @@ public class InputController extends InputAdapter{
 		return aiming;
 	}
 
-    public boolean didLeftClick(){return leftClicked && !leftPrevious;}
+	public boolean didLeftClick() {
+		return leftClicked && !leftPrevious;
+	}
+
+	public void setAbilityKey(int keycode) {
+		abilityKey = keycode;
+	}
+
+	public void setSwapKey(int keycode) {
+		swapKey = keycode;
+	}
 
 	/**
 	 * Creates a new input controller
@@ -196,6 +209,8 @@ public class InputController extends InputAdapter{
 			xbox = null;
 		}
 		aiming = new Vector2();
+		abilityKey = Input.Keys.E;
+		swapKey = Input.Keys.SPACE;
 	}
 
 	/**
@@ -210,8 +225,8 @@ public class InputController extends InputAdapter{
 		nextPrevious = nextPressed;
 		prevPrevious = prevPressed;
 		swapPrevious = swapPressed;
-        abilityPrevious = abilityPressed;
-        leftPrevious = leftClicked;
+		abilityPrevious = abilityPressed;
+		leftPrevious = leftClicked;
 
 		// Check to see if a GamePad is connected
 		if (xbox != null && xbox.isConnected()) {
@@ -261,9 +276,9 @@ public class InputController extends InputAdapter{
 		prevPressed = (secondary && prevPressed) || (Gdx.input.isKeyPressed(Input.Keys.P));
 		nextPressed = (secondary && nextPressed) || (Gdx.input.isKeyPressed(Input.Keys.N));
 		exitPressed = (secondary && exitPressed) || (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));
-		swapPressed = (secondary && swapPressed) || (Gdx.input.isKeyPressed(Input.Keys.SPACE));
-        abilityPressed = (secondary && abilityPressed) || (Gdx.input.isKeyPressed(Input.Keys.E));
-        leftClicked = (secondary && leftClicked) || (Gdx.input.isButtonPressed(Buttons.LEFT));
+		swapPressed = (secondary && swapPressed) || (Gdx.input.isKeyPressed(this.swapKey));
+		abilityPressed = (secondary && abilityPressed) || (Gdx.input.isKeyPressed(this.abilityKey));
+		leftClicked = (secondary && leftClicked) || (Gdx.input.isButtonPressed(Buttons.LEFT));
 
 		// Directional controls
 		horizontal = (secondary ? horizontal : 0.0f);

@@ -14,10 +14,12 @@ import com.badlogic.gdx.*;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.*;
+import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.controllers.screens.CreditsScene;
 import walknroll.zoodini.controllers.screens.GameScene;
 import walknroll.zoodini.controllers.screens.MenuScene;
 import walknroll.zoodini.controllers.screens.SettingsScene;
+import walknroll.zoodini.utils.GameSettings;
 
 /**
  * Root class for a LibGDX.
@@ -48,6 +50,8 @@ public class GDXRoot extends Game implements ScreenListener {
 	private SettingsScene settings;
 	private CreditsScene credits;
 
+	private GameSettings gameSettings;
+
 	/**
 	 * Creates a new game from the configuration settings.
 	 */
@@ -63,6 +67,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	public void create() {
 		batch = new SpriteBatch();
 		directory = new AssetDirectory("jsons/assets.json");
+		gameSettings = new GameSettings();
 		loading = new MenuScene(directory, batch, 1);
 
 		loading.setScreenListener(this);
@@ -136,6 +141,9 @@ public class GDXRoot extends Game implements ScreenListener {
 			// this.directory = loading.getAssets();
 		} else if (screen == settings) {
 			// extract settings info from settings screen here
+			gameSettings = settings.getSettings();
+			InputController.getInstance().setAbilityKey(gameSettings.getAbilityKey());
+			InputController.getInstance().setSwapKey(gameSettings.getSwapKey());
 		} else if (screen == credits) {
 			// nothing to extract here
 		}
@@ -166,7 +174,7 @@ public class GDXRoot extends Game implements ScreenListener {
 				Gdx.app.exit();
 				break;
 			case GDXRoot.EXIT_SETTINGS:
-				settings = new SettingsScene(batch);
+				settings = new SettingsScene(batch, directory, gameSettings);
 				settings.create();
 				settings.setScreenListener(this);
 				setScreen(settings);

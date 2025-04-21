@@ -171,7 +171,9 @@
       "cat-icon": "textures/cat-icon.png",
       "octopus-icon": "textures/octopus-icon.png",
       "exit": "textures/panda-sprite.png",
-      "ink" : "textures/ink_projectile.png"
+      "ink" : "textures/ink_projectile.png",
+      "splash": "loading/splash_background.png",
+      "logo": "loading/logo.png"
     },
 
   	"fonts": {
