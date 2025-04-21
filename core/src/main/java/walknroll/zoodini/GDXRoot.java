@@ -12,6 +12,7 @@ package walknroll.zoodini;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Texture;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
@@ -21,7 +22,9 @@ import walknroll.zoodini.controllers.screens.CreditsScene;
 import walknroll.zoodini.controllers.screens.GameScene;
 import walknroll.zoodini.controllers.screens.MenuScene;
 import walknroll.zoodini.controllers.screens.SettingsScene;
+import walknroll.zoodini.controllers.screens.LevelSelectScene;
 import walknroll.zoodini.utils.GameSettings;
+import walknroll.zoodini.utils.LevelPortal;
 
 /**
  * Root class for a LibGDX.
@@ -40,6 +43,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	public static final int EXIT_PLAY = 2;
 	public static final int EXIT_SETTINGS = 3;
 	public static final int EXIT_CREDITS = 4;
+	public static final int EXIT_LEVEL_SELECT = 5;
 
 	/** AssetManager to load game assets (textures, data, etc.) */
 	AssetDirectory directory;
@@ -51,6 +55,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	private GameScene gameplay;
 	private SettingsScene settings;
 	private CreditsScene credits;
+	private LevelSelectScene levelSelect;
 
 	private GameSettings gameSettings;
 
@@ -96,6 +101,9 @@ public class GDXRoot extends Game implements ScreenListener {
 		if (credits != null) {
 			credits.dispose();
 		}
+		if (levelSelect != null) {
+			levelSelect.dispose();
+		}
 
 		batch.dispose();
 		batch = null;
@@ -118,10 +126,15 @@ public class GDXRoot extends Game implements ScreenListener {
 	 * @param exitCode The state of the screen upon exit
 	 */
 	public void exitScreen(Screen screen, int exitCode) {
+		Integer selectedLevel = null;
+
 		if (screen == gameplay) {
 			// nothing to extract from a gameplay screen
 		} else if (screen == loading) {
-			// this.directory = loading.getAssets();
+			if (!LevelPortal.isLoaded()) {
+				LevelPortal.setTextures(directory.getEntry("level-bg", Texture.class),
+						directory.getEntry("level-cell", Texture.class));
+			}
 		} else if (screen == settings) {
 			// extract settings info from settings screen here
 			gameSettings = settings.getSettings();
@@ -140,6 +153,8 @@ public class GDXRoot extends Game implements ScreenListener {
 			}
 		} else if (screen == credits) {
 			// nothing to extract here
+		} else if (screen == levelSelect) {
+			selectedLevel = levelSelect.getSelectedLevel();
 		}
 
 		switch (exitCode) {
@@ -155,11 +170,24 @@ public class GDXRoot extends Game implements ScreenListener {
 				setScreen(loading);
 				disposeExcept(loading);
 				break;
+			case GDXRoot.EXIT_LEVEL_SELECT:
+				if (directory == null) {
+					throw new RuntimeException("Asset directory was somehow not loaded after initial boot");
+				}
+				levelSelect = new LevelSelectScene(batch, directory);
+				levelSelect.create();
+				levelSelect.setScreenListener(this);
+				setScreen(levelSelect);
+				disposeExcept(levelSelect);
+				break;
 			case GDXRoot.EXIT_PLAY:
 				if (directory == null) {
 					throw new RuntimeException("Asset directory was somehow not loaded after initial boot");
 				}
-				gameplay = new GameScene(directory, batch, 6);
+				if (selectedLevel == null) {
+					throw new RuntimeException("Tried to change to GameScene without using the the level selector");
+				}
+				gameplay = new GameScene(directory, batch, selectedLevel);
 				gameplay.setScreenListener(this);
 				setScreen(gameplay);
 				disposeExcept(gameplay);
@@ -177,18 +205,6 @@ public class GDXRoot extends Game implements ScreenListener {
 			default:
 				break;
 		}
-		// if (screen == loading) {
-		// directory = loading.getAssets();
-		// gameplay = new GameScene(directory, batch);
-		// gameplay.setScreenListener(this);
-		// setScreen(gameplay);
-
-		// loading.dispose();
-		// loading = null;
-		// } else if (exitCode == GameScene.EXIT_QUIT) {
-		// // We quit the main application
-		// Gdx.app.exit();
-		// }
 	}
 
 	private void disposeExcept(Screen screen) {
@@ -207,6 +223,10 @@ public class GDXRoot extends Game implements ScreenListener {
 		if (credits != null && screen != credits) {
 			credits.dispose();
 			credits = null;
+		}
+		if (levelSelect != null && screen != levelSelect) {
+			levelSelect.dispose();
+			levelSelect = null;
 		}
 	}
 }
