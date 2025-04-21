@@ -147,18 +147,7 @@
           "file":  "textures/ink_projectile.png",
           "wrap":   false,
           "sprites":  {
-              "ink" : {
-                "size" : 1,
-                "rows" : 1,
-                "cols" : 1
-              }
-          }
-      },
-      "security-camera": {
-          "file":  "textures/security_camera.png",
-          "wrap":   false,
-          "sprites":  {
-              "camera" : {
+              "animation" : {
                 "size" : 1,
                 "rows" : 1,
                 "cols" : 1
@@ -180,17 +169,20 @@
       "locked_door": "textures/locked_door.png",
       "unlocked_door": "textures/panda-sprite.png",
       "cat-icon": "textures/cat-icon.png",
-        "octopus-icon": "textures/octopus-icon.png"
-  	},
+      "octopus-icon": "textures/octopus-icon.png",
+      "exit": "textures/panda-sprite.png",
+      "ink" : "textures/ink_projectile.png"
+    },
+
   	"fonts": {
   		"display": {
   			"file": 	"fonts/MarkerFelt.ttf",
   			"size": 	64
   		}
   	},
+
 	"jsons" : {
         "constants" : "jsons/constants.json",
-        "globals" : "jsons/global-configs.json",
         "levels" : "jsons/levels.json"
 	}
 }

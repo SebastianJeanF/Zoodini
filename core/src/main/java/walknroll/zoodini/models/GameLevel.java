@@ -54,6 +54,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
+import edu.cornell.gdiac.graphics.SpriteSheet;
 import edu.cornell.gdiac.math.Path2;
 import edu.cornell.gdiac.math.PathExtruder;
 import edu.cornell.gdiac.math.PathFactory;
@@ -69,6 +70,7 @@ import walknroll.zoodini.models.nonentities.*;
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 import edu.cornell.gdiac.physics2.*;
+import walknroll.zoodini.utils.animation.AnimationState;
 
 /**
  * Represents a single level in our game
@@ -167,9 +169,8 @@ public class GameLevel {
 	 * Lays out the game geography from the given JSON file
 	 *
 	 * @param directory   the asset manager
-	 * @param levelGlobals the JSON file defining configs global to every level
 	 */
-	public void populate(AssetDirectory directory, TiledMap map, JsonValue levelGlobals) {
+	public void populate(AssetDirectory directory, TiledMap map) {
         // Compute the FPS
         int[] fps = {20, 60};
         maxFPS = fps[1];
@@ -193,34 +194,48 @@ public class GameLevel {
         createWallBodies(walls);
 
 
-        MapLayer playerSpawn = map.getLayers().get("objects");
-        for(MapObject obj : playerSpawn.getObjects()){
+        MapLayer objectLayer = map.getLayers().get("objects");
+        for(MapObject obj : objectLayer.getObjects()){
             MapProperties properties = obj.getProperties();
             String type = properties.get("type", String.class);
 
             if("Cat".equalsIgnoreCase(type)){
-                avatarCat = new Cat(directory, properties, levelGlobals.get("avatarCat"), units);
+                avatarCat = new Cat(properties, units);
+                avatarCat.setAnimation(AnimationState.IDLE, directory.getEntry("cat-idle.animation", SpriteSheet.class));
+                avatarCat.setAnimation(AnimationState.WALK, directory.getEntry("cat-walk.animation", SpriteSheet.class));
+                avatarCat.setAnimation(AnimationState.WALK_DOWN, directory.getEntry("cat-walk-down.animation", SpriteSheet.class));
+                avatarCat.setAnimation(AnimationState.WALK_UP, directory.getEntry("cat-walk-up.animation", SpriteSheet.class));
                 activate(avatarCat);
             } else if("Octopus".equalsIgnoreCase(type)){
-                avatarOctopus = new Octopus(directory, properties, levelGlobals.get("avatarOctopus"), units);
+                avatarOctopus = new Octopus(properties, units);
+                avatarOctopus.setAnimation(AnimationState.IDLE, directory.getEntry("octopus-idle.animation", SpriteSheet.class));
+                avatarOctopus.setAnimation(AnimationState.WALK, directory.getEntry("octopus-walk.animation", SpriteSheet.class));
+                avatarOctopus.setAnimation(AnimationState.WALK_DOWN, directory.getEntry("octopus-walk-down.animation", SpriteSheet.class));
+                avatarOctopus.setAnimation(AnimationState.WALK_UP, directory.getEntry("octopus-walk-up.animation", SpriteSheet.class));
                 activate(avatarOctopus);
             } else if("Guard".equalsIgnoreCase(type)){
-                Guard g = new Guard(directory, properties, levelGlobals.get("guard"), units);
+                Guard g = new Guard(properties, units);
+                g.setAnimation(AnimationState.IDLE, directory.getEntry("guard-idle.animation", SpriteSheet.class));
+                g.setAnimation(AnimationState.WALK, directory.getEntry("guard-walk.animation", SpriteSheet.class));
+                g.setAnimation(AnimationState.WALK_DOWN, directory.getEntry("guard-walk-down.animation", SpriteSheet.class));
+                g.setAnimation(AnimationState.WALK_UP, directory.getEntry("guard-walk-up.animation", SpriteSheet.class));
+                g.setSusMeter(directory.getEntry("suspicion-meter.animation", SpriteSheet.class)); //TODO: There must be a better way to do this
                 guards.add(g);
                 activate(g);
             } else if("Camera".equalsIgnoreCase(type)){
-                SecurityCamera cam = new SecurityCamera(directory, properties, levelGlobals.get("camera"), units);
+                SecurityCamera cam = new SecurityCamera(properties, units);
+                cam.setAnimation(AnimationState.IDLE, directory.getEntry("camera-idle.animation", SpriteSheet.class));
                 securityCameras.add(cam);
                 activate(cam);
             } else if("Door".equalsIgnoreCase(type)){
-                Door door = new Door(directory, obj, levelGlobals.get("door"), units);
-                Key key = new Key(directory, obj.getProperties().get("key", MapObject.class), levelGlobals.get("key"), units);
+                Door door = new Door(directory, obj, units);
+                Key key = new Key(directory, obj.getProperties().get("key", MapObject.class), units);
                 doors.put(door, key);
                 keys.add(key);
                 activate(door);
                 activate(key);
             } else if("Exit".equalsIgnoreCase(type)){
-                exit = new Exit(directory, properties, levelGlobals.get("exit"), units);
+                exit = new Exit(directory, properties, units);
                 activate(exit);
             }
 
@@ -237,8 +252,9 @@ public class GameLevel {
 
 		// Initialize an ink projectile (but do not add it to the physics world, we only
 		// do that on demand)
-		JsonValue projectileData = levelGlobals.get("ink");
-		inkProjectile = new InkProjectile(directory, projectileData, units);
+		JsonValue projectileData = directory.getEntry("constants", JsonValue.class).get("ink");
+		inkProjectile = new InkProjectile(projectileData, units);
+        inkProjectile.setTexture(directory.getEntry("ink-projectile", Texture.class));
 		activate(inkProjectile);
 		inkProjectile.setDrawingEnabled(false);
 		inkProjectile.getObstacle().setActive(false);

@@ -102,14 +102,14 @@ public class Cat extends Avatar {
         }
     }
 
-    public Cat(AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
-        super(AvatarType.CAT, directory, properties, globals, units);
-        this.abilityRange = globals.getFloat("abilityRange", 5.0f);
+    public Cat(MapProperties properties,float units) {
+        super(AvatarType.CAT, properties, units);
+        this.abilityRange = properties.get("abilityRange", Float.class);
 
         // Initialize ring effect properties
         maxRadius = abilityRange;
         expansionSpeed = properties.get("meowExpandSpeed", Float.class); //1 m/s
-        ringThickness = globals.getFloat("ringThickness", 0.3f);
+        ringThickness = 0.3f;
         ringColor = new Color(211f, 211f, 211f, 0.5f); // Semi-transparent green
         currentRadius = 0f;
         centerPosition = new Vector2(0, 0);
@@ -117,7 +117,7 @@ public class Cat extends Avatar {
         affineCache = new Affine2();
 
         // Initialize cooldown properties
-        meowCooldown = globals.getFloat("meowCooldown", 10.0f); // 10 seconds default
+        meowCooldown = properties.get("abilityCooldown", Float.class); // 10 seconds default
         meowCooldownRemaining = 0;
         onCooldown = false;
         keys = new Array<Key>();

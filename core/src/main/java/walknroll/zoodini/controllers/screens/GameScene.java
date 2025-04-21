@@ -68,10 +68,6 @@ public class GameScene implements Screen, ContactListener {
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
 	protected AssetDirectory directory;
-	/** The JSON defining the level model */
-	private JsonValue levelFormat;
-	/** The JSON defining the default entity configs */
-	private JsonValue levelGlobals;
     /** Value for current level */
     private int currentLevel;
 
@@ -111,6 +107,9 @@ public class GameScene implements Screen, ContactListener {
     /** Countdown active for winning or losing */
     private int countdown;
 
+    /** Constant scale used for player movement */
+    private final float MOVEMENT_SCALE = 32f;
+
 	// Camera movement fields
 	private Vector2 cameraTargetPosition;
 	private Vector2 cameraPreviousPosition;
@@ -133,9 +132,8 @@ public class GameScene implements Screen, ContactListener {
 		this.batch = batch;
         this.currentLevel = currentLevel;
         level = new GameLevel();
-        levelGlobals = directory.getEntry("globals", JsonValue.class);
         map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString(""+this.currentLevel));
-		level.populate(directory, map, levelGlobals);
+		level.populate(directory, map);
 		level.getWorld().setContactListener(this);
 
 		complete = false;
@@ -156,13 +154,7 @@ public class GameScene implements Screen, ContactListener {
 
 
         //UI controller is not working as intended. Someone fix plz
-        JsonValue avatarIcons = levelGlobals.get("avatarIcons");
-        ui = new UIController();
-        ui.setFont(directory.getEntry("display", BitmapFont.class));
-        TextureRegion catIcon = new TextureRegion(directory.getEntry(avatarIcons.get("cat-texture").asString(), Texture.class));
-        TextureRegion octopusIcon = new TextureRegion(directory.getEntry(avatarIcons.get("octopus-texture").asString(), Texture.class));
-        ui.setCatIcon(catIcon);
-        ui.setOctopusIcon(octopusIcon);
+        ui = new UIController(directory);
         ui.init();
 
         graph = new TileGraph<>(map, false);
@@ -195,7 +187,7 @@ public class GameScene implements Screen, ContactListener {
 
         map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString(""+this.currentLevel));
         // Reload the json each time
-        level.populate(directory, map, levelGlobals);
+        level.populate(directory, map);
         level.getWorld().setContactListener(this);
         initializeAIControllers();
     }
@@ -520,11 +512,7 @@ public class GameScene implements Screen, ContactListener {
             }
         }
 
-        // batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
-        // Final message
-
-//        ui.draw(batch);
-        ui.draw(batch, camera, level);
+        ui.draw(level);
     }
 
     /**
@@ -567,14 +555,13 @@ public class GameScene implements Screen, ContactListener {
 //    }
 
     private void onSwap(InputController input) {
-        if (input.didSwap()) {
+        if (input.didSwap() && !inCameraTransition) {
             // stop active character movement
             level.getAvatar().setMovement(0, 0);
             level.getAvatar().applyForce();
             // Save previous camera position before swapping
             cameraPreviousPosition.set(cameraTargetPosition);
-            // Save previous camera position before swapping
-            cameraPreviousPosition.set(cameraTargetPosition);
+
             // swap the active character
             level.swapActiveAvatar();
 
@@ -606,7 +593,7 @@ public class GameScene implements Screen, ContactListener {
             avatar.getObstacle().setAngle(angle);
         }
 
-        angleCache.scl(avatar.getForce()).scl(level.getTileSize());
+        angleCache.scl(avatar.getForce()).scl(MOVEMENT_SCALE);
         avatar.setMovement(angleCache.x, angleCache.y);
         avatar.applyForce();
     }
@@ -687,6 +674,7 @@ public class GameScene implements Screen, ContactListener {
 
 		if (direction.len() > 0) {
 			direction.nor().scl(guard.getForce());
+
 			if (guard.isMeowed()) {
 				direction.scl(4.25f);
 			} else if (guard.isCameraAlerted()) {

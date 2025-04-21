@@ -60,9 +60,6 @@
   <object id="46" x="256" y="288" width="64" height="128"/>
  </objectgroup>
  <objectgroup id="3" name="objects">
-  <object id="9" x="708.716" y="975.495">
-   <point/>
-  </object>
   <object id="18" type="Door" x="757.14" y="361.29">
    <properties>
     <property name="category" value="10000"/>
@@ -129,6 +126,7 @@
   </object>
   <object id="35" type="Cat" x="137.634" y="490.323">
    <properties>
+    <property name="abilityCooldown" type="float" value="5"/>
     <property name="abilityRange" type="float" value="5"/>
     <property name="category" value="00010"/>
     <property name="exclude" value="00010"/>

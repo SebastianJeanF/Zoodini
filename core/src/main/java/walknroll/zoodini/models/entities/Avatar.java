@@ -204,12 +204,10 @@ public class Avatar extends ZoodiniSprite {
 	 * Creates a new avatar with from the given settings
 	 *
 	 * @param avatarType The type of this avatar
-	 * @param directory  The asset directory (for textures, etc)
 	 * @param properties The properties of tiled map object
-	 * @param globals	 The global JSON values defining this avatar
 	 * @param units      The physics units for this avatar
 	 */
-	public Avatar(AvatarType avatarType, AssetDirectory directory, MapProperties properties, JsonValue globals, float units) {
+	public Avatar(AvatarType avatarType, MapProperties properties, float units) {
 		this.avatarType = avatarType;
 
         float[] pos = new float[2];
@@ -226,71 +224,35 @@ public class Avatar extends ZoodiniSprite {
 		obstacle.setRestitution(0.0f);
 		obstacle.setPhysicsUnits(units);
 
-
 		setForce(properties.get("force", Float.class));
 		setDamping(10.0f);
 		setMaxSpeed(properties.get("maxSpeed", Float.class));
 
-		// Create the collision filter (used for light penetration)
 		Filter filter = new Filter();
 		filter.categoryBits = GameLevel.bitStringToShort(properties.get("category", String.class));
 		filter.maskBits = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
-//        System.out.println(filter.categoryBits);
-//        System.out.println(filter.maskBits);
 		obstacle.setFilterData(filter);
-
-		setDebugColor(ParserUtils.parseColor(globals.get("debug"), Color.WHITE));
-
-        // Initialize animation controller
-        animationController = new AnimationController(AnimationState.IDLE);
-        // Load animations from JSON
-        setupAnimations(directory, globals);
 
         float r = properties.get("spriteRadius", Float.class) * units;
 		mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 
         underCamera = false;
-	}
-
-    private void setupAnimations(AssetDirectory directory, JsonValue globals) {
-        JsonValue anims = globals.get("animations");
-        JsonValue startFrames = globals.get("startFrames");
-        if (anims != null) {
-            JsonValue frameDelays = globals.get("frameDelays");
-            addAnimation(directory, anims, "walk", AnimationState.WALK, frameDelays, true, startFrames.getInt("walk", 0));
-            addAnimation(directory, anims, "idle", AnimationState.IDLE, frameDelays, true, startFrames.getInt("idle", 0));
-            addAnimation(directory, anims, "walk-up", AnimationState.WALK_UP, frameDelays, true, startFrames.getInt("walk-up", 0));
-            addAnimation(directory, anims, "walk-down", AnimationState.WALK_DOWN, frameDelays, true, startFrames.getInt("walk-down", 0));
-        }
-
-        assert anims != null;
-        sprite = directory.getEntry(anims.getString("idle"), SpriteSheet.class);
-        sprite.setFrame(startFrames.getInt("idle", 0));
+        animationController = new AnimationController(AnimationState.IDLE);
     }
 
-    private void addAnimation(
-        AssetDirectory directory,
-        JsonValue anims, String name,
-        AnimationState state,
-        JsonValue frameDelays,
-        boolean loop,
-        int startFrame
-    ) {
-        String animKey = anims.getString(name, null);
-        int frameDelay = frameDelays.getInt(name, 1);
-
-        if (animKey != null) {
-            SpriteSheet animSheet = directory.getEntry(animKey, SpriteSheet.class);
-            Animation anim = new Animation(
-                animSheet,
-                startFrame,
-                animSheet.getSize() - 1,
-                frameDelay,
-                loop
-            );
-            animationController.addAnimation(state, anim);
+    /**
+     * Adds spritesheet to animate for a given state.
+     * */
+    public void setAnimation(AnimationState state, SpriteSheet sheet){
+        switch(state){
+            //TODO: frame delays (number of frames elapsed before rendering the next sprite) is set to 16 for all states. This needs to be adjusted.
+            case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
+            case WALK -> animationController.addAnimation(AnimationState.WALK, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
+            case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
+            case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
         }
     }
+
 
     /**
 	 * Applies the force to the body of this avatar
