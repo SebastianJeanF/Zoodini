@@ -84,6 +84,10 @@ public class Cat extends Avatar {
         return meowCooldownRemaining / meowCooldown;
     }
 
+    public float getMeowCooldownRemaining() {
+        return meowCooldownRemaining;
+    }
+
     /**
      * Update the value of <code>meowed</code>.
      *

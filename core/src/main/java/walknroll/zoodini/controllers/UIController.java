@@ -31,6 +31,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import walknroll.zoodini.models.entities.Octopus;
 import walknroll.zoodini.utils.CounterActor;
 import walknroll.zoodini.utils.InkMeterActor;
+import walknroll.zoodini.utils.MeowCooldownIndicator;
 
 public class UIController {
 
@@ -55,7 +56,6 @@ public class UIController {
     private Image catIconImage;
     private Image octopusIconImage;
     private InkMeterActor inkMeter;
-    private CounterActor counter;
     private Image smallCatIconImage;
     private Image smallOctopusIconImage;
     private Image dangerIconImage;
@@ -67,6 +67,8 @@ public class UIController {
     private Image overlayBackground;
     private Table pauseMenuTable;
     private Image resumeButtonImage;
+
+    private MeowCooldownIndicator meowCooldownIndicator;
 
     private boolean isPaused = false;
     private PauseMenuListener pauseListener;
@@ -106,9 +108,6 @@ public class UIController {
         setPausedBanner(new TextureRegion(directory.getEntry("game_paused", Texture.class)));
         setResumeIcon(new TextureRegion(directory.getEntry("resume_icon", Texture.class)));
         setResumeButton(new TextureRegion(directory.getEntry("resume_button", Texture.class)));
-
-        counter = new CounterActor(displayFont, 10);
-        counter.setVisible(false); //invisible until fully implemented
     }
 
 
@@ -132,8 +131,7 @@ public class UIController {
         stack.add(catIconImage);
         stack.add(octopusIconImage);
         bottomLeftTable.add(stack).pad(30);
-        bottomLeftTable.add(inkMeter).align(Align.bottomLeft).padBottom(30);
-        bottomLeftTable.add(counter);
+        bottomLeftTable.add(inkMeter).align(Align.bottomLeft).padBottom(35);
 
 
         //TODO: don't hardcode positions. Use tables.
@@ -280,6 +278,10 @@ public class UIController {
 
         stage.addActor(pauseMenuTable);
 
+        meowCooldownIndicator = new MeowCooldownIndicator(displayFont);
+        meowCooldownIndicator.setPosition(1100, 40);  // Position it where needed
+        stage.addActor(meowCooldownIndicator);
+
     }
 
     public void setFont(BitmapFont f) {
@@ -339,6 +341,14 @@ public class UIController {
 
         Avatar avatar = level.getAvatar();
         boolean isOcto = avatar.getAvatarType() == AvatarType.OCTOPUS;
+
+        // In draw method, add:
+        if (avatar.getAvatarType() == AvatarType.CAT) {
+            meowCooldownIndicator.setVisible(true);
+            meowCooldownIndicator.update(level.getCat());
+        } else {
+            meowCooldownIndicator.setVisible(false);
+        }
 
         // Icons
         if (catIconImage != null) catIconImage.setVisible(!isOcto);
