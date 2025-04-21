@@ -59,7 +59,7 @@ public class GuardAIController {
 
     private final long STATE_CHANGE_COOLDOWN = 10;
 
-    private final float CAT_MEOW_RADIUS = Float.MAX_VALUE;
+    private final float CAT_MEOW_RADIUS = 7f;
 
 
     /** Graph representation of the game */
@@ -298,6 +298,7 @@ public class GuardAIController {
                 // Guard has not reached meow location, sus level is above threshold; DISTRACTED -> SUSPICIOUS
                 else if (guard.isSus()) {
                     currState = GuardState.SUSPICIOUS;
+                    guard.setMeow(false);
                     lastStateChangeTime = ticks;
                 }
                 break;

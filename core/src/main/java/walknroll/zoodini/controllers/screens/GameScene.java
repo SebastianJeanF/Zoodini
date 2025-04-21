@@ -12,6 +12,7 @@
  */
 package walknroll.zoodini.controllers.screens;
 
+
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -61,9 +62,9 @@ import walknroll.zoodini.utils.ZoodiniSprite;
  * You will notice that asset loading is very different. It relies on the
  * singleton asset manager to manage the various assets.
  */
-public class GameScene implements Screen, ContactListener {
+public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener {
 
-    private boolean debug = true;
+    private boolean debug = false;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
@@ -120,6 +121,9 @@ public class GameScene implements Screen, ContactListener {
 	// general-purpose cache vector
 	private Vector2 cacheVec = new Vector2();
 
+    // Game Paused Menu
+    private boolean gamePaused = false;
+
 
 	/**
 	 * Creates a new game world
@@ -153,9 +157,9 @@ public class GameScene implements Screen, ContactListener {
 		inCameraTransition = false;
 
 
-        //UI controller is not working as intended. Someone fix plz
-        ui = new UIController(directory);
-        ui.init();
+        //UI Controller
+        ui = new UIController(directory, level);
+        ui.setPauseMenuListener(this);
 
         graph = new TileGraph<>(map, false);
         initializeAIControllers();
@@ -178,8 +182,6 @@ public class GameScene implements Screen, ContactListener {
 
         catArrived = false;
         octopusArrived = false;
-
-        ui.reset();
 
         setComplete(false);
         setFailure(false);
@@ -208,6 +210,22 @@ public class GameScene implements Screen, ContactListener {
                 update(delta);
                 draw();
             }
+        }
+    }
+    @Override
+    public void onPauseStateChanged(boolean paused) {
+        gamePaused = paused;
+    }
+
+    @Override
+    public void onRestart() {
+        reset();
+    }
+
+    @Override
+    public void onReturnToMenu() {
+        if (listener != null) {
+            listener.exitScreen(this, GDXRoot.EXIT_MENU);
         }
     }
 
@@ -267,6 +285,9 @@ public class GameScene implements Screen, ContactListener {
      * @param dt Number of seconds since last animation frame
      */
     public void update(float dt) {
+        if (gamePaused) {
+            return;
+        }
         InputController input = InputController.getInstance();
         processPlayerAction(input, dt);
         level.update(dt); //collisions
@@ -274,6 +295,8 @@ public class GameScene implements Screen, ContactListener {
         updateGuardAI();
         processNPCAction(dt);
         updateCamera(dt);
+
+        ui.update(dt);
     }
 
 
@@ -538,6 +561,7 @@ public class GameScene implements Screen, ContactListener {
     public void dispose() {
         level.dispose();
         level = null;
+        ui.dispose();
     }
 
 
@@ -693,7 +717,7 @@ public class GameScene implements Screen, ContactListener {
 			direction.nor().scl(guard.getForce());
 
 			if (guard.isMeowed()) {
-				direction.scl(4.25f);
+				direction.scl(2.25f);
 			} else if (guard.isCameraAlerted()) {
                 direction.scl(6.0f);
             }
@@ -842,7 +866,6 @@ public class GameScene implements Screen, ContactListener {
                 if ((o1 == cat && o2 == keyObs) || (o2 == cat && o1 == keyObs)) {
                     key.setCollected(true);
                     key.setOwner(AvatarType.CAT);
-                    System.out.println("COLLISION");
                     level.getCat().assignKey(key);
                 }
             }
@@ -1036,4 +1059,6 @@ public class GameScene implements Screen, ContactListener {
     public void setCurrentLevel(int v){
         currentLevel = v;
     }
+
+
 }

@@ -197,11 +197,11 @@ public class MenuScene implements Screen, InputProcessor {
 	/**
 	 * Creates a LoadingMode with the default budget, size and position.
 	 *
-	 * @param file  The asset directory to load in the background
-	 * @param batch The sprite batch to draw to
+	 * @param assets The asset directory to load from
+	 * @param batch  The sprite batch to draw to
 	 */
-	public MenuScene(String file, SpriteBatch batch) {
-		this(file, batch, DEFAULT_BUDGET);
+	public MenuScene(AssetDirectory assets, SpriteBatch batch) {
+		this(assets, batch, DEFAULT_BUDGET);
 	}
 
 	/**
@@ -213,11 +213,11 @@ public class MenuScene implements Screen, InputProcessor {
 	 * frame is ~16 milliseconds. So if the budget is 10, you have 6 milliseconds to
 	 * do something else. This is how game companies animate their loading screens.
 	 *
-	 * @param file   The asset directory to load in the background
+	 * @param assets The asset directory to load from
 	 * @param canvas The game canvas to draw to
 	 * @param millis The loading budget in milliseconds
 	 */
-	public MenuScene(String file, SpriteBatch batch, int millis) {
+	public MenuScene(AssetDirectory assets, SpriteBatch batch, int millis) {
 		this.batch = batch;
 		budget = millis;
 
@@ -230,15 +230,15 @@ public class MenuScene implements Screen, InputProcessor {
 		resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
 		// No progress so far.
-		progress = 0;
+		progress = assets.getProgress();
 		pressState = null;
 
 		affine = new Affine2();
 		Gdx.input.setInputProcessor(this);
 
 		// Start loading the REAL assets
-		assets = new AssetDirectory(file);
-		assets.loadAssets();
+		this.assets = assets;
+		this.assets.loadAssets();
 		active = true;
 
 		float buttonX = constants.getFloat("button.x");

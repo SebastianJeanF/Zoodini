@@ -93,7 +93,6 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
                 && !"Door".equalsIgnoreCase(obj.getProperties().get("type", String.class)))
                 ) continue;
 
-            System.out.println(obj.getProperties().get("id", Integer.class));
             Rectangle rect = ((RectangleMapObject) obj).getRectangle();
 
             int startX = (int)(rect.x / tileWidth);

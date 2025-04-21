@@ -587,9 +587,25 @@ public class GameLevel {
 		}
 	}
 
+    public boolean isInactiveAvatarInDanger() {
+        if (catActive) {
+            return isInDanger(avatarOctopus);
+        } else {
+            return isInDanger(avatarCat);
+        }
+    }
 
 
     //------------------Helpers-----------------------//
+
+    private boolean isInDanger(Avatar avatar) {
+        for (Guard guard : guards) {
+            if (guard.getPosition().dst(avatar.getPosition()) <= guard.getViewDistance()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private void updateFlipSprite(Avatar avatar) {
         // flips the sprite if the avatar is moving left

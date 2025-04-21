@@ -1,198 +1,389 @@
 package walknroll.zoodini.controllers;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
-import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar.ProgressBarStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectMap;
 import edu.cornell.gdiac.assets.AssetDirectory;
-import edu.cornell.gdiac.graphics.SpriteBatch;
-import edu.cornell.gdiac.graphics.TextAlign;
-import edu.cornell.gdiac.graphics.TextLayout;
-import walknroll.zoodini.models.nonentities.Door;
-import walknroll.zoodini.models.nonentities.Key;
-import walknroll.zoodini.utils.CircleTimer;
+import edu.cornell.gdiac.graphics.SpriteSheet;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Avatar.AvatarType;
-import walknroll.zoodini.models.entities.Octopus;
 //Scene2d stuff
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+
+
+import walknroll.zoodini.models.entities.Octopus;
+import walknroll.zoodini.utils.CounterActor;
+import walknroll.zoodini.utils.InkMeterActor;
+
 public class UIController {
 
-    protected BitmapFont displayFont;
+    private final boolean debug = false;
 
-    private TextureRegion catIcon;
-    private TextureRegion octopusIcon;
+    public interface PauseMenuListener {
+        void onPauseStateChanged(boolean paused);
+
+        void onRestart();
+
+        void onReturnToMenu();
+    }
+
+    protected BitmapFont displayFont;
 
     //Scene 2d components
     private Stage stage;
     private Skin skin;
     private ScreenViewport viewport;
+    private Table rootTable;
 
     private Image catIconImage;
     private Image octopusIconImage;
-    private Image progressBg, progressFill;
-    private static final float BAR_WIDTH  = 210f;
-    private static final float BAR_HEIGHT = 25f;
-    private static final float BAR_X      = 165f;
-    private static final float BAR_Y      = 85f;
-    private Table rootTable;
+    private InkMeterActor inkMeter;
+    private CounterActor counter;
+    private Image smallCatIconImage;
+    private Image smallOctopusIconImage;
+    private Image dangerIconImage;
+    private Image pauseIconImage;
+    private Image restartButton;
+    private Image homeButton;
+    private Image pauseBannerImage;
+    private Image resumeIconImage;
+    private Image overlayBackground;
+    private Table pauseMenuTable;
+    private Image resumeButtonImage;
 
-    public UIController(AssetDirectory directory) {
+    private boolean isPaused = false;
+    private PauseMenuListener pauseListener;
+
+    public UIController(AssetDirectory directory, GameLevel level) {
         viewport = new ScreenViewport();
         stage = new Stage(viewport);
         skin = new Skin(Gdx.files.internal("skins/uiskin.json")); //TODO: use AssetDirectory to load skins.
-        setFont(directory.getEntry("display", BitmapFont.class));
-        setCatIcon(new TextureRegion(directory.getEntry("cat-icon", Texture.class)));
-        setOctopusIcon(new TextureRegion(directory.getEntry("octopus-icon", Texture.class)));
+        initializeActors(directory, level);
+        setupStageLayout();
     }
 
-    public void init() {
-        if (displayFont == null) {
-            return;
-        }
 
-        // Temporarily commented to help with transition
-        // Gdx.input.setInputProcessor(stage);
+    /**
+     * Initialize all the Actors (Images, Buttons, etc.)
+     */
+    private void initializeActors(AssetDirectory directory, GameLevel level){
+        setFont(directory.getEntry("display", BitmapFont.class));
 
-        skin.add("default", displayFont);
-        // UI Element Style
-        Label.LabelStyle labelStyle = new LabelStyle();
-        labelStyle.font = displayFont;
-        skin.add("default", labelStyle);
-        //Create button style
-        TextButton.TextButtonStyle textButtonStyle = new TextButtonStyle();
-        textButtonStyle.up = skin.newDrawable("white", Color.DARK_GRAY);
-        textButtonStyle.down = skin.newDrawable("white", Color.DARK_GRAY);
-        textButtonStyle.checked = skin.newDrawable("white", Color.BLUE);
-        textButtonStyle.over = skin.newDrawable("white", Color.LIGHT_GRAY);
-        textButtonStyle.font = displayFont;
-        skin.add("default", textButtonStyle);
-        //Progress Bar
-        Drawable bgDrawable = skin.newDrawable("white", Color.DARK_GRAY);
-        progressBg = new Image(bgDrawable);
-        progressBg.setSize(BAR_WIDTH, BAR_HEIGHT);
-        progressBg.setPosition(BAR_X, BAR_Y);
-        progressBg.setVisible(false);
-        stage.addActor(progressBg);
+        setCatIconImage(new TextureRegion(directory.getEntry("cat-icon", Texture.class)));
+        catIconImage.setVisible(false);
 
-        Drawable fillDrawable = skin.newDrawable("white", new Color(0,0.8f,0,1));
-        progressFill = new Image(fillDrawable);
-        progressFill.setSize(0, BAR_HEIGHT);          // start at 0 width
-        progressFill.setPosition(BAR_X, BAR_Y);
-        progressFill.setVisible(false);
-        stage.addActor(progressFill);
-        // Create root table for layout
+        setOctopusIconImage(new TextureRegion(directory.getEntry("octopus-icon", Texture.class)));
+        octopusIconImage.setVisible(false);
+
+        SpriteSheet inkSprites = directory.getEntry("ink-meter.animation", SpriteSheet.class);
+        Octopus o = level.getOctopus();
+        inkMeter = new InkMeterActor(inkSprites, o.getInkCapacity(), o.getInkCost() ,o.getInkRegen());
+
+        setSmallCatIcon(new TextureRegion(directory.getEntry("small-cat-icon", Texture.class)));
+        setSmallOctopusIcon(new TextureRegion(directory.getEntry("small-octopus-icon", Texture.class)));
+        setDangerIcon(new TextureRegion(directory.getEntry("danger-icon", Texture.class)));
+        setPauseIcon(new TextureRegion(directory.getEntry("pause_icon", Texture.class)));
+        setRestartIcon(new TextureRegion(directory.getEntry("restart_icon", Texture.class)));
+        setHomeIcon(new TextureRegion(directory.getEntry("home_icon", Texture.class)));
+        setPausedBanner(new TextureRegion(directory.getEntry("game_paused", Texture.class)));
+        setResumeIcon(new TextureRegion(directory.getEntry("resume_icon", Texture.class)));
+        setResumeButton(new TextureRegion(directory.getEntry("resume_button", Texture.class)));
+
+        counter = new CounterActor(displayFont, 10);
+    }
+
+
+    /**
+     * Places each Actor at the right position.
+     */
+    private void setupStageLayout(){
+        viewport = new ScreenViewport();
+        stage = new Stage(viewport);
         rootTable = new Table();
         rootTable.setFillParent(true);
-        stage.addActor(rootTable);
 
-        if (catIcon != null) {
-            catIconImage = new Image(catIcon);
-            catIconImage.setSize(catIcon.getRegionWidth() * 0.7f, catIcon.getRegionHeight() * 0.7f);
-            catIconImage.setPosition(45, 30);
-            stage.addActor(catIconImage);
+        Table bottomLeftTable = new Table();
+        bottomLeftTable.bottom().left();
+        bottomLeftTable.setFillParent(true);
+        bottomLeftTable.setDebug(debug);
+        stage.addActor(bottomLeftTable);
+
+        //Put icons at the top of each other.
+        Stack stack = new Stack();
+        stack.add(catIconImage);
+        stack.add(octopusIconImage);
+        bottomLeftTable.add(stack);
+        bottomLeftTable.add(inkMeter).align(Align.bottom);
+        bottomLeftTable.add(counter);
+
+        if (smallCatIconImage != null) {
+            smallCatIconImage.setPosition(45, 600);
+            smallCatIconImage.setVisible(false);
+            stage.addActor(smallCatIconImage);
         }
 
-        if (octopusIcon != null){
-            octopusIconImage = new Image(octopusIcon);
-            octopusIconImage.setSize(octopusIcon.getRegionWidth() * 0.7f, octopusIcon.getRegionHeight() * 0.7f);
-            octopusIconImage.setPosition(45, 30);
-            octopusIconImage.setVisible(false); // Hide initially, we'll toggle visibility
-            stage.addActor(octopusIconImage);
+        if (smallOctopusIconImage != null) {
+            smallOctopusIconImage.setPosition(45, 600);
+            smallOctopusIconImage.setVisible(false); // Hide initially, we'll toggle visibility
+            stage.addActor(smallOctopusIconImage);
         }
 
-//        inkMeter = new ProgressBar(0, 100, 1, false, skin.get("default-horizontal", ProgressBar.ProgressBarStyle.class));
-//        inkMeter.setWidth(210);
-//        inkMeter.setHeight(35);
-//        inkMeter.setPosition(165, 85); // Same position as the original
-//        inkMeter.setAnimateDuration(0.1f); // Slight animation when value changes
-//        inkMeter.setVisible(false); // Hide initially
-//        inkMeter.setValue(100f);
-//        stage.addActor(inkMeter);
-    }
+        if (dangerIconImage != null) {
+            dangerIconImage.setPosition(105, 615);
+            dangerIconImage.setVisible(false);
+            stage.addActor(dangerIconImage);
+        }
+        if (pauseIconImage != null) {
+            float iconSize = 40f;
+            pauseIconImage.setSize(iconSize, iconSize);
+            float xPos = Gdx.graphics.getWidth() - iconSize - 20;
+            float yPos = Gdx.graphics.getHeight() - iconSize - 20;
+            pauseIconImage.setPosition(xPos, yPos);
+            pauseIconImage.setVisible(true);
+            pauseIconImage.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    togglePauseMenu(true);
+                }
+            });
+            stage.addActor(pauseIconImage);
+        }
 
-    public void reset(){
+        if (resumeIconImage != null) {
+            float iconSize = 40f;
+            resumeIconImage.setSize(iconSize, iconSize);
+            float xPos = Gdx.graphics.getWidth() - iconSize - 20;
+            float yPos = Gdx.graphics.getHeight() - iconSize - 20;
+            resumeIconImage.setPosition(xPos, yPos);
+            resumeIconImage.setVisible(false);
+            resumeIconImage.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    togglePauseMenu(false);
+                }
+            });
+            stage.addActor(resumeIconImage);
+        }
+
+        Drawable darkOverlay = skin.newDrawable("white", new Color(0, 0, 0, 0.7f));
+        overlayBackground = new Image(darkOverlay);
+        overlayBackground.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        overlayBackground.setVisible(false); // Hide initially
+        stage.addActor(overlayBackground);
+
+        pauseMenuTable = new Table();
+        pauseMenuTable.setBackground(skin.newDrawable("white", new Color(0.2f, 0.2f, 0.2f, 0.9f)));
+        pauseMenuTable.setSize(300, 200);
+        pauseMenuTable.setPosition(
+            (Gdx.graphics.getWidth() - 300) / 2,
+            (Gdx.graphics.getHeight() - 200) / 2
+        );
+        pauseMenuTable.setVisible(false); // Hide initially
+
+        Table buttonTable = new Table();
+
+        if (restartButton != null) {
+            restartButton.setSize(64, 64);
+            buttonTable.add(restartButton).pad(10).size(48);
+            restartButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    // We'll add the restart logic later
+                    togglePauseMenu(false);
+                    if (pauseListener != null) {
+                        pauseListener.onRestart();
+                    }
+                }
+            });
+        }
+
+        if (homeButton != null) {
+            homeButton.setSize(64, 64);
+            buttonTable.add(homeButton).pad(10).size(48);
+            homeButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    // We'll add the home menu logic later
+                    togglePauseMenu(false);
+                    if (pauseListener != null) {
+                        pauseListener.onReturnToMenu();
+                    }
+                }
+            });
+        }
+        if (resumeButtonImage != null) {
+            resumeButtonImage.setSize(resumeButtonImage.getWidth() * 0.25f, resumeButtonImage.getHeight() * 0.25f);
+            resumeButtonImage.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    togglePauseMenu(false);
+                }
+            });
+        }
+
+        overlayBackground.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // Only close if clicked on the background, not on menu
+                if (!pauseMenuTable.isAscendantOf(event.getTarget())) {
+                    togglePauseMenu(false);
+                }
+            }
+        });
+
+        if (pauseBannerImage != null) {
+            float scale = 1.0f;
+            pauseBannerImage.setSize(
+                pauseBannerImage.getWidth() * scale,
+                pauseBannerImage.getHeight() * scale
+            );
+            Stack bannerStack = new Stack();
+            bannerStack.setSize(pauseBannerImage.getWidth(), pauseBannerImage.getHeight());
+
+            Table overlayTable = new Table();
+            overlayTable.setFillParent(true);
+            overlayTable.center();
+
+            if (resumeButtonImage != null) {
+                Table resumeRow = new Table();
+                resumeRow.add(resumeButtonImage).padTop(67).padLeft(22).padRight(22);
+                overlayTable.add(resumeRow).padTop(5).row();
+            }
+            overlayTable.add(buttonTable).padTop(0).row();
+
+            bannerStack.addActor(pauseBannerImage);
+            bannerStack.addActor(overlayTable);
+            pauseMenuTable.add(bannerStack).padTop(20).row();
+        }
+
+        stage.addActor(pauseMenuTable);
+
     }
 
     public void setFont(BitmapFont f) {
         displayFont = f;
     }
 
-    public void setCatIcon(TextureRegion icon) {
-        catIcon = icon;
+    public void setCatIconImage(TextureRegion icon) {
+        catIconImage = new Image(icon);
     }
-    public void setOctopusIcon(TextureRegion icon) {
-        octopusIcon = icon;
-    }
-
-    public void update() {
-
+    public void setOctopusIconImage(TextureRegion icon) {
+        octopusIconImage = new Image(icon);
     }
 
-    public void resize(int width, int height){
-        viewport.update(width, height, true);
+    public void setSmallCatIcon(TextureRegion icon) {
+        smallCatIconImage = new Image(icon);
     }
 
-    public void dispose() {
-        if (stage != null){
-            stage.dispose();
+    public void setSmallOctopusIcon(TextureRegion icon) {
+        smallOctopusIconImage = new Image(icon);
+    }
+
+    public void setDangerIcon(TextureRegion icon) {
+        dangerIconImage = new Image(icon);
+    }
+    public void setPauseIcon (TextureRegion icon){
+        pauseIconImage = new Image(icon);
+    }
+
+    public void setRestartIcon (TextureRegion icon){
+        restartButton = new Image(icon);
+    }
+
+    public void setHomeIcon (TextureRegion icon){
+        homeButton = new Image(icon);
+    }
+
+    public void setPausedBanner (TextureRegion icon){
+        pauseBannerImage = new Image(icon);
+    }
+
+    public void setResumeIcon (TextureRegion icon){
+        resumeIconImage = new Image(icon);
+    }
+
+    public void setResumeButton (TextureRegion icon){
+        resumeButtonImage = new Image(icon);
+    }
+
+    public void update(float dt){
+        stage.act(dt);
+    }
+
+    public void draw (GameLevel level){
+        if (Gdx.input.getInputProcessor() != stage) {
+            Gdx.input.setInputProcessor(stage);
         }
-        if (skin != null){
-            skin.dispose();
-        }
-    }
 
-
-    public void draw(GameLevel level) {
         Avatar avatar = level.getAvatar();
         boolean isOcto = avatar.getAvatarType() == AvatarType.OCTOPUS;
 
         // Icons
-        if (catIconImage  != null) catIconImage.setVisible(!isOcto);
+        if (catIconImage != null) catIconImage.setVisible(!isOcto);
         if (octopusIconImage != null) octopusIconImage.setVisible(isOcto);
+        if (inkMeter != null) inkMeter.setVisible(isOcto);
+        inkMeter.sync(level.getOctopus().getInkRemaining());
 
-        // Progress bar background + fill
-        progressBg.setVisible(isOcto);
-        progressFill.setVisible(isOcto);
-
-        if (isOcto) {
-            Octopus octo = (Octopus)avatar;
-            // compute 0→1 fill ratio
-            float pct = octo.getInkRemaining() / octo.getInkCapacity();
-            // resize the green fill bar
-            progressFill.setWidth(BAR_WIDTH * pct);
-            if (octo.canUseAbility()) {
-                progressFill.setColor(Color.GREEN);  // green
+        if (dangerIconImage != null && smallCatIconImage != null && smallOctopusIconImage != null) {
+            if (level.isInactiveAvatarInDanger()) {
+                dangerIconImage.setVisible(true);
+                if (isOcto) {
+                    smallCatIconImage.setVisible(true);
+                    smallOctopusIconImage.setVisible(false);
+                } else {
+                    smallOctopusIconImage.setVisible(true);
+                    smallCatIconImage.setVisible(false);
+                }
             } else {
-                progressFill.setColor(Color.BLACK);       // black
+                dangerIconImage.setVisible(false);
+                smallCatIconImage.setVisible(false);
+                smallOctopusIconImage.setVisible(false);
             }
         }
 
         // finally… draw the stage
-        stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
+    }
+
+    public void togglePauseMenu(boolean paused) {
+        isPaused = paused;
+        overlayBackground.setVisible(paused);
+        pauseMenuTable.setVisible(paused);
+
+        if (pauseIconImage != null) {
+            pauseIconImage.setVisible(!paused);
+        }
+        if (resumeIconImage != null) {
+            resumeIconImage.setVisible(paused);
+        }
+
+        if (pauseListener != null) {
+            pauseListener.onPauseStateChanged(paused);
+        }
+    }
+
+    public void setPauseMenuListener(PauseMenuListener listener) {
+        this.pauseListener = listener;
+    }
+
+    public void dispose(){
+        stage.dispose();
     }
 }
