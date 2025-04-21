@@ -179,6 +179,8 @@
       "game-over-splash": "textures/game-over-splash.png",
       "game-over-menu-button": "textures/game-over-menu-button.png",
       "game-over-restart-button": "textures/game-over-restart-button.png",
+      "game-win-splash": "textures/game-win-splash.png",
+      "game-win-next-level": "textures/game-win-next-level.png",
       "key": "textures/key-sprite.png",
       "locked_door": "textures/locked_door.png",
       "unlocked_door": "textures/unlocked_door.png",
@@ -198,6 +200,7 @@
       "splash": "loading/splash_background.png",
       "logo": "loading/logo.png",
       "level-bg": "textures/level_bg.png",
+      "home-icon-borderless": "textures/home-icon-borderless.png",
       "level-cell": "textures/level_cell.png"
     },
 
