@@ -179,9 +179,9 @@ public class GuardAIController {
     private boolean hasReachedTargetLocation(Vector2 target) {
         Vector2 guardTile = tileGraph.worldToTile(guard.getPosition()).getCoords();
         Vector2 targetTile = tileGraph.worldToTile(target).getCoords();
-
-        System.out.println(guardTile);
-        System.out.println(targetTile);
+        System.out.println("Current guard tile " + guardTile);
+        System.out.println("Current target tile " + targetTile);
+        System.out.println(tileGraph.worldToTile(target).isWall);
         return guardTile.x == targetTile.x && guardTile.y == targetTile.y;
     }
 
