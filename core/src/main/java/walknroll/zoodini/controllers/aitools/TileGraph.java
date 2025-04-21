@@ -208,7 +208,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
      * */
     public TileNode markNearestTile(Camera cam, float screenX, float screenY, float units) {
         vec3.set(screenX, screenY, 0.0f);
-        vec3 = cam.unproject(vec3).scl(1.0f / units);
+        vec3 = cam.unproject(vec3).scl(1.0f / units * density);
         int x = MathUtils.floor(vec3.x);
         int y = MathUtils.floor(vec3.y);
         System.out.println("You clicked:" + x + " " + y);
@@ -228,7 +228,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
      * Thus, the selected tile's origin is marked as a different color in debug mode.
      * */
     public TileNode markNearestTile(Camera cam, Vector2 screenCoord, float units) {
-        return markNearestTile(cam, screenCoord.x, screenCoord.y, units / density);
+        return markNearestTile(cam, screenCoord.x, screenCoord.y, units);
     }
 
 
@@ -280,9 +280,8 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
      * @return the TileNode at the specified world coordinates, or null if out of bounds
      */
     public TileNode worldToTile(Vector2 worldCoords) {
-        // Simply floor the coordinates since tiles are 1x1 and world coords are at bottom-left
-        int tileX = MathUtils.floor(worldCoords.x);
-        int tileY = MathUtils.floor(worldCoords.y);
+        int tileX = MathUtils.floor(worldCoords.x) * density;
+        int tileY = MathUtils.floor(worldCoords.y) * density;
 
         // Make sure coordinates are within bounds
         tileX = MathUtils.clamp(tileX, 0, WIDTH - 1);
@@ -302,8 +301,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
      * @return a Vector2 containing the world coordinates of the tile's center
      */
     public Vector2 tileToWorld(TileNode tile) {
-        // Add 0.5 to get to the center of the tile
-        return new Vector2(tile.x + 0.5f, tile.y + 0.5f);
+        return new Vector2((tile.x + 0.5f) / density, (tile.y + 0.5f) / density);
     }
 
     public TileNode findNearestNonObstacleNode(Vector2 pos) {
