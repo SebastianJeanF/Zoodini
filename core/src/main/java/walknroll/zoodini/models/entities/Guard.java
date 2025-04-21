@@ -35,6 +35,7 @@ public class Guard extends Enemy {
     private int chaseTimer;
     private boolean cameraAlerted;
     private Avatar aggroTarget;
+    private boolean seesPlayer;
 
     /** The position that this guard should move to */
     Vector2 target = null;
@@ -85,6 +86,7 @@ public class Guard extends Enemy {
         viewDistance = properties.get("viewDistance", Float.class);
         susThreshold = 50F;
         maxSusLevel = 100F;
+        seesPlayer = false;
 
         MapObject path = properties.get("path", MapObject.class);
         if(path instanceof PolylineMapObject line){
@@ -131,6 +133,14 @@ public class Guard extends Enemy {
 
     public boolean isMaxSusLevel() {
         return susLevel == maxSusLevel;
+    }
+
+    public float getMaxSusLevel() {
+        return maxSusLevel;
+    }
+
+    public float getSusThreshold() {
+        return susThreshold;
     }
 
     /** Check if the guard is "suspicious" of the player.
@@ -188,6 +198,14 @@ public class Guard extends Enemy {
     /** If a guard is "agroed", it is currently chasing a player */
     public boolean isAgroed() {
         return isChasing;
+    }
+
+    public void setSeesPlayer(boolean seesPlayer) {
+        this.seesPlayer = seesPlayer;
+    }
+
+    public boolean isSeesPlayer() {
+        return seesPlayer;
     }
 
     /** Get current movement direction of guard.

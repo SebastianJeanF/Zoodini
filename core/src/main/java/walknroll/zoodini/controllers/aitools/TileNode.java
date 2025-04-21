@@ -4,6 +4,7 @@ import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 public class TileNode{
@@ -33,5 +34,9 @@ public class TileNode{
 
     public Array<Connection<TileNode>> getConnections () {
         return this.connections;
+    }
+
+    public Vector2 getCoords() {
+        return new Vector2(x,y);
     }
 }

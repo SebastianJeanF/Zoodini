@@ -135,7 +135,7 @@
    </properties>
    <point/>
   </object>
-  <object id="36" type="Guard" x="378.495" y="236.559">
+  <object id="36" type="Guard" x="378.495" y="421.559">
    <properties>
     <property name="category" value="00100"/>
     <property name="exclude" value="00100"/>
