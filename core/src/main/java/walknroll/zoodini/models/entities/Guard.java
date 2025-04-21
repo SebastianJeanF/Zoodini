@@ -70,6 +70,12 @@ public class Guard extends Enemy {
     private static final int MEDIUM_ZONE_SUS_INCREASE = 2;
     private static final int FAR_ZONE_SUS_INCREASE = 1;
 
+    private boolean inkBlinded = false;
+    private float inkBlindTimer = 0;
+    private float tempViewDistance;
+    private float tempFov;
+    private float originalViewDistance;
+    private float originalFov;
 
     /**
      * Creates a new dude with degenerate settings
@@ -100,6 +106,11 @@ public class Guard extends Enemy {
             }
             setPatrolPoints(vertices);
         }
+
+        originalViewDistance = viewDistance;
+        originalFov = fov;
+        tempViewDistance = viewDistance;
+        tempFov = fov;
 
     }
 
@@ -271,7 +282,7 @@ public class Guard extends Enemy {
             baseSuspicionIncrease = FAR_ZONE_SUS_INCREASE;
         }
 
-        System.out.println("sus increase is " + baseSuspicionIncrease);
+//        System.out.println("sus increase is " + baseSuspicionIncrease);
         return baseSuspicionIncrease;
     }
 
@@ -303,11 +314,11 @@ public class Guard extends Enemy {
     }
 
     public float getFov(){
-        return fov;
+        return tempFov;
     }
 
     public float getViewDistance(){
-        return viewDistance;
+        return tempViewDistance;
     }
 
     /**
@@ -351,6 +362,12 @@ public class Guard extends Enemy {
         // If we have a movement direction, update orientation
         if (movementDirection != null && movementDirection.len2() > 0.0001f) {
             updateOrientation(dt, movementDirection);
+        }
+        if (tempViewDistance < originalViewDistance && !inkBlinded) {
+            tempViewDistance += dt;
+        }
+        if (tempFov < originalFov && !inkBlinded) {
+            tempFov += dt;
         }
         applyForce();
         super.update(dt);
@@ -418,4 +435,34 @@ public class Guard extends Enemy {
             originalHeightPx * SCALE
         );
     }
+
+    public boolean isInkBlinded() {
+        return inkBlinded;
+    }
+
+    public void setInkBlinded(boolean blinded) {
+        this.inkBlinded = blinded;
+    }
+
+    public void setInkBlindTimer(float duration) {
+        this.inkBlindTimer = duration;
+    }
+
+    public void updateInkBlindTimer(float dt) {
+        if (inkBlinded) {
+            inkBlindTimer -= dt;
+            if (inkBlindTimer <= 0) {
+                inkBlinded = false;
+            }
+        }
+    }
+
+    public void setTempViewDistance(float distance) {
+        this.tempViewDistance = distance;
+    }
+
+    public void setTempFov(float fov) {
+        this.tempFov = fov;
+    }
+
 }
