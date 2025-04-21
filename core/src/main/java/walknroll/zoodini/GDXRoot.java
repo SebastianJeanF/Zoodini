@@ -17,10 +17,7 @@ import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.controllers.InputController;
-import walknroll.zoodini.controllers.screens.CreditsScene;
-import walknroll.zoodini.controllers.screens.GameScene;
-import walknroll.zoodini.controllers.screens.MenuScene;
-import walknroll.zoodini.controllers.screens.SettingsScene;
+import walknroll.zoodini.controllers.screens.*;
 import walknroll.zoodini.utils.GameSettings;
 
 /**
@@ -40,6 +37,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	public static final int EXIT_PLAY = 2;
 	public static final int EXIT_SETTINGS = 3;
 	public static final int EXIT_CREDITS = 4;
+    public static final int EXIT_LOSE = 6;
 
 	/** AssetManager to load game assets (textures, data, etc.) */
 	AssetDirectory directory;
@@ -51,6 +49,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	private GameScene gameplay;
 	private SettingsScene settings;
 	private CreditsScene credits;
+    private GameOverScene gameOver;
 
 	private GameSettings gameSettings;
 
@@ -150,6 +149,7 @@ public class GDXRoot extends Game implements ScreenListener {
 				disposeExcept(credits);
 				break;
 			case GDXRoot.EXIT_MENU:
+                System.out.println("Game Over");
 				loading = new MenuScene(directory, batch, 1);
 				loading.setScreenListener(this);
 				setScreen(loading);
@@ -174,6 +174,13 @@ public class GDXRoot extends Game implements ScreenListener {
 				setScreen(settings);
 				disposeExcept(settings);
 				break;
+            case GDXRoot.EXIT_LOSE:
+                System.out.println("Game Over");
+                gameOver = new GameOverScene(directory, batch);
+                gameOver.setScreenListener(this);
+                setScreen(gameOver);
+                disposeExcept(gameOver);
+                break;
 			default:
 				break;
 		}
