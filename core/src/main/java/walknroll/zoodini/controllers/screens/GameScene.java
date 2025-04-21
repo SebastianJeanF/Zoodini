@@ -270,6 +270,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             return false;
         }
 
+        if (complete) {
+            listener.exitScreen(this, GDXRoot.EXIT_WIN);
+            return false;
+        }
+
         // Now it is time to maybe switch screens.
         if (input.didExit()) {
             listener.exitScreen(this, GDXRoot.EXIT_MENU);
@@ -735,7 +740,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 			if (guard.isMeowed()) {
 				direction.scl(3.5f * speedScale);
 			} else if (guard.isCameraAlerted()) {
-                direction.scl(8f * speedScale);
+                direction.scl(10f * speedScale);
             }
             else if (guard.isAgroed()) {
 				direction.scl(6.5f * speedScale);
