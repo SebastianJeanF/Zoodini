@@ -1,32 +1,16 @@
 package walknroll.zoodini.controllers;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
-import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar.ProgressBarStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectMap;
 import edu.cornell.gdiac.assets.AssetDirectory;
-import edu.cornell.gdiac.graphics.SpriteBatch;
-import edu.cornell.gdiac.graphics.TextAlign;
-import edu.cornell.gdiac.graphics.TextLayout;
-import walknroll.zoodini.models.nonentities.Door;
-import walknroll.zoodini.models.nonentities.Key;
-import walknroll.zoodini.utils.CircleTimer;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Avatar.AvatarType;
@@ -37,7 +21,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
@@ -47,7 +30,9 @@ public class UIController {
 
     public interface PauseMenuListener {
         void onPauseStateChanged(boolean paused);
+
         void onRestart();
+
         void onReturnToMenu();
     }
 
@@ -55,6 +40,9 @@ public class UIController {
 
     private TextureRegion catIcon;
     private TextureRegion octopusIcon;
+    private TextureRegion smallCatIcon;
+    private TextureRegion smallOctopusIcon;
+    private TextureRegion dangerIcon;
     private TextureRegion pauseIcon;
     private TextureRegion restartIcon;
     private TextureRegion homeIcon;
@@ -69,6 +57,9 @@ public class UIController {
 
     private Image catIconImage;
     private Image octopusIconImage;
+    private Image smallCatIconImage;
+    private Image smallOctopusIconImage;
+    private Image dangerIconImage;
     private Image pauseIconImage;
     private Image restartButton;
     private Image homeButton;
@@ -78,10 +69,10 @@ public class UIController {
     private Table pauseMenuTable;
     private Image resumeButtonImage;
     private Image progressBg, progressFill;
-    private static final float BAR_WIDTH  = 210f;
+    private static final float BAR_WIDTH = 210f;
     private static final float BAR_HEIGHT = 25f;
-    private static final float BAR_X      = 165f;
-    private static final float BAR_Y      = 85f;
+    private static final float BAR_X = 165f;
+    private static final float BAR_Y = 85f;
     private Table rootTable;
 
     private boolean isPaused = false;
@@ -94,6 +85,9 @@ public class UIController {
         setFont(directory.getEntry("display", BitmapFont.class));
         setCatIcon(new TextureRegion(directory.getEntry("cat-icon", Texture.class)));
         setOctopusIcon(new TextureRegion(directory.getEntry("octopus-icon", Texture.class)));
+        setSmallCatIcon(new TextureRegion(directory.getEntry("small-cat-icon", Texture.class)));
+        setSmallOctopusIcon(new TextureRegion(directory.getEntry("small-octopus-icon", Texture.class)));
+        setDangerIcon(new TextureRegion(directory.getEntry("danger-icon", Texture.class)));
         setPauseIcon(new TextureRegion(directory.getEntry("pause_icon", Texture.class)));
         setRestartIcon(new TextureRegion(directory.getEntry("restart_icon", Texture.class)));
         setHomeIcon(new TextureRegion(directory.getEntry("home_icon", Texture.class)));
@@ -131,7 +125,7 @@ public class UIController {
         progressBg.setVisible(false);
         stage.addActor(progressBg);
 
-        Drawable fillDrawable = skin.newDrawable("white", new Color(0,0.8f,0,1));
+        Drawable fillDrawable = skin.newDrawable("white", new Color(0, 0.8f, 0, 1));
         progressFill = new Image(fillDrawable);
         progressFill.setSize(0, BAR_HEIGHT);          // start at 0 width
         progressFill.setPosition(BAR_X, BAR_Y);
@@ -149,14 +143,33 @@ public class UIController {
             stage.addActor(catIconImage);
         }
 
-        if (octopusIcon != null){
+        if (octopusIcon != null) {
             octopusIconImage = new Image(octopusIcon);
             octopusIconImage.setSize(octopusIcon.getRegionWidth() * 0.7f, octopusIcon.getRegionHeight() * 0.7f);
             octopusIconImage.setPosition(45, 30);
             octopusIconImage.setVisible(false); // Hide initially, we'll toggle visibility
             stage.addActor(octopusIconImage);
         }
+        if (smallCatIcon != null) {
+            smallCatIconImage = new Image(smallCatIcon);
+            smallCatIconImage.setPosition(45, 600);
+            smallCatIconImage.setVisible(false);
+            stage.addActor(smallCatIconImage);
+        }
 
+        if (smallOctopusIcon != null) {
+            smallOctopusIconImage = new Image(smallOctopusIcon);
+            smallOctopusIconImage.setPosition(45, 600);
+            smallOctopusIconImage.setVisible(false); // Hide initially, we'll toggle visibility
+            stage.addActor(smallOctopusIconImage);
+        }
+
+        if (dangerIcon != null) {
+            dangerIconImage = new Image(dangerIcon);
+            dangerIconImage.setPosition(105, 615);
+            dangerIconImage.setVisible(false);
+            stage.addActor(dangerIconImage);
+        }
         if (pauseIcon != null) {
             pauseIconImage = new Image(pauseIcon);
             float iconSize = 40f;
@@ -274,7 +287,6 @@ public class UIController {
             overlayTable.setFillParent(true);
             overlayTable.center();
 
-//            overlayTable.add(buttonTable).padTop(40);
             if (resumeButtonImage != null) {
                 Table resumeRow = new Table();
                 resumeRow.add(resumeButtonImage).padTop(67).padLeft(22).padRight(22);
@@ -288,24 +300,19 @@ public class UIController {
         }
 
         stage.addActor(pauseMenuTable);
-
-
-//        inkMeter = new ProgressBar(0, 100, 1, false, skin.get("default-horizontal", ProgressBar.ProgressBarStyle.class));
-//        inkMeter.setWidth(210);
-//        inkMeter.setHeight(35);
-//        inkMeter.setPosition(165, 85); // Same position as the original
-//        inkMeter.setAnimateDuration(0.1f); // Slight animation when value changes
-//        inkMeter.setVisible(false); // Hide initially
-//        inkMeter.setValue(100f);
-//        stage.addActor(inkMeter);
     }
+
     public void togglePauseMenu(boolean paused) {
         isPaused = paused;
         overlayBackground.setVisible(paused);
         pauseMenuTable.setVisible(paused);
 
-        if (pauseIconImage != null) {pauseIconImage.setVisible(!paused);}
-        if (resumeIconImage != null) {resumeIconImage.setVisible(paused);}
+        if (pauseIconImage != null) {
+            pauseIconImage.setVisible(!paused);
+        }
+        if (resumeIconImage != null) {
+            resumeIconImage.setVisible(paused);
+        }
 
         if (pauseListener != null) {
             pauseListener.onPauseStateChanged(paused);
@@ -316,11 +323,7 @@ public class UIController {
         this.pauseListener = listener;
     }
 
-    public boolean isPaused(){
-        return isPaused;
-    }
-
-    public void reset(){
+    public void reset() {
     }
 
     public void setFont(BitmapFont f) {
@@ -330,68 +333,48 @@ public class UIController {
     public void setCatIcon(TextureRegion icon) {
         catIcon = icon;
     }
+
     public void setOctopusIcon(TextureRegion icon) {
         octopusIcon = icon;
     }
-    public void setPauseIcon(TextureRegion icon) {pauseIcon = icon;}
 
-    public void setRestartIcon(TextureRegion icon) {
+    public void setSmallCatIcon(TextureRegion icon) {
+        smallCatIcon = icon;
+    }
+
+    public void setSmallOctopusIcon(TextureRegion icon) {
+        smallOctopusIcon = icon;
+    }
+
+    public void setDangerIcon(TextureRegion icon) {
+        dangerIcon = icon;
+    }
+    public void setPauseIcon (TextureRegion icon){
+        pauseIcon = icon;
+    }
+
+    public void setRestartIcon (TextureRegion icon){
         restartIcon = icon;
     }
 
-    public void setHomeIcon(TextureRegion icon) {
+    public void setHomeIcon (TextureRegion icon){
         homeIcon = icon;
     }
 
-    public void setPausedBanner(TextureRegion icon) {
+    public void setPausedBanner (TextureRegion icon){
         pauseBanner = icon;
     }
 
-    public void setResumeIcon(TextureRegion icon) {
+    public void setResumeIcon (TextureRegion icon){
         resumeIcon = icon;
     }
 
-    public void setResumeButton(TextureRegion icon) {
+    public void setResumeButton (TextureRegion icon){
         resumeButton = icon;
     }
 
-    public void update() {
 
-    }
-
-    public void resize(int width, int height){
-        viewport.update(width, height, true);
-
-        if (pauseIconImage != null) {
-            float iconSize = pauseIconImage.getWidth();
-            pauseIconImage.setPosition(width - iconSize - 20, height -iconSize - 20);
-        }
-
-        if (resumeIconImage != null) {
-            float iconSize = resumeIconImage.getWidth();
-            resumeIconImage.setPosition(width - iconSize - 20, height - iconSize - 20);
-        }
-        if (overlayBackground != null) {
-            overlayBackground.setSize(width, height);
-        }
-        if (pauseMenuTable != null) {
-            float menuWidth = pauseMenuTable.getWidth();
-            float menuHeight = pauseMenuTable.getHeight();
-            pauseMenuTable.setPosition((width - menuWidth) / 2, (height - menuHeight) / 2);
-        }
-    }
-
-    public void dispose() {
-        if (stage != null){
-            stage.dispose();
-        }
-        if (skin != null){
-            skin.dispose();
-        }
-    }
-
-
-    public void draw(GameLevel level) {
+    public void draw (GameLevel level){
         if (Gdx.input.getInputProcessor() != stage) {
             Gdx.input.setInputProcessor(stage);
         }
@@ -399,15 +382,32 @@ public class UIController {
         boolean isOcto = avatar.getAvatarType() == AvatarType.OCTOPUS;
 
         // Icons
-        if (catIconImage  != null) catIconImage.setVisible(!isOcto);
+        if (catIconImage != null) catIconImage.setVisible(!isOcto);
         if (octopusIconImage != null) octopusIconImage.setVisible(isOcto);
+
+        if (dangerIconImage != null && smallCatIconImage != null && smallOctopusIconImage != null) {
+            if (level.isInactiveAvatarInDanger()) {
+                dangerIconImage.setVisible(true);
+                if (isOcto) {
+                    smallCatIconImage.setVisible(true);
+                    smallOctopusIconImage.setVisible(false);
+                } else {
+                    smallOctopusIconImage.setVisible(true);
+                    smallCatIconImage.setVisible(false);
+                }
+            } else {
+                dangerIconImage.setVisible(false);
+                smallCatIconImage.setVisible(false);
+                smallOctopusIconImage.setVisible(false);
+            }
+        }
 
         // Progress bar background + fill
         progressBg.setVisible(isOcto);
         progressFill.setVisible(isOcto);
 
         if (isOcto) {
-            Octopus octo = (Octopus)avatar;
+            Octopus octo = (Octopus) avatar;
             // compute 0→1 fill ratio
             float pct = octo.getInkRemaining() / octo.getInkCapacity();
             // resize the green fill bar
