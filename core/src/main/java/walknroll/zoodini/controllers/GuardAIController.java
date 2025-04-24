@@ -284,7 +284,10 @@ public class GuardAIController {
                 break;
             case SUSPICIOUS:
                 // Suspicion level is below threshold; SUSPICIOUS -> PATROL
-                if (!guard.isSus()) {
+                // TODO: Experimenting guard leaving sus state only when sus level is 0
+               if(!guard.isSus()){
+//                if (guard.getSusLevel() == 0) {
+
                     currState = GuardState.PATROL;
                     lastStateChangeTime = ticks;
                 }

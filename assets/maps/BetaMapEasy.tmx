@@ -87,7 +87,7 @@
     <property name="fov" type="float" value="60"/>
     <property name="maxSpeed" type="float" value="5"/>
     <property name="path" type="object" value="31"/>
-    <property name="radius" type="float" value="0.2"/>
+    <property name="radius" type="float" value="0.3"/>
     <property name="spriteRadius" type="float" value="0.8"/>
     <property name="viewDistance" type="float" value="5"/>
    </properties>
@@ -98,7 +98,7 @@
     <property name="alarmDistance" type="float" value="10"/>
     <property name="angle" type="float" value="220"/>
     <property name="category" value="01000"/>
-    <property name="disabledTime" type="float" value="5"/>
+    <property name="disabledTime" type="float" value="10"/>
     <property name="exclude" value="00000"/>
     <property name="fov" type="float" value="80"/>
     <property name="radius" type="float" value="0.2"/>
