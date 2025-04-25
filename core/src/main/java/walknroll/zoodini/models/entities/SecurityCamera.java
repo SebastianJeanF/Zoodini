@@ -81,7 +81,7 @@ public class SecurityCamera extends ZoodiniSprite {
 
         // Initialize ring effect properties
         alarmDistance = properties.get("alarmDistance", Float.class);
-        expansionSpeed = 5.0f;
+        expansionSpeed = 10.0f;
         ringThickness = 0.1f;
         ringColor = new Color(1, 0, 0, 0.5f); // Semi-transparent red
         currentRadius = 0f; //in meters

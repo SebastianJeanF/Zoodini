@@ -20,5 +20,14 @@
     "button.menu.x": 170,
     "button.width": 100,
     "button.height": 100
+  },
+  "gameWinScreen": {
+    "height" : 576,
+    "button.y": 50,
+    "button.menu.x": 50,
+    "button.next.x": 170,
+    "button.menu.width": 100,
+    "button.next.width": 386,
+    "button.height": 100
   }
 }

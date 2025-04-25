@@ -56,6 +56,7 @@ public class DesktopLauncher {
         config.title = "Zoodini";
 
         // Use windowed mode
+        // TODO: Read width and height from a config file
         config.fullscreen = false;
         config.width  = 1280;
         config.height = 720;
