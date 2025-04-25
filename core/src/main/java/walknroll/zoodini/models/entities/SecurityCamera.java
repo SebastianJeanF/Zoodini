@@ -20,6 +20,7 @@ import edu.cornell.gdiac.math.Path2;
 import edu.cornell.gdiac.math.PathExtruder;
 import edu.cornell.gdiac.math.PathFactory;
 import walknroll.zoodini.models.GameLevel;
+import walknroll.zoodini.utils.CircleTimer;
 import walknroll.zoodini.utils.ZoodiniSprite;
 import walknroll.zoodini.utils.animation.Animation;
 import walknroll.zoodini.utils.animation.AnimationController;
@@ -44,6 +45,7 @@ public class SecurityCamera extends ZoodiniSprite {
     private float ringThickness;
 
     private final AnimationController animationController;
+    private CircleTimer timer;
 
     Affine2 affineCache = new Affine2();
     PathFactory pf = new PathFactory();
@@ -90,6 +92,7 @@ public class SecurityCamera extends ZoodiniSprite {
         viewDistance = properties.get("viewDistance", Float.class);
 
         animationController = new AnimationController(AnimationState.IDLE);
+        timer = new CircleTimer(1,Color.YELLOW, units);
     }
 
 
