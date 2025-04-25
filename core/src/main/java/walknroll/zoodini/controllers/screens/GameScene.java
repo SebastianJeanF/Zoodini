@@ -32,6 +32,7 @@ import org.w3c.dom.Text;
 import walknroll.zoodini.GDXRoot;
 import walknroll.zoodini.controllers.GuardAIController;
 import walknroll.zoodini.controllers.InputController;
+import walknroll.zoodini.controllers.SoundController;
 import walknroll.zoodini.controllers.UIController;
 import walknroll.zoodini.controllers.aitools.TileGraph;
 import walknroll.zoodini.controllers.aitools.TileNode;
@@ -128,6 +129,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     /** Whether the game has been lost **/
     private boolean gameLost = false;
 
+    private SoundController soundController;
+
 
     public int getCurrentLevel() {
         return currentLevel;
@@ -181,6 +184,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
 		setComplete(false);
 		setFailure(false);
+
+        soundController = SoundController.getInstance();
 	}
 
 
@@ -230,6 +235,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     @Override
     public void onPauseStateChanged(boolean paused) {
         gamePaused = paused;
+        if (paused) {
+            soundController.pauseMusic();
+        } else {
+            soundController.resumeMusic();
+        }
     }
 
     @Override
@@ -480,6 +490,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         } else if(avatar.getAvatarType() == AvatarType.CAT) {
             Cat cat = (Cat) avatar;
             cat.setMeowed(input.didAbility());
+            if (input.didAbility() && cat.getMeowed()) {
+                soundController.playCatMeow();
+            }
         }
 
 
@@ -801,6 +814,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 	 */
 	public void pause() {
 		// TODO Auto-generated method stub
+        soundController.pauseMusic();
 	}
 
 	/**
@@ -810,6 +824,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 	 */
 	public void resume() {
 		// TODO Auto-generated method stub
+        soundController.resumeMusic();
 	}
 
 	/**
@@ -818,6 +833,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 	public void show() {
 		// Useless if called in outside animation loop
 		active = true;
+        soundController.playMusic("game-music", true);
 	}
 
 	/**
@@ -826,6 +842,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 	public void hide() {
 		// Useless if called in outside animation loop
 		active = false;
+        soundController.stopMusic();
 	}
 
 	/**
