@@ -104,7 +104,7 @@ public class UIController {
         setDangerIcon(new TextureRegion(directory.getEntry("danger-icon", Texture.class)));
         setPauseIcon(new TextureRegion(directory.getEntry("pause_icon", Texture.class)));
         setRestartIcon(new TextureRegion(directory.getEntry("restart_icon", Texture.class)));
-        setHomeIcon(new TextureRegion(directory.getEntry("home_icon", Texture.class)));
+        setHomeIcon(new TextureRegion(directory.getEntry("home-icon", Texture.class)));
         setPausedBanner(new TextureRegion(directory.getEntry("game_paused", Texture.class)));
         setResumeIcon(new TextureRegion(directory.getEntry("resume_icon", Texture.class)));
         setResumeButton(new TextureRegion(directory.getEntry("resume_button", Texture.class)));
