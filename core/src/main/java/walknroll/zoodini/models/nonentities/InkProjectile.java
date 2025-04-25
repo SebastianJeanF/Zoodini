@@ -195,7 +195,7 @@ public class InkProjectile extends ZoodiniSprite {
             }
             if(!soundPlayed) {
                 SoundController sc = SoundController.getInstance();
-                sc.playInkSpray();
+                sc.playInkFinish();
                 soundPlayed = true;
             }
         } else {
