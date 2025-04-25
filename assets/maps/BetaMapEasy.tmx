@@ -133,7 +133,7 @@
   <object id="72" type="Cat" x="174" y="739.333">
    <properties>
     <property name="abilityCooldown" type="float" value="5"/>
-    <property name="abilityRange" type="float" value="7"/>
+    <property name="abilityRange" type="float" value="100"/>
     <property name="category" value="00010"/>
     <property name="exclude" value="00010"/>
     <property name="force" type="float" value="3"/>

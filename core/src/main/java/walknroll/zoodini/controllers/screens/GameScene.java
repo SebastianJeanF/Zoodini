@@ -65,7 +65,7 @@ import walknroll.zoodini.utils.ZoodiniSprite;
  */
 public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener {
 
-    private boolean debug = false;
+    private boolean debug = true;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
@@ -154,8 +154,15 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 		countdown = -1;
 
 		camera = new OrthographicCamera();
+
         //30m, 20m is the map dimension. 1 tile = 1m
-		camera.setToOrtho(false, level.getTileSize() * 15,  level.getTileSize() * 10);
+//        float SCALE = 1.0f;
+//		camera.setToOrtho(false, level.getTileSize() * 15 * SCALE,  level.getTileSize() * 10 * SCALE);
+
+        float NUM_TILES_WIDE = 15f;
+        camera.setToOrtho(false, level.getTileSize() * NUM_TILES_WIDE,  level.getTileSize() * NUM_TILES_WIDE * 720f/1280f);
+
+
         // Initialize camera tracking variables
 		cameraTargetPosition = new Vector2();
 		cameraPreviousPosition = new Vector2();
@@ -747,10 +754,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 direction.scl(12f * speedScale);
             }
             else if (guard.isAgroed()) {
-				direction.scl(8f * speedScale);
+				direction.scl(7f * speedScale);
 			} else if (guard.isSus()) {
-                direction.scl(7f * speedScale);
+                direction.scl(6f * speedScale);
             } else {
+                // guard is normally walking
                 direction.scl(5f * speedScale);
             }
 

@@ -96,7 +96,7 @@
   </object>
   <object id="79" type="Octopus" x="126" y="181.333">
    <properties>
-    <property name="abilityRange" type="float" value="5"/>
+    <property name="abilityRange" type="float" value="7"/>
     <property name="category" value="00010"/>
     <property name="exclude" value="00010"/>
     <property name="force" type="float" value="2"/>
