@@ -1,5 +1,6 @@
 package walknroll.zoodini.models.entities;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.PolygonMapObject;
@@ -410,6 +411,45 @@ public class Guard extends Enemy {
         drawSuspicionMeter(batch);
     }
 
+//    // class‐scope constants
+//    private static final float BASELINE_PX    = 32f;
+//    private static final float SCALE_FACTOR   = 0.2f;
+//    private static final Vector2  OFFSET_UNSCALED = new Vector2(-80f, 100f);
+//
+//    public void drawSuspicionMeter(SpriteBatch batch) {
+//        // early-exit if we can’t draw
+//        if (suspsicionMeter == null
+//            || suspsicionMeter.getCurrentSpriteSheet() == null
+//            || !Guard.isLoaded()) {
+//            return;
+//        }
+//
+//        // pick the right sprite
+//        TextureRegion region = isMeowed()
+//            ? Guard.SUSPICION_METER_CURIOUS
+//            : suspsicionMeter.getCurrentSpriteSheet();
+//
+//        // only update animation when using the dynamic meter
+//        if (!isMeowed()) {
+//            updateSuspicionAnimation();
+//        }
+//
+//        // compute scale & screen‐space position
+//        float physToPx = getObstacle().getPhysicsUnits();
+//        float scale    = SCALE_FACTOR * (physToPx / BASELINE_PX);
+//        float xPx      = getPosition().x * physToPx + OFFSET_UNSCALED.x * scale;
+//        float yPx      = getPosition().y * physToPx + OFFSET_UNSCALED.y * scale;
+//
+//        // single draw call
+//        batch.draw(
+//            region,
+//            xPx, yPx,
+//            region.getRegionWidth()  * scale,
+//            region.getRegionHeight() * scale
+//        );
+//    }
+//
+
     public void drawSuspicionMeter(SpriteBatch batch) {
         float BASELINE_PX = 32;
         if (suspsicionMeter == null || suspsicionMeter.getCurrentSpriteSheet() == null || !Guard.isLoaded()) {
@@ -424,13 +464,15 @@ public class Guard extends Enemy {
         float X_PIXEL_OFFSET = (-80f * SCALE);
         float Y_PIXEL_OFFSET = 100f * SCALE;
 
+
+
         if (isMeowed()) {
             batch.draw(
-                    Guard.SUSPICION_METER_CURIOUS,
-                    guardXPixel + X_PIXEL_OFFSET,
-                    guardYPixel + Y_PIXEL_OFFSET,
-                    Guard.SUSPICION_METER_CURIOUS.getWidth() * SCALE,
-                    Guard.SUSPICION_METER_CURIOUS.getHeight() * SCALE);
+                Guard.SUSPICION_METER_CURIOUS,
+                guardXPixel + getXPixelOffset(),
+                guardYPixel + Y_PIXEL_OFFSET,
+                Guard.SUSPICION_METER_CURIOUS.getWidth() * SCALE,
+                Guard.SUSPICION_METER_CURIOUS.getHeight() * SCALE);
         } else {
             updateSuspicionAnimation();
 
@@ -439,12 +481,34 @@ public class Guard extends Enemy {
             float originalHeightPx = suspsicionMeter.getCurrentSpriteSheet().getRegionHeight();
 
             batch.draw(
-                    suspsicionMeter.getCurrentSpriteSheet(),
-                    guardXPixel + X_PIXEL_OFFSET,
-                    guardYPixel + Y_PIXEL_OFFSET,
-                    originalWidthPx * SCALE,
-                    originalHeightPx * SCALE);
+                suspsicionMeter.getCurrentSpriteSheet(),
+                guardXPixel + getXPixelOffset(),
+                guardYPixel + Y_PIXEL_OFFSET,
+                originalWidthPx * SCALE,
+                originalHeightPx * SCALE);
         }
+
+    }
+
+    private float getXPixelOffset() {
+        float BASELINE_PX = 32;
+        float PIXEL_PER_WORLD_UNIT = getObstacle().getPhysicsUnits();
+        float SCALE = 0.2f * (PIXEL_PER_WORLD_UNIT / BASELINE_PX);
+
+        if (isMeowed()) {
+            return (-80f * SCALE);
+        }
+        // Else if the guard is moving to the right
+        else if (movementDirection != null && movementDirection.x > 0) {
+            return (-80f * SCALE);
+        }
+        // Else if the guard is moving to the left
+        else if (movementDirection != null && movementDirection.x < 0) {
+            return (-55f * SCALE);
+        }
+
+        // Guard is moving up/down
+        return (-65f * SCALE);
     }
 
     public boolean isInkBlinded() {
