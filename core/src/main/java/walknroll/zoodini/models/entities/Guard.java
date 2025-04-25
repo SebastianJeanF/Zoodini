@@ -106,7 +106,7 @@ public class Guard extends Enemy {
         AnimationState state = AnimationState.SUSPICION_METER;
         suspsicionMeter = new AnimationController(state);
         viewDistance = properties.get("viewDistance", Float.class);
-        susThreshold = 20F;
+        susThreshold = 10F;
         maxSusLevel = 100F;
         seesPlayer = false;
 

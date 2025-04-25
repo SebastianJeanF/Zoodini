@@ -154,7 +154,6 @@ public class GuardAIController {
      */
     private boolean didDistractionOccur() {
         float guardToPlayerDistance = guard.getPosition().dst(getActivePlayer().getPosition());
-
         return (getActivePlayer().getAvatarType() == AvatarType.CAT &&
                 level.getCat().didJustMeow() &&
                 guardToPlayerDistance <= CAT_MEOW_RADIUS);
@@ -195,6 +194,13 @@ public class GuardAIController {
         return nearest;
     }
 
+    /***
+     * Helper function to check if the guard has reached a target location.
+     * The guard "reaches" a target if it is within the radius of the arrival distance in world coords.
+     *
+     * @param target The target position to check against
+     * @return true if the guard has reached the target location, false otherwise
+     */
     private boolean hasReachedTargetLocation(Vector2 target) {
         // Use world coordinates and a reasonable threshold
         float arrivalDistance = 1f;
@@ -294,11 +300,26 @@ public class GuardAIController {
                     currState = GuardState.PATROL;
                     lastStateChangeTime = ticks;
                 }
+                // Player under camera; SUSPICIOUS -> ALERTED
                 else if (guard.isCameraAlerted()) {
                     currState = GuardState.AlERTED;
                     guard.startDeAggroTimer();
                     guard.setMaxSusLevel();
                     cameraAlertPosition.set(getActivePlayer().getPosition());
+                    lastStateChangeTime = ticks;
+                }
+                break;
+            case AlERTED:
+                // If guard has reached camera location; ALERTED -> PATROL
+                if (hasReachedTargetLocation(cameraAlertPosition)) {
+                    currState = GuardState.PATROL;
+                    guard.setCameraAlerted(false);
+                    lastStateChangeTime = ticks;
+                }
+                // Guard has not reached camera location, sus level is above threshold; ALERTED -> SUSPICIOUS
+                else if (guard.isSus()) {
+                    currState = GuardState.SUSPICIOUS;
+                    guard.setCameraAlerted(true); // TODO: Make this false (if we want guard to lose momentum after spotting)
                     lastStateChangeTime = ticks;
                 }
                 break;
@@ -315,26 +336,21 @@ public class GuardAIController {
                     guard.setMeow(false);
                     lastStateChangeTime = ticks;
                 }
+                else if (guard.isCameraAlerted()) {
+                    currState = GuardState.AlERTED;
+                    guard.setCameraAlerted(true);
+                    guard.setMeow(false);
+                    Vector2 playerPosition = getActivePlayer().getPosition();
+                    cameraAlertPosition.set(getValidTileCoords(playerPosition));
+                    lastStateChangeTime = ticks;
+                }
                 // Gar meows again -> should update distractPosition
                 else if (didDistractionOccur()) {
+                    System.out.println("here");
                     currState = GuardState.DISTRACTED;
                     guard.setMeow(true);
                     Vector2 playerPosition = getActivePlayer().getPosition();
                     distractPosition.set(getValidTileCoords(playerPosition));
-                    lastStateChangeTime = ticks;
-                }
-                break;
-            case AlERTED:
-                // If guard has reached camera location; ALERTED -> PATROL
-                if (hasReachedTargetLocation(cameraAlertPosition)) {
-                    currState = GuardState.PATROL;
-                    guard.setCameraAlerted(false);
-                    lastStateChangeTime = ticks;
-                }
-                // Guard has not reached camera location, sus level is above threshold; ALERTED -> SUSPICIOUS
-                else if (guard.isSus()) {
-                    currState = GuardState.SUSPICIOUS;
-                    guard.setCameraAlerted(true); // TODO: Make this false (if we want guard to lose momentum after spotting)
                     lastStateChangeTime = ticks;
                 }
                 break;
@@ -423,6 +439,14 @@ public class GuardAIController {
         return currState;
     }
 
+    /**
+     * Helper function that checks if the target position is not a wall.
+     * If the target position is a wall, it returns the world coords of the nearest non-wall tile.
+     * If the target position is not a wall, it returns the original target position.
+     *
+     * @param target The target position to check
+     * @return A valid Vector2 position that is not a wall
+     */
     public Vector2 getValidTileCoords(Vector2 target) {
         TileNode targetTile = tileGraph.worldToTile(target);
         if (!targetTile.isWall) {

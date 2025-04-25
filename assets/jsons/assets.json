@@ -190,7 +190,8 @@
     "logo": "loading/logo.png",
     "level-bg": "textures/ui/level-select/level_bg.png",
     "level-cell": "textures/ui/level-select/level_cell.png",
-    "guard-suspicion-curious": "textures/entities/guard/guard-suspicion-curious.png"
+    "guard-suspicion-curious": "textures/entities/guard/guard-suspicion-curious.png",
+    "ink-text": "textures/ui/gameplay/ink-text.png"
   },
   "fonts": {
     "display": {
