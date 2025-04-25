@@ -522,21 +522,14 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         for (ObjectMap.Entry<Door, Key> entry : doors.entries()) {
             Door door = entry.key;
             Key key = entry.value;
-
-            if(key.isCollected() && !key.isUsed() && door.isUnlocking()){
-
-                float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
-                Vector2 doorPos = door.getObstacle().getPosition().cpy();
-                float tileSize = level.getTileSize();
-                //door.showUnlockProgress(progress, doorPos, camera);
-            } else {
-                door.resetTimer();
-                //door.hideUnlockProgress();
+            if(!door.isLocked()){
+                key.setUsed(true);
+                Vector2 doorPos = door.getObstacle().getPosition();
+                graph.getNode((int)doorPos.x, (int)doorPos.y).isWall = false;
             }
 
-            if(door.getRemainingTimeToUnlock() <= 0){
-                key.setUsed(true);
-                //door.hideUnlockProgress();
+            if(!door.isUnlocking()){
+                door.resetTimer();
             }
         }
 
@@ -1025,11 +1018,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                     if (canUnlock && rightKey.isCollected() && !rightKey.isUsed() && door.isLocked()) {
                         door.setUnlocking(false);
                     }
-                }
-
-                if(!door.isLocked()){
-                    Vector2 doorPos = door.getObstacle().getPosition();
-                    graph.getNode((int)doorPos.x, (int)doorPos.y).isWall = false;
                 }
             }
 

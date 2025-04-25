@@ -151,7 +151,7 @@ public class Door extends ZoodiniSprite {
 
         lockedTexture = new TextureRegion(directory.getEntry("locked_door", Texture.class));
         unlockedTexture = new TextureRegion(directory.getEntry("unlocked_door", Texture.class));
-        unlockTimer = new CircleTimer(1, Color.YELLOW, units);
+        unlockTimer = new CircleTimer(0.2f, Color.YELLOW, units);
 
         // Set initial state (locked by default)
         setLocked(true);
@@ -182,8 +182,7 @@ public class Door extends ZoodiniSprite {
     @Override
     public void draw(SpriteBatch batch) {
         super.draw(batch);
-        if(isUnlocking){
-            Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
+        if(isLocked() && isUnlocking){
             unlockTimer.draw(batch);
         }
     }

@@ -92,7 +92,7 @@ public class SecurityCamera extends ZoodiniSprite {
         viewDistance = properties.get("viewDistance", Float.class);
 
         animationController = new AnimationController(AnimationState.IDLE);
-        timer = new CircleTimer(1,Color.YELLOW, units);
+        timer = new CircleTimer(0.2f,Color.YELLOW, units);
     }
 
 
