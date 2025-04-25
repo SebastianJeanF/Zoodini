@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.JsonValue;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.assets.ParserUtils;
+import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import edu.cornell.gdiac.physics2.BoxObstacle;
@@ -17,6 +18,9 @@ import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.physics2.WheelObstacle;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.utils.ZoodiniSprite;
+import walknroll.zoodini.utils.animation.Animation;
+import walknroll.zoodini.utils.animation.AnimationController;
+import walknroll.zoodini.utils.animation.AnimationState;
 
 public class InkProjectile extends ZoodiniSprite {
 
@@ -33,6 +37,8 @@ public class InkProjectile extends ZoodiniSprite {
     private int startFrame;
 
     private boolean shouldDestroy;
+
+    private AnimationController animationController;
 
 
     public Vector2 getStartPosition(){
@@ -146,6 +152,15 @@ public class InkProjectile extends ZoodiniSprite {
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 
         shouldDestroy = false;
+        animationController = new AnimationController(AnimationState.IDLE);
+    }
+
+    public void setAnimation(AnimationState state, SpriteSheet sheet){
+        switch(state){
+            //TODO: frame delays (number of frames elapsed before rendering the next sprite) is set to 16 for all states. This needs to be adjusted.
+            case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
+            case EXPLODE -> animationController.addAnimation(AnimationState.EXPLODE, new Animation(sheet, 0, sheet.getSize()-1, 1, true));
+        }
     }
 
     /**
@@ -154,7 +169,7 @@ public class InkProjectile extends ZoodiniSprite {
      * This method should be called after the force attribute is set.
      */
     public void applyForce() {
-        if(shouldDestroy){
+        if(getShouldDestroy()){
             return;
         }
 
@@ -175,17 +190,59 @@ public class InkProjectile extends ZoodiniSprite {
 
     @Override
     public void update(float dt) {
+        if(this.getShouldDestroy()) {
+            animationController.setState(AnimationState.EXPLODE);
+            if (animationController.getCurrentFrame()
+                >= animationController.getCurrentSpriteSheet().getSize() - 1) {
+                setDrawingEnabled(false);
+            }
+        } else {
+            animationController.setState(AnimationState.IDLE);
+        }
+
+        animationController.update();
+
+        // This is the key fix - update the sprite reference itself
+        SpriteSheet currentSheet = animationController.getCurrentSpriteSheet();
+        if (currentSheet != null) {
+            sprite = currentSheet;  // Switch to the current animation's spritesheet
+        }
+
+        // Now setting the frame will work correctly
+        if (sprite != null) {
+            sprite.setFrame(animationController.getCurrentFrame());
+        }
+
         obstacle.update(dt);
     }
 
+    @Override
+    public void draw(SpriteBatch batch) {
+        if (this.obstacle != null && this.mesh != null) {
+            float x = this.obstacle.getX();
+            float y = this.obstacle.getY();
+            float a = this.obstacle.getAngle();
+            float u = this.obstacle.getPhysicsUnits();
+
+            this.transform.idt();
+            if(animationController.getCurrentState() == AnimationState.EXPLODE){
+                transform.scale(10.0f,10.0f);
+            }
+            this.transform.preRotate((float)((double)(a * 180.0F) / Math.PI));
+            this.transform.preTranslate(x * u, y * u);
+
+
+            batch.setTextureRegion(this.sprite);
+            batch.drawMesh(this.mesh, this.transform, false);
+            batch.setTexture(null);
+        }
+    }
 
     public void destroy(){
         if(!shouldDestroy){
             return;
         }
         getObstacle().setActive(false);
-        setDrawingEnabled(false);
-        setShouldDestroy(false);
     }
 
     public void activate(){

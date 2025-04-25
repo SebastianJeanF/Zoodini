@@ -25,6 +25,9 @@ public class AnimationController {
             }
         }
     }
+    public AnimationState getCurrentState() {
+        return currentState;
+    }
 
     public void update() {
         Animation current = animations.get(currentState);

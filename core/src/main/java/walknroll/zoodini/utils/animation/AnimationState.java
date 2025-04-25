@@ -6,7 +6,8 @@ public enum AnimationState {
     WALK_UP,
     WALK_DOWN,
     SUSPICION_METER,
-    BLIND;
+    BLIND,
+    EXPLODE;
 
     // Priority determines which animation plays when multiple states are active
     private final int priority;
