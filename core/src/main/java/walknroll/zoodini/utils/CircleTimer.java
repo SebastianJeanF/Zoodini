@@ -1,6 +1,7 @@
 package walknroll.zoodini.utils;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -8,6 +9,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.math.Poly2;
 import edu.cornell.gdiac.math.PolyFactory;
@@ -16,13 +18,13 @@ public class CircleTimer {
     private float progress; // 0 to 1
     private float x, y, radius;
     private Color color;
-    private float unit;
+    private float units;
 
-    public CircleTimer(float radius, Color color, float unit) {
+    public CircleTimer(float radius, Color color, float units) {
         this.radius = radius;
         this.color = color;
         this.progress = 0;
-        this.unit = unit;
+        this.units = units;
     }
 
     public void setProgress(float progress) {
@@ -34,27 +36,26 @@ public class CircleTimer {
         this.y = y;
     }
 
+    public void setPosition(Vector2 v){
+        this.x = v.x;
+        this.y = v.y;
+    }
+
     PolyFactory polyFactory = new PolyFactory();
     Affine2 affineCache = new Affine2();
     public void draw(SpriteBatch batch) {
+        affineCache.idt();
+        affineCache.scale(units, units);
+        affineCache.translate(x,y);
 
-        // Enable blending for transparency
+        Color prevColor = batch.getColor();
+
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
-        batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0,
-            Gdx.graphics.getWidth(),
-            Gdx.graphics.getHeight()));
-        batch.begin();
-
-
-        affineCache.idt();
-        affineCache.translate(x,y);
-        affineCache.scale(unit, unit);
-
         // Draw background circle
         batch.setColor(0.2f, 0.2f, 0.2f, 0.7f);
-        Poly2 circle = polyFactory.makeNgon(0,0,radius,12);
+        Poly2 circle = polyFactory.makeNgon(0,0,radius,36);
         batch.fill(circle, affineCache);
 
         // Draw progress arc
@@ -85,7 +86,7 @@ public class CircleTimer {
             currentAngle = nextAngle;
         }
 
-        batch.end();
+        batch.setColor(prevColor);
     }
 
     public void dispose() {

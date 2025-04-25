@@ -484,6 +484,7 @@ public class GameLevel {
         batch.begin(camera);
         for (ZoodiniSprite obj : sprites) {
             if (obj.isDrawingEnabled()) {
+                batch.setColor(Color.WHITE);
                 obj.draw(batch);
             }
         }
@@ -504,39 +505,24 @@ public class GameLevel {
                 }
             }
         }
-        for (ObjectMap.Entry<Door, Key> entry : doors.entries()) {
-            Door door = entry.key;
-            Key key = entry.value;
-            // if (key.isUnlocking()) {
-            // door.showUnlockProgress(key.getUnlockProgress(), door.getPosition(), camera,
-            // units);
-            // }
-            if (door.isUnlocking()) {
-                door.drawDoorUnlocking(batch, camera);
-            }
-        }
 
-        batch.end();
-        for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
+
+        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
             if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
                 continue;
             }
             entry.value.draw(batch, camera);
         }
 
-        if (rayHandler != null) {
-            rayHandler.render();
-        }
+		// d debugging on top of everything.
+		if (debug) {
+			for (ObstacleSprite obj : sprites) {
+				obj.drawDebug(batch);
+			}
+		}
 
-        // d debugging on top of everything.
-        if (debug) {
-            batch.begin(camera);
-            for (ObstacleSprite obj : sprites) {
-                obj.drawDebug(batch);
-            }
-            batch.end();
-        }
-    }
+        batch.end();
+	}
 
     public boolean isInactiveAvatarInDanger() {
         if (catActive) {
