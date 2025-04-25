@@ -540,6 +540,7 @@ public class GameLevel {
         batch.begin(camera);
 		for (ZoodiniSprite obj : sprites) {
 			if (obj.isDrawingEnabled()) {
+                batch.setColor(Color.WHITE);
 				obj.draw(batch);
 			}
 		}
