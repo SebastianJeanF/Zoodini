@@ -19,6 +19,7 @@ import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.controllers.screens.*;
+import walknroll.zoodini.models.entities.Guard;
 import walknroll.zoodini.utils.GameSettings;
 import walknroll.zoodini.utils.LevelPortal;
 
@@ -137,9 +138,15 @@ public class GDXRoot extends Game implements ScreenListener {
 		if (screen == gameplay) {
 			selectedLevel = gameplay.getCurrentLevel();
 		} else if (screen == loading) {
+			// In this section, we can initialize all static textures in various drawable
+			// classes now that we have a loaded assets directory
+
 			if (!LevelPortal.isLoaded()) {
 				LevelPortal.setTextures(directory.getEntry("level-bg", Texture.class),
 						directory.getEntry("level-cell", Texture.class));
+			}
+			if (!Guard.isLoaded()) {
+				Guard.setSuspicionMeterCuriousTexture(directory.getEntry("guard-suspicion-curious", Texture.class));
 			}
 		} else if (screen == settings) {
 			// extract settings info from settings screen here
@@ -147,14 +154,9 @@ public class GDXRoot extends Game implements ScreenListener {
 			InputController.getInstance().setAbilityKey(gameSettings.getAbilityKey());
 			InputController.getInstance().setSwapKey(gameSettings.getSwapKey());
 			switch (gameSettings.getResolution()) {
-				case BIG:
-					Gdx.graphics.setWindowedMode(1920, 1080);
-					break;
-				case SMALL:
-					Gdx.graphics.setWindowedMode(1280, 720);
-					break;
-				default:
-					break;
+				case SMALL -> Gdx.graphics.setWindowedMode(1280, 720);
+				case BIG -> Gdx.graphics.setWindowedMode(1920, 1080);
+				case FULLSCREEN -> Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
 
 			}
 		} else if (screen == credits) {

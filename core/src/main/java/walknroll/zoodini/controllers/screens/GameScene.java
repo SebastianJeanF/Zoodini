@@ -65,7 +65,7 @@ import walknroll.zoodini.utils.ZoodiniSprite;
  */
 public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener {
 
-    private boolean debug = true;
+    private boolean debug = false;
 
 	// ASSETS
 	/** Need an ongoing reference to the asset directory */
@@ -528,7 +528,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
                 Vector2 doorPos = door.getObstacle().getPosition().cpy();
                 float tileSize = level.getTileSize();
-                door.showUnlockProgress(progress, doorPos, camera, tileSize);
+                door.showUnlockProgress(progress, doorPos, camera);
             } else {
                 door.resetTimer();
                 door.hideUnlockProgress();
