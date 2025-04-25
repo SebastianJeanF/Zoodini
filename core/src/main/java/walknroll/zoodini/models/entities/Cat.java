@@ -23,6 +23,7 @@ import java.util.ArrayList;
 public class Cat extends Avatar {
     /// Whether or not this Gar instance has triggered the meow action
     private boolean meowed;
+    private boolean justMeowed;
     private final float abilityRange;
 
     // Ring effect properties
@@ -84,6 +85,10 @@ public class Cat extends Avatar {
         return meowCooldownRemaining / meowCooldown;
     }
 
+    public float getMeowCooldownRemaining() {
+        return meowCooldownRemaining;
+    }
+
     /**
      * Update the value of <code>meowed</code>.
      *
@@ -99,6 +104,8 @@ public class Cat extends Avatar {
 
         // Start cooldown and activate ring when cat meows
         if (value) {
+            System.out.println("here");
+            System.out.println("ring active: " + isRingActive);
             activateRing();
             onCooldown = true;
             meowCooldownRemaining = meowCooldown;
@@ -137,7 +144,17 @@ public class Cat extends Avatar {
             centerPosition.set(getPosition().x, getPosition().y);
         }
     }
+    public void updateJustMeowed() {
+        if (meowed && !justMeowed) {
+            justMeowed = true;
+        } else if (justMeowed) {
+            justMeowed = false;
+        }
+    }
 
+    public boolean didJustMeow() {
+        return justMeowed;
+    }
     /**
      * Adds spritesheet to animate for a given state.
      * */
@@ -175,6 +192,9 @@ public class Cat extends Avatar {
                 onCooldown = false;
             }
         }
+
+        updateJustMeowed();
+
     }
 
 
@@ -211,5 +231,9 @@ public class Cat extends Avatar {
             // Restore original color
             batch.setColor(originalColor);
         }
+    }
+
+    public float getAbilityRadius() {
+        return maxRadius;
     }
 }

@@ -17,6 +17,7 @@ import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import java.util.Arrays;
 import walknroll.zoodini.models.entities.Enemy;
+import walknroll.zoodini.utils.LevelPortal;
 import walknroll.zoodini.utils.animation.Animation;
 import walknroll.zoodini.utils.animation.AnimationController;
 import walknroll.zoodini.utils.animation.AnimationState;
@@ -28,12 +29,31 @@ public class Guard extends Enemy {
     public static final float FOV_DISTANCE = 7.0f; // Maximum detection distance.
     public static final float FOV_ANGLE = 45.0f; // Total cone angle in degrees.
 
+    private static final float PATROL_THRESHOLD = 0.5f; // Distance to switch patrol points
+    private static Texture SUSPICION_METER_CURIOUS;
+    private static final float CLOSE_DISTANCE_FACTOR = 0.4f; //
+    private static final float MEDIUM_DISTANCE_FACTOR = 0.8f; //
+    // Suspicion increase amounts for each zone
+    private static final int CLOSE_ZONE_SUS_INCREASE = 3;
+    private static final int MEDIUM_ZONE_SUS_INCREASE = 2;
+    private static final int FAR_ZONE_SUS_INCREASE = 1;
+
+    public static void setSuspicionMeterCuriousTexture(Texture suspicionMeterCurious) {
+        Guard.SUSPICION_METER_CURIOUS = suspicionMeterCurious;
+    }
+
+    public static boolean isLoaded() {
+        return Guard.SUSPICION_METER_CURIOUS != null;
+    }
+
     private float fov;
     private float viewDistance;
     private boolean isChasing;
+
     private boolean meowed;
     private int chaseTimer;
     private boolean cameraAlerted;
+
     private Avatar aggroTarget;
     private boolean seesPlayer;
     private Avatar seenPlayer;
@@ -42,33 +62,32 @@ public class Guard extends Enemy {
     Vector2 target = null;
     Vector2 movementDirection = null;
     Vector2 targetPosition = null;
-
-    /** Direction guard is currently facing*/
+    /** Direction guard is currently facing */
     private Vector2 currentDirection = new Vector2(0, 1); // Default facing up
     private Vector2 targetDirection = new Vector2(0, 1);
+
     private float turnSpeed = 5.0f;
-
-    /** --- Patrol Path Variables for Guard --- */
+    // --- Patrol Path Variables for Guard ---
     private Vector2[] patrolPoints;
+    private int currentPatrolIndex = 0;
 
-    /** --- Suspicion Meter Variables --- */
     private final AnimationController suspsicionMeter;
     private float susLevel;
-    private float SUS_THRESHOLD = 50F;
-    private float MAX_SUS_LEVEL = 100F;
 
+    private float susThreshold;
+    private float maxSusLevel;
     private final float DEAGRRO_PERIOD = 60F;
+
     private final float ALERT_DEAGRRO_PERIOD = 300F;
     private float deAggroTimer;
+    private boolean inkBlinded = false;
+    private float inkBlindTimer = 0;
+    private float tempViewDistance;
+    private float tempFov;
 
-    private static final float CLOSE_DISTANCE_FACTOR = 0.4f; //
-    private static final float MEDIUM_DISTANCE_FACTOR = 0.8f; //
+    private float originalViewDistance;
 
-    // Suspicion increase amounts for each zone
-    private static final int CLOSE_ZONE_SUS_INCREASE = 3;
-    private static final int MEDIUM_ZONE_SUS_INCREASE = 2;
-    private static final int FAR_ZONE_SUS_INCREASE = 1;
-
+    private float originalFov;
 
     /**
      * Creates a new dude with degenerate settings
@@ -79,6 +98,7 @@ public class Guard extends Enemy {
     public Guard(MapProperties properties, float units) {
         super(properties, units);
         fov = properties.get("fov", Float.class);
+        currentPatrolIndex = 0;
         cameraAlerted = false;
         isChasing = false;
         meowed = false;
@@ -86,10 +106,12 @@ public class Guard extends Enemy {
         AnimationState state = AnimationState.SUSPICION_METER;
         suspsicionMeter = new AnimationController(state);
         viewDistance = properties.get("viewDistance", Float.class);
+        susThreshold = 10F;
+        maxSusLevel = 100F;
         seesPlayer = false;
 
         MapObject path = properties.get("path", MapObject.class);
-        if(path instanceof PolylineMapObject line){
+        if (path instanceof PolylineMapObject line) {
             float[] vertices = line.getPolyline().getTransformedVertices();
             for (int i = 0; i < vertices.length; i++) {
                 vertices[i] /= units;
@@ -97,26 +119,30 @@ public class Guard extends Enemy {
             setPatrolPoints(vertices);
         }
 
+        originalViewDistance = viewDistance;
+        originalFov = fov;
+        tempViewDistance = viewDistance;
+        tempFov = fov;
+
     }
 
-    public void setSusMeter(SpriteSheet sheet){
+    public void setSusMeter(SpriteSheet sheet) {
         final int START_FRAME = 0;
         final int FRAME_DELAY = 0;
         final boolean IS_LOOP = true;
 
         sheet.setFrame(START_FRAME);
         Animation anim = new Animation(
-            sheet,
-            START_FRAME,
-            sheet.getSize() - 1,
-            FRAME_DELAY,
-            IS_LOOP
-        );
+                sheet,
+                START_FRAME,
+                sheet.getSize() - 1,
+                FRAME_DELAY,
+                IS_LOOP);
         suspsicionMeter.addAnimation(SUSPICION_METER, anim);
     }
 
     public void setMaxSusLevel() {
-        this.susLevel = this.MAX_SUS_LEVEL;
+        this.susLevel = this.maxSusLevel;
     }
 
     public void setMinSusLevel() {
@@ -128,27 +154,33 @@ public class Guard extends Enemy {
     }
 
     public void deltaSusLevel(float delta) {
-        this.susLevel = MathUtils.clamp(susLevel + delta, 0.0F, MAX_SUS_LEVEL);
+        this.susLevel = MathUtils.clamp(susLevel + delta, 0.0F, maxSusLevel);
     }
 
     public boolean isMaxSusLevel() {
-        return susLevel == MAX_SUS_LEVEL;
+        return susLevel == maxSusLevel;
     }
 
     public float getMaxSusLevel() {
-        return MAX_SUS_LEVEL;
+        return maxSusLevel;
     }
 
     public float getSusThreshold() {
-        return SUS_THRESHOLD;
+        return susThreshold;
     }
 
-    /** Check if the guard is "suspicious" of the player.
+    /**
+     * Check if the guard is "suspicious" of the player.
      * A guard is suspicious if their susLevel is greater than or equal to
-     * the susThreshold. */
-    public boolean isSus() { return susLevel >= SUS_THRESHOLD; }
+     * the susThreshold.
+     */
+    public boolean isSus() {
+        return susLevel >= susThreshold;
+    }
 
-    public boolean isMinSusLevel() { return susLevel == 0.0F; }
+    public boolean isMinSusLevel() {
+        return susLevel == 0.0F;
+    }
 
     public boolean checkDeAggroed() {
         return deAggroTimer <= 0;
@@ -159,7 +191,8 @@ public class Guard extends Enemy {
     }
 
     /**
-     * Differentially start the deAggro timer. If the guard is alerted by a camera, set the
+     * Differentially start the deAggro timer. If the guard is alerted by a camera,
+     * set the
      * timer to ALERT_DEAGRRO_PERIOD. Otherwise, set it to DEAGRRO_PERIOD.
      * ALERT_DEAGRRO_PERIOD is longer than DEAGRRO_PERIOD.
      */
@@ -167,22 +200,20 @@ public class Guard extends Enemy {
         this.deAggroTimer = isCameraAlerted() ? ALERT_DEAGRRO_PERIOD : DEAGRRO_PERIOD;
     }
 
-
-
     public Vector2[] getPatrolPoints() {
         return patrolPoints;
     }
 
-    public void setPatrolPoints(Vector2[] v){
+    public void setPatrolPoints(Vector2[] v) {
         patrolPoints = v;
     }
 
-    public void setPatrolPoints(float[] points){
+    public void setPatrolPoints(float[] points) {
         assert points.length % 2 == 0;
         Vector2[] vec2s = new Vector2[points.length / 2];
-        for(int i = 0; i < points.length; i+=2){
-            Vector2 v = new Vector2(points[i], points[i+1]);
-            vec2s[i/2] = v;
+        for (int i = 0; i < points.length; i += 2) {
+            Vector2 v = new Vector2(points[i], points[i + 1]);
+            vec2s[i / 2] = v;
         }
         setPatrolPoints(vec2s);
     }
@@ -216,7 +247,8 @@ public class Guard extends Enemy {
         return seenPlayer;
     }
 
-    /** Get current movement direction of guard.
+    /**
+     * Get current movement direction of guard.
      *
      * @INVARIANT: Must call guard.think() to get the most recent movement direction
      * @return The current movement direction of the guard
@@ -267,15 +299,16 @@ public class Guard extends Enemy {
             baseSuspicionIncrease = FAR_ZONE_SUS_INCREASE;
         }
 
-        System.out.println("sus increase is " + baseSuspicionIncrease);
+        // System.out.println("sus increase is " + baseSuspicionIncrease);
         return baseSuspicionIncrease;
     }
 
-    /** If a guard is "meowed", it is currently patrolling to the spot of the meow,
+    /**
+     * If a guard is "meowed", it is currently patrolling to the spot of the meow,
      * but they are not chasing a player. When either alerted by a security camera,
      * or if they see a player, or if they reach the spot of the meow, the guard
      * leaves the "meowed" state
-     * */
+     */
     public boolean isMeowed() {
         return meowed;
     }
@@ -288,8 +321,10 @@ public class Guard extends Enemy {
         aggroTarget = target;
     }
 
-    /** This timer is used to determine how long a guard should chase a player
-     * before giving up and returning to their patrol route */
+    /**
+     * This timer is used to determine how long a guard should chase a player
+     * before giving up and returning to their patrol route
+     */
     public int getChaseTimer() {
         return chaseTimer;
     }
@@ -298,18 +333,19 @@ public class Guard extends Enemy {
         chaseTimer = value;
     }
 
-    public float getFov(){
-        return fov;
+    public float getFov() {
+        return tempFov;
     }
 
-    public float getViewDistance(){
-        return viewDistance;
+    public float getViewDistance() {
+        return tempViewDistance;
     }
 
     /**
-     * Updates the guard's orientation to smoothly turn towards the target direction.
+     * Updates the guard's orientation to smoothly turn towards the target
+     * direction.
      *
-     * @param dt The time delta since the last update
+     * @param dt              The time delta since the last update
      * @param targetDirection The direction the guard should face
      */
     public void updateOrientation(float dt, Vector2 targetDirection) {
@@ -328,8 +364,10 @@ public class Guard extends Enemy {
         // Determine the shortest turning direction
         float angleDiff = targetAngle - currentAngle;
         // Normalize to [-PI, PI]
-        while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
-        while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+        while (angleDiff > Math.PI)
+            angleDiff -= 2 * Math.PI;
+        while (angleDiff < -Math.PI)
+            angleDiff += 2 * Math.PI;
 
         // Calculate how much to turn this frame
         float turnAmount = Math.min(Math.abs(angleDiff), turnSpeed * dt);
@@ -340,7 +378,7 @@ public class Guard extends Enemy {
         currentDirection.set(MathUtils.cos(newAngle), MathUtils.sin(newAngle)).nor();
 
         // Set the guard's sprite angle (offset by -90 degrees since up is 0)
-        setAngle(newAngle - (float)Math.PI/2);
+        setAngle(newAngle - (float) Math.PI / 2);
     }
 
     public void update(float dt) {
@@ -348,28 +386,14 @@ public class Guard extends Enemy {
         if (movementDirection != null && movementDirection.len2() > 0.0001f) {
             updateOrientation(dt, movementDirection);
         }
+        if (tempViewDistance < originalViewDistance && !inkBlinded) {
+            tempViewDistance += dt;
+        }
+        if (tempFov < originalFov && !inkBlinded) {
+            tempFov += dt;
+        }
         applyForce();
         super.update(dt);
-    }
-
-
-    /** Update the animation frame for the suspicion meter*/
-    private void updateSuspicionAnimation() {
-        // Update the animation controller
-        // Calculate which frame to display based on suspicion level
-        int totalFrames = suspsicionMeter.getCurrentSpriteSheet().getSize() - 1;
-        if (totalFrames <= 0) {
-            return; // No valid frames
-        }
-
-        // Map suspicion level (0 to maxSusLevel) to frame index (0 to totalFrames)
-        int frameIndex = Math.round((susLevel / MAX_SUS_LEVEL) * totalFrames);
-
-        // Ensure frame index is within valid range
-        frameIndex = MathUtils.clamp(frameIndex, 0, totalFrames);
-
-        // Update the animation to show the correct frame
-        suspsicionMeter.getCurrentSpriteSheet().setFrame(frameIndex);
     }
 
     /** The value of target is only valid if guard is agroed or is "meowed" */
@@ -388,30 +412,87 @@ public class Guard extends Enemy {
 
     public void drawSuspicionMeter(SpriteBatch batch) {
         float BASELINE_PX = 32;
-        if (suspsicionMeter == null || suspsicionMeter.getCurrentSpriteSheet() == null) {
+        if (suspsicionMeter == null || suspsicionMeter.getCurrentSpriteSheet() == null || !Guard.isLoaded()) {
             return;
         }
-
-        updateSuspicionAnimation();
 
         float PIXEL_PER_WORLD_UNIT = getObstacle().getPhysicsUnits();
         float guardXPixel = getPosition().x * PIXEL_PER_WORLD_UNIT;
         float guardYPixel = getPosition().y * PIXEL_PER_WORLD_UNIT;
 
-        float SCALE = 0.3f * (PIXEL_PER_WORLD_UNIT / BASELINE_PX);
-        float X_PIXEL_OFFSET = (-68f * SCALE);
-        float Y_PIXEL_OFFSET = 80f * SCALE;
+        float SCALE = 0.2f * (PIXEL_PER_WORLD_UNIT / BASELINE_PX);
+        float X_PIXEL_OFFSET = (-80f * SCALE);
+        float Y_PIXEL_OFFSET = 100f * SCALE;
 
-        // Get the original width and height of the sprite sheet
-        float originalWidthPx = suspsicionMeter.getCurrentSpriteSheet().getRegionWidth();
-        float originalHeightPx = suspsicionMeter.getCurrentSpriteSheet().getRegionHeight();
+        if (isMeowed()) {
+            batch.draw(
+                    Guard.SUSPICION_METER_CURIOUS,
+                    guardXPixel + X_PIXEL_OFFSET,
+                    guardYPixel + Y_PIXEL_OFFSET,
+                    Guard.SUSPICION_METER_CURIOUS.getWidth() * SCALE,
+                    Guard.SUSPICION_METER_CURIOUS.getHeight() * SCALE);
+        } else {
+            updateSuspicionAnimation();
 
-        batch.draw(
-            suspsicionMeter.getCurrentSpriteSheet(),
-            guardXPixel + X_PIXEL_OFFSET,
-            guardYPixel + Y_PIXEL_OFFSET,
-            originalWidthPx * SCALE,
-            originalHeightPx * SCALE
-        );
+            // Get the original width and height of the sprite sheet
+            float originalWidthPx = suspsicionMeter.getCurrentSpriteSheet().getRegionWidth();
+            float originalHeightPx = suspsicionMeter.getCurrentSpriteSheet().getRegionHeight();
+
+            batch.draw(
+                    suspsicionMeter.getCurrentSpriteSheet(),
+                    guardXPixel + X_PIXEL_OFFSET,
+                    guardYPixel + Y_PIXEL_OFFSET,
+                    originalWidthPx * SCALE,
+                    originalHeightPx * SCALE);
+        }
     }
+
+    public boolean isInkBlinded() {
+        return inkBlinded;
+    }
+
+    public void setInkBlinded(boolean blinded) {
+        this.inkBlinded = blinded;
+    }
+
+    public void setInkBlindTimer(float duration) {
+        this.inkBlindTimer = duration;
+    }
+
+    public void updateInkBlindTimer(float dt) {
+        if (inkBlinded) {
+            inkBlindTimer -= dt;
+            if (inkBlindTimer <= 0) {
+                inkBlinded = false;
+            }
+        }
+    }
+
+    public void setTempViewDistance(float distance) {
+        this.tempViewDistance = distance;
+    }
+
+    public void setTempFov(float fov) {
+        this.tempFov = fov;
+    }
+
+    /** Update the animation frame for the suspicion meter */
+    private void updateSuspicionAnimation() {
+        // Update the animation controller
+        // Calculate which frame to display based on suspicion level
+        int totalFrames = suspsicionMeter.getCurrentSpriteSheet().getSize() - 1;
+        if (totalFrames <= 0) {
+            return; // No valid frames
+        }
+
+        // Map suspicion level (0 to maxSusLevel) to frame index (0 to totalFrames)
+        int frameIndex = Math.round((susLevel / maxSusLevel) * totalFrames);
+
+        // Ensure frame index is within valid range
+        frameIndex = MathUtils.clamp(frameIndex, 0, totalFrames);
+
+        // Update the animation to show the correct frame
+        suspsicionMeter.getCurrentSpriteSheet().setFrame(frameIndex);
+    }
+
 }

@@ -20,6 +20,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
@@ -66,7 +68,7 @@ public class SettingsScene implements Screen {
         stage = new Stage(new ScreenViewport(camera));
         Gdx.input.setInputProcessor(stage);
 
-        skin = new Skin(Gdx.files.internal("uiskin/uiskin.json"));
+        skin = new Skin(Gdx.files.internal("uiskins/orange/uiskin.json"));
 
         Window window = new Window("Edit Keybinds", skin, "maroon");
         Container<Window> windowContainer = makeKeybindsContainer(window);
@@ -166,7 +168,7 @@ public class SettingsScene implements Screen {
         table.row();
         table.add(new Label("Resolution", skin, "title")).left().width(labelWidth);
         SelectBox<AppResolution> resolutionSelect = new SelectBox<>(skin);
-        resolutionSelect.setItems(AppResolution.SMALL, AppResolution.BIG);
+        resolutionSelect.setItems(AppResolution.SMALL, AppResolution.BIG, AppResolution.FULLSCREEN);
         resolutionSelect.setSelected(this.resolution);
         resolutionSelect.addListener(new ChangeListener() {
             public void changed(ChangeEvent event, Actor actor) {

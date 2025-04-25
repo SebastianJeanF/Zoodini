@@ -254,7 +254,7 @@ public class GameLevel {
 		// do that on demand)
 		JsonValue projectileData = directory.getEntry("constants", JsonValue.class).get("ink");
 		inkProjectile = new InkProjectile(projectileData, units);
-        inkProjectile.setTexture(directory.getEntry("ink-projectile", Texture.class));
+        inkProjectile.setTexture(directory.getEntry("ink", Texture.class));
 		activate(inkProjectile);
 		inkProjectile.setDrawingEnabled(false);
 		inkProjectile.getObstacle().setActive(false);
@@ -412,6 +412,7 @@ public class GameLevel {
 
             for (Guard g : guards) {
                 g.update(dt);
+                g.updateInkBlindTimer(dt);
                 updateFlipSprite(g);
             }
 

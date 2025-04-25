@@ -5,22 +5,24 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
+import edu.cornell.gdiac.graphics.SpriteBatch;
+import edu.cornell.gdiac.math.Poly2;
+import edu.cornell.gdiac.math.PolyFactory;
 
 public class CircleTimer {
     private float progress; // 0 to 1
     private float x, y, radius;
     private Color color;
-    private ShapeRenderer shapeRenderer;
+    private float unit;
 
-    public CircleTimer(float x, float y, float radius, Color color) {
-        this.x = x;
-        this.y = y;
+    public CircleTimer(float radius, Color color, float unit) {
         this.radius = radius;
         this.color = color;
         this.progress = 0;
-        this.shapeRenderer = new ShapeRenderer();
+        this.unit = unit;
     }
 
     public void setProgress(float progress) {
@@ -32,23 +34,31 @@ public class CircleTimer {
         this.y = y;
     }
 
-    public void draw() {
+    PolyFactory polyFactory = new PolyFactory();
+    Affine2 affineCache = new Affine2();
+    public void draw(SpriteBatch batch) {
 
         // Enable blending for transparency
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
-        shapeRenderer.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0,
+        batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0,
             Gdx.graphics.getWidth(),
             Gdx.graphics.getHeight()));
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        batch.begin();
+
+
+        affineCache.idt();
+        affineCache.translate(x,y);
+        affineCache.scale(unit, unit);
 
         // Draw background circle
-        shapeRenderer.setColor(0.2f, 0.2f, 0.2f, 0.7f);
-        shapeRenderer.circle(x, y, radius);
+        batch.setColor(0.2f, 0.2f, 0.2f, 0.7f);
+        Poly2 circle = polyFactory.makeNgon(0,0,radius,12);
+        batch.fill(circle, affineCache);
 
         // Draw progress arc
-        shapeRenderer.setColor(color);
+        batch.setColor(color);
         float angleStart = 90; // Start from top
         float angleEnd = angleStart - 360 * progress;
 
@@ -63,19 +73,22 @@ public class CircleTimer {
             float nextRad = nextAngle * MathUtils.degreesToRadians;
 
             // Draw triangle to approximate arc segment
-            shapeRenderer.triangle(
-                x, y,
-                x + radius * MathUtils.cos(currentRad), y + radius * MathUtils.sin(currentRad),
-                x + radius * MathUtils.cos(nextRad), y + radius * MathUtils.sin(nextRad)
+            Poly2 triangle = polyFactory.makeTriangle(
+                0, 0,
+                radius * MathUtils.cos(currentRad), radius * MathUtils.sin(currentRad),
+                radius * MathUtils.cos(nextRad), radius * MathUtils.sin(nextRad)
+            );
+            batch.fill(
+                triangle, affineCache
             );
 
             currentAngle = nextAngle;
         }
 
-        shapeRenderer.end();
+        batch.end();
     }
 
     public void dispose() {
-        shapeRenderer.dispose();
+
     }
 }

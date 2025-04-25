@@ -1,0 +1,13 @@
+
+uiskin.png
+size: 512, 512
+format: RGBA8888
+filter: Linear, Linear
+repeat: none
+spritesheet export
+  rotate: false
+  xy: 1, 405
+  size: 469, 63
+  orig: 469, 63
+  offset: 0, 0
+  index: -1

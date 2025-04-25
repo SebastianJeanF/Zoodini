@@ -211,7 +211,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         vec3 = cam.unproject(vec3).scl(1.0f / units * density);
         int x = MathUtils.floor(vec3.x);
         int y = MathUtils.floor(vec3.y);
-        System.out.println("You clicked:" + x + " " + y);
+//        System.out.println("You clicked:" + x + " " + y);
         try {
             selected = getNode(x, y);
         } catch (IndexOutOfBoundsException e){

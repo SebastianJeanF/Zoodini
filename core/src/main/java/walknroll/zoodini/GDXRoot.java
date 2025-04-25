@@ -12,16 +12,16 @@ package walknroll.zoodini;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Texture;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.controllers.InputController;
-import walknroll.zoodini.controllers.screens.CreditsScene;
-import walknroll.zoodini.controllers.screens.GameScene;
-import walknroll.zoodini.controllers.screens.MenuScene;
-import walknroll.zoodini.controllers.screens.SettingsScene;
+import walknroll.zoodini.controllers.screens.*;
+import walknroll.zoodini.models.entities.Guard;
 import walknroll.zoodini.utils.GameSettings;
+import walknroll.zoodini.utils.LevelPortal;
 
 /**
  * Root class for a LibGDX.
@@ -40,6 +40,9 @@ public class GDXRoot extends Game implements ScreenListener {
 	public static final int EXIT_PLAY = 2;
 	public static final int EXIT_SETTINGS = 3;
 	public static final int EXIT_CREDITS = 4;
+	public static final int EXIT_LEVEL_SELECT = 5;
+	public static final int EXIT_LOSE = 6;
+	public static final int EXIT_WIN = 7;
 
 	/** AssetManager to load game assets (textures, data, etc.) */
 	AssetDirectory directory;
@@ -51,6 +54,9 @@ public class GDXRoot extends Game implements ScreenListener {
 	private GameScene gameplay;
 	private SettingsScene settings;
 	private CreditsScene credits;
+	private GameOverScene gameOver;
+	private GameWinScene gameWin;
+	private LevelSelectScene levelSelect;
 
 	private GameSettings gameSettings;
 
@@ -96,6 +102,15 @@ public class GDXRoot extends Game implements ScreenListener {
 		if (credits != null) {
 			credits.dispose();
 		}
+		if (levelSelect != null) {
+			levelSelect.dispose();
+		}
+		if (gameOver != null) {
+			gameOver.dispose();
+		}
+		if (gameWin != null) {
+			gameWin.dispose();
+		}
 
 		batch.dispose();
 		batch = null;
@@ -118,28 +133,40 @@ public class GDXRoot extends Game implements ScreenListener {
 	 * @param exitCode The state of the screen upon exit
 	 */
 	public void exitScreen(Screen screen, int exitCode) {
+		Integer selectedLevel = null;
+
 		if (screen == gameplay) {
-			// nothing to extract from a gameplay screen
+			selectedLevel = gameplay.getCurrentLevel();
 		} else if (screen == loading) {
-			// this.directory = loading.getAssets();
+			// In this section, we can initialize all static textures in various drawable
+			// classes now that we have a loaded assets directory
+
+			if (!LevelPortal.isLoaded()) {
+				LevelPortal.setTextures(directory.getEntry("level-bg", Texture.class),
+						directory.getEntry("level-cell", Texture.class));
+			}
+			if (!Guard.isLoaded()) {
+				Guard.setSuspicionMeterCuriousTexture(directory.getEntry("guard-suspicion-curious", Texture.class));
+			}
 		} else if (screen == settings) {
 			// extract settings info from settings screen here
 			gameSettings = settings.getSettings();
 			InputController.getInstance().setAbilityKey(gameSettings.getAbilityKey());
 			InputController.getInstance().setSwapKey(gameSettings.getSwapKey());
 			switch (gameSettings.getResolution()) {
-				case BIG:
-					Gdx.graphics.setWindowedMode(1920, 1080);
-					break;
-				case SMALL:
-					Gdx.graphics.setWindowedMode(1280, 720);
-					break;
-				default:
-					break;
+				case SMALL -> Gdx.graphics.setWindowedMode(1280, 720);
+				case BIG -> Gdx.graphics.setWindowedMode(1920, 1080);
+				case FULLSCREEN -> Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
 
 			}
 		} else if (screen == credits) {
 			// nothing to extract here
+		} else if (screen == levelSelect) {
+			selectedLevel = levelSelect.getSelectedLevel();
+		} else if (screen == gameOver) {
+			selectedLevel = gameOver.getLostLevel();
+		} else if (screen == gameWin) {
+			selectedLevel = gameWin.getNextLevel();
 		}
 
 		switch (exitCode) {
@@ -155,11 +182,25 @@ public class GDXRoot extends Game implements ScreenListener {
 				setScreen(loading);
 				disposeExcept(loading);
 				break;
+			case GDXRoot.EXIT_LEVEL_SELECT:
+				if (directory == null) {
+					throw new RuntimeException("Asset directory was somehow not loaded after initial boot");
+				}
+				levelSelect = new LevelSelectScene(batch, directory);
+				levelSelect.create();
+				levelSelect.setScreenListener(this);
+				setScreen(levelSelect);
+				disposeExcept(levelSelect);
+				break;
 			case GDXRoot.EXIT_PLAY:
 				if (directory == null) {
 					throw new RuntimeException("Asset directory was somehow not loaded after initial boot");
 				}
-				gameplay = new GameScene(directory, batch, 5);
+				if (selectedLevel == null) {
+					throw new RuntimeException(
+							"Tried to change to GameScene without properly setting the target level");
+				}
+				gameplay = new GameScene(directory, batch, selectedLevel);
 				gameplay.setScreenListener(this);
 				setScreen(gameplay);
 				disposeExcept(gameplay);
@@ -174,21 +215,22 @@ public class GDXRoot extends Game implements ScreenListener {
 				setScreen(settings);
 				disposeExcept(settings);
 				break;
+			case GDXRoot.EXIT_LOSE:
+				gameOver = new GameOverScene(directory, batch, selectedLevel);
+				gameOver.setScreenListener(this);
+				setScreen(gameOver);
+				disposeExcept(gameOver);
+				break;
+			case GDXRoot.EXIT_WIN:
+				// TODO: in the future, each level will have a point to the next level
+				gameWin = new GameWinScene(directory, batch, selectedLevel + 1);
+				gameWin.setScreenListener(this);
+				setScreen(gameWin);
+				disposeExcept(gameWin);
+				break;
 			default:
 				break;
 		}
-		// if (screen == loading) {
-		// directory = loading.getAssets();
-		// gameplay = new GameScene(directory, batch);
-		// gameplay.setScreenListener(this);
-		// setScreen(gameplay);
-
-		// loading.dispose();
-		// loading = null;
-		// } else if (exitCode == GameScene.EXIT_QUIT) {
-		// // We quit the main application
-		// Gdx.app.exit();
-		// }
 	}
 
 	private void disposeExcept(Screen screen) {
@@ -207,6 +249,18 @@ public class GDXRoot extends Game implements ScreenListener {
 		if (credits != null && screen != credits) {
 			credits.dispose();
 			credits = null;
+		}
+		if (levelSelect != null && screen != levelSelect) {
+			levelSelect.dispose();
+			levelSelect = null;
+		}
+		if (gameOver != null && screen != gameOver) {
+			gameOver.dispose();
+			gameOver = null;
+		}
+		if (gameWin != null && screen != gameWin) {
+			gameWin.dispose();
+			gameWin = null;
 		}
 	}
 }

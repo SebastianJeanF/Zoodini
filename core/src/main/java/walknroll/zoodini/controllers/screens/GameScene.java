@@ -51,6 +51,7 @@ import java.util.Map;
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 
+
 /**
  * Gameplay controller for the game.
  *
@@ -124,6 +125,13 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     // Game Paused Menu
     private boolean gamePaused = false;
 
+    /** Whether the game has been lost **/
+    private boolean gameLost = false;
+
+
+    public int getCurrentLevel() {
+        return currentLevel;
+    }
 
 	/**
 	 * Creates a new game world
@@ -146,8 +154,15 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 		countdown = -1;
 
 		camera = new OrthographicCamera();
+
         //30m, 20m is the map dimension. 1 tile = 1m
-		camera.setToOrtho(false, level.getTileSize() * 15,  level.getTileSize() * 10);
+//        float SCALE = 1.0f;
+//		camera.setToOrtho(false, level.getTileSize() * 15 * SCALE,  level.getTileSize() * 10 * SCALE);
+
+        float NUM_TILES_WIDE = 15f;
+        camera.setToOrtho(false, level.getTileSize() * NUM_TILES_WIDE,  level.getTileSize() * NUM_TILES_WIDE * 720f/1280f);
+
+
         // Initialize camera tracking variables
 		cameraTargetPosition = new Vector2();
 		cameraPreviousPosition = new Vector2();
@@ -258,6 +273,16 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             reset();
         }
 
+        if (gameLost) {
+            listener.exitScreen(this, GDXRoot.EXIT_LOSE);
+            return false;
+        }
+
+        if (complete) {
+            listener.exitScreen(this, GDXRoot.EXIT_WIN);
+            return false;
+        }
+
         // Now it is time to maybe switch screens.
         if (input.didExit()) {
             listener.exitScreen(this, GDXRoot.EXIT_MENU);
@@ -355,6 +380,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
             Guard guard = (Guard) entry.key;
             VisionCone visionCone = entry.value;
+
+            visionCone.setRadius(guard.getViewDistance());
+            visionCone.setWideness(guard.getFov());
 
             Vector2 movementDir = guard.getMovementDirection();
             visionCone.updateFacingDirection(dt, movementDir);
@@ -500,7 +528,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
                 Vector2 doorPos = door.getObstacle().getPosition().cpy();
                 float tileSize = level.getTileSize();
-                door.showUnlockProgress(progress, doorPos, camera, tileSize);
+                door.showUnlockProgress(progress, doorPos, camera);
             } else {
                 door.resetTimer();
                 door.hideUnlockProgress();
@@ -623,7 +651,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         // Rotate the avatar to face the direction of movement
         angleCache.set(horizontalForce, verticalForce);
         if (angleCache.len2() > 0.0f) {
-            // Prevent faster movement when going diagonally
+            // Prevent faster movement when going diagonallyd
             if (angleCache.len() > 1.0f) {
                 angleCache.nor();
             }
@@ -716,19 +744,29 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 		if (direction.len() > 0) {
 			direction.nor().scl(guard.getForce());
 
+            float radius = ((WheelObstacle) guard.getObstacle()).getRadius();
+            float speedScale = (float)(16 * Math.pow( (radius/ .8f) , 2));
+//            direction.scl(speedScale);
+
 			if (guard.isMeowed()) {
-				direction.scl(3.5f);
+				direction.scl(3f * speedScale);
 			} else if (guard.isCameraAlerted()) {
-                direction.scl(6.5f);
+                direction.scl(12f * speedScale);
             }
             else if (guard.isAgroed()) {
-				direction.scl(6.0f);
+				direction.scl(7f * speedScale);
 			} else if (guard.isSus()) {
-                direction.scl(5.5f);
+                direction.scl(6f * speedScale);
             } else {
-                direction.scl(5f);
+                // guard is normally walking
+                direction.scl(5f * speedScale);
             }
 
+            // Regardless of any other guard states, lower speed
+            // if the guard is inked
+            if (guard.isInkBlinded()) {
+                direction.scl(.5f);
+            }
 
             guard.setMovement(direction.x, direction.y);
 		}
@@ -847,6 +885,12 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 						break;
 					}
 				}
+                for (Guard guard : guards) {
+                    Obstacle enemy = guard.getObstacle();
+                    if (o1 == enemy || o2 == enemy){
+                        applyInkEffect(guard);
+                    }
+                }
                 level.getProjectile().setShouldDestroy(true);
 			}
 
@@ -855,6 +899,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 Obstacle enemy = guard.getObstacle();
                 if((o1 == cat && o2 == enemy) || (o2 == cat && o1 == enemy) || (o1 == oct && o2 == enemy) || (o2 == oct && o1 == enemy)){
                     setFailure(true);
+                    gameLost = true;
                 }
             }
 
@@ -922,6 +967,25 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 		}
 	}
 
+    private void applyInkEffect(Guard guard) {
+        System.out.println("Guard hit by ink!");
+        // Set ink effect duration (in seconds)
+        final float INK_EFFECT_DURATION = 5.0f;
+
+        // Store original vision parameters and apply reduction
+        guard.setInkBlinded(true);
+        guard.setInkBlindTimer(INK_EFFECT_DURATION);
+
+        final float MIN_VIEW_DISTANCE = 3f;
+        final float MIN_FOV = 50f;
+
+        // Reduce the view distance and FOV angle with minimum thresholds
+        float reducedViewDistance = Math.max(guard.getViewDistance() * 0.6f, MIN_VIEW_DISTANCE);
+        float reducedFov = Math.max(guard.getFov() * 0.6f, MIN_FOV);
+        // Reduce the view distance and FOV angle
+        guard.setTempViewDistance(reducedViewDistance); // 60% reduction
+        guard.setTempFov(reducedFov); // 60% reduction
+    }
 
 	/** Unused ContactListener method */
 	public void endContact(Contact contact) {
