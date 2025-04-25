@@ -99,9 +99,7 @@ public class SecurityCamera extends ZoodiniSprite {
     public void setAnimation(AnimationState state, SpriteSheet sheet){
         switch(state){
             case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
-            case WALK -> animationController.addAnimation(AnimationState.WALK, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
-            case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
-            case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
+            case BLIND -> animationController.addAnimation(AnimationState.BLIND, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
         }
     }
 
@@ -121,66 +119,29 @@ public class SecurityCamera extends ZoodiniSprite {
 
     @Override
     public void update(float dt) {
-
-
-
-        // This is the key fix - update the sprite reference itself
-        SpriteSheet currentSheet = animationController.getCurrentSpriteSheet();
-        if (currentSheet != null) {
-            sprite = currentSheet;  // Switch to the current animation's spritesheet
-        }
-
-        // Now setting the frame will work correctly
-        if (sprite != null) {
-            sprite.setFrame(animationController.getCurrentFrame());
-        }
-
         super.update(dt);
 
-        updateRing(dt);
-
-        updateAnimation(dt);
-    }
-
-    private void updateAnimation(float dt) {
-        if (disabled) {
-            disabledTimeRemaining -= dt;
-        }
-
-        if (disabledTimeRemaining <= 0) {
-            disabled = false;
-            animationController.getCurrentSpriteSheet().setFrame(
-                0
-            );
-        }
-
-        // Calculate which frame to display based on suspicion level
-        int totalFrames = animationController.getCurrentSpriteSheet().getSize() - 1;
-        if (totalFrames <= 0) {
-            return; // No valid frames
-        }
-
-        // Map suspicion level (0 to maxSusLevel) to frame index (0 to totalFrames)
-        int frameIndex = Math.round( (disabledTimeRemaining/ maxDisabledTime) * totalFrames);
-
-        // Ensure frame index is within valid range
-        frameIndex = MathUtils.clamp(frameIndex, 0, totalFrames);
-
-        frameIndex = totalFrames - frameIndex; // Invert the frame index for the animation
-
-        // Update the animation to show the correct frame
-        animationController.getCurrentSpriteSheet().setFrame(frameIndex);
-
-    }
-
-    private void updateAnimation() {
         if (disabled) {
             animationController.setState(AnimationState.IDLE);
+            disabledTimeRemaining -= dt;
+            if(disabledTimeRemaining <= 0){
+                disabled = false;
+                disabledTimeRemaining = maxDisabledTime;
+            }
         } else {
             animationController.setState(AnimationState.WALK);
         }
 
+        animationController.update();
+        SpriteSheet currentSheet = animationController.getCurrentSpriteSheet();
+        if (currentSheet != null) {
+            sprite = currentSheet;
+        }
 
+        if (sprite != null) {
+            sprite.setFrame(animationController.getCurrentFrame());
+        }
+        updateRing(dt);
     }
 
     /**
@@ -189,9 +150,6 @@ public class SecurityCamera extends ZoodiniSprite {
      * @param dt The time delta since the last update.
      */
     private void updateRing(float dt) {
-
-
-        // Update ring animation
         if (isRingActive) {
             currentRadius += expansionSpeed * dt;
 

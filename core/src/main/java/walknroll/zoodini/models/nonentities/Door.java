@@ -165,11 +165,9 @@ public class Door extends ZoodiniSprite {
         super.update(dt);
         if(isLocked() && isUnlocking()){
             remainingTimeToUnlock -= dt;
-//            System.out.println(remainingTimeToUnlock);
         } else {
             resetTimer();
         }
-
         if(remainingTimeToUnlock <= 0.0f){
             setLocked(false);
         }
@@ -207,7 +205,7 @@ public class Door extends ZoodiniSprite {
         if (showUnlockTimer) {
             // Clear depth buffer to ensure timer appears on top
             Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
-            unlockTimer.draw();
+            unlockTimer.draw(batch);
         }
 
         // Restore batch state
