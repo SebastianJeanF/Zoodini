@@ -48,15 +48,14 @@ public class Guard extends Enemy {
     private Vector2 targetDirection = new Vector2(0, 1);
     private float turnSpeed = 5.0f;
 
-    // --- Patrol Path Variables for Guard ---
+    /** --- Patrol Path Variables for Guard --- */
     private Vector2[] patrolPoints;
-    private int currentPatrolIndex = 0;
-    private static final float PATROL_THRESHOLD = 0.5f; // Distance to switch patrol points
 
+    /** --- Suspicion Meter Variables --- */
     private final AnimationController suspsicionMeter;
     private float susLevel;
-    private float susThreshold;
-    private float maxSusLevel;
+    private float SUS_THRESHOLD = 50F;
+    private float MAX_SUS_LEVEL = 100F;
 
     private final float DEAGRRO_PERIOD = 60F;
     private final float ALERT_DEAGRRO_PERIOD = 300F;
@@ -80,7 +79,6 @@ public class Guard extends Enemy {
     public Guard(MapProperties properties, float units) {
         super(properties, units);
         fov = properties.get("fov", Float.class);
-        currentPatrolIndex = 0;
         cameraAlerted = false;
         isChasing = false;
         meowed = false;
@@ -88,8 +86,6 @@ public class Guard extends Enemy {
         AnimationState state = AnimationState.SUSPICION_METER;
         suspsicionMeter = new AnimationController(state);
         viewDistance = properties.get("viewDistance", Float.class);
-        susThreshold = 50F;
-        maxSusLevel = 100F;
         seesPlayer = false;
 
         MapObject path = properties.get("path", MapObject.class);
@@ -120,7 +116,7 @@ public class Guard extends Enemy {
     }
 
     public void setMaxSusLevel() {
-        this.susLevel = this.maxSusLevel;
+        this.susLevel = this.MAX_SUS_LEVEL;
     }
 
     public void setMinSusLevel() {
@@ -132,25 +128,25 @@ public class Guard extends Enemy {
     }
 
     public void deltaSusLevel(float delta) {
-        this.susLevel = MathUtils.clamp(susLevel + delta, 0.0F, maxSusLevel);
+        this.susLevel = MathUtils.clamp(susLevel + delta, 0.0F, MAX_SUS_LEVEL);
     }
 
     public boolean isMaxSusLevel() {
-        return susLevel == maxSusLevel;
+        return susLevel == MAX_SUS_LEVEL;
     }
 
     public float getMaxSusLevel() {
-        return maxSusLevel;
+        return MAX_SUS_LEVEL;
     }
 
     public float getSusThreshold() {
-        return susThreshold;
+        return SUS_THRESHOLD;
     }
 
     /** Check if the guard is "suspicious" of the player.
      * A guard is suspicious if their susLevel is greater than or equal to
      * the susThreshold. */
-    public boolean isSus() { return susLevel >= susThreshold; }
+    public boolean isSus() { return susLevel >= SUS_THRESHOLD; }
 
     public boolean isMinSusLevel() { return susLevel == 0.0F; }
 
@@ -367,7 +363,7 @@ public class Guard extends Enemy {
         }
 
         // Map suspicion level (0 to maxSusLevel) to frame index (0 to totalFrames)
-        int frameIndex = Math.round((susLevel / maxSusLevel) * totalFrames);
+        int frameIndex = Math.round((susLevel / MAX_SUS_LEVEL) * totalFrames);
 
         // Ensure frame index is within valid range
         frameIndex = MathUtils.clamp(frameIndex, 0, totalFrames);

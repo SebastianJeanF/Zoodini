@@ -191,6 +191,13 @@ public class GuardAIController {
         return nearest;
     }
 
+    /***
+     * Helper function to check if the guard has reached a target location.
+     * The guard "reaches" a target if it is within the radius of the arrival distance in world coords.
+     *
+     * @param target The target position to check against
+     * @return true if the guard has reached the target location, false otherwise
+     */
     private boolean hasReachedTargetLocation(Vector2 target) {
         // Use world coordinates and a reasonable threshold
         float arrivalDistance = 1f;
@@ -281,6 +288,7 @@ public class GuardAIController {
                     currState = GuardState.PATROL;
                     lastStateChangeTime = ticks;
                 }
+                // Player under camera; SUSPICIOUS -> ALERTED
                 else if (guard.isCameraAlerted()) {
                     currState = GuardState.AlERTED;
                     guard.startDeAggroTimer();
@@ -400,6 +408,14 @@ public class GuardAIController {
         return currState;
     }
 
+    /**
+     * Helper function that checks if the target position is not a wall.
+     * If the target position is a wall, it returns the world coords of the nearest non-wall tile.
+     * If the target position is not a wall, it returns the original target position.
+     *
+     * @param target The target position to check
+     * @return A valid Vector2 position that is not a wall
+     */
     public Vector2 getValidTileCoords(Vector2 target) {
         TileNode targetTile = tileGraph.worldToTile(target);
         if (!targetTile.isWall) {
