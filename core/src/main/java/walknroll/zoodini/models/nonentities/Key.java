@@ -19,8 +19,8 @@ import edu.cornell.gdiac.physics2.BoxObstacle;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
-import walknroll.zoodini.models.entities.Avatar.AvatarType;
 import walknroll.zoodini.utils.ZoodiniSprite;
+import walknroll.zoodini.utils.enums.AvatarType;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 
 /**

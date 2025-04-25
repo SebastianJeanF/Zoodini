@@ -37,13 +37,13 @@ import walknroll.zoodini.controllers.aitools.TileGraph;
 import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.*;
-import walknroll.zoodini.models.entities.Avatar.AvatarType;
 import walknroll.zoodini.models.nonentities.Door;
 import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
 import edu.cornell.gdiac.physics2.*;
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
+import walknroll.zoodini.utils.enums.AvatarType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -479,7 +479,17 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         } else if(avatar.getAvatarType() == AvatarType.CAT) {
             Cat cat = (Cat) avatar;
-            cat.setMeowed(input.didAbility());
+
+            if (input.didAbility() && cat.canUseAbility()) {
+                cat.setCurrentlyAiming(!cat.isCurrentlyAiming());
+            }
+
+            if (cat.isCurrentlyAiming() && input.didLeftClick()) {
+                cat.setDidFire(true);
+                cat.setCurrentlyAiming(false);
+            } else {
+                cat.setDidFire(false);
+            }
         }
 
 
