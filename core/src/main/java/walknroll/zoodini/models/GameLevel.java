@@ -323,7 +323,6 @@ public class GameLevel {
         // do that on demand)
         JsonValue projectileData = directory.getEntry("constants", JsonValue.class).get("ink");
         inkProjectile = new InkProjectile(projectileData, units);
-        inkProjectile.setTexture(directory.getEntry("ink", Texture.class));
         inkProjectile.setAnimation(AnimationState.EXPLODE,
             directory.getEntry("ink-explosion.animation", SpriteSheet.class));
         inkProjectile.setAnimation(AnimationState.IDLE,

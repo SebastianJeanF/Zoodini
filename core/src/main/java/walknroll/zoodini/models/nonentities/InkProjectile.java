@@ -169,7 +169,7 @@ public class InkProjectile extends ZoodiniSprite {
      * This method should be called after the force attribute is set.
      */
     public void applyForce() {
-        if(shouldDestroy){
+        if(getShouldDestroy()){
             return;
         }
 
@@ -190,9 +190,10 @@ public class InkProjectile extends ZoodiniSprite {
 
     @Override
     public void update(float dt) {
-        if(shouldDestroy) {
+        if(this.getShouldDestroy()) {
             animationController.setState(AnimationState.EXPLODE);
-            if(animationController.getCurrentFrame() >= animationController.getCurrentSpriteSheet().getSize() - 1) {
+            if (animationController.getCurrentFrame()
+                >= animationController.getCurrentSpriteSheet().getSize() - 1) {
                 setDrawingEnabled(false);
             }
         } else {
@@ -224,8 +225,12 @@ public class InkProjectile extends ZoodiniSprite {
             float u = this.obstacle.getPhysicsUnits();
 
             this.transform.idt();
+            if(animationController.getCurrentState() == AnimationState.EXPLODE){
+                transform.scale(10.0f,10.0f);
+            }
             this.transform.preRotate((float)((double)(a * 180.0F) / Math.PI));
             this.transform.preTranslate(x * u, y * u);
+
 
             batch.setTextureRegion(this.sprite);
             batch.drawMesh(this.mesh, this.transform, false);
@@ -238,7 +243,6 @@ public class InkProjectile extends ZoodiniSprite {
             return;
         }
         getObstacle().setActive(false);
-        setShouldDestroy(false);
     }
 
     public void activate(){
