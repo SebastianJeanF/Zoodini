@@ -8,6 +8,12 @@ import com.badlogic.gdx.utils.ObjectMap;
 
 /**
  * Controller for managing all game sounds and effects.
+ * This is a singleton, meaning you call getInstance on anywhere in the project
+ * and then call playSound(...) to play the sound. In Lab 4, these playSound calls are
+ * made inside models, which have SoundEffect (from GDIAC extension) as their fields.
+ * The current design where all sounds are loaded inside this class does not seem that bad though.
+ *
+ * TODO: replace access to Gdx internal with access using AssetDirectory for consistency, but not necessary right now.
  */
 public class SoundController implements Disposable {
     private static SoundController instance;
