@@ -33,6 +33,7 @@ import walknroll.zoodini.utils.ZoodiniSprite;
 import walknroll.zoodini.utils.animation.Animation;
 import walknroll.zoodini.utils.animation.AnimationController;
 import walknroll.zoodini.utils.animation.AnimationState;
+import walknroll.zoodini.utils.enums.AvatarType;
 
 /**
  * Player avatar for the lighting demo.
@@ -63,12 +64,6 @@ public class Avatar extends ZoodiniSprite {
     private boolean underCamera;
 
     private boolean underVisionCone;
-
-	public enum AvatarType {
-		CAT,
-		OCTOPUS,
-		ENEMY
-	}
 
 	private final AvatarType avatarType;
 

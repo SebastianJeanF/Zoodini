@@ -32,18 +32,19 @@ import org.w3c.dom.Text;
 import walknroll.zoodini.GDXRoot;
 import walknroll.zoodini.controllers.GuardAIController;
 import walknroll.zoodini.controllers.InputController;
+import walknroll.zoodini.controllers.SoundController;
 import walknroll.zoodini.controllers.UIController;
 import walknroll.zoodini.controllers.aitools.TileGraph;
 import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.*;
-import walknroll.zoodini.models.entities.Avatar.AvatarType;
 import walknroll.zoodini.models.nonentities.Door;
 import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
 import edu.cornell.gdiac.physics2.*;
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
+import walknroll.zoodini.utils.enums.AvatarType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -128,6 +129,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     /** Whether the game has been lost **/
     private boolean gameLost = false;
 
+    private SoundController soundController;
+
 
     public int getCurrentLevel() {
         return currentLevel;
@@ -181,6 +184,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
 		setComplete(false);
 		setFailure(false);
+
+        soundController = SoundController.getInstance();
 	}
 
 
@@ -230,6 +235,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     @Override
     public void onPauseStateChanged(boolean paused) {
         gamePaused = paused;
+        if (paused) {
+            soundController.pauseMusic();
+        } else {
+            soundController.resumeMusic();
+        }
     }
 
     @Override
@@ -479,7 +489,18 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         } else if(avatar.getAvatarType() == AvatarType.CAT) {
             Cat cat = (Cat) avatar;
-            cat.setMeowed(input.didAbility());
+
+            if (input.didAbility() && cat.canUseAbility()) {
+                cat.setCurrentlyAiming(!cat.isCurrentlyAiming());
+            }
+
+            if (cat.isCurrentlyAiming() && input.didLeftClick()) {
+                cat.setDidFire(true);
+                cat.setCurrentlyAiming(false);
+                soundController.playCatMeow();
+            } else {
+                cat.setDidFire(false);
+            }
         }
 
 
@@ -522,21 +543,14 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         for (ObjectMap.Entry<Door, Key> entry : doors.entries()) {
             Door door = entry.key;
             Key key = entry.value;
-
-            if(key.isCollected() && !key.isUsed() && door.isUnlocking()){
-
-                float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
-                Vector2 doorPos = door.getObstacle().getPosition().cpy();
-                float tileSize = level.getTileSize();
-                door.showUnlockProgress(progress, doorPos, camera);
-            } else {
-                door.resetTimer();
-                door.hideUnlockProgress();
+            if(!door.isLocked()){
+                key.setUsed(true);
+                Vector2 doorPos = door.getObstacle().getPosition();
+                graph.getNode((int)doorPos.x, (int)doorPos.y).isWall = false;
             }
 
-            if(door.getRemainingTimeToUnlock() <= 0){
-                key.setUsed(true);
-                door.hideUnlockProgress();
+            if(!door.isUnlocking()){
+                door.resetTimer();
             }
         }
 
@@ -801,6 +815,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 	 */
 	public void pause() {
 		// TODO Auto-generated method stub
+        soundController.pauseMusic();
 	}
 
 	/**
@@ -810,6 +825,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 	 */
 	public void resume() {
 		// TODO Auto-generated method stub
+        soundController.resumeMusic();
 	}
 
 	/**
@@ -818,6 +834,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 	public void show() {
 		// Useless if called in outside animation loop
 		active = true;
+        soundController.playMusic("game-music", true);
 	}
 
 	/**
@@ -826,6 +843,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 	public void hide() {
 		// Useless if called in outside animation loop
 		active = false;
+        soundController.stopMusic();
 	}
 
 	/**
@@ -1025,11 +1043,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                     if (canUnlock && rightKey.isCollected() && !rightKey.isUsed() && door.isLocked()) {
                         door.setUnlocking(false);
                     }
-                }
-
-                if(!door.isLocked()){
-                    Vector2 doorPos = door.getObstacle().getPosition();
-                    graph.getNode((int)doorPos.x, (int)doorPos.y).isWall = false;
                 }
             }
 

@@ -198,6 +198,12 @@
       "size": 64
     }
   },
+  "sounds": {
+    "cat-meow": "sounds/cat-meow.mp3"
+  },
+  "music": {
+    "game-music": "music/game-music.mp3"
+  },
   "jsons": {
     "constants": "jsons/constants.json",
     "levels": "jsons/levels.json"
