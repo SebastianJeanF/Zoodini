@@ -6,9 +6,7 @@ import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.JsonValue;
 
-import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import edu.cornell.gdiac.math.Path2;
@@ -17,33 +15,56 @@ import edu.cornell.gdiac.math.PathFactory;
 import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.utils.animation.Animation;
 import walknroll.zoodini.utils.animation.AnimationState;
+import walknroll.zoodini.utils.enums.AvatarType;
 
-import java.util.ArrayList;
-
-public class Cat extends Avatar {
+public class Cat extends PlayableAvatar {
     /// Whether or not this Gar instance has triggered the meow action
     private boolean meowed;
     private boolean justMeowed;
     private final float abilityRange;
+    private boolean currentlyAiming = false;
 
     // Ring effect properties
     private Vector2 centerPosition; // In Physics Units
     private float currentRadius;
-    private float maxRadius;
     private float expansionSpeed;
     private boolean isRingActive;
     private Color ringColor;
     private float ringThickness;
     private Affine2 affineCache;
 
-
     // Cooldown properties
-    private float meowCooldown;          // Total cooldown duration
+    private float meowCooldown; // Total cooldown duration
     private float meowCooldownRemaining; // Time remaining on cooldown
-    private boolean onCooldown;          // Whether ability is on cooldown
+    private boolean onCooldown; // Whether ability is on cooldown
 
     // Keys of doors
     private Array<Key> keys;
+
+    PathFactory pf = new PathFactory();
+
+    PathExtruder pe = new PathExtruder();
+
+    public Cat(MapProperties properties, float units) {
+        super(AvatarType.CAT, properties, units);
+        this.abilityRange = properties.get("abilityRange", Float.class);
+
+        // Initialize ring effect properties
+        expansionSpeed = properties.get("meowExpandSpeed", Float.class); // 1 m/s
+        ringThickness = 0.3f;
+        ringColor = new Color(211f, 211f, 211f, 0.5f); // Semi-transparent green
+        currentRadius = 0f;
+        centerPosition = new Vector2(0, 0);
+        isRingActive = false;
+        affineCache = new Affine2();
+
+        // Initialize cooldown properties
+        meowCooldown = properties.get("abilityCooldown", Float.class); // 10 seconds default
+        meowCooldownRemaining = 0;
+        onCooldown = false;
+        keys = new Array<Key>();
+
+    }
 
     public void assignKey(Key key) {
         keys.add(key);
@@ -53,18 +74,8 @@ public class Cat extends Avatar {
         return keys;
     }
 
-
     public float getAbilityRange() {
         return abilityRange;
-    }
-
-    /**
-     * Gets the current value of <code>meowed</code>.
-     *
-     * @return Whether this Gar instance has meowed
-     */
-    public boolean getMeowed() {
-        return meowed;
     }
 
     /**
@@ -72,7 +83,7 @@ public class Cat extends Avatar {
      *
      * @return true if the ability can be used
      */
-    public boolean canMeow() {
+    public boolean canUseAbility() {
         return !onCooldown;
     }
 
@@ -90,51 +101,6 @@ public class Cat extends Avatar {
     }
 
     /**
-     * Update the value of <code>meowed</code>.
-     *
-     * @param value What to set the new value of <code>meowed</code> to
-     */
-    public void setMeowed(boolean value) {
-        // Only allow meowing if not on cooldown
-        if (value && onCooldown) {
-            return; // Can't meow while on cooldown
-        }
-
-        meowed = value;
-
-        // Start cooldown and activate ring when cat meows
-        if (value) {
-            System.out.println("here");
-            System.out.println("ring active: " + isRingActive);
-            activateRing();
-            onCooldown = true;
-            meowCooldownRemaining = meowCooldown;
-        }
-    }
-
-    public Cat(MapProperties properties,float units) {
-        super(AvatarType.CAT, properties, units);
-        this.abilityRange = properties.get("abilityRange", Float.class);
-
-        // Initialize ring effect properties
-        maxRadius = abilityRange;
-        expansionSpeed = properties.get("meowExpandSpeed", Float.class); //1 m/s
-        ringThickness = 0.3f;
-        ringColor = new Color(211f, 211f, 211f, 0.5f); // Semi-transparent green
-        currentRadius = 0f;
-        centerPosition = new Vector2(0, 0);
-        isRingActive = false;
-        affineCache = new Affine2();
-
-        // Initialize cooldown properties
-        meowCooldown = properties.get("abilityCooldown", Float.class); // 10 seconds default
-        meowCooldownRemaining = 0;
-        onCooldown = false;
-        keys = new Array<Key>();
-
-    }
-
-    /**
      * Activates the ring effect
      */
     public void activateRing() {
@@ -144,6 +110,7 @@ public class Cat extends Avatar {
             centerPosition.set(getPosition().x, getPosition().y);
         }
     }
+
     public void updateJustMeowed() {
         if (meowed && !justMeowed) {
             justMeowed = true;
@@ -155,17 +122,23 @@ public class Cat extends Avatar {
     public boolean didJustMeow() {
         return justMeowed;
     }
+
     /**
      * Adds spritesheet to animate for a given state.
-     * */
+     */
     @Override
-    public void setAnimation(AnimationState state, SpriteSheet sheet){
-        switch(state){
-            //TODO: frame delays (number of frames elapsed before rendering the next sprite) is set to 16 for all states. This needs to be adjusted.
-            case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
-            case WALK -> animationController.addAnimation(AnimationState.WALK, new Animation(sheet, 0, sheet.getSize()-1, 4, true));
-            case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN, new Animation(sheet, 0, sheet.getSize()-1, 8, true));
-            case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP, new Animation(sheet, 0, sheet.getSize()-1, 6, true));
+    public void setAnimation(AnimationState state, SpriteSheet sheet) {
+        switch (state) {
+            // TODO: frame delays (number of frames elapsed before rendering the next
+            // sprite) is set to 16 for all states. This needs to be adjusted.
+            case IDLE -> animationController.addAnimation(AnimationState.IDLE,
+                    new Animation(sheet, 0, sheet.getSize() - 1, 16, true));
+            case WALK -> animationController.addAnimation(AnimationState.WALK,
+                    new Animation(sheet, 0, sheet.getSize() - 1, 4, true));
+            case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN,
+                    new Animation(sheet, 0, sheet.getSize() - 1, 8, true));
+            case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP,
+                    new Animation(sheet, 0, sheet.getSize() - 1, 6, true));
         }
     }
 
@@ -177,7 +150,7 @@ public class Cat extends Avatar {
         if (isRingActive) {
             currentRadius += expansionSpeed * dt;
 
-            if (currentRadius >= maxRadius) {
+            if (currentRadius >= this.abilityRange) {
                 isRingActive = false;
             }
         }
@@ -196,10 +169,6 @@ public class Cat extends Avatar {
         updateJustMeowed();
 
     }
-
-
-    PathFactory pf = new PathFactory();
-    PathExtruder pe = new PathExtruder();
 
     @Override
     public void draw(SpriteBatch batch) {
@@ -233,7 +202,37 @@ public class Cat extends Avatar {
         }
     }
 
-    public float getAbilityRadius() {
-        return maxRadius;
+    @Override
+    public boolean isCurrentlyAiming() {
+        return this.currentlyAiming;
+    }
+
+    @Override
+    public void setCurrentlyAiming(boolean value) {
+        this.currentlyAiming = value;
+    }
+
+    @Override
+    public boolean didFire() {
+        return meowed;
+    }
+
+    @Override
+    public void setDidFire(boolean value) {
+        // Only allow meowing if not on cooldown
+        if (value && onCooldown) {
+            return; // Can't meow while on cooldown
+        }
+
+        meowed = value;
+
+        // Start cooldown and activate ring when cat meows
+        if (value) {
+            System.out.println("here");
+            System.out.println("ring active: " + isRingActive);
+            activateRing();
+            onCooldown = true;
+            meowCooldownRemaining = meowCooldown;
+        }
     }
 }

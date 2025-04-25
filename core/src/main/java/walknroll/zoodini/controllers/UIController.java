@@ -16,7 +16,7 @@ import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
-import walknroll.zoodini.models.entities.Avatar.AvatarType;
+
 //Scene2d stuff
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -32,6 +32,7 @@ import walknroll.zoodini.models.entities.Octopus;
 import walknroll.zoodini.utils.CounterActor;
 import walknroll.zoodini.utils.InkMeterActor;
 import walknroll.zoodini.utils.MeowCooldownIndicator;
+import walknroll.zoodini.utils.enums.AvatarType;
 
 public class UIController {
 

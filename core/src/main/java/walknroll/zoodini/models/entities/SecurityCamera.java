@@ -92,7 +92,7 @@ public class SecurityCamera extends ZoodiniSprite {
         viewDistance = properties.get("viewDistance", Float.class);
 
         animationController = new AnimationController(AnimationState.IDLE);
-        timer = new CircleTimer(1,Color.YELLOW, units);
+        timer = new CircleTimer(0.2f,Color.YELLOW, units);
     }
 
 
@@ -125,14 +125,15 @@ public class SecurityCamera extends ZoodiniSprite {
         super.update(dt);
 
         if (disabled) {
-            animationController.setState(AnimationState.IDLE);
+            animationController.setState(AnimationState.BLIND);
             disabledTimeRemaining -= dt;
             if(disabledTimeRemaining <= 0){
                 disabled = false;
                 disabledTimeRemaining = maxDisabledTime;
             }
+            timer.setProgress(disabledTimeRemaining / maxDisabledTime);
         } else {
-            animationController.setState(AnimationState.WALK);
+            animationController.setState(AnimationState.IDLE);
         }
 
         animationController.update();
@@ -195,6 +196,11 @@ public class SecurityCamera extends ZoodiniSprite {
 
             // Restore original color
             batch.setColor(originalColor);
+        }
+
+        if(disabled){
+            timer.setPosition(this.getPosition());
+            timer.draw(batch);
         }
     }
 

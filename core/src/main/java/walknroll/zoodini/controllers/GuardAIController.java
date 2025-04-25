@@ -25,6 +25,7 @@ import walknroll.zoodini.models.entities.Guard;
 import walknroll.zoodini.controllers.aitools.TileGraph;
 import walknroll.zoodini.utils.GameGraph.DistanceHeuristic;
 import walknroll.zoodini.utils.GameGraph.Node;
+import walknroll.zoodini.utils.enums.AvatarType;
 
 import java.util.List;
 
@@ -92,7 +93,7 @@ public class GuardAIController {
         this.pathFinder = new IndexedAStarPathFinder<>(tileGraph);
         this.heuristic = new ManhattanHeuristic<>();
         this.nextTargetLocation = new Vector2(0, 0);
-        this.CAT_MEOW_RADIUS = level.getCat().getAbilityRadius();
+        this.CAT_MEOW_RADIUS = level.getCat().getAbilityRange();
     }
 
     /**
@@ -152,11 +153,9 @@ public class GuardAIController {
      * @return true if the cat player has used its distraction ability, false otherwise
      */
     private boolean didDistractionOccur() {
-        InputController input = InputController.getInstance();
         float guardToPlayerDistance = guard.getPosition().dst(getActivePlayer().getPosition());
 
-        return (getActivePlayer().getAvatarType() == Avatar.AvatarType.CAT &&
-                input.didAbility() &&
+        return (getActivePlayer().getAvatarType() == AvatarType.CAT &&
                 level.getCat().didJustMeow() &&
                 guardToPlayerDistance <= CAT_MEOW_RADIUS);
     }

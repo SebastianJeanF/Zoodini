@@ -82,12 +82,12 @@ public class MeowCooldownIndicator extends Actor {
         if (cat == null) return;
 
         // Update which pentagon is visible based on cooldown state
-        boolean isOnCooldown = !cat.canMeow();
+        boolean isOnCooldown = !cat.canUseAbility();
         cooldownPentagon.setVisible(isOnCooldown);
         readyPentagon.setVisible(!isOnCooldown);
 
         // Update text based on cooldown state
-        if (cat.canMeow()) {
+        if (cat.canUseAbility()) {
             meowLabel.setText("MEOW!");
         } else {
             // Display remaining seconds rounded up
