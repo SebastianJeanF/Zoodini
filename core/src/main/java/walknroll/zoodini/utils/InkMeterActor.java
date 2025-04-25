@@ -8,11 +8,11 @@ public class InkMeterActor extends Actor {
     private final float capacity;
     private final float cost;
     private final float rechargeRate;
+    private float currentCharge;
     private final SpriteSheet[] spriteSheet;
-    private int filledBars;
     private float timeElapsed = 0f;
-    private float frameDelay;
     private int frameCount;
+    private float chargePerFrame;
 
     public InkMeterActor(SpriteSheet sheet, float cap, float cost, float rate){
         this.capacity = cap;
@@ -27,32 +27,35 @@ public class InkMeterActor extends Actor {
         }
 
         this.frameCount = sheet.getSize();
-        this.frameDelay = cap / ((frameCount - 1) * rate * cost);
     }
 
     public void sync(float currentCharge){
-        filledBars = (int)(currentCharge / cost);
+        this.currentCharge = currentCharge;
     }
 
     @Override
     public void act(float dt){
         super.act(dt);
-        timeElapsed += dt;
 
-        if (timeElapsed >= frameDelay) {
-            timeElapsed = 0f;
-            for (int i = 0; i < spriteSheet.length; i++) {
-                if (i < filledBars) {
-                    int currentFrame = spriteSheet[i].getFrame();
-                    if (currentFrame < frameCount - 1) {
-                        spriteSheet[i].setFrame(currentFrame + 1);
-                    }
-                } else {
-                    spriteSheet[i].setFrame(0);
-                }
+
+        int totalBars = spriteSheet.length;
+        float chargePerBar = cost;
+        float normalizedCharge = Math.min(currentCharge, capacity);
+
+        for (int i = 0; i < totalBars; i++) {
+            float barCharge = normalizedCharge - i * chargePerBar;
+
+            if (barCharge >= chargePerBar) {
+                spriteSheet[i].setFrame(frameCount - 1);
+            } else if (barCharge > 0) {
+                int frameIndex = Math.min((int)((barCharge / chargePerBar) * frameCount), frameCount - 1);
+                spriteSheet[i].setFrame(frameIndex);
+            } else {
+                spriteSheet[i].setFrame(0);
             }
         }
     }
+
     @Override
     public void draw(Batch batch, float parentAlpha){
         float barWidth = spriteSheet[0].getRegionWidth();
