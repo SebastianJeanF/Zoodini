@@ -154,7 +154,11 @@ public class GuardAIController {
     private boolean didDistractionOccur() {
         InputController input = InputController.getInstance();
         float guardToPlayerDistance = guard.getPosition().dst(getActivePlayer().getPosition());
-        return input.didAbility() && getActivePlayer().getAvatarType() == Avatar.AvatarType.CAT && guardToPlayerDistance <= CAT_MEOW_RADIUS;
+
+        return (getActivePlayer().getAvatarType() == Avatar.AvatarType.CAT &&
+                input.didAbility() &&
+                level.getCat().didJustMeow() &&
+                guardToPlayerDistance <= CAT_MEOW_RADIUS);
     }
 
     public Vector2 getCameraAlertPosition() {
@@ -312,6 +316,14 @@ public class GuardAIController {
                     guard.setMeow(false);
                     lastStateChangeTime = ticks;
                 }
+                // Gar meows again -> should update distractPosition
+                else if (didDistractionOccur()) {
+                    currState = GuardState.DISTRACTED;
+                    guard.setMeow(true);
+                    Vector2 playerPosition = getActivePlayer().getPosition();
+                    distractPosition.set(getValidTileCoords(playerPosition));
+                    lastStateChangeTime = ticks;
+                }
                 break;
             case AlERTED:
                 // If guard has reached camera location; ALERTED -> PATROL
@@ -373,10 +385,10 @@ public class GuardAIController {
 //        if (!canStateTransition()) {
 //            return;
 //        }
-        // System.out.println("Before Guard state: " + currState);
+        System.out.println("Before Guard state: " + currState);
         updateSusLevel();
         updateGuardState();
-        // System.out.println("After Guard state: " + currState);
+        System.out.println("After Guard state: " + currState);
 
         setNextTargetLocation();
 
