@@ -528,15 +528,15 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 float progress = 1.0f - (door.getRemainingTimeToUnlock() / door.getUnlockDuration());
                 Vector2 doorPos = door.getObstacle().getPosition().cpy();
                 float tileSize = level.getTileSize();
-                door.showUnlockProgress(progress, doorPos, camera);
+                //door.showUnlockProgress(progress, doorPos, camera);
             } else {
                 door.resetTimer();
-                door.hideUnlockProgress();
+                //door.hideUnlockProgress();
             }
 
             if(door.getRemainingTimeToUnlock() <= 0){
                 key.setUsed(true);
-                door.hideUnlockProgress();
+                //door.hideUnlockProgress();
             }
         }
 

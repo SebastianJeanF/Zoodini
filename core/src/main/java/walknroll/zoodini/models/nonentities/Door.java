@@ -157,6 +157,7 @@ public class Door extends ZoodiniSprite {
         setLocked(true);
         setTextureRegion(lockedTexture);
         resetTimer(); //TODO: get this from json
+        unlockTimer.setPosition(this.obstacle.getPosition());
 
         if(!properties.get("key", MapObject.class).getProperties().get("type", String.class).equalsIgnoreCase("Key")){
             throw new AssertionError("The associated key to this door is not of type key");
@@ -173,47 +174,17 @@ public class Door extends ZoodiniSprite {
         if(remainingTimeToUnlock <= 0.0f){
             setLocked(false);
         }
+        unlockTimer.setProgress(remainingTimeToUnlock / UNLOCK_DURATION);
+
     }
 
-    Vector3 tmp = new Vector3();
-    public void showUnlockProgress(float progress, Vector2 doorPosition, Camera gameCamera) {
-        showUnlockTimer = true;
-        tmp.set(doorPosition.x * units, doorPosition.y * units, 0);
-        gameCamera.project(tmp);
-        unlockTimer.setPosition(tmp.x, tmp.y);
-        unlockTimer.setProgress(progress);
-    }
-
-    public void hideUnlockProgress() {
-        showUnlockTimer = false;
-    }
 
     @Override
     public void draw(SpriteBatch batch) {
         super.draw(batch);
-
-
-
-    }
-
-    public void drawDoorUnlocking(SpriteBatch batch, Camera camera) {
-        // Save batch state
-        boolean wasDrawing = batch.isDrawing();
-
-        // Always end the batch to ensure the CircleTimer draws on top
-        if (wasDrawing) {
-            batch.end();
-        }
-
-        if (showUnlockTimer) {
-            // Clear depth buffer to ensure timer appears on top
+        if(isUnlocking){
             Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
             unlockTimer.draw(batch);
-        }
-
-        // Restore batch state
-        if (wasDrawing) {
-            batch.begin(camera);
         }
     }
 }
