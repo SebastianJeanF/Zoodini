@@ -154,12 +154,7 @@ public class GuardAIController {
      */
     private boolean didDistractionOccur() {
         float guardToPlayerDistance = guard.getPosition().dst(getActivePlayer().getPosition());
-
-
-        System.out.println("Did ability occur: " + input.didAbility());
-        System.out.println("Did just meow: " + level.getCat().didJustMeow());
-        return (getActivePlayer().getAvatarType() == Avatar.AvatarType.CAT &&
-                input.didAbility() &&
+        return (getActivePlayer().getAvatarType() == AvatarType.CAT &&
                 level.getCat().didJustMeow() &&
                 guardToPlayerDistance <= CAT_MEOW_RADIUS);
     }
