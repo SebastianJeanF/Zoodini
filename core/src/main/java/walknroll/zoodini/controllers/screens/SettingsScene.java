@@ -168,7 +168,7 @@ public class SettingsScene implements Screen {
         table.row();
         table.add(new Label("Resolution", skin, "title")).left().width(labelWidth);
         SelectBox<AppResolution> resolutionSelect = new SelectBox<>(skin);
-        resolutionSelect.setItems(AppResolution.SMALL, AppResolution.BIG);
+        resolutionSelect.setItems(AppResolution.SMALL, AppResolution.BIG, AppResolution.FULLSCREEN);
         resolutionSelect.setSelected(this.resolution);
         resolutionSelect.addListener(new ChangeListener() {
             public void changed(ChangeEvent event, Actor actor) {

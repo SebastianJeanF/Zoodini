@@ -279,7 +279,7 @@ public class UIController {
         stage.addActor(pauseMenuTable);
 
         meowCooldownIndicator = new MeowCooldownIndicator(displayFont);
-        meowCooldownIndicator.setPosition(1100, 40);  // Position it where needed
+        meowCooldownIndicator.setPosition(viewport.getScreenWidth() - 200, 40);  // Position it where needed
         stage.addActor(meowCooldownIndicator);
 
     }

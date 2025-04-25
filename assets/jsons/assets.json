@@ -201,7 +201,8 @@
       "logo": "loading/logo.png",
       "level-bg": "textures/level_bg.png",
       "home-icon-borderless": "textures/home-icon-borderless.png",
-      "level-cell": "textures/level_cell.png"
+      "level-cell": "textures/level_cell.png",
+      "guard-suspicion-curious": "textures/guard-suspicion-curious.png"
     },
 
   	"fonts": {
