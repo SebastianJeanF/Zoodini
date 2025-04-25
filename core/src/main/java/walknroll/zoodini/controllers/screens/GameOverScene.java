@@ -91,7 +91,6 @@ public class GameOverScene implements Screen, InputProcessor {
         }
     }
 
-
     // There are TWO asset managers.
     // One to load the loading screen. The other to load the assets
     /** The actual assets to be loaded */
@@ -458,15 +457,8 @@ public class GameOverScene implements Screen, InputProcessor {
         // Height lock the logo
         Texture texture = assets.getEntry("game-over-splash", Texture.class);
         float ratio = (float) width / (float) texture.getWidth();
-        batch.draw(texture, 0, 0, width, ratio * texture.getHeight());
+        batch.draw(texture, 0, height - (ratio * texture.getHeight()), width, ratio * texture.getHeight());
 
-        // texture = internal.getEntry("logo", Texture.class);
-        // batch.draw(texture, (width / 2f) - (texture.getWidth() / 2f), height -
-        // (texture.getHeight() + 50),
-        // texture.getWidth(),
-        // texture.getHeight());
-        //
-        //
         for (MenuButton menuButton : buttons) {
             Color tint = menuButton.isPressed() ? Color.GRAY : Color.WHITE;
             texture = assets.getEntry(menuButton.getAssetName(), Texture.class);
