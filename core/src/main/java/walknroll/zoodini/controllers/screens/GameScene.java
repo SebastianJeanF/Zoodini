@@ -162,6 +162,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 //        float SCALE = 1.0f;
 //		camera.setToOrtho(false, level.getTileSize() * 15 * SCALE,  level.getTileSize() * 10 * SCALE);
 
+        // TODO: Use the
         float NUM_TILES_WIDE = 15f;
         camera.setToOrtho(false, level.getTileSize() * NUM_TILES_WIDE,  level.getTileSize() * NUM_TILES_WIDE * 720f/1280f);
 
