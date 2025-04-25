@@ -37,7 +37,6 @@ public class InkMeterActor extends Actor {
     public void act(float dt){
         super.act(dt);
 
-
         int totalBars = spriteSheet.length;
         float chargePerBar = cost;
         float normalizedCharge = Math.min(currentCharge, capacity);

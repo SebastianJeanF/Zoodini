@@ -57,6 +57,7 @@ public class Door extends ZoodiniSprite {
     private short collideBits;
     private short excludeBitsLocked;
     private short excludeBitsUnlocked;
+    private float units;
 
 
     public boolean isUnlocking() {
@@ -126,6 +127,7 @@ public class Door extends ZoodiniSprite {
 		obstacle.setName(properties.get("type", String.class));
 		obstacle.setSensor(false);
 		obstacle.setPhysicsUnits(units);
+        this.units = units;
 
 		float w = size * units;
 		float h = size * units;
@@ -149,7 +151,7 @@ public class Door extends ZoodiniSprite {
 
         lockedTexture = new TextureRegion(directory.getEntry("locked_door", Texture.class));
         unlockedTexture = new TextureRegion(directory.getEntry("unlocked_door", Texture.class));
-        unlockTimer = new CircleTimer(0, 0, 30, Color.YELLOW);
+        unlockTimer = new CircleTimer(1, Color.YELLOW, units);
 
         // Set initial state (locked by default)
         setLocked(true);
@@ -165,21 +167,20 @@ public class Door extends ZoodiniSprite {
         super.update(dt);
         if(isLocked() && isUnlocking()){
             remainingTimeToUnlock -= dt;
-//            System.out.println(remainingTimeToUnlock);
         } else {
             resetTimer();
         }
-
         if(remainingTimeToUnlock <= 0.0f){
             setLocked(false);
         }
     }
 
-    public void showUnlockProgress(float progress, Vector2 doorPosition, Camera gameCamera, float tileSize) {
+    Vector3 tmp = new Vector3();
+    public void showUnlockProgress(float progress, Vector2 doorPosition, Camera gameCamera) {
         showUnlockTimer = true;
-        Vector3 screenPos = new Vector3(doorPosition.x * tileSize, doorPosition.y * tileSize, 0);
-        gameCamera.project(screenPos);
-        unlockTimer.setPosition(screenPos.x, screenPos.y);
+        tmp.set(doorPosition.x * units, doorPosition.y * units, 0);
+        gameCamera.project(tmp);
+        unlockTimer.setPosition(tmp.x, tmp.y);
         unlockTimer.setProgress(progress);
     }
 
@@ -207,7 +208,7 @@ public class Door extends ZoodiniSprite {
         if (showUnlockTimer) {
             // Clear depth buffer to ensure timer appears on top
             Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
-            unlockTimer.draw();
+            unlockTimer.draw(batch);
         }
 
         // Restore batch state
