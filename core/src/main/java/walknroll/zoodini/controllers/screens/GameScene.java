@@ -639,6 +639,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     private void onSwap(InputController input) {
         if (input.didSwap() && !inCameraTransition) {
+            level.getAvatar().setCurrentlyAiming(false);
             // stop active character movement
             level.getAvatar().setMovement(0, 0);
             level.getAvatar().applyForce();
@@ -695,7 +696,14 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 	 * Updates the camera position with interpolation when transitioning
 	 */
 	private void updateCamera(float dt) {
-        cameraTargetPosition.set(level.getAvatar().getPosition());
+        PlayableAvatar avatar = level.getAvatar();
+        if (avatar.isCurrentlyAiming()) {
+            camera.zoom = Math.min(1.2f, camera.zoom + 0.01f);
+        } else {
+            camera.zoom = Math.max(1.0f, camera.zoom - 0.005f);
+        }
+
+        cameraTargetPosition.set(avatar.getPosition());
 
         // Get viewport dimensions in world units
         float viewWidth = camera.viewportWidth / level.getTileSize();
@@ -703,10 +711,10 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
 
         // Calculate soft boundaries that allow partial dead space
-        float minX = level.getBounds().x + (viewWidth * 0.5f);
-        float maxX = level.getBounds().x + (level.getBounds().width) - (viewWidth * 0.5f);
-        float minY = level.getBounds().y + (viewHeight * 0.5f);
-        float maxY = level.getBounds().y + (level.getBounds().height) - (viewHeight * 0.5f);
+        float minX = level.getBounds().x + (viewWidth * 0.5f * camera.zoom);
+        float maxX = level.getBounds().x + (level.getBounds().width) - (viewWidth * 0.5f * camera.zoom);
+        float minY = level.getBounds().y + (viewHeight * 0.5f * camera.zoom);
+        float maxY = level.getBounds().y + (level.getBounds().height) - (viewHeight * 0.5f * camera.zoom);
 
         // Clamp camera position with soft boundaries
         cameraTargetPosition.x = Math.max(minX, Math.min(cameraTargetPosition.x, maxX));
