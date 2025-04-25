@@ -452,7 +452,9 @@ public class Guard extends Enemy {
 
     public void drawSuspicionMeter(SpriteBatch batch) {
         float BASELINE_PX = 32;
-        if (suspsicionMeter == null || suspsicionMeter.getCurrentSpriteSheet() == null || !Guard.isLoaded()) {
+        if (suspsicionMeter == null
+            || suspsicionMeter.getCurrentSpriteSheet() == null
+            || !Guard.isLoaded()) {
             return;
         }
 
@@ -490,25 +492,54 @@ public class Guard extends Enemy {
 
     }
 
+    /**
+     * Get the X pixel offset for the suspicion meter based on the guard's state
+     * and movement direction.
+     *
+     * @return The X pixel offset for the suspicion meter.
+     */
     private float getXPixelOffset() {
         float BASELINE_PX = 32;
         float PIXEL_PER_WORLD_UNIT = getObstacle().getPhysicsUnits();
         float SCALE = 0.2f * (PIXEL_PER_WORLD_UNIT / BASELINE_PX);
 
+        AnimationState guardState = animationController.getCurrentState();
+
         if (isMeowed()) {
+            if (guardState == AnimationState.WALK_UP) {
+                return (-95f * SCALE);
+            }
+            else if (guardState == AnimationState.WALK_DOWN) {
+                return (-90f * SCALE);
+            }
+            // Else if the guard is moving to the right
+            else if (guardState == AnimationState.WALK  && movementDirection != null && movementDirection.x > 0) {
+                return (-115f * SCALE);
+            }
+            // Else if the guard is moving to the left
+            else if (guardState == AnimationState.WALK && movementDirection != null && movementDirection.x < 0) {
+                return (-90f * SCALE);
+            }
             return (-80f * SCALE);
         }
-        // Else if the guard is moving to the right
-        else if (movementDirection != null && movementDirection.x > 0) {
-            return (-80f * SCALE);
-        }
-        // Else if the guard is moving to the left
-        else if (movementDirection != null && movementDirection.x < 0) {
-            return (-55f * SCALE);
+        else {
+            if (guardState == AnimationState.WALK_UP) {
+                return (-66f * SCALE);
+            }
+            else if (guardState == AnimationState.WALK_DOWN) {
+                return (-66f * SCALE);
+            }
+            // Else if the guard is moving to the right
+            else if (guardState == AnimationState.WALK  && movementDirection != null && movementDirection.x > 0) {
+                return (-80f * SCALE);
+            }
+            // Else if the guard is moving to the left
+            else if (guardState == AnimationState.WALK && movementDirection != null && movementDirection.x < 0) {
+                return (-63f * SCALE);
+            }
+            return (-65f * SCALE);
         }
 
-        // Guard is moving up/down
-        return (-65f * SCALE);
     }
 
     public boolean isInkBlinded() {
