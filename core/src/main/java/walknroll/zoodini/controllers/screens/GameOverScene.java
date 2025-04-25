@@ -22,24 +22,22 @@
  */
 package walknroll.zoodini.controllers.screens;
 
-import com.badlogic.gdx.*;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.math.Affine2;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ScreenUtils;
-import edu.cornell.gdiac.graphics.*;
-import edu.cornell.gdiac.assets.*;
-import edu.cornell.gdiac.graphics.SpriteBatch;
-import edu.cornell.gdiac.math.PathExtruder;
-import edu.cornell.gdiac.util.*;
-import walknroll.zoodini.GDXRoot;
 
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.g2d.*;
+import edu.cornell.gdiac.assets.AssetDirectory;
+import edu.cornell.gdiac.graphics.SpriteBatch;
+import edu.cornell.gdiac.util.ScreenListener;
+import walknroll.zoodini.GDXRoot;
+import walknroll.zoodini.utils.MenuButton;
 
 /**
  * Class that provides a loading screen for the state of the game.
@@ -49,48 +47,6 @@ import com.badlogic.gdx.graphics.g2d.*;
  * by a play button. You are free to adopt this to your needs.
  */
 public class GameOverScene implements Screen, InputProcessor {
-    /** Wrapper class for instantiating menu buttons */
-    private class MenuButton {
-        public float x;
-        public float y;
-        public float width;
-        public float height;
-
-        private int pressedState;
-        private String assetName;
-        private boolean pressed;
-
-        public MenuButton(float x, float y, float width, float height, String assetName, int pressedState) {
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
-            this.assetName = assetName;
-            this.pressedState = pressedState;
-            this.pressed = false;
-        }
-
-        public boolean contains(float x, float y) {
-            return (x >= this.x) && (y >= this.y) && (x <= this.x + this.width) && (y <= this.y + this.height);
-        }
-
-        public String getAssetName() {
-            return this.assetName;
-        }
-
-        public int getPressedState() {
-            return this.pressedState;
-        }
-
-        public void press() {
-            this.pressed = !this.pressed;
-        }
-
-        public boolean isPressed() {
-            return this.pressed;
-        }
-    }
-
     // There are TWO asset managers.
     // One to load the loading screen. The other to load the assets
     /** The actual assets to be loaded */
@@ -112,7 +68,6 @@ public class GameOverScene implements Screen, InputProcessor {
 
     /** The constants for arranging images on the screen */
     JsonValue constants;
-    private float scale;
 
     /** The current state of the play button */
     private Integer pressState;
@@ -207,9 +162,6 @@ public class GameOverScene implements Screen, InputProcessor {
      * @param height The new height in pixels
      */
     public void resize(int width, int height) {
-        // Compute the drawing scale
-        scale = ((float) height) / constants.getFloat("height");
-
         this.width = width;
         this.height = height;
         if (camera == null) {
