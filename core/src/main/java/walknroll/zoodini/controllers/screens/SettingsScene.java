@@ -20,8 +20,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
@@ -50,18 +48,14 @@ public class SettingsScene implements Screen {
     private boolean waitingForAbilityKey;
     private boolean waitingForSwapKey;
 
-    private int abilityKey;
-    private int swapKey;
-    private AppResolution resolution;
+    private GameSettings settings;
 
     public SettingsScene(SpriteBatch batch, AssetDirectory assets, GameSettings currentSettings) {
         this.batch = batch;
         this.assets = assets;
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        this.abilityKey = currentSettings.getAbilityKey();
-        this.swapKey = currentSettings.getSwapKey();
-        this.resolution = currentSettings.getResolution();
+        this.settings = currentSettings;
     }
 
     public void create() {
@@ -99,7 +93,8 @@ public class SettingsScene implements Screen {
 
         window.add(new Label("Use Ability", skin, "title")).width(Value.percentWidth(0.25f, container))
                 .pad(Value.percentWidth(0.01f, container));
-        TextButton setAbilityKey = new TextButton("Current: " + Input.Keys.toString(abilityKey), skin);
+        TextButton setAbilityKey = new TextButton("Current: " + Input.Keys.toString(this.settings.getAbilityKey()),
+                skin);
         setAbilityKey.addListener(new ChangeListener() {
             public void changed(ChangeEvent event, Actor actor) {
                 SettingsScene.this.waitingForAbilityKey = true;
@@ -112,7 +107,7 @@ public class SettingsScene implements Screen {
         window.row();
         window.add(new Label("Swap Character", skin, "title")).width(Value.percentWidth(0.25f, container))
                 .pad(Value.percentWidth(0.01f, container));
-        TextButton setSwapKey = new TextButton("Current: " + Input.Keys.toString(swapKey), skin);
+        TextButton setSwapKey = new TextButton("Current: " + Input.Keys.toString(this.settings.getSwapKey()), skin);
         setSwapKey.addListener(new ChangeListener() {
             public void changed(ChangeEvent event, Actor actor) {
                 SettingsScene.this.waitingForSwapKey = true;
@@ -129,12 +124,12 @@ public class SettingsScene implements Screen {
                 }
                 if (SettingsScene.this.waitingForAbilityKey) {
                     setAbilityKey.setText("Current: " + Input.Keys.toString(keycode));
-                    SettingsScene.this.abilityKey = keycode;
+                    SettingsScene.this.settings.setAbilityKey(keycode);
                     SettingsScene.this.waitingForAbilityKey = false;
                 }
                 if (SettingsScene.this.waitingForSwapKey) {
                     setSwapKey.setText("Current: " + Input.Keys.toString(keycode));
-                    SettingsScene.this.swapKey = keycode;
+                    SettingsScene.this.settings.setSwapKey(keycode);
                     SettingsScene.this.waitingForSwapKey = false;
                 }
                 return true;
@@ -155,24 +150,41 @@ public class SettingsScene implements Screen {
         table.setFillParent(true);
         table.defaults().spaceBottom(10f);
         table.top().pad(Value.percentWidth(0.01f)).padTop(Value.percentHeight(0.3f));
-        // table.setDebug(true); // This is optional, but enables debug lines for
 
         Value labelWidth = Value.percentWidth(0.25f, table);
         Value controlWidth = Value.percentWidth(0.5f, table);
 
-        table.add(new Label("Volume", skin, "title")).left().width(labelWidth);
-        Slider volumeSlider = new Slider(0f, 100f, 1f, false, skin);
-        volumeSlider.setValue(100f);
-        table.add(volumeSlider).left().width(controlWidth).expandX();
+        table.add(new Label("Music Volume", skin, "title")).left().width(labelWidth);
+        Slider musicVolumeSlider = new Slider(0f, 100f, 1f, false, skin);
+        musicVolumeSlider.setValue(settings.getMusicVolume());
+        musicVolumeSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                SettingsScene.this.settings.setMusicVolume(musicVolumeSlider.getValue());
+            }
+        });
+        table.add(musicVolumeSlider).left().width(controlWidth).expandX();
+
+        table.row();
+        table.add(new Label("Sound Effect Volume", skin, "title")).left().width(labelWidth);
+        Slider soundVolumeSlider = new Slider(0f, 100f, 1f, false, skin);
+        soundVolumeSlider.setValue(settings.getSoundVolume());
+        soundVolumeSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                SettingsScene.this.settings.setSoundVolume(soundVolumeSlider.getValue());
+            }
+        });
+        table.add(soundVolumeSlider).left().width(controlWidth);
 
         table.row();
         table.add(new Label("Resolution", skin, "title")).left().width(labelWidth);
         SelectBox<AppResolution> resolutionSelect = new SelectBox<>(skin);
         resolutionSelect.setItems(AppResolution.SMALL, AppResolution.BIG, AppResolution.FULLSCREEN);
-        resolutionSelect.setSelected(this.resolution);
+        resolutionSelect.setSelected(this.settings.getResolution());
         resolutionSelect.addListener(new ChangeListener() {
             public void changed(ChangeEvent event, Actor actor) {
-                SettingsScene.this.resolution = resolutionSelect.getSelected();
+                SettingsScene.this.settings.setResolution(resolutionSelect.getSelected());
             }
         });
         table.add(resolutionSelect).left().width(controlWidth);
@@ -199,7 +211,7 @@ public class SettingsScene implements Screen {
     }
 
     public GameSettings getSettings() {
-        return new GameSettings(this.abilityKey, this.swapKey, this.resolution);
+        return this.settings;
     }
 
     public void resize(int width, int height) {

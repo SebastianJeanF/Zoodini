@@ -18,6 +18,7 @@ import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.controllers.InputController;
+import walknroll.zoodini.controllers.SoundController;
 import walknroll.zoodini.controllers.screens.*;
 import walknroll.zoodini.models.entities.Guard;
 import walknroll.zoodini.utils.GameSettings;
@@ -159,6 +160,8 @@ public class GDXRoot extends Game implements ScreenListener {
 				case FULLSCREEN -> Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
 
 			}
+			SoundController.getInstance().setMusicVolume(gameSettings.getMusicVolume() / 100f);
+			SoundController.getInstance().setSoundVolume(gameSettings.getSoundVolume() / 100f);
 		} else if (screen == credits) {
 			// nothing to extract here
 		} else if (screen == levelSelect) {
