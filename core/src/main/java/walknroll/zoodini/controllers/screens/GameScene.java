@@ -327,7 +327,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         processPlayerAction(input, dt);
         level.update(dt); //collisions
         updateVisionCones(dt);
-        updateGuardAI();
+        updateGuardAI(dt);
         processNPCAction(dt);
         updateCamera(dt);
 
@@ -621,9 +621,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
     }
 
-    private void updateGuardAI() {
+    private void updateGuardAI(float dt) {
         guardToAIController.forEach((guard, controller) -> {
-            controller.update();
+            controller.update(dt);
             guard.think(controller.getMovementDirection(), controller.getNextTargetLocation());
         });
     }

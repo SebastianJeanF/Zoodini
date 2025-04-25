@@ -72,6 +72,13 @@ public class GuardAIController {
 
     private Vector2 nextTargetLocation;
 
+    // Looking around behavior variables
+    private float lookAroundDuration = 3.0f;  // How long guard looks around in seconds
+    private float currentLookTime = 0.0f;     // Current time spent looking around
+    private float lookDirection = 1.0f;       // 1.0 for right, -1.0 for left
+    private float lookChangeTime = 0.5f;      // Time before changing look direction
+    private float currentLookChangeTime = 0f; // Current time spent in current look direction
+
 
     /**
      * Constructs a new GuardAIController for a specific guard.
@@ -325,9 +332,18 @@ public class GuardAIController {
                 break;
             case DISTRACTED:
                 // If guard has reached meow location; DISTRACTED -> PATROL
+//                if (hasReachedTargetLocation(distractPosition)) {
+//                    currState = GuardState.PATROL;
+//                    guard.setMeow(false);
+//                    lastStateChangeTime = ticks;
+//                }
+                // If guard has reached meow location; DISTRACTED -> LOOKING_AROUND
                 if (hasReachedTargetLocation(distractPosition)) {
-                    currState = GuardState.PATROL;
-                    guard.setMeow(false);
+                    currState = GuardState.LOOKING_AROUND;
+                    // Initialize the looking around timer
+                    currentLookTime = 0.0f;
+                    currentLookChangeTime = 0f;
+                    lookDirection = 1.0f;
                     lastStateChangeTime = ticks;
                 }
                 // Guard has not reached meow location, sus level is above threshold; DISTRACTED -> SUSPICIOUS
@@ -351,6 +367,36 @@ public class GuardAIController {
                     guard.setMeow(true);
                     Vector2 playerPosition = getActivePlayer().getPosition();
                     distractPosition.set(getValidTileCoords(playerPosition));
+                    lastStateChangeTime = ticks;
+                }
+                break;
+            case LOOKING_AROUND:
+                // Check for higher priority states first (same as in DISTRACTED)
+                if (guard.isSus()) {
+                    currState = GuardState.SUSPICIOUS;
+                    guard.setMeow(false);
+                    lastStateChangeTime = ticks;
+                }
+                else if (guard.isCameraAlerted()) {
+                    currState = GuardState.AlERTED;
+                    guard.setCameraAlerted(true);
+                    guard.setMeow(false);
+                    Vector2 playerPosition = getActivePlayer().getPosition();
+                    cameraAlertPosition.set(getValidTileCoords(playerPosition));
+                    lastStateChangeTime = ticks;
+                }
+                else if (didDistractionOccur()) {
+                    // Another meow can interrupt looking around
+                    currState = GuardState.DISTRACTED;
+                    guard.setMeow(true);
+                    Vector2 playerPosition = getActivePlayer().getPosition();
+                    distractPosition.set(getValidTileCoords(playerPosition));
+                    lastStateChangeTime = ticks;
+                }
+                // After looking around time is up, go back to PATROL state
+                else if (currentLookTime >= lookAroundDuration) {
+                    currState = GuardState.PATROL;
+                    guard.setMeow(false);
                     lastStateChangeTime = ticks;
                 }
                 break;
@@ -394,12 +440,28 @@ public class GuardAIController {
      * This is the main function that should be called each frame to progress the guard's AI.
      * Handles suspicion level changes, state transitions, and movement target updates.
      */
-    public void update() {
+    public void update(float dt) {
         ticks++;
         // Only change state every 5 ticks
 //        if (!canStateTransition()) {
 //            return;
 //        }
+        // Update looking around behavior if in LOOKING_AROUND state
+        if (currState == GuardState.LOOKING_AROUND) {
+            currentLookTime += dt;
+            currentLookChangeTime += dt;
+
+            // Change look direction periodically
+            if (currentLookChangeTime >= lookChangeTime) {
+                lookDirection *= -1; // Flip direction
+                currentLookChangeTime = 0;
+
+                // Update the guard's direction for looking left and right
+                Vector2 lookDirectionVector = new Vector2(lookDirection, 0);
+                guard.updateOrientation(dt, lookDirectionVector);
+            }
+        }
+
         System.out.println("Before Guard state: " + currState);
         updateSusLevel();
         updateGuardState();
@@ -548,6 +610,10 @@ public class GuardAIController {
                 }
                 newTarget = getNextWaypointLocation(cameraAlertPosition);
                 break;
+            case LOOKING_AROUND:
+                // Don't move, stay in place while looking around
+                newTarget = guard.getPosition();
+                break;
 
             default:
                 break;
@@ -573,7 +639,10 @@ public class GuardAIController {
      * @return A normalized Vector2 representing the movement direction
      */
     public Vector2 getMovementDirection() {
-        if (this.nextTargetLocation == null) {
+        if (currState == GuardState.LOOKING_AROUND) {
+            return Vector2.Zero; // Don't move while looking around
+        }
+        else if (this.nextTargetLocation == null) {
             return Vector2.Zero;
         } else {
             return this.nextTargetLocation.cpy().sub(guard.getPosition()).nor();
@@ -647,7 +716,9 @@ public class GuardAIController {
         /** Guard is distracted by meow*/
         DISTRACTED,
         /** Guard is alerted by camera*/
-        AlERTED;
+        AlERTED,
+        /** Guard is looking around after reaching meow location */
+        LOOKING_AROUND;
         private GuardState() {}
     }
 

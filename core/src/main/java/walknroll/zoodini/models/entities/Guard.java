@@ -89,6 +89,7 @@ public class Guard extends Enemy {
 
     private float originalFov;
 
+
     /**
      * Creates a new dude with degenerate settings
      * <p>
