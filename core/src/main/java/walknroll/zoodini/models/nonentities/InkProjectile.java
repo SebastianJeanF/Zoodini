@@ -1,21 +1,17 @@
 package walknroll.zoodini.models.nonentities;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.utils.JsonValue;
 
-import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.assets.ParserUtils;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.graphics.SpriteSheet;
-import edu.cornell.gdiac.physics2.BoxObstacle;
-import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.physics2.WheelObstacle;
+import walknroll.zoodini.controllers.SoundController;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.utils.ZoodiniSprite;
 import walknroll.zoodini.utils.animation.Animation;
@@ -157,7 +153,6 @@ public class InkProjectile extends ZoodiniSprite {
 
     public void setAnimation(AnimationState state, SpriteSheet sheet){
         switch(state){
-            //TODO: frame delays (number of frames elapsed before rendering the next sprite) is set to 16 for all states. This needs to be adjusted.
             case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
             case EXPLODE -> animationController.addAnimation(AnimationState.EXPLODE, new Animation(sheet, 0, sheet.getSize()-1, 1, true));
         }
@@ -188,6 +183,7 @@ public class InkProjectile extends ZoodiniSprite {
         }
     }
 
+    private boolean soundPlayed = false;
     @Override
     public void update(float dt) {
         if(this.getShouldDestroy()) {
@@ -195,9 +191,16 @@ public class InkProjectile extends ZoodiniSprite {
             if (animationController.getCurrentFrame()
                 >= animationController.getCurrentSpriteSheet().getSize() - 1) {
                 setDrawingEnabled(false);
+                setShouldDestroy(false);
+            }
+            if(!soundPlayed) {
+                SoundController sc = SoundController.getInstance();
+                sc.playInkSpray();
+                soundPlayed = true;
             }
         } else {
             animationController.setState(AnimationState.IDLE);
+            soundPlayed = false;
         }
 
         animationController.update();
@@ -239,7 +242,7 @@ public class InkProjectile extends ZoodiniSprite {
     }
 
     public void destroy(){
-        if(!shouldDestroy){
+        if(!getShouldDestroy()){
             return;
         }
         getObstacle().setActive(false);

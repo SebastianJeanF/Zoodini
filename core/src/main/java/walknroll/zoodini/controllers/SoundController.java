@@ -53,6 +53,7 @@ public class SoundController implements Disposable {
     private void loadMusic() {
         // Load background music
         music.put("game-music", Gdx.audio.newMusic(Gdx.files.internal("music/game-music.mp3")));
+        soundEffects.put("ink-finish", Gdx.audio.newSound(Gdx.files.internal("sounds/explosion.mp3")));
     }
 
     /**
@@ -66,7 +67,14 @@ public class SoundController implements Disposable {
      * Play the ink spray sound when octopus uses ability
      */
     public void playInkSpray() {
-        playSound("octopus-ink");
+        playSound("ink-spray");
+    }
+
+    /**
+     * Play the ink spray sound when ink lands on the target
+     * */
+    public void playInkFinish(){
+        playSound("ink-finish");
     }
 
     /**

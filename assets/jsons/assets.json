@@ -221,7 +221,8 @@
     }
   },
   "sounds": {
-    "cat-meow": "sounds/cat-meow.mp3"
+    "cat-meow": "sounds/cat-meow.mp3",
+    "ink-explosion": "sounds/explosion.mp3"
   },
   "music": {
     "game-music": "music/game-music.mp3"
