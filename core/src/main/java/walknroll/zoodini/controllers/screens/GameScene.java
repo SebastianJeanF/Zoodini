@@ -780,6 +780,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 				direction.scl(7f * speedScale);
 			} else if (guard.isSus()) {
                 direction.scl(6f * speedScale);
+            } else if (guard.isLookingAround()) {
+                direction.scl(0.1f * speedScale);
             } else {
                 // guard is normally walking
                 direction.scl(5f * speedScale);
@@ -793,12 +795,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
             guard.setMovement(direction.x, direction.y);
 		}
-
-		// Update the guard's orientation to face the direction of movement.
-		Vector2 movement = guard.getMovementDirection();
-//		if (movement.len2() > 0.0001f) { // Only update if there is significant movement
-//			guard.setAngle(movement.angleRad() - (float) Math.PI/2);
-//		}
 		guard.applyForce();
 	}
 

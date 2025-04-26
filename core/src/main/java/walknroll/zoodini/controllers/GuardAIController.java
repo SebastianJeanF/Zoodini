@@ -76,7 +76,7 @@ public class GuardAIController {
     private float lookAroundDuration = 3.0f;  // How long guard looks around in seconds
     private float currentLookTime = 0.0f;     // Current time spent looking around
     private float lookDirection = 1.0f;       // 1.0 for right, -1.0 for left
-    private float lookChangeTime = 0.5f;      // Time before changing look direction
+    private float lookChangeTime = 1.0f;      // Time before changing look direction
     private float currentLookChangeTime = 0f; // Current time spent in current look direction
 
 
@@ -286,6 +286,8 @@ public class GuardAIController {
             return;
         }
 
+        guard.setLookingAround(currState == GuardState.LOOKING_AROUND);
+
         switch (currState) {
             case CHASE:
                 // If player deaggros the guard; CHASE -> PATROL
@@ -344,6 +346,7 @@ public class GuardAIController {
                     currentLookTime = 0.0f;
                     currentLookChangeTime = 0f;
                     lookDirection = 1.0f;
+                    guard.setMeow(false);
                     lastStateChangeTime = ticks;
                 }
                 // Guard has not reached meow location, sus level is above threshold; DISTRACTED -> SUSPICIOUS
@@ -435,6 +438,25 @@ public class GuardAIController {
         }
     }
 
+    private void executeLookAround(float dt) {
+        // Update looking around behavior if in LOOKING_AROUND state
+        if (currState == GuardState.LOOKING_AROUND) {
+            currentLookTime += dt;
+            currentLookChangeTime += dt;
+
+            System.out.println(currentLookChangeTime);
+            // Change look direction periodically
+            if (currentLookChangeTime >= lookChangeTime) {
+                lookDirection *= -1; // Flip direction
+                currentLookChangeTime = 0;
+
+                // Update the guard's direction for looking left and right
+                Vector2 lookDirectionVector = new Vector2(lookDirection, 0);
+                guard.updateOrientation(dt, lookDirectionVector);
+            }
+        }
+    }
+
     /**
      * Updates the guard's AI state and behavior.
      * This is the main function that should be called each frame to progress the guard's AI.
@@ -446,23 +468,9 @@ public class GuardAIController {
 //        if (!canStateTransition()) {
 //            return;
 //        }
-        // Update looking around behavior if in LOOKING_AROUND state
-        if (currState == GuardState.LOOKING_AROUND) {
-            currentLookTime += dt;
-            currentLookChangeTime += dt;
-
-            // Change look direction periodically
-            if (currentLookChangeTime >= lookChangeTime) {
-                lookDirection *= -1; // Flip direction
-                currentLookChangeTime = 0;
-
-                // Update the guard's direction for looking left and right
-                Vector2 lookDirectionVector = new Vector2(lookDirection, 0);
-                guard.updateOrientation(dt, lookDirectionVector);
-            }
-        }
 
         System.out.println("Before Guard state: " + currState);
+        executeLookAround(dt);
         updateSusLevel();
         updateGuardState();
         System.out.println("After Guard state: " + currState);
@@ -612,7 +620,7 @@ public class GuardAIController {
                 break;
             case LOOKING_AROUND:
                 // Don't move, stay in place while looking around
-                newTarget = guard.getPosition();
+                newTarget = distractPosition;
                 break;
 
             default:
@@ -640,7 +648,7 @@ public class GuardAIController {
      */
     public Vector2 getMovementDirection() {
         if (currState == GuardState.LOOKING_AROUND) {
-            return Vector2.Zero; // Don't move while looking around
+            return new Vector2(lookDirection, 0);
         }
         else if (this.nextTargetLocation == null) {
             return Vector2.Zero;
