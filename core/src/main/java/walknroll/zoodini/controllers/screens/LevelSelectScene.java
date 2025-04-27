@@ -152,7 +152,7 @@ public class LevelSelectScene implements Screen {
             levelButton.addListener(new ChangeListener() {
                 public void changed(ChangeEvent event, Actor actor) {
                     LevelSelectScene.this.selectedLevel = levelKey;
-                    LevelSelectScene.this.listener.exitScreen(LevelSelectScene.this, GDXRoot.EXIT_PLAY);
+                    LevelSelectScene.this.listener.exitScreen(LevelSelectScene.this, GDXRoot.EXIT_STORYBOARD);
                 }
             });
             portalStack.add(levelButton);

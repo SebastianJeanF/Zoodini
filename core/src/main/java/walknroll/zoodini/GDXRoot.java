@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.Texture;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
+import edu.cornell.gdiac.graphics.SpriteSheet;
 import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.controllers.SoundController;
@@ -44,6 +45,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	public static final int EXIT_LEVEL_SELECT = 5;
 	public static final int EXIT_LOSE = 6;
 	public static final int EXIT_WIN = 7;
+	public static final int EXIT_STORYBOARD = 8;
 
 	/** AssetManager to load game assets (textures, data, etc.) */
 	AssetDirectory directory;
@@ -58,8 +60,11 @@ public class GDXRoot extends Game implements ScreenListener {
 	private GameOverScene gameOver;
 	private GameWinScene gameWin;
 	private LevelSelectScene levelSelect;
+	private StoryboardScene storyBoard;
 
 	private GameSettings gameSettings;
+
+	private boolean storyboardSeen = false;
 
 	/**
 	 * Creates a new game from the configuration settings.
@@ -112,6 +117,9 @@ public class GDXRoot extends Game implements ScreenListener {
 		if (gameWin != null) {
 			gameWin.dispose();
 		}
+		if (storyBoard != null) {
+			storyBoard.dispose();
+		}
 
 		batch.dispose();
 		batch = null;
@@ -149,6 +157,9 @@ public class GDXRoot extends Game implements ScreenListener {
 			if (!Guard.isLoaded()) {
 				Guard.setSuspicionMeterCuriousTexture(directory.getEntry("guard-suspicion-curious", Texture.class));
 			}
+			if (!StoryboardScene.isLoaded()) {
+				StoryboardScene.setSpriteSheet(directory.getEntry("storyboard.animation", SpriteSheet.class));
+			}
 		} else if (screen == settings) {
 			// extract settings info from settings screen here
 			gameSettings = settings.getSettings();
@@ -170,6 +181,9 @@ public class GDXRoot extends Game implements ScreenListener {
 			selectedLevel = gameOver.getLostLevel();
 		} else if (screen == gameWin) {
 			selectedLevel = gameWin.getNextLevel();
+		} else if (screen == storyBoard) {
+			selectedLevel = storyBoard.getSelectedLevel();
+			storyboardSeen = true;
 		}
 
 		switch (exitCode) {
@@ -195,19 +209,6 @@ public class GDXRoot extends Game implements ScreenListener {
 				setScreen(levelSelect);
 				disposeExcept(levelSelect);
 				break;
-			case GDXRoot.EXIT_PLAY:
-				if (directory == null) {
-					throw new RuntimeException("Asset directory was somehow not loaded after initial boot");
-				}
-				if (selectedLevel == null) {
-					throw new RuntimeException(
-							"Tried to change to GameScene without properly setting the target level");
-				}
-				gameplay = new GameScene(directory, batch, selectedLevel);
-				gameplay.setScreenListener(this);
-				setScreen(gameplay);
-				disposeExcept(gameplay);
-				break;
 			case GDXRoot.EXIT_QUIT:
 				Gdx.app.exit();
 				break;
@@ -231,9 +232,37 @@ public class GDXRoot extends Game implements ScreenListener {
 				setScreen(gameWin);
 				disposeExcept(gameWin);
 				break;
+			case GDXRoot.EXIT_STORYBOARD:
+				if (storyboardSeen == true) {
+					startGameplay(selectedLevel);
+				} else {
+					storyBoard = new StoryboardScene(batch, directory, selectedLevel);
+					storyBoard.create();
+					storyBoard.setScreenListener(this);
+					setScreen(storyBoard);
+					disposeExcept(storyBoard);
+					break;
+				}
+			case GDXRoot.EXIT_PLAY:
+				startGameplay(selectedLevel);
+				break;
 			default:
 				break;
 		}
+	}
+
+	private void startGameplay(Integer selectedLevel) {
+		if (directory == null) {
+			throw new RuntimeException("Asset directory was somehow not loaded after initial boot");
+		}
+		if (selectedLevel == null) {
+			throw new RuntimeException(
+					"Tried to change to GameScene without properly setting the target level");
+		}
+		gameplay = new GameScene(directory, batch, selectedLevel);
+		gameplay.setScreenListener(this);
+		setScreen(gameplay);
+		disposeExcept(gameplay);
 	}
 
 	private void disposeExcept(Screen screen) {
@@ -264,6 +293,10 @@ public class GDXRoot extends Game implements ScreenListener {
 		if (gameWin != null && screen != gameWin) {
 			gameWin.dispose();
 			gameWin = null;
+		}
+		if (storyBoard != null && screen != storyBoard) {
+			storyBoard.dispose();
+			storyBoard = null;
 		}
 	}
 }

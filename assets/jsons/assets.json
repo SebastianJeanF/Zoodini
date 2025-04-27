@@ -187,6 +187,17 @@
         }
       }
     },
+    "storyboard": {
+      "file": "textures/ui/storyboard/panelsheet.png",
+      "wrap": false,
+      "sprites": {
+        "animation": {
+          "size": 7,
+          "rows": 1,
+          "cols": 7
+        }
+      }
+    },
     "game-over-splash": "textures/ui/game-lose/game-over-splash.png",
     "game-over-menu-button": "textures/ui/game-lose/game-over-menu-button.png",
     "game-over-restart-button": "textures/ui/game-lose/game-over-restart-button.png",
