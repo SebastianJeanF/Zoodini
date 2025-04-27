@@ -166,7 +166,7 @@
       }
     },
     "ink-explosion": {
-      "file": "textures/entities/octopus/ink-finish2.png",
+      "file": "textures/entities/octopus/ink-finish.png",
       "wrap": false,
       "sprites": {
         "animation": {
