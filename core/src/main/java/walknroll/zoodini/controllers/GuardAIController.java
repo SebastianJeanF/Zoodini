@@ -400,10 +400,10 @@ public class GuardAIController {
 //        if (!canStateTransition()) {
 //            return;
 //        }
-        System.out.println("Before Guard state: " + currState);
+//        System.out.println("Before Guard state: " + currState);
         updateSusLevel();
         updateGuardState();
-        System.out.println("After Guard state: " + currState);
+//        System.out.println("After Guard state: " + currState);
 
         setNextTargetLocation();
 
