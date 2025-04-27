@@ -166,13 +166,13 @@
       }
     },
     "ink-explosion": {
-      "file": "textures/entities/octopus/ink-end.png",
+      "file": "textures/entities/octopus/ink-finish2.png",
       "wrap": false,
       "sprites": {
         "animation": {
-          "size": 36,
-          "rows": 6,
-          "cols": 6
+          "size": 7,
+          "rows": 1,
+          "cols": 7
         }
       }
     },

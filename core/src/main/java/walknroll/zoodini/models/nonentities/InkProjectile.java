@@ -154,7 +154,7 @@ public class InkProjectile extends ZoodiniSprite {
     public void setAnimation(AnimationState state, SpriteSheet sheet){
         switch(state){
             case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
-            case EXPLODE -> animationController.addAnimation(AnimationState.EXPLODE, new Animation(sheet, 0, sheet.getSize()-1, 1, true));
+            case EXPLODE -> animationController.addAnimation(AnimationState.EXPLODE, new Animation(sheet, 0, sheet.getSize()-1, 30 / sheet.getSize(), true));
         }
     }
 
@@ -186,24 +186,24 @@ public class InkProjectile extends ZoodiniSprite {
     private boolean soundPlayed = false;
     @Override
     public void update(float dt) {
-//            if (this.getShouldDestroy()) {
-//                animationController.setState(AnimationState.EXPLODE);
-//                if (animationController.getCurrentFrame()
-//                    >= animationController.getCurrentSpriteSheet().getSize() - 1) {
-//                    setDrawingEnabled(false);
-//                    setShouldDestroy(false);
-//                }
-//                if (!soundPlayed) {
-//                    SoundController sc = SoundController.getInstance();
-//                    sc.playInkFinish();
-//                    soundPlayed = true;
-//                }
-//            } else {
-//                animationController.setState(AnimationState.IDLE);
-//                soundPlayed = false;
-//            }
-//
-//            animationController.update();
+            if (this.getShouldDestroy()) {
+                animationController.setState(AnimationState.EXPLODE);
+                if (animationController.getCurrentFrame()
+                    >= animationController.getCurrentSpriteSheet().getSize() - 1) {
+                    setDrawingEnabled(false);
+                    setShouldDestroy(false);
+                }
+                if (!soundPlayed) {
+                    SoundController sc = SoundController.getInstance();
+                    //sc.playInkFinish();
+                    soundPlayed = true;
+                }
+            } else {
+                animationController.setState(AnimationState.IDLE);
+                soundPlayed = false;
+            }
+
+            animationController.update();
 
 
         // This is the key fix - update the sprite reference itself
@@ -230,7 +230,7 @@ public class InkProjectile extends ZoodiniSprite {
 
             this.transform.idt();
             if(animationController.getCurrentState() == AnimationState.EXPLODE){
-                transform.scale(10.0f,10.0f);
+                transform.scale(5.0f,5.0f); //Adjust this to scale explosion sprites
             }
             this.transform.preRotate((float)((double)(a * 180.0F) / Math.PI));
             this.transform.preTranslate(x * u, y * u);
@@ -246,8 +246,8 @@ public class InkProjectile extends ZoodiniSprite {
         if(!getShouldDestroy()){
             return;
         }
-        setDrawingEnabled(false);
-        setShouldDestroy(false);
+//        setDrawingEnabled(false);
+//        setShouldDestroy(false);
         getObstacle().setActive(false);
     }
 
