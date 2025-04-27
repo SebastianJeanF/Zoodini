@@ -27,7 +27,7 @@ import walknroll.zoodini.utils.LevelPortal;
 public class LevelSelectScene implements Screen {
     // TODO: this should become data driven at some point
     // there are a bunch of copies so i can see how the wrapping works lol
-    static final Integer[] AVAILABLE_LEVELS = { 5, 6, 7, 7, 7, 7, 7, 7, 7 };
+    static final Integer[] AVAILABLE_LEVELS = { 1, 2, 3 };
 
     private ScreenListener listener;
 

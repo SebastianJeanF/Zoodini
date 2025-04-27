@@ -59,7 +59,7 @@ import walknroll.zoodini.utils.ZoodiniSprite;
  * This class does not have the Box2d world. That is stored inside of the
  * LevelModel object, as the world settings are determined by the JSON
  * file. However, the class does have all of the controller functionality,
- * including collision listeners for the active level.
+ * including collision listeners for 2qthe active level.
  *
  * You will notice that asset loading is very different. It relies on the
  * singleton asset manager to manage the various assets.
@@ -778,7 +778,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 direction.scl(12f * speedScale);
             }
             else if (guard.isAgroed()) {
-				direction.scl(7f * speedScale);
+				direction.scl(6.5f * speedScale);
 			} else if (guard.isSus()) {
                 direction.scl(6f * speedScale);
             } else {
