@@ -66,7 +66,7 @@ import walknroll.zoodini.utils.ZoodiniSprite;
  */
 public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener {
 
-    private boolean debug = true;
+    private boolean debug = false;
     private boolean brainrot = false;
 
 	// ASSETS

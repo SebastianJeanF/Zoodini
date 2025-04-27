@@ -60,13 +60,13 @@
   <object id="46" x="256" y="288" width="64" height="128"/>
  </objectgroup>
  <objectgroup id="3" name="objects">
-  <object id="18" type="Door" x="757.14" y="361.29">
+  <object id="18" type="Door" x="754.296" y="354.181">
    <properties>
     <property name="category" value="10000"/>
     <property name="exclude" value="00000"/>
     <property name="excludeUnlocked" value="00110"/>
     <property name="key" type="object" value="48"/>
-    <property name="size" type="float" value="1.25"/>
+    <property name="size" type="float" value="2.5"/>
    </properties>
    <point/>
   </object>
@@ -86,7 +86,7 @@
     <property name="fov" type="float" value="60"/>
     <property name="maxSpeed" type="float" value="5"/>
     <property name="path" type="object" value="31"/>
-    <property name="radius" type="float" value="0.3"/>
+    <property name="radius" type="float" value="0.8"/>
     <property name="spriteRadius" type="float" value="0.8"/>
     <property name="viewDistance" type="float" value="5"/>
    </properties>
@@ -146,7 +146,7 @@
     <property name="fov" type="float" value="60"/>
     <property name="maxSpeed" type="float" value="5"/>
     <property name="path" type="object" value="37"/>
-    <property name="radius" type="float" value="0.3"/>
+    <property name="radius" type="float" value="0.5"/>
     <property name="spriteRadius" type="float" value="0.8"/>
     <property name="viewDistance" type="float" value="5"/>
    </properties>
@@ -163,7 +163,7 @@
     <property name="disabledTime" type="float" value="10"/>
     <property name="exclude" value="00000"/>
     <property name="fov" type="float" value="60"/>
-    <property name="radius" type="float" value="0.2"/>
+    <property name="radius" type="float" value="0.6"/>
     <property name="spriteRadius" type="float" value="0.6"/>
     <property name="viewDistance" type="float" value="5"/>
    </properties>
