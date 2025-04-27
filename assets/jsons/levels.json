@@ -1,6 +1,6 @@
 {
-  "1" : "maps/map1.tmx",
-  "5": "maps/map5.tmx",
-  "6": "maps/BetaMapEasy.tmx",
-  "7": "maps/BetaMapHard.tmx"
+  "0" : "maps/map1.tmx",
+  "1": "maps/BetaMapEasy.tmx",
+  "2": "maps/map5.tmx",
+  "3": "maps/BetaMapHard.tmx"
 }
