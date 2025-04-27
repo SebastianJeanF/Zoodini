@@ -234,8 +234,6 @@ public class InkProjectile extends ZoodiniSprite {
             }
             this.transform.preRotate((float)((double)(a * 180.0F) / Math.PI));
             this.transform.preTranslate(x * u, y * u);
-
-
             batch.setTextureRegion(this.sprite);
             batch.drawMesh(this.mesh, this.transform, false);
             batch.setTexture(null);
