@@ -186,24 +186,25 @@ public class InkProjectile extends ZoodiniSprite {
     private boolean soundPlayed = false;
     @Override
     public void update(float dt) {
-        if(this.getShouldDestroy()) {
-            animationController.setState(AnimationState.EXPLODE);
-            if (animationController.getCurrentFrame()
-                >= animationController.getCurrentSpriteSheet().getSize() - 1) {
-                setDrawingEnabled(false);
-                setShouldDestroy(false);
-            }
-            if(!soundPlayed) {
-                SoundController sc = SoundController.getInstance();
-                sc.playInkFinish();
-                soundPlayed = true;
-            }
-        } else {
-            animationController.setState(AnimationState.IDLE);
-            soundPlayed = false;
-        }
+//            if (this.getShouldDestroy()) {
+//                animationController.setState(AnimationState.EXPLODE);
+//                if (animationController.getCurrentFrame()
+//                    >= animationController.getCurrentSpriteSheet().getSize() - 1) {
+//                    setDrawingEnabled(false);
+//                    setShouldDestroy(false);
+//                }
+//                if (!soundPlayed) {
+//                    SoundController sc = SoundController.getInstance();
+//                    sc.playInkFinish();
+//                    soundPlayed = true;
+//                }
+//            } else {
+//                animationController.setState(AnimationState.IDLE);
+//                soundPlayed = false;
+//            }
+//
+//            animationController.update();
 
-        animationController.update();
 
         // This is the key fix - update the sprite reference itself
         SpriteSheet currentSheet = animationController.getCurrentSpriteSheet();
@@ -245,6 +246,8 @@ public class InkProjectile extends ZoodiniSprite {
         if(!getShouldDestroy()){
             return;
         }
+        setDrawingEnabled(false);
+        setShouldDestroy(false);
         getObstacle().setActive(false);
     }
 
