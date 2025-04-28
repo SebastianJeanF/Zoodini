@@ -48,13 +48,19 @@ public class SettingsScene implements Screen {
     private boolean waitingForSwapKey;
 
     private GameSettings settings;
+    private boolean resetState;
 
     public SettingsScene(SpriteBatch batch, AssetDirectory assets, GameSettings currentSettings) {
         this.batch = batch;
         this.assets = assets;
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
+        this.resetState = false;
         this.settings = currentSettings;
+    }
+
+    public boolean shouldResetState() {
+        return resetState;
     }
 
     public void create() {
@@ -70,6 +76,79 @@ public class SettingsScene implements Screen {
 
         stage.addActor(table);
         stage.addActor(windowContainer);
+    }
+
+    public GameSettings getSettings() {
+        return this.settings;
+    }
+
+    public void resize(int width, int height) {
+        this.width = width;
+        this.height = height;
+        if (camera == null) {
+            camera = new OrthographicCamera(width, height);
+        } else {
+            camera.setToOrtho(false, width, height);
+        }
+        if (stage != null) {
+            stage.getViewport().update(width, height);
+        }
+    }
+
+    public void render(float delta) {
+        stage.act(delta);
+
+        batch.begin(camera);
+        batch.setColor(Color.WHITE);
+        Texture texture = assets.getEntry("splash", Texture.class);
+        float ratio = (float) width / (float) texture.getWidth();
+        batch.draw(texture, 0, 0, width, ratio * texture.getHeight());
+
+        texture = assets.getEntry("logo", Texture.class);
+        batch.draw(texture, (width / 2f) - (texture.getWidth() / 2f), height - (texture.getHeight() + 50),
+                texture.getWidth(),
+                texture.getHeight());
+        batch.end();
+
+        stage.draw();
+    }
+
+    public void dispose() {
+        stage.dispose();
+        skin.dispose();
+    }
+
+    /**
+     * Sets the ScreenListener for this mode
+     *
+     * The ScreenListener will respond to requests to quit.
+     */
+    public void setScreenListener(ScreenListener listener) {
+        this.listener = listener;
+    }
+
+    @Override
+    public void show() {
+        // TODO Auto-generated method stub
+        // throw new UnsupportedOperationException("Unimplemented method 'show'");
+    }
+
+    @Override
+    public void pause() {
+        // TODO Auto-generated method stub
+        // throw new UnsupportedOperationException("Unimplemented method 'pause'");
+    }
+
+    @Override
+    public void resume() {
+        // TODO Auto-generated method stub
+        // throw new UnsupportedOperationException("Unimplemented method 'resume'");
+    }
+
+    @Override
+    public void hide() {
+        // TODO Auto-generated method stub
+        // throw new UnsupportedOperationException("Unimplemented method 'hide'");
     }
 
     private Container<Window> makeKeybindsContainer(Window window) {
@@ -199,6 +278,16 @@ public class SettingsScene implements Screen {
         table.add(keybindsDialogOpen).left().width(controlWidth);
 
         table.row();
+        table.add(new Label("Reset Game State", skin, "title")).left().width(labelWidth);
+        TextButton resetGameState = new TextButton("Reset", skin);
+        resetGameState.addListener(new ChangeListener() {
+            public void changed(ChangeEvent event, Actor actor) {
+                SettingsScene.this.resetState = true;
+            }
+        });
+        table.add(resetGameState).left().width(controlWidth);
+
+        table.row();
         TextButton menuReturn = new TextButton("Back to Menu", skin);
         menuReturn.addListener(new ChangeListener() {
             public void changed(ChangeEvent event, Actor actor) {
@@ -207,83 +296,5 @@ public class SettingsScene implements Screen {
         });
         table.add(menuReturn).left().width(labelWidth).expandY().bottom();
         return table;
-    }
-
-    public GameSettings getSettings() {
-        return this.settings;
-    }
-
-    public void resize(int width, int height) {
-        this.width = width;
-        this.height = height;
-        if (camera == null) {
-            camera = new OrthographicCamera(width, height);
-        } else {
-            camera.setToOrtho(false, width, height);
-        }
-        if (stage != null) {
-            stage.getViewport().update(width, height);
-        }
-    }
-
-    public void render(float delta) {
-        stage.act(delta);
-
-        batch.begin(camera);
-        batch.setColor(Color.WHITE);
-        Texture texture = assets.getEntry("splash", Texture.class);
-        float ratio = (float) width / (float) texture.getWidth();
-        batch.draw(texture, 0, 0, width, ratio * texture.getHeight());
-
-        texture = assets.getEntry("logo", Texture.class);
-        batch.draw(texture, (width / 2f) - (texture.getWidth() / 2f), height - (texture.getHeight() + 50),
-                texture.getWidth(),
-                texture.getHeight());
-        batch.end();
-
-        stage.draw();
-    }
-
-    public void dispose() {
-        stage.dispose();
-        skin.dispose();
-    }
-
-    /**
-     * Sets the ScreenListener for this mode
-     *
-     * The ScreenListener will respond to requests to quit.
-     */
-    public void setScreenListener(ScreenListener listener) {
-        this.listener = listener;
-    }
-
-    // @Override
-    // public boolean keyDown(int keycode) {
-    // return true;
-    // })
-
-    @Override
-    public void show() {
-        // TODO Auto-generated method stub
-        // throw new UnsupportedOperationException("Unimplemented method 'show'");
-    }
-
-    @Override
-    public void pause() {
-        // TODO Auto-generated method stub
-        // throw new UnsupportedOperationException("Unimplemented method 'pause'");
-    }
-
-    @Override
-    public void resume() {
-        // TODO Auto-generated method stub
-        // throw new UnsupportedOperationException("Unimplemented method 'resume'");
-    }
-
-    @Override
-    public void hide() {
-        // TODO Auto-generated method stub
-        // throw new UnsupportedOperationException("Unimplemented method 'hide'");
     }
 }

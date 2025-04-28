@@ -240,7 +240,7 @@
   },
   "jsons": {
     "constants": "jsons/constants.json",
-    "levels": "jsons/levels.json"
+    "levels": "jsons/levels.jsonc"
   },
   "skins": {
     "default": "uiskins/default/uiskin.json",
