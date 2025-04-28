@@ -166,3 +166,4 @@ Thumbs.db
 **/resource-config.json
 
 .vscode
+launch.sh
