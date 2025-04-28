@@ -651,12 +651,16 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 //        }
 //    }
 
+    private void resetAvatarState(PlayableAvatar avatar) {
+        avatar.setCurrentlyAiming(false);
+        avatar.setMovement(0, 0);
+        avatar.applyForce();
+    }
+
     private void onSwap(InputController input) {
         if (input.didSwap() && !inCameraTransition) {
-            level.getAvatar().setCurrentlyAiming(false);
-            // stop active character movement
-            level.getAvatar().setMovement(0, 0);
-            level.getAvatar().applyForce();
+            resetAvatarState(level.getAvatar());
+            resetAvatarState(level.getInactiveAvatar());
             // Save previous camera position before swapping
             cameraPreviousPosition.set(cameraTargetPosition);
 

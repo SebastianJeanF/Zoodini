@@ -596,6 +596,10 @@ public class GameLevel {
         return avatarOctopus;
     }
 
+    public PlayableAvatar getInactiveAvatar() {
+        return catActive ? avatarOctopus : avatarCat;
+    }
+
     /**
      * Returns a reference to the doors
      *
