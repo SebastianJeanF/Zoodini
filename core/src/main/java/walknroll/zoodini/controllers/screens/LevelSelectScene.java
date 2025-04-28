@@ -155,7 +155,7 @@ public class LevelSelectScene implements Screen {
             boolean levelOpen = Constants.DEBUG | highestClearance >= levelKey;
             boolean levelCompleted = Constants.DEBUG | levelKey < highestClearance;
             ImageButton levelButton = new ImageButton(new LevelPortal(levelOpen, false, levelCompleted),
-                    new LevelPortal(levelOpen, levelOpen, levelCompleted));
+                    new LevelPortal(levelOpen, true && levelOpen, levelCompleted));
             if (levelOpen) {
                 levelButton.addListener(new ChangeListener() {
                     public void changed(ChangeEvent event, Actor actor) {
