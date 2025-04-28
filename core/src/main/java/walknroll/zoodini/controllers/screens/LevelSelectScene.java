@@ -47,6 +47,8 @@ public class LevelSelectScene implements Screen {
     private int selectedLevel;
     private int highestClearance;
 
+    private boolean debug = false;
+
     public LevelSelectScene(SpriteBatch batch, AssetDirectory assets, Array<Integer> availableLevels,
             int highestClearance) {
         this.batch = batch;
@@ -151,10 +153,10 @@ public class LevelSelectScene implements Screen {
         for (int i = 0; i < this.availableLevels.size; i++) {
             int levelKey = this.availableLevels.get(i);
             Stack portalStack = new Stack();
-            boolean levelOpen = highestClearance >= levelKey;
-            boolean levelCompleted = levelKey < highestClearance;
+            boolean levelOpen = debug | highestClearance >= levelKey;
+            boolean levelCompleted = debug | levelKey < highestClearance;
             ImageButton levelButton = new ImageButton(new LevelPortal(levelOpen, false, levelCompleted),
-                    new LevelPortal(levelOpen, true && levelOpen, levelCompleted));
+                    new LevelPortal(levelOpen, levelOpen, levelCompleted));
             if (levelOpen) {
                 levelButton.addListener(new ChangeListener() {
                     public void changed(ChangeEvent event, Actor actor) {

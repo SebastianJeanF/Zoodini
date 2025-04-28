@@ -63,7 +63,7 @@
   <object id="46" x="1005.4" y="1158.8" width="297.199" height="542.399"/>
  </objectgroup>
  <objectgroup id="3" name="objects">
-  <object id="18" type="Door" x="3000.94" y="1458.57">
+  <object id="18" type="Door" x="3012.94" y="1382.57">
    <properties>
     <property name="category" value="10000"/>
     <property name="exclude" value="00000"/>
