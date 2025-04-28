@@ -165,10 +165,10 @@ public class GDXRoot extends Game implements ScreenListener {
 			gameSettings = settings.getSettings();
 			InputController.getInstance().setAbilityKey(gameSettings.getAbilityKey());
 			InputController.getInstance().setSwapKey(gameSettings.getSwapKey());
-			switch (gameSettings.getResolution()) {
-				case SMALL -> Gdx.graphics.setWindowedMode(1280, 720);
-				case BIG -> Gdx.graphics.setWindowedMode(1920, 1080);
-				case FULLSCREEN -> Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+			switch (gameSettings.getResolution().toLowerCase()) {
+				case "1280x720" -> Gdx.graphics.setWindowedMode(1280, 720);
+				case "1920x1080" -> Gdx.graphics.setWindowedMode(1920, 1080);
+				case "fullscreen" -> Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
 
 			}
 			SoundController.getInstance().setMusicVolume(gameSettings.getMusicVolume() / 100f);

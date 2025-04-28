@@ -27,7 +27,6 @@ import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.GDXRoot;
 import walknroll.zoodini.utils.GameSettings;
-import walknroll.zoodini.utils.enums.AppResolution;
 
 public class SettingsScene implements Screen {
     private ScreenListener listener;
@@ -179,8 +178,8 @@ public class SettingsScene implements Screen {
 
         table.row();
         table.add(new Label("Resolution", skin, "title")).left().width(labelWidth);
-        SelectBox<AppResolution> resolutionSelect = new SelectBox<>(skin);
-        resolutionSelect.setItems(AppResolution.SMALL, AppResolution.BIG, AppResolution.FULLSCREEN);
+        SelectBox<String> resolutionSelect = new SelectBox<>(skin);
+        resolutionSelect.setItems("1280x720", "1920x1080", "Fullscreen");
         resolutionSelect.setSelected(this.settings.getResolution());
         resolutionSelect.addListener(new ChangeListener() {
             public void changed(ChangeEvent event, Actor actor) {
