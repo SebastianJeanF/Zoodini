@@ -42,6 +42,8 @@ import walknroll.zoodini.models.nonentities.Door;
 import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
 import edu.cornell.gdiac.physics2.*;
+import walknroll.zoodini.utils.Constants;
+import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 import walknroll.zoodini.utils.enums.AvatarType;
@@ -66,7 +68,7 @@ import walknroll.zoodini.utils.ZoodiniSprite;
  */
 public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener {
 
-    private boolean debug = false;
+    private boolean debug = Constants.DEBUG;
     private boolean brainrot = false;
 
 	// ASSETS
@@ -423,7 +425,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 level.getCat().setUnderVisionCone(true);
                 guard.setSeesPlayer(true);
                 guard.setSeenPlayer(level.getCat());
-//                System.out.println("Guard detected cat: " + guard.getAggroTarget());
+//                DebugPrinter.println("Guard detected cat: " + guard.getAggroTarget());
             }
 
             // Check if octopus is detected
@@ -434,7 +436,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 level.getOctopus().setUnderVisionCone(true);
                 guard.setSeesPlayer(true);
                 guard.setSeenPlayer(level.getOctopus());
-//                System.out.println("Guard detected octopus: " + guard.getAggroTarget());
+//                DebugPrinter.println("Guard detected octopus: " + guard.getAggroTarget());
             }
             // No player detected
             else {
@@ -773,7 +775,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 	void moveGuard(Guard guard) {
         Vector2 direction = guard.getMovementDirection();
         if(direction == null){ //ideally should never be null.
-            System.out.println("Guard direction is null");
+            DebugPrinter.println("Guard direction is null");
             return;
         }
 
@@ -1017,7 +1019,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 	}
 
     private void applyInkEffect(Guard guard) {
-        System.out.println("Guard hit by ink!");
+        DebugPrinter.println("Guard hit by ink!");
         // Set ink effect duration (in seconds)
         final float INK_EFFECT_DURATION = 5.0f;
 

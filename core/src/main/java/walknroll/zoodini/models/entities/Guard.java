@@ -300,7 +300,7 @@ public class Guard extends Enemy {
             baseSuspicionIncrease = FAR_ZONE_SUS_INCREASE;
         }
 
-        // System.out.println("sus increase is " + baseSuspicionIncrease);
+        // DebugPrinter.println("sus increase is " + baseSuspicionIncrease);
         return baseSuspicionIncrease;
     }
 

@@ -443,7 +443,7 @@ public class GameLevel {
                             avatarOctopus.getPosition()); // TODO: this line might not be needed
                     ((Guard) key).setAgroed(true);
                     ((Guard) key).setAggroTarget(avatarOctopus);
-                    // System.out.println("In guard vision cone " + ((Guard) key).getAggroTarget());
+                    // DebugPrinter.println("In guard vision cone " + ((Guard) key).getAggroTarget());
                 } else if (key instanceof SecurityCamera) {
                     SecurityCamera camera = (SecurityCamera) key;
                     if (!camera.isDisabled()) {
