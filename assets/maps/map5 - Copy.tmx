@@ -63,7 +63,7 @@
   <object id="46" x="1005.4" y="1158.8" width="297.199" height="542.399"/>
  </objectgroup>
  <objectgroup id="3" name="objects">
-  <object id="18" type="Door" x="2995.87" y="1483.9">
+  <object id="18" type="Door" x="3000.94" y="1458.57">
    <properties>
     <property name="category" value="10000"/>
     <property name="exclude" value="00000"/>
@@ -95,7 +95,7 @@
    </properties>
    <point/>
   </object>
-  <object id="31" x="3473.6" y="1723.06">
+  <object id="31" x="3412.82" y="1621.75">
    <polyline points="0,0 -384.374,145.208 -828.539,25.6249"/>
   </object>
   <object id="33" type="Camera" x="2585.27" y="1407.02">
