@@ -5,6 +5,10 @@ import com.badlogic.gdx.maps.MapProperties;
 import walknroll.zoodini.utils.enums.AvatarType;
 
 public abstract class PlayableAvatar extends Avatar {
+    public PlayableAvatar(AvatarType avatarType, MapProperties properties, float units) {
+        super(avatarType, properties, units);
+    }
+
     public abstract float getAbilityRange();
 
     public abstract boolean canUseAbility();
@@ -17,7 +21,8 @@ public abstract class PlayableAvatar extends Avatar {
 
     public abstract void setDidFire(boolean value);
 
-    public PlayableAvatar(AvatarType avatarType, MapProperties properties, float units) {
-        super(avatarType, properties, units);
+    @Override
+    public float getMaxSpeed() {
+        return super.getMaxSpeed() / (this.isCurrentlyAiming() ? 2f : 1f);
     }
 }

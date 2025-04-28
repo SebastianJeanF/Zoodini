@@ -1,32 +1,9 @@
 /*
  * GameLevel.java
  *
- * This stores all of the information to define a level for a top down game with
- * light and shadows. As with Lab 4, it has an avatar, some walls, and an exit.
- * This model supports JSON loading, and so the world is part of this object as
- * well. See the JSON demo for more information.
- *
- * There are two major differences from JSON Demo. First is the fixStep method.
- * This ensures that the physics engine is really moving at the same rate as the
- * visual framerate. You can usually survive without this addition. However,
- * when the physics adjusts shadows, it is very important. See this website for
- * more information about what is going on here.
- *
- * http://gafferongames.com/game-physics/fix-your-timestep/
- *
- * The second addition is the RayHandler. This is an attachment to the physics
- * world for drawing shadows. Technically, this is a view, and really should be
- * part of GameScene.  However, in true graphics programmer garbage design, this
- * is tightly coupled the the physics world and cannot be separated.  So we
- * store it here and make it part of the draw method. This is the best of many
- * bad options.
- *
- * TODO: Refactor this design to decouple the RayHandler as much as possible.
- * Next year, maybe.
- *
- * @author: Walker M. White
- * @version: 2/15/2025
  */
+
+
 package walknroll.zoodini.models;
 
 import com.badlogic.gdx.graphics.Camera;
@@ -443,7 +420,7 @@ public class GameLevel {
                             avatarOctopus.getPosition()); // TODO: this line might not be needed
                     ((Guard) key).setAgroed(true);
                     ((Guard) key).setAggroTarget(avatarOctopus);
-                    // System.out.println("In guard vision cone " + ((Guard) key).getAggroTarget());
+                    // DebugPrinter.println("In guard vision cone " + ((Guard) key).getAggroTarget());
                 } else if (key instanceof SecurityCamera) {
                     SecurityCamera camera = (SecurityCamera) key;
                     if (!camera.isDisabled()) {

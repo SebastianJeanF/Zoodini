@@ -13,6 +13,7 @@ import edu.cornell.gdiac.math.Path2;
 import edu.cornell.gdiac.math.PathExtruder;
 import edu.cornell.gdiac.math.PathFactory;
 import walknroll.zoodini.models.nonentities.Key;
+import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.animation.Animation;
 import walknroll.zoodini.utils.animation.AnimationState;
 import walknroll.zoodini.utils.enums.AvatarType;
@@ -228,8 +229,8 @@ public class Cat extends PlayableAvatar {
 
         // Start cooldown and activate ring when cat meows
         if (value) {
-            System.out.println("here");
-            System.out.println("ring active: " + isRingActive);
+            DebugPrinter.println("here");
+            DebugPrinter.println("ring active: " + isRingActive);
             activateRing();
             onCooldown = true;
             meowCooldownRemaining = meowCooldown;

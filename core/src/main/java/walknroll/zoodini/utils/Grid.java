@@ -82,7 +82,7 @@ public class Grid {
             if (sprite instanceof InteriorWall) {
                 Vector2 position = new Vector2(obstacle.getX(), obstacle.getY());
                 if (!(obstacle instanceof BoxObstacle)) {
-                    System.out.println("No box obstacle");
+                    DebugPrinter.println("No box obstacle");
                     continue;
                 }
                 Vector2 dimension = new Vector2(((BoxObstacle) obstacle).getWidth(),
@@ -275,7 +275,7 @@ public class Grid {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 if (grid[i][j].goal) {
-//                    System.out.println("Goal: " + i + " " + j);
+//                    DebugPrinter.println("Goal: " + i + " " + j);
                 }
             }
         }
@@ -283,8 +283,8 @@ public class Grid {
 
     public void printGrid() {
         boolean gFlag = false;
-        // System.out.println(width);
-        // System.out.println(height);
+        // DebugPrinter.println(width);
+        // DebugPrinter.println(height);
         for (int j = height - 1; j >= 0; j--) {
             String[] row = new String[width];
             for (int i = 0; i < width; i++) {
@@ -295,9 +295,9 @@ public class Grid {
                     row[i] = grid[i][j].wall ? "X" : "O";
                 }
             }
-            // System.out.println(String.join(" ", row));
+            // DebugPrinter.println(String.join(" ", row));
         }
-        // System.out.println("Goal: " + gFlag);
+        // DebugPrinter.println("Goal: " + gFlag);
     }
 
     public boolean isGoalSet() {

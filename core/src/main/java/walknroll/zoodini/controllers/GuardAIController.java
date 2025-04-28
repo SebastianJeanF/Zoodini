@@ -23,6 +23,7 @@ import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Guard;
 //import walknroll.zoodini.utils.GameGraph;
 import walknroll.zoodini.controllers.aitools.TileGraph;
+import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.GameGraph.DistanceHeuristic;
 import walknroll.zoodini.utils.GameGraph.Node;
 import walknroll.zoodini.utils.enums.AvatarType;
@@ -121,11 +122,11 @@ public class GuardAIController {
                 if (validTile != null) {
                     // Convert the valid tile to world coordinates (use the center of the tile)
                     validWaypoints[i] = tileGraph.tileToWorld(validTile);
-                    System.out.println("Updated waypoint " + i + " from " + waypoint +
+                    DebugPrinter.println("Updated waypoint " + i + " from " + waypoint +
                         " to " + validWaypoints[i] + " (was in wall)");
                 } else {
                     // This should not happen if your graph has at least one non-wall tile
-                    System.err.println("Warning: Could not find a valid non-wall tile for waypoint " + i);
+                    DebugPrinter.println("Warning: Could not find a valid non-wall tile for waypoint " + i);
                     validWaypoints[i] = waypoint; // Keep the original as fallback
                 }
             } else {
@@ -208,7 +209,7 @@ public class GuardAIController {
 
         // Optional debugging
 //        if (distance < 1.0f) {
-//            System.out.println("Distance to target: " + distance);
+//            DebugPrinter.println("Distance to target: " + distance);
 //        }
 
         return distance < arrivalDistance;
@@ -217,10 +218,10 @@ public class GuardAIController {
 //        }
 //        Vector2 guardTile = tileGraph.worldToTile(guard.getPosition()).getCoords();
 //        Vector2 targetTile = tileGraph.worldToTile(target).getCoords();
-//        System.out.println("Current guard tile " + guardTile);
-//        System.out.println("Current target tile " + targetTile);
-//        System.out.println(tileGraph.worldToTile(guard.getPosition()).isWall);
-//        System.out.println(tileGraph.worldToTile(target).isWall);
+//        DebugPrinter.println("Current guard tile " + guardTile);
+//        DebugPrinter.println("Current target tile " + targetTile);
+//        DebugPrinter.println(tileGraph.worldToTile(guard.getPosition()).isWall);
+//        DebugPrinter.println(tileGraph.worldToTile(target).isWall);
 //        return guardTile.x == targetTile.x && guardTile.y == targetTile.y;
     }
 
@@ -346,7 +347,7 @@ public class GuardAIController {
                 }
                 // Gar meows again -> should update distractPosition
                 else if (didDistractionOccur()) {
-                    System.out.println("here");
+                    DebugPrinter.println("here");
                     currState = GuardState.DISTRACTED;
                     guard.setMeow(true);
                     Vector2 playerPosition = getActivePlayer().getPosition();
@@ -400,10 +401,10 @@ public class GuardAIController {
 //        if (!canStateTransition()) {
 //            return;
 //        }
-//        System.out.println("Before Guard state: " + currState);
+//        DebugPrinter.println("Before Guard state: " + currState);
         updateSusLevel();
         updateGuardState();
-//        System.out.println("After Guard state: " + currState);
+//        DebugPrinter.println("After Guard state: " + currState);
 
         setNextTargetLocation();
 
@@ -452,7 +453,7 @@ public class GuardAIController {
         if (!targetTile.isWall) {
             return target;
         } else {
-            System.out.println("Target tile is a wall: " + targetTile.getCoords());
+            DebugPrinter.println("Target tile is a wall: " + targetTile.getCoords());
             // If the target tile is a wall, find the nearest non-wall tile
             TileNode newTile = tileGraph.getNearestValidTile(target);
             return tileGraph.tileToWorld(newTile);
@@ -606,8 +607,8 @@ public class GuardAIController {
         TileNode start = tileGraph.worldToTile(currPosWorld);
         TileNode end = tileGraph.worldToTile(targetPosWorld);
 
-//        System.out.println("Current guard Position: " + currPosWorld);
-        // System.out.println("Graph's target: "+ end.getWorldPosition());
+//        DebugPrinter.println("Current guard Position: " + currPosWorld);
+        // DebugPrinter.println("Graph's target: "+ end.getWorldPosition());
         // Check if start or end node is null
         if (start == null || end == null) {
             // System.err.println("Error: Start or end node is null.");
