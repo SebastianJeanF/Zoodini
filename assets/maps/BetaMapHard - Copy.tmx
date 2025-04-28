@@ -72,8 +72,8 @@
   <object id="92" x="2181.15" y="2436.99" width="287.726" height="374.023"/>
  </objectgroup>
  <objectgroup id="3" name="objects">
-  <object id="31" x="1892.87" y="2099.85">
-   <polyline points="-1517.05,-730.96 -1379.88,-590.954 -620.983,-600.48 -403.026,-650.795"/>
+  <object id="31" x="1845" y="2067.09">
+   <polyline points="-1316.31,-730.96 -1197.29,-590.954 -538.812,-600.48 -349.696,-650.795"/>
   </object>
   <object id="77" type="Exit" x="1959.23" y="3040.08">
    <properties>

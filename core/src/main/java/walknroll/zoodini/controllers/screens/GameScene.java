@@ -251,9 +251,21 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     @Override
     public void onReturnToMenu() {
-        if (listener != null) {
-            listener.exitScreen(this, GDXRoot.EXIT_MENU);
-        }
+//        if (listener != null) {
+//            listener.exitScreen(this, GDXRoot.EXIT_MENU);
+//        }
+            // Immediately stop music before transitioning to menu
+        soundController.stopMusic();
+
+        // Small delay before transition to ensure audio properly stops
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                if (listener != null) {
+                    listener.exitScreen(GameScene.this, GDXRoot.EXIT_MENU);
+                }
+            }
+            }, 0.1f);
     }
 
     /**
@@ -844,7 +856,16 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 	public void show() {
 		// Useless if called in outside animation loop
 		active = true;
-        soundController.playMusic("game-music", true);
+//        soundController.playMusic("game-music", true);
+        soundController.stopMusic();
+
+        // Then start the game music with a slight delay to prevent audio glitches
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                soundController.playMusic("game-music", true);
+            }
+        }, 0.1f);
 	}
 
 	/**
