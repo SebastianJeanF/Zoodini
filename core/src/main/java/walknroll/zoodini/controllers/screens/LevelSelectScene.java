@@ -23,6 +23,7 @@ import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.GDXRoot;
+import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.LevelPortal;
 
 public class LevelSelectScene implements Screen {
@@ -46,8 +47,6 @@ public class LevelSelectScene implements Screen {
 
     private int selectedLevel;
     private int highestClearance;
-
-    private boolean debug = false;
 
     public LevelSelectScene(SpriteBatch batch, AssetDirectory assets, Array<Integer> availableLevels,
             int highestClearance) {
@@ -153,8 +152,8 @@ public class LevelSelectScene implements Screen {
         for (int i = 0; i < this.availableLevels.size; i++) {
             int levelKey = this.availableLevels.get(i);
             Stack portalStack = new Stack();
-            boolean levelOpen = debug | highestClearance >= levelKey;
-            boolean levelCompleted = debug | levelKey < highestClearance;
+            boolean levelOpen = Constants.DEBUG | highestClearance >= levelKey;
+            boolean levelCompleted = Constants.DEBUG | levelKey < highestClearance;
             ImageButton levelButton = new ImageButton(new LevelPortal(levelOpen, false, levelCompleted),
                     new LevelPortal(levelOpen, levelOpen, levelCompleted));
             if (levelOpen) {
