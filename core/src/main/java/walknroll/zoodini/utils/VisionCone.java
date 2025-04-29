@@ -44,6 +44,7 @@ public class VisionCone implements RayCastCallback{
     private float targetFacingAngle = 0f;  // Target angle to rotate toward
     private float turnSpeed = 5.0f;        // Rotation speed in radians per second
 
+    private boolean isVisible = false; // Flag to control visibility
 
     public Vector2 getPosition(){
         return this.origin;
@@ -56,6 +57,9 @@ public class VisionCone implements RayCastCallback{
     }
     public void setWideness(float w){
         wideness = w;
+    }
+    public void setVisibility(boolean v){
+        isVisible = v;
     }
 
 
@@ -116,33 +120,6 @@ public class VisionCone implements RayCastCallback{
         var11.size += 3 * numRays;
 
         return poly;
-    }
-
-    public boolean contains(float x, float y){
-        return cone.contains(x,y);
-//        float x_d = this.origin.x - x;
-//        float y_d = this.origin.y - y;
-//        float dst2 = x_d * x_d + y_d * y_d;
-//        if (this.radius * this.radius <= dst2) {
-//            return false;
-//        } else {
-//            boolean oddNodes = false;
-//            float x2 = this.cone.vertices.items[this.numRays * 2] = this.origin.x;
-//            float y2 = this.cone.vertices.items[this.numRays * 2 + 1] = this.origin.y;
-//
-//            for(int i = 0; i <= this.numRays; ++i) {
-//                float x1 = this.cone.vertices.items[i];
-//                float y1 = this.cone.vertices.items[i+1];
-//                if ((y1 < y && y2 >= y || y1 >= y && y2 < y) && (y - y1) / (y2 - y1) * (x2 - x1) < x - x1) {
-//                    oddNodes = !oddNodes;
-//                }
-//
-//                x2 = x1;
-//                y2 = y1;
-//            }
-//
-//            return oddNodes;
-//        }
     }
 
     public boolean contains(Vector2 position){
@@ -249,6 +226,9 @@ public class VisionCone implements RayCastCallback{
 
     Affine2 cache = new Affine2();
     public void draw(SpriteBatch batch, Camera camera){
+        if(!isVisible){
+            return;
+        }
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         batch.setColor(c); //rgba

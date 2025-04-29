@@ -53,6 +53,7 @@ import walknroll.zoodini.models.nonentities.Door;
 import walknroll.zoodini.models.nonentities.Exit;
 import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
+import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 import walknroll.zoodini.utils.animation.AnimationState;
@@ -193,7 +194,7 @@ public class GameLevel {
     public GameLevel() {
         world = null;
         bounds = new Rectangle(0, 0, 1, 1);
-        debug = false;
+        debug = Constants.DEBUG;
         catActive = true;
     }
 
@@ -704,6 +705,7 @@ public class GameLevel {
             VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, "000000", "111110");
             float angle = cam.getAngle();
             vc.attachToBody(cam.getObstacle().getBody(), angle);
+            vc.setVisibility(true);
             visions.put(cam, vc);
         }
 
@@ -712,6 +714,7 @@ public class GameLevel {
             float dist = guard.getViewDistance();
             VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, "000000", "111110");
             vc.attachToBody(guard.getObstacle().getBody(), 90.0f);
+            vc.setVisibility(debug);
             visions.put(guard, vc);
         }
     }
