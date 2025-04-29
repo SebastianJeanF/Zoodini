@@ -82,7 +82,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
             int endY = (int)((rect.y + rect.height) / tileHeight);
 
             for (int x = startX; x < endX; x++) {
-                for (int y = startY; y <= endY; y++) {
+                for (int y = startY; y < endY; y++) {
                     getNode(x, y).isWall = true;
                 }
             }
