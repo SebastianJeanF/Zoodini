@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="21" height="28" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="104">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="21" height="28" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="114">
  <tileset firstgid="1" name="outdoor" tilewidth="32" tileheight="32" tilecount="4096" columns="64">
   <image source="../tilesets/outdoor.png" width="2048" height="2048"/>
  </tileset>
@@ -61,24 +61,25 @@
 </data>
  </layer>
  <objectgroup id="2" name="walls">
-  <object id="39" x="173.761" y="3209.66" width="2123.62" height="216.548"/>
+  <object id="39" x="173.761" y="3149.66" width="2123.62" height="276.548"/>
   <object id="41" x="1080.05" y="37.205" width="1642.66" height="340.852"/>
   <object id="42" x="0" y="550.06" width="262.826" height="2882.5"/>
   <object id="45" x="523.818" y="1684.05" width="264.945" height="1083.15"/>
-  <object id="46" x="665.278" y="2056.19" width="284.159" height="705.605"/>
+  <object id="46" x="665.278" y="2056.19" width="233.492" height="705.605"/>
   <object id="56" x="2440.09" y="1072.74" width="204.065" height="776.728"/>
   <object id="57" x="1422.36" y="1415.49" width="118.44" height="628.316"/>
   <object id="58" x="1414.08" y="2436.64" width="635.113" height="247.446"/>
   <object id="59" x="1920.56" y="2055.88" width="130.29" height="501.412"/>
-  <object id="60" x="1417.2" y="2055.21" width="517.945" height="232.372"/>
+  <object id="60" x="1417.2" y="2055.21" width="517.945" height="120.372"/>
   <object id="61" x="2503.72" y="1353.36" width="130.851" height="1678.67"/>
-  <object id="66" x="2069.28" y="1167.69" width="369.773" height="609.604"/>
+  <object id="66" x="2061.28" y="1167.69" width="377.773" height="609.604"/>
   <object id="73" x="2571.43" y="403.929" width="154.728" height="940.378"/>
   <object id="75" x="122.184" y="569.743" width="1069.76" height="326.766"/>
   <object id="76" x="1009.22" y="328.818" width="193.677" height="326.766"/>
-  <object id="77" x="2185.79" y="3331.23" width="501.317" height="247.548"/>
+  <object id="77" x="2185.79" y="3275.23" width="501.317" height="303.548"/>
   <object id="78" x="2561.83" y="2836.35" width="130.851" height="617.099"/>
   <object id="92" x="262.826" y="1159.35" width="1277.34" height="302.025"/>
+  <object id="111" x="288" y="3044" width="448" height="112"/>
  </objectgroup>
  <objectgroup id="3" name="objects">
   <object id="31" x="2861.31" y="3039.77">
@@ -92,9 +93,9 @@
     <property name="fov" type="float" value="60"/>
     <property name="maxSpeed" type="float" value="5"/>
     <property name="path" type="object" value="31"/>
-    <property name="radius" type="float" value="0.3"/>
+    <property name="radius" type="float" value="0.5"/>
     <property name="spriteRadius" type="float" value="0.8"/>
-    <property name="viewDistance" type="float" value="5"/>
+    <property name="viewDistance" type="float" value="4.5"/>
    </properties>
    <point/>
   </object>
@@ -106,31 +107,31 @@
    </properties>
    <point/>
   </object>
-  <object id="70" type="Octopus" x="790.333" y="3045.17">
+  <object id="70" type="Octopus" x="2414.33" y="3205.17">
    <properties>
     <property name="abilityRange" type="float" value="7"/>
     <property name="category" value="00010"/>
     <property name="exclude" value="00010"/>
-    <property name="force" type="float" value="2"/>
+    <property name="force" type="float" value="3"/>
     <property name="inkCapacity" type="float" value="50"/>
     <property name="inkRegen" type="float" value="5"/>
     <property name="inkUsage" type="float" value="25"/>
     <property name="maxSpeed" type="float" value="5"/>
-    <property name="radius" type="float" value="0.4"/>
+    <property name="radius" type="float" value="0.6"/>
     <property name="spriteRadius" type="float" value="0.6"/>
    </properties>
    <point/>
   </object>
-  <object id="72" type="Cat" x="514" y="2967.33">
+  <object id="72" type="Cat" x="1186" y="2747.33">
    <properties>
     <property name="abilityCooldown" type="float" value="5"/>
     <property name="abilityRange" type="float" value="7"/>
     <property name="category" value="00010"/>
     <property name="exclude" value="00010"/>
-    <property name="force" type="float" value="3"/>
+    <property name="force" type="float" value="4.5"/>
     <property name="maxSpeed" type="float" value="10"/>
     <property name="meowExpandSpeed" type="float" value="10"/>
-    <property name="radius" type="float" value="0.4"/>
+    <property name="radius" type="float" value="0.6"/>
     <property name="spriteRadius" type="float" value="0.6"/>
    </properties>
    <point/>
@@ -143,7 +144,7 @@
     <property name="disabledTime" type="float" value="10"/>
     <property name="exclude" value="00000"/>
     <property name="fov" type="float" value="60"/>
-    <property name="radius" type="float" value="0.2"/>
+    <property name="radius" type="float" value="0.6"/>
     <property name="spriteRadius" type="float" value="0.6"/>
     <property name="viewDistance" type="float" value="5"/>
    </properties>

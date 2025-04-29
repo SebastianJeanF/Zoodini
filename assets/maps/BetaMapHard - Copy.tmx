@@ -97,17 +97,17 @@
    </properties>
    <point/>
   </object>
-  <object id="79" type="Octopus" x="523.232" y="764.253">
+  <object id="79" type="Octopus" x="2434.12" y="1075.45">
    <properties>
     <property name="abilityRange" type="float" value="7"/>
     <property name="category" value="00010"/>
     <property name="exclude" value="00010"/>
-    <property name="force" type="float" value="2"/>
+    <property name="force" type="float" value="3"/>
     <property name="inkCapacity" type="float" value="50"/>
     <property name="inkRegen" type="float" value="5"/>
     <property name="inkUsage" type="float" value="25"/>
     <property name="maxSpeed" type="float" value="5"/>
-    <property name="radius" type="float" value="0.4"/>
+    <property name="radius" type="float" value="0.6"/>
     <property name="spriteRadius" type="float" value="0.6"/>
    </properties>
    <point/>
@@ -122,20 +122,20 @@
     <property name="path" type="object" value="31"/>
     <property name="radius" type="float" value="0.6"/>
     <property name="spriteRadius" type="float" value="0.8"/>
-    <property name="viewDistance" type="float" value="5"/>
+    <property name="viewDistance" type="float" value="4.5"/>
    </properties>
    <point/>
   </object>
-  <object id="80" type="Cat" x="621.729" y="712.414">
+  <object id="80" type="Cat" x="785.519" y="832.527">
    <properties>
     <property name="abilityCooldown" type="float" value="5"/>
     <property name="abilityRange" type="float" value="7"/>
     <property name="category" value="00010"/>
     <property name="exclude" value="00010"/>
-    <property name="force" type="float" value="3"/>
+    <property name="force" type="float" value="4.5"/>
     <property name="maxSpeed" type="float" value="10"/>
     <property name="meowExpandSpeed" type="float" value="10"/>
-    <property name="radius" type="float" value="0.4"/>
+    <property name="radius" type="float" value="0.6"/>
     <property name="spriteRadius" type="float" value="0.6"/>
    </properties>
    <point/>
@@ -150,7 +150,7 @@
     <property name="path" type="object" value="84"/>
     <property name="radius" type="float" value="0.6"/>
     <property name="spriteRadius" type="float" value="0.8"/>
-    <property name="viewDistance" type="float" value="5"/>
+    <property name="viewDistance" type="float" value="4.5"/>
    </properties>
    <point/>
   </object>
@@ -167,7 +167,7 @@
     <property name="path" type="object" value="90"/>
     <property name="radius" type="float" value="0.6"/>
     <property name="spriteRadius" type="float" value="0.8"/>
-    <property name="viewDistance" type="float" value="5"/>
+    <property name="viewDistance" type="float" value="4.5"/>
    </properties>
    <point/>
   </object>

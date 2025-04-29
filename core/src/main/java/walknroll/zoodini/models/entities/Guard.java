@@ -35,9 +35,9 @@ public class Guard extends Enemy {
     private static final float CLOSE_DISTANCE_FACTOR = 0.4f; //
     private static final float MEDIUM_DISTANCE_FACTOR = 0.8f; //
     // Suspicion increase amounts for each zone
-    private static final int CLOSE_ZONE_SUS_INCREASE = 3;
-    private static final int MEDIUM_ZONE_SUS_INCREASE = 2;
-    private static final int FAR_ZONE_SUS_INCREASE = 1;
+    private static final int CLOSE_ZONE_SUS_INCREASE = 5;
+    private static final int MEDIUM_ZONE_SUS_INCREASE = 4;
+    private static final int FAR_ZONE_SUS_INCREASE = 3;
 
     public static void setSuspicionMeterCuriousTexture(Texture suspicionMeterCurious) {
         Guard.SUSPICION_METER_CURIOUS = suspicionMeterCurious;
@@ -75,7 +75,7 @@ public class Guard extends Enemy {
     private final AnimationController suspsicionMeter;
     private float susLevel;
 
-    private float susThreshold;
+    private final float susThreshold;
     private float maxSusLevel;
     private final float DEAGRRO_PERIOD = 60F;
 
