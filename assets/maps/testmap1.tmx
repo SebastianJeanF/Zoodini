@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="8">
+ <tileset firstgid="1" source="../tilesets/walls.tsx"/>
+ <layer id="1" name="ground" width="30" height="20">
+  <data encoding="csv">
+121,121,121,121,121,121,121,121,136,136,136,136,136,136,136,136,106,107,108,109,124,154,169,184,199,197,198,199,109,139,
+136,136,136,136,136,136,136,136,151,151,151,151,151,151,151,106,107,108,109,124,139,169,184,199,197,198,199,109,124,154,
+151,151,151,151,151,151,151,151,166,166,166,166,166,166,106,107,108,109,124,139,154,184,199,197,198,199,109,124,139,169,
+166,166,106,106,106,106,106,107,108,109,181,181,181,181,106,107,108,109,139,154,169,199,196,197,198,199,124,139,154,184,
+181,106,121,121,121,121,106,106,107,108,109,107,108,109,109,108,109,124,154,169,184,196,197,198,199,124,139,154,169,199,
+196,121,136,136,136,136,121,106,107,108,109,108,109,124,124,109,124,139,169,184,199,197,198,199,124,139,154,169,184,198,
+199,136,151,151,151,151,136,121,106,107,108,109,124,139,139,124,139,154,184,199,196,197,198,199,139,154,169,184,199,199,
+106,151,166,166,166,166,151,136,106,106,107,108,109,154,154,139,154,169,199,196,197,198,199,124,154,169,184,199,198,199,
+121,166,181,181,181,181,166,151,121,106,107,108,109,169,169,154,169,184,181,196,197,198,199,139,169,184,199,198,199,106,
+136,181,196,196,196,196,181,166,136,121,122,123,124,184,184,169,184,199,196,197,198,199,139,154,184,199,198,199,106,106,
+151,196,196,197,198,199,196,181,151,136,137,138,8,9,10,11,12,13,197,198,199,139,154,169,199,197,198,199,106,107,
+166,196,197,198,199,107,108,196,166,151,152,153,23,24,25,26,27,28,197,198,199,154,169,184,197,198,199,107,108,109,
+181,196,197,198,199,106,106,107,181,166,167,168,169,169,184,166,196,197,198,199,139,169,184,199,198,199,107,108,109,124,
+196,197,198,199,121,121,121,106,196,181,182,183,184,184,199,181,196,197,198,199,154,184,199,197,198,199,109,109,124,139,
+196,197,198,199,109,136,136,121,106,196,197,198,199,199,166,196,197,198,199,154,169,199,197,198,199,109,124,124,139,154,
+196,197,198,199,124,151,151,136,121,106,106,107,108,109,181,196,197,198,199,169,184,197,198,199,109,124,139,139,154,169,
+196,197,198,199,139,109,166,151,136,121,106,106,107,108,109,197,198,199,154,184,199,197,198,199,124,139,154,154,169,184,
+196,197,198,199,154,124,109,109,151,136,121,106,107,108,109,197,198,199,169,199,197,198,199,124,139,154,169,169,184,199,
+196,197,198,199,169,139,124,124,109,109,109,109,109,109,109,198,199,169,184,196,197,198,199,139,154,169,184,184,199,198,
+196,197,198,199,184,154,139,139,124,124,124,124,124,124,124,198,199,184,199,197,198,199,139,154,169,184,199,199,198,199
+</data>
+ </layer>
+ <objectgroup id="2" name="walls">
+  <object id="1" x="1536" y="1280" width="768" height="256"/>
+ </objectgroup>
+ <objectgroup id="3" name="objects">
+  <object id="2" type="Cat" x="1598" y="1080">
+   <properties>
+    <property name="abilityCooldown" type="float" value="5"/>
+    <property name="abilityRange" type="float" value="7"/>
+    <property name="category" value="00010"/>
+    <property name="exclude" value="00010"/>
+    <property name="force" type="float" value="3"/>
+    <property name="maxSpeed" type="float" value="10"/>
+    <property name="meowExpandSpeed" type="float" value="10"/>
+    <property name="radius" type="float" value="0.4"/>
+    <property name="spriteRadius" type="float" value="0.6"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="3" type="Octopus" x="1598" y="792">
+   <properties>
+    <property name="abilityRange" type="float" value="3.5"/>
+    <property name="category" value="00010"/>
+    <property name="exclude" value="00010"/>
+    <property name="force" type="float" value="1"/>
+    <property name="inkCapacity" type="float" value="100"/>
+    <property name="inkRegen" type="float" value="25"/>
+    <property name="inkUsage" type="float" value="25"/>
+    <property name="maxSpeed" type="float" value="5"/>
+    <property name="radius" type="float" value="0.4"/>
+    <property name="spriteRadius" type="float" value="0.6"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="4" type="Guard" x="2320" y="1086">
+   <properties>
+    <property name="category" value="00100"/>
+    <property name="exclude" value="00100"/>
+    <property name="force" type="float" value="1.5"/>
+    <property name="fov" type="float" value="60"/>
+    <property name="maxSpeed" type="float" value="10"/>
+    <property name="path" type="object" value="7"/>
+    <property name="radius" type="float" value="0.2"/>
+    <property name="spriteRadius" type="float" value="1"/>
+    <property name="viewDistance" type="float" value="5"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="5" type="Camera" x="2298" y="754">
+   <properties>
+    <property name="alarmDistance" type="float" value="5"/>
+    <property name="angle" type="float" value="90"/>
+    <property name="category" value="01000"/>
+    <property name="disabledTime" type="float" value="5"/>
+    <property name="exclude" value="00000"/>
+    <property name="fov" type="float" value="60"/>
+    <property name="radius" type="float" value="0.2"/>
+    <property name="spriteRadius" type="float" value="0.6"/>
+    <property name="viewDistance" type="float" value="5"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="6" type="Exit" x="1928" y="390">
+   <properties>
+    <property name="category" value="10000"/>
+    <property name="exclude" value="00000"/>
+    <property name="size" type="float" value="1.25"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="7" x="2564" y="996">
+   <polyline points="0,0 -6,756 -810,764"/>
+  </object>
+ </objectgroup>
+</map>
