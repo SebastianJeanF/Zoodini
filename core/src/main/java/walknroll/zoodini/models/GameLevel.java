@@ -17,7 +17,6 @@ import com.badlogic.gdx.maps.objects.EllipseMapObject;
 import com.badlogic.gdx.maps.objects.PolygonMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Ellipse;
 import com.badlogic.gdx.math.Polygon;
@@ -125,8 +124,6 @@ public class GameLevel {
 
     /** Whether or not the level is in debug more (showing off physics) */
     private boolean debug;
-    /** Specialized renderer for rendering tiles */
-    private OrthogonalTiledMapRenderer mapRenderer;
     // Physics objects for the game
     /** Reference to the cat avatar */
     private Cat avatarCat;
@@ -216,7 +213,6 @@ public class GameLevel {
         maxTimePerFrame = timeStep * maxSteps;
 
         world = new World(Vector2.Zero, false);
-        mapRenderer = new OrthogonalTiledMapRenderer(map);
 
         MapProperties props = map.getProperties();
         int width = props.get("width", Integer.class);
@@ -457,9 +453,6 @@ public class GameLevel {
      */
     public void draw(SpriteBatch batch, Camera camera) {
         // Draw the sprites first (will be hidden by shadows)
-
-        mapRenderer.setView((OrthographicCamera) camera);
-        mapRenderer.render();
 
         batch.begin(camera);
         sprites.sort(ZoodiniSprite.Comparison);

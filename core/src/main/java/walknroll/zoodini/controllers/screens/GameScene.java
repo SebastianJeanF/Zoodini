@@ -12,6 +12,8 @@
  */
 package walknroll.zoodini.controllers.screens;
 
+import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import java.util.HashMap;
 
 import com.badlogic.gdx.Screen;
@@ -103,6 +105,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private TiledMap map;
     /** Graph representing the map */
     private TileGraph<TileNode> graph;
+    /** Tiled renderer */
+    private TiledMapRenderer mapRenderer;
 
     // Win/lose related fields
     /** Whether or not this is an active controller */
@@ -165,6 +169,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString("" + this.currentLevel));
         level.populate(directory, map);
         level.getWorld().setContactListener(this);
+        mapRenderer = new OrthogonalTiledMapRenderer(map);
 
         complete = false;
         failed = false;
@@ -377,6 +382,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         // Set the camera's updated view
         batch.setProjectionMatrix(camera.combined);
 
+        mapRenderer.setView(camera);
+        mapRenderer.render(); //divide this into layerwise rendering if you want
         level.draw(batch, camera);
 
         if (Constants.DEBUG) {
