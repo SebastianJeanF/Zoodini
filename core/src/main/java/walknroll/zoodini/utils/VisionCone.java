@@ -225,16 +225,16 @@ public class VisionCone implements RayCastCallback{
     }
 
     Affine2 cache = new Affine2();
-    public void draw(SpriteBatch batch, Camera camera){
+    public void draw(SpriteBatch batch){
         if(!isVisible){
             return;
         }
-        Gdx.gl.glEnable(GL20.GL_BLEND);
-        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+//        Gdx.gl.glEnable(GL20.GL_BLEND);
+//        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         batch.setColor(c); //rgba
         cache.idt();
         cache.scale(units,units);
         batch.fill(cone, cache);
-        Gdx.gl.glDisable(GL20.GL_BLEND);
+        //Gdx.gl.glDisable(GL20.GL_BLEND);
     }
 }

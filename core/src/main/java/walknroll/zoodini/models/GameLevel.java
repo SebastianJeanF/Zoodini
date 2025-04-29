@@ -468,14 +468,14 @@ public class GameLevel {
             if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
                 Octopus octopus = (Octopus) avatar;
                 if (octopus.isCurrentlyAiming() && octopus.canUseAbility()) {
-                    drawOctopusReticle(batch, camera);
-                    drawAbilityRange(batch, camera);
+                    drawOctopusReticle(batch);
+                    drawAbilityRange(batch);
                 }
             }
             if (avatar.getAvatarType() == AvatarType.CAT) {
                 Cat cat = (Cat) avatar;
                 if (cat.isCurrentlyAiming() && cat.canUseAbility()) {
-                    drawAbilityRange(batch, camera);
+                    drawAbilityRange(batch);
                 }
             }
         }
@@ -484,7 +484,7 @@ public class GameLevel {
             if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
                 continue;
             }
-            entry.value.draw(batch, camera);
+            entry.value.draw(batch);
         }
 
         // d debugging on top of everything.
@@ -804,7 +804,7 @@ public class GameLevel {
         return horiz && vert;
     }
 
-    private void drawAbilityRange(SpriteBatch batch, Camera camera) {
+    private void drawAbilityRange(SpriteBatch batch) {
         PlayableAvatar avatar = getAvatar();
         batch.setTexture(null);
         batch.setColor(Color.BLACK);
@@ -831,10 +831,8 @@ public class GameLevel {
      * </p>
      *
      * @param batch  the sprite batch used for rendering
-     * @param camera the camera used to unproject screen coordinates to world
-     *               coordinates
      */
-    private void drawOctopusReticle(SpriteBatch batch, Camera camera) {
+    private void drawOctopusReticle(SpriteBatch batch) {
         Octopus octopus = (Octopus) getAvatar();
         batch.setTexture(null);
         batch.setColor(Color.BLACK);

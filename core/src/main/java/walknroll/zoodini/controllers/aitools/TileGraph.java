@@ -163,8 +163,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
     Color c = Color.WHITE;
 
     public void draw(SpriteBatch batch, Camera camera, float units) {
-        batch.begin(camera);
-
+        batch.setColor(Color.WHITE);
         cache.idt();
         cache.scale(units / density, units / density);
         for (TileNode node : nodes) {
@@ -194,7 +193,6 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
             batch.fill(polygon, cache);
             batch.outline(rect, cache);
         }
-        batch.end();
         batch.setColor(Color.WHITE);
     }
 
