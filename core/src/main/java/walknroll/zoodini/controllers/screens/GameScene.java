@@ -919,11 +919,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         } else if (avatar.getAvatarType() == AvatarType.CAT) {
             Cat cat = (Cat) avatar;
 
-            if (input.didAbility() && cat.canUseAbility()) {
-                cat.setCurrentlyAiming(!cat.isCurrentlyAiming());
+            if (input.isAbilityHeld() && cat.canUseAbility()) {
+                cat.setCurrentlyAiming(true);
             }
 
-            if (cat.isCurrentlyAiming() && input.didLeftClick()) {
+            if (cat.isCurrentlyAiming() && !input.isAbilityHeld()) {
                 cat.setDidFire(true);
                 cat.setCurrentlyAiming(false);
                 soundController.playCatMeow();
