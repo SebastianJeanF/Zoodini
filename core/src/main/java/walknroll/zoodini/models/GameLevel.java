@@ -3,7 +3,6 @@
  *
  */
 
-
 package walknroll.zoodini.models;
 
 import com.badlogic.gdx.graphics.Camera;
@@ -302,9 +301,9 @@ public class GameLevel {
         JsonValue projectileData = directory.getEntry("constants", JsonValue.class).get("ink");
         inkProjectile = new InkProjectile(projectileData, units);
         inkProjectile.setAnimation(AnimationState.EXPLODE,
-            directory.getEntry("ink-explosion.animation", SpriteSheet.class));
+                directory.getEntry("ink-explosion.animation", SpriteSheet.class));
         inkProjectile.setAnimation(AnimationState.IDLE,
-            directory.getEntry("ink-idle.animation", SpriteSheet.class));
+                directory.getEntry("ink-idle.animation", SpriteSheet.class));
         activate(inkProjectile);
         inkProjectile.setDrawingEnabled(false);
         inkProjectile.getObstacle().setActive(false);
@@ -421,7 +420,8 @@ public class GameLevel {
                             avatarOctopus.getPosition()); // TODO: this line might not be needed
                     ((Guard) key).setAgroed(true);
                     ((Guard) key).setAggroTarget(avatarOctopus);
-                    // DebugPrinter.println("In guard vision cone " + ((Guard) key).getAggroTarget());
+                    // DebugPrinter.println("In guard vision cone " + ((Guard)
+                    // key).getAggroTarget());
                 } else if (key instanceof SecurityCamera) {
                     SecurityCamera camera = (SecurityCamera) key;
                     if (!camera.isDisabled()) {
@@ -462,6 +462,7 @@ public class GameLevel {
         mapRenderer.render();
 
         batch.begin(camera);
+        sprites.sort(ZoodiniSprite.Comparison);
         for (ZoodiniSprite obj : sprites) {
             if (obj.isDrawingEnabled()) {
                 batch.setColor(Color.WHITE);
@@ -486,23 +487,22 @@ public class GameLevel {
             }
         }
 
-
-        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
+        for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
             if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
                 continue;
             }
             entry.value.draw(batch, camera);
         }
 
-		// d debugging on top of everything.
-		if (debug) {
-			for (ObstacleSprite obj : sprites) {
-				obj.drawDebug(batch);
-			}
-		}
+        // d debugging on top of everything.
+        if (debug) {
+            for (ObstacleSprite obj : sprites) {
+                obj.drawDebug(batch);
+            }
+        }
 
         batch.end();
-	}
+    }
 
     public boolean isInactiveAvatarInDanger() {
         if (catActive) {
