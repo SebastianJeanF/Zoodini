@@ -37,6 +37,7 @@ import edu.cornell.gdiac.graphics.SpriteSheet;
 import edu.cornell.gdiac.math.Path2;
 import edu.cornell.gdiac.math.PathExtruder;
 import edu.cornell.gdiac.math.PathFactory;
+import edu.cornell.gdiac.math.Poly2;
 import edu.cornell.gdiac.physics2.BoxObstacle;
 import edu.cornell.gdiac.physics2.Obstacle;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
@@ -820,6 +821,9 @@ public class GameLevel {
         batch.setColor(Color.WHITE);
     }
 
+    PathFactory pathFactory = new PathFactory();
+    // vertices
+    PathExtruder pathExtruder = new PathExtruder();
     /**
      * Draws a reticle on the screen to indicate aiming direction.
      *
@@ -834,20 +838,17 @@ public class GameLevel {
      */
     private void drawOctopusReticle(SpriteBatch batch) {
         Octopus octopus = (Octopus) getAvatar();
-        batch.setTexture(null);
+        //batch.setTexture(null);
         batch.setColor(Color.BLACK);
         float x = octopus.getObstacle().getX();
         float y = octopus.getObstacle().getY();
-
         Vector2 target = octopus.getTarget();
-
+        Path2 reticlePath = pathFactory.makeNgon(target.x + x, target.y + y, 0.25f, 64); // radius = 1.0m. 64
+        pathExtruder.set(reticlePath);
         // TODO: a couple of magic numbers here need to be config values I think
-        Path2 reticlePath = new PathFactory().makeNgon(target.x + x, target.y + y, 0.25f, 64); // radius = 1.0m. 64
-                                                                                               // vertices
-        PathExtruder reticleExtruder = new PathExtruder(reticlePath);
-        reticleExtruder.calculate(0.1f); // line thickness = 0.1m
+        pathExtruder.calculate(0.1f); // line thickness = 0.1m
         affineCache.idt();
         affineCache.scale(getTileSize(), getTileSize());
-        batch.draw((TextureRegion) null, reticleExtruder.getPolygon(), affineCache);
+        batch.draw((TextureRegion) null, pathExtruder.getPolygon(), affineCache);
     }
 }
