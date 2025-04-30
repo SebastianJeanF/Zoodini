@@ -384,6 +384,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         mapRenderer.setView(camera);
         mapRenderer.render(); //divide this into layerwise rendering if you want
+        batch.begin(camera);
         level.draw(batch, camera);
 
         if (Constants.DEBUG) {
@@ -402,9 +403,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 graph.markPositionAsTarget(distractedTargetLocation);
             });
 
-            batch.begin(camera);
-            graph.draw(batch, camera, level.getTileSize());
-            batch.end();
+            graph.draw(batch, level.getTileSize());
             InputController ic = InputController.getInstance();
             if (ic.didLeftClick()) {
                 graph.markNearestTile(camera, ic.getAiming(), level.getTileSize());
@@ -412,6 +411,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
 
         ui.draw(level);
+        batch.end();
     }
 
     /**

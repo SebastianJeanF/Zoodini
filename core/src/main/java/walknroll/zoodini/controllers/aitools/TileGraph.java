@@ -162,7 +162,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
     PathFactory pathFactory = new PathFactory();
     Color c = Color.WHITE;
 
-    public void draw(SpriteBatch batch, Camera camera, float units) {
+    public void draw(SpriteBatch batch, float units) {
         batch.setColor(Color.WHITE);
         cache.idt();
         cache.scale(units / density, units / density);

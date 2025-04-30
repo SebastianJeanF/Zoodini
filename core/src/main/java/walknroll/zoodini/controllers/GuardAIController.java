@@ -585,12 +585,9 @@ public class GuardAIController {
      * Draws debug visualization of the pathfinding graph.
      *
      * @param batch The SpriteBatch to draw with
-     * @param camera The camera to use for coordinate transformations
-     * @param texture The texture to use for drawing nodes
      */
-    public void drawGraphDebug(SpriteBatch batch , OrthographicCamera camera, Texture texture) {
-        tileGraph.draw(batch, camera, 1.0f);
-//        gameGraph.drawGraphDebug(batch, camera, nextTargetLocation, texture);
+    public void drawGraphDebug(SpriteBatch batch) {
+        tileGraph.draw(batch, level.getTileSize());
     }
 
 

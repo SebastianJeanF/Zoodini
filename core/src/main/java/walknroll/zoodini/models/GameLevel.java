@@ -387,6 +387,7 @@ public class GameLevel {
     /**
      * Checks if the player is in the vision cones of any guards or security cameras
      * and updates their states accordingly.
+     * TODO: this method is not used. Remove when confirmed.
      */
     public void checkPlayerInVisionCones() {
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
@@ -455,12 +456,19 @@ public class GameLevel {
     public void draw(SpriteBatch batch, Camera camera) {
         // Draw the sprites first (will be hidden by shadows)
 
-        batch.begin(camera);
         sprites.sort(ZoodiniSprite.Comparison);
         for (ZoodiniSprite obj : sprites) {
             if (obj.isDrawingEnabled()) {
                 batch.setColor(Color.WHITE);
                 obj.draw(batch);
+                VisionCone vc = visions.get(obj);
+                if (vc != null) {
+                    if (obj instanceof SecurityCamera && ((SecurityCamera) obj).isDisabled()) {
+                        continue;
+                    } else {
+                        visions.get(obj).draw(batch);
+                    }
+                }
             }
         }
 
@@ -481,21 +489,12 @@ public class GameLevel {
             }
         }
 
-        for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
-            if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
-                continue;
-            }
-            entry.value.draw(batch);
-        }
-
         // d debugging on top of everything.
         if (debug) {
             for (ObstacleSprite obj : sprites) {
                 obj.drawDebug(batch);
             }
         }
-
-        batch.end();
     }
 
     public boolean isInactiveAvatarInDanger() {
