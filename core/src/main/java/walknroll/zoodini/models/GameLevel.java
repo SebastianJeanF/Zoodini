@@ -805,25 +805,24 @@ public class GameLevel {
         return horiz && vert;
     }
 
+    PathFactory pathFactory = new PathFactory();
+    PathExtruder pathExtruder = new PathExtruder();
     private void drawAbilityRange(SpriteBatch batch) {
         PlayableAvatar avatar = getAvatar();
-        batch.setTexture(null);
+        //batch.setTexture(null);
         batch.setColor(Color.BLACK);
         float x = avatar.getObstacle().getX();
         float y = avatar.getObstacle().getY();
 
-        Path2 rangePath = new PathFactory().makeNgon(x, y, avatar.getAbilityRange(), 64); // radius = 1.0m. 64 vertices
-        PathExtruder rangeExtruder = new PathExtruder(rangePath);
-        rangeExtruder.calculate(0.05f); // line thickness = 0.05m
+        Path2 rangePath = pathFactory.makeNgon(x, y, avatar.getAbilityRange(), 64); // radius = 1.0m. 64 vertices
+        pathExtruder.set(rangePath);
+        pathExtruder.calculate(0.05f); // line thickness = 0.05m
         affineCache.idt();
         affineCache.scale(getTileSize(), getTileSize());
-        batch.draw((TextureRegion) null, rangeExtruder.getPolygon(), affineCache);
+        batch.draw((TextureRegion) null, pathExtruder.getPolygon(), affineCache);
         batch.setColor(Color.WHITE);
     }
 
-    PathFactory pathFactory = new PathFactory();
-    // vertices
-    PathExtruder pathExtruder = new PathExtruder();
     /**
      * Draws a reticle on the screen to indicate aiming direction.
      *
@@ -850,5 +849,6 @@ public class GameLevel {
         affineCache.idt();
         affineCache.scale(getTileSize(), getTileSize());
         batch.draw((TextureRegion) null, pathExtruder.getPolygon(), affineCache);
+        batch.setColor(Color.WHITE);
     }
 }
