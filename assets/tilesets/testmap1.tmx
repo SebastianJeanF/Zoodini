@@ -36,9 +36,6 @@
    <point/>
   </object>
   <object id="4" type="Guard" x="2320" y="1086">
-   <properties>
-    <property name="path" type="object" value="7"/>
-   </properties>
    <point/>
   </object>
   <object id="5" type="Camera" x="2298" y="754">
@@ -46,9 +43,6 @@
   </object>
   <object id="6" type="Exit" x="1928" y="390">
    <point/>
-  </object>
-  <object id="7" x="2564" y="996">
-   <polyline points="0,0 -6,756 -810,764"/>
   </object>
  </objectgroup>
 </map>

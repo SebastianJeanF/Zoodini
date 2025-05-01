@@ -65,7 +65,7 @@
     <property name="force" type="float" value="1.5"/>
     <property name="fov" type="float" value="60"/>
     <property name="maxSpeed" type="float" value="10"/>
-    <property name="path" type="object" value="7"/>
+    <property name="path" type="object" value="0"/>
     <property name="radius" type="float" value="0.2"/>
     <property name="spriteRadius" type="float" value="1"/>
     <property name="viewDistance" type="float" value="5"/>
@@ -93,9 +93,6 @@
     <property name="size" type="float" value="1.25"/>
    </properties>
    <point/>
-  </object>
-  <object id="7" x="2564" y="996">
-   <polyline points="0,0 -6,756 -810,764"/>
   </object>
  </objectgroup>
 </map>

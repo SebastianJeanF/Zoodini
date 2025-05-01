@@ -212,6 +212,11 @@
                 "value": 10
             },
             {
+                "name": "path",
+                "type": "object",
+                "value": 0
+            },
+            {
                 "name": "radius",
                 "type": "float",
                 "value": 0.2
