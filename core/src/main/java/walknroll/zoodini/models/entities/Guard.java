@@ -118,7 +118,7 @@ public class Guard extends Enemy {
                 vertices[i] /= units;
             }
             setPatrolPoints(vertices);
-        }
+        } else { setPatrolPoints(new Vector2[] {this.getPosition()});}
 
         originalViewDistance = viewDistance;
         originalFov = fov;
