@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="5">
+ <tileset firstgid="1" source="../tilesets/walls.tsx"/>
+ <layer id="1" name="ground" width="30" height="20">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,8,9,10,11,0,0,0,
+0,0,0,0,0,0,0,0,3,4,5,6,7,8,9,10,11,0,18,19,20,21,22,23,24,25,26,0,0,0,
+0,0,0,0,0,0,0,0,18,19,20,21,22,23,24,25,26,0,33,34,35,36,37,38,39,40,41,0,0,0,
+0,0,0,0,0,0,0,0,33,34,35,36,37,38,39,40,41,0,48,49,50,51,52,53,54,55,56,0,0,0,
+0,0,0,0,0,0,0,0,48,49,50,51,52,53,54,55,56,0,63,64,65,66,67,68,69,70,71,0,0,0,
+0,0,0,0,0,0,0,0,63,64,65,66,67,68,69,70,71,0,78,79,80,81,82,83,84,85,86,0,0,0,
+0,0,0,0,0,0,0,0,78,79,80,81,82,83,84,85,86,0,93,94,95,96,97,98,99,100,101,0,0,0,
+0,0,0,0,0,0,0,0,93,94,95,96,97,98,99,100,101,0,108,109,110,111,112,113,114,115,116,0,0,0,
+0,0,0,0,0,0,0,0,108,109,110,111,112,113,114,115,116,0,123,124,125,126,127,128,129,130,131,0,0,0,
+0,0,0,0,0,0,0,0,123,124,125,126,127,128,129,130,131,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="2" name="walls">
+  <object id="4" x="1024" y="768" width="1152" height="512"/>
+ </objectgroup>
+ <objectgroup id="3" name="objects">
+  <object id="1" type="Octopus" x="1407" y="1624.58">
+   <properties>
+    <property name="abilityRange" type="float" value="3.5"/>
+    <property name="category" value="00010"/>
+    <property name="exclude" value="00010"/>
+    <property name="force" type="float" value="1"/>
+    <property name="inkCapacity" type="float" value="100"/>
+    <property name="inkRegen" type="float" value="25"/>
+    <property name="inkUsage" type="float" value="25"/>
+    <property name="maxSpeed" type="float" value="5"/>
+    <property name="radius" type="float" value="0.4"/>
+    <property name="spriteRadius" type="float" value="0.6"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="2" type="Cat" x="734.928" y="1532.71">
+   <properties>
+    <property name="abilityCooldown" type="float" value="5"/>
+    <property name="abilityRange" type="float" value="7"/>
+    <property name="category" value="00010"/>
+    <property name="exclude" value="00010"/>
+    <property name="force" type="float" value="3"/>
+    <property name="maxSpeed" type="float" value="10"/>
+    <property name="meowExpandSpeed" type="float" value="10"/>
+    <property name="radius" type="float" value="0.4"/>
+    <property name="spriteRadius" type="float" value="0.6"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="3" type="Exit" x="1663.26" y="2016.22">
+   <properties>
+    <property name="category" value="10000"/>
+    <property name="exclude" value="00000"/>
+    <property name="size" type="float" value="1.25"/>
+   </properties>
+   <point/>
+  </object>
+ </objectgroup>
+</map>
