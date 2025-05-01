@@ -32,6 +32,7 @@ import walknroll.zoodini.models.entities.Octopus;
 import walknroll.zoodini.utils.CounterActor;
 import walknroll.zoodini.utils.InkMeterActor;
 import walknroll.zoodini.utils.MeowCooldownIndicator;
+import walknroll.zoodini.utils.MinimapActor;
 
 public class UIController {
 
@@ -46,6 +47,8 @@ public class UIController {
     }
 
     protected BitmapFont displayFont;
+
+    private MinimapActor minimap;
 
     //Scene 2d components
     private Stage stage;
@@ -98,6 +101,9 @@ public class UIController {
         Octopus o = level.getOctopus();
         inkMeter = new InkMeterActor(inkSprites, o.getInkCapacity(), o.getInkCost() ,o.getInkRegen());
 
+        minimap = new MinimapActor(level);
+        minimap.setPosition(20, Gdx.graphics.getHeight() - 180);
+
 
         setSmallCatIcon(new TextureRegion(directory.getEntry("small-cat-icon", Texture.class)));
         setSmallOctopusIcon(new TextureRegion(directory.getEntry("small-octopus-icon", Texture.class)));
@@ -119,6 +125,8 @@ public class UIController {
         stage = new Stage(viewport);
         rootTable = new Table();
         rootTable.setFillParent(true);
+
+        stage.addActor(minimap);
 
         Table bottomLeftTable = new Table();
         bottomLeftTable.bottom().left();
@@ -395,6 +403,9 @@ public class UIController {
     }
     public void dispose(){
         stage.dispose();
+        if (minimap != null) {
+            minimap.dispose();
+        }
     }
 
     public void setPauseMenuListener(PauseMenuListener l){
