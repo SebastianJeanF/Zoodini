@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="12">
+ <tileset firstgid="1" source="../tilesets/ground.tsx"/>
+ <tileset firstgid="211" source="../tilesets/ground2.tsx"/>
+ <tileset firstgid="421" source="../tilesets/walls.tsx"/>
+ <layer id="1" name="ground" width="30" height="20">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,452,453,454,455,456,457,458,459,460,461,462,463,464,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,467,468,469,470,471,472,473,474,475,476,477,478,479,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,482,483,484,485,486,487,488,489,490,491,492,493,494,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,497,498,499,500,501,502,503,504,505,506,507,508,509,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,512,513,514,515,516,517,518,519,520,521,522,523,524,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="2" name="walls">
+  <object id="4" x="640" y="768" width="1408" height="384"/>
+ </objectgroup>
+ <objectgroup id="3" name="objects">
+  <object id="8" type="Cat" x="252.139" y="325.68">
+   <properties>
+    <property name="abilityCooldown" type="float" value="5"/>
+    <property name="abilityRange" type="float" value="7"/>
+    <property name="category" value="00010"/>
+    <property name="exclude" value="00010"/>
+    <property name="force" type="float" value="3"/>
+    <property name="maxSpeed" type="float" value="10"/>
+    <property name="meowExpandSpeed" type="float" value="10"/>
+    <property name="radius" type="float" value="0.4"/>
+    <property name="spriteRadius" type="float" value="0.6"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="10" type="Octopus" x="1528.59" y="225.875">
+   <properties>
+    <property name="abilityRange" type="float" value="3.5"/>
+    <property name="category" value="00010"/>
+    <property name="exclude" value="00010"/>
+    <property name="force" type="float" value="1"/>
+    <property name="inkCapacity" type="float" value="100"/>
+    <property name="inkRegen" type="float" value="25"/>
+    <property name="inkUsage" type="float" value="25"/>
+    <property name="maxSpeed" type="float" value="5"/>
+    <property name="radius" type="float" value="0.4"/>
+    <property name="spriteRadius" type="float" value="0.6"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="11" type="Exit" x="2069.64" y="1712.44">
+   <properties>
+    <property name="category" value="10000"/>
+    <property name="exclude" value="00000"/>
+    <property name="size" type="float" value="1.25"/>
+   </properties>
+   <point/>
+  </object>
+ </objectgroup>
+</map>
