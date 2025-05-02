@@ -35,8 +35,8 @@
       "spriteRadius": 0.6,
       "obstacleRadius" : 0.6,
       "abilityRange" : 5,
-      "inkCapacity" : 100.0,
-      "inkRegen" : 25.0,
+      "inkCapacity" : 50.0,
+      "inkRegen" : 5.0,
       "inkUsage" : 25.0
     },
     "camera" : {
@@ -67,7 +67,7 @@
       "exclude-unlocked" : "000110",
       "force" : 1.0,
       "maxSpeed" : 10.0,
-      "size" : 1.0
+      "size" : 3.0
     },
     "ink" : {
       "category": "000010",
