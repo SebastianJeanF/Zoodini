@@ -6,8 +6,8 @@
       "exclude" : "00100",
       "force" : 1.0,
       "maxSpeed" : 10.0,
-      "spriteRadius": 0.8,
-      "obstacleRadius" : 0.6,
+      "spriteRadius": 1,
+      "obstacleRadius" : 0.5,
       "agroedForceScale" : 2.0,
       "alertedForceScale" : 3.0,
       "blindedForceScale" : 0.75,
@@ -51,7 +51,7 @@
       "exclude" : "00000",
       "force" : 1.0,
       "maxSpeed" : 10.0,
-      "size": 1.0,
+      "size": 1.0
     },
     "key" : {
       "category": "10000",

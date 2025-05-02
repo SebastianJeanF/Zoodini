@@ -178,7 +178,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         camera = new OrthographicCamera();
 
-        float NUM_TILES_WIDE = 15f;
+        float NUM_TILES_WIDE = 20f;
         camera.setToOrtho(false, level.getTileSize() * NUM_TILES_WIDE,
                 level.getTileSize() * NUM_TILES_WIDE * 720f / 1280f);
 

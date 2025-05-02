@@ -42,7 +42,7 @@ public class VisionCone implements RayCastCallback{
 
     private float currentFacingAngle = 0f; // Current angle in degrees
     private float targetFacingAngle = 0f;  // Target angle to rotate toward
-    private float turnSpeed = 5.0f;        // Rotation speed in radians per second
+    private float turnSpeed = 500.0f;        // Rotation speed in radians per second
 
     private boolean isVisible = false; // Flag to control visibility
 
