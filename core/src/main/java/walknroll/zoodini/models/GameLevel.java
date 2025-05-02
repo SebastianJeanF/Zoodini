@@ -181,6 +181,9 @@ public class GameLevel {
 
     Affine2 affineCache = new Affine2();
 
+    private boolean catPresent;
+    private boolean octopusPresent;
+
     /**
      * Creates a new GameLevel
      *
@@ -224,6 +227,9 @@ public class GameLevel {
         createWallBodies(walls);
         JsonValue constants = directory.getEntry("constants", JsonValue.class).get("constants");
 
+        catPresent = false;
+        octopusPresent = false;
+
         MapLayer objectLayer = map.getLayers().get("objects");
         for (MapObject obj : objectLayer.getObjects()) {
             MapProperties properties = obj.getProperties();
@@ -240,6 +246,7 @@ public class GameLevel {
                 avatarCat.setAnimation(AnimationState.WALK_UP,
                         directory.getEntry("cat-walk-up.animation", SpriteSheet.class));
                 activate(avatarCat);
+                catPresent = true;
             } else if ("Octopus".equalsIgnoreCase(type)) {
                 avatarOctopus = new Octopus(properties, constants.get("octopus"), units);
                 avatarOctopus.setAnimation(AnimationState.IDLE,
@@ -251,6 +258,7 @@ public class GameLevel {
                 avatarOctopus.setAnimation(AnimationState.WALK_UP,
                         directory.getEntry("octopus-walk-up.animation", SpriteSheet.class));
                 activate(avatarOctopus);
+                octopusPresent = true;
             } else if ("Guard".equalsIgnoreCase(type)) {
                 Guard g = new Guard(properties, constants.get("guard"), units);
                 g.setAnimation(AnimationState.IDLE, directory.getEntry("guard-idle.animation", SpriteSheet.class));
@@ -281,6 +289,12 @@ public class GameLevel {
                 activate(exit);
             }
 
+        }
+
+        if (catPresent) {
+            catActive = true;
+        } else if (octopusPresent) {
+            catActive = false;
         }
 
         initializeVisionCones();
@@ -508,10 +522,18 @@ public class GameLevel {
 
     // ------------------Helpers-----------------------//
 
+    public boolean isCatPresent() {
+        return catPresent;
+    }
+
+    public boolean isOctopusPresent() {
+        return octopusPresent;
+    }
+
     public void swapActiveAvatar() {
-        // avatarLights[catActive ? 0 : 1].setActive(false);
-        catActive = !catActive;
-        // avatarLights[catActive ? 0 : 1].setActive(true);
+        if (catPresent && octopusPresent) {
+            catActive = !catActive;
+        }
     }
 
     public PooledList<Obstacle> getObjects() {
@@ -557,7 +579,12 @@ public class GameLevel {
      * @return a reference to the player avatar
      */
     public PlayableAvatar getAvatar() {
-        return catActive ? avatarCat : avatarOctopus;
+        if (catActive && catPresent) {
+            return avatarCat;
+        } else if (!catActive && octopusPresent) {
+            return avatarOctopus;
+        }
+        return catPresent ? avatarCat : avatarOctopus;
     }
 
     public Cat getCat() {
@@ -569,7 +596,12 @@ public class GameLevel {
     }
 
     public PlayableAvatar getInactiveAvatar() {
-        return catActive ? avatarOctopus : avatarCat;
+        if (!catActive && catPresent) {
+            return avatarCat;
+        } else if (catActive && octopusPresent) {
+            return avatarOctopus;
+        }
+        return null;
     }
 
     /**

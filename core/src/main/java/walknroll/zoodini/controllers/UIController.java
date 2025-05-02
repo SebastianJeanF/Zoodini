@@ -32,6 +32,7 @@ import walknroll.zoodini.models.entities.Octopus;
 import walknroll.zoodini.utils.CounterActor;
 import walknroll.zoodini.utils.InkMeterActor;
 import walknroll.zoodini.utils.MeowCooldownIndicator;
+import walknroll.zoodini.utils.MinimapActor;
 import walknroll.zoodini.utils.enums.AvatarType;
 
 public class UIController {
@@ -47,6 +48,8 @@ public class UIController {
     }
 
     protected BitmapFont displayFont;
+
+    private MinimapActor minimap;
 
     //Scene 2d components
     private Stage stage;
@@ -95,10 +98,15 @@ public class UIController {
 
         setOctopusIconImage(new TextureRegion(directory.getEntry("octopus-icon", Texture.class)));
         octopusIconImage.setVisible(false);
-
-        SpriteSheet inkSprites = directory.getEntry("ink-meter.animation", SpriteSheet.class);
-        Octopus o = level.getOctopus();
-        inkMeter = new InkMeterActor(inkSprites, o.getInkCapacity(), o.getInkCost() ,o.getInkRegen());
+        minimap = new MinimapActor(level);
+        minimap.setPosition(20, Gdx.graphics.getHeight() - 180);
+        if (level.isOctopusPresent()) {
+            SpriteSheet inkSprites = directory.getEntry("ink-meter.animation", SpriteSheet.class);
+            Octopus o = level.getOctopus();
+            inkMeter = new InkMeterActor(inkSprites, o.getInkCapacity(), o.getInkCost(), o.getInkRegen());
+        } else {
+            inkMeter = null; // Make sure it's null when octopus is not present
+        }
 
         inkTextImage = new Image(directory.getEntry("ink-text", Texture.class));
 
@@ -122,6 +130,8 @@ public class UIController {
         stage = new Stage(viewport);
         rootTable = new Table();
         rootTable.setFillParent(true);
+
+        stage.addActor(minimap);
 
         Table bottomLeftTable = new Table();
         bottomLeftTable.bottom().left();
@@ -359,8 +369,10 @@ public class UIController {
         // Icons
         if (catIconImage != null) catIconImage.setVisible(!isOcto);
         if (octopusIconImage != null) octopusIconImage.setVisible(isOcto);
-        if (inkMeter != null) inkMeter.setVisible(isOcto);
-        inkMeter.sync(level.getOctopus().getInkRemaining());
+        if (inkMeter != null && level.isOctopusPresent()) {
+            inkMeter.setVisible(isOcto);
+            inkMeter.sync(level.getOctopus().getInkRemaining());
+        }
 
         if (dangerIconImage != null && smallCatIconImage != null && smallOctopusIconImage != null) {
             if (level.isInactiveAvatarInDanger()) {
@@ -401,6 +413,9 @@ public class UIController {
     }
     public void dispose(){
         stage.dispose();
+        if (minimap != null) {
+            minimap.dispose();
+        }
     }
 
     public void setPauseMenuListener(PauseMenuListener l){
