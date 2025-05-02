@@ -758,29 +758,27 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
 
         if (direction.len() > 0) {
-            direction.nor().scl(guard.getForce());
+            direction.nor().scl(guard.getForce()).scl(MOVEMENT_SCALE);
 
             float radius = ((WheelObstacle) guard.getObstacle()).getRadius();
-            float speedScale = (float) (16 * Math.pow((radius / .8f), 2));
-            // direction.scl(speedScale);
 
             if (guard.isMeowed()) {
-                direction.scl(3f * speedScale);
+                direction.scl(guard.getDistractedForceScale());
             } else if (guard.isCameraAlerted()) {
-                direction.scl(10f * speedScale);
+                direction.scl(guard.getAlertedForceScale());
             } else if (guard.isAgroed()) {
-                direction.scl(5.5f * speedScale);
+                direction.scl(guard.getAgroForceScale());
             } else if (guard.isSus()) {
-                direction.scl(5f * speedScale);
+                direction.scl(1.0f);
             } else {
                 // guard is normally walking
-                direction.scl(4f * speedScale);
+                direction.scl(1.0f);
             }
 
             // Regardless of any other guard states, lower speed
             // if the guard is inked
             if (guard.isInkBlinded()) {
-                direction.scl(.5f);
+                direction.scl(guard.getDistractedForceScale());
             }
 
             guard.setMovement(direction.x, direction.y);

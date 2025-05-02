@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="3">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="6">
  <tileset firstgid="1" source="../tilesets/path-1.tsx"/>
  <tileset firstgid="211" source="../tilesets/path-2.tsx"/>
  <tileset firstgid="421" source="../tilesets/walls-1.tsx"/>
@@ -27,7 +27,10 @@
 98,99,100,101,102,103,104,104,104,0,0,0,0,0,0,378,379,380,381,382,383,384,385,386,387,388,389,390,0,0
 </data>
  </layer>
- <objectgroup id="2" name="walls"/>
+ <objectgroup id="2" name="walls">
+  <object id="3" x="1024" y="1024" width="512" height="768"/>
+  <object id="4" x="1664" y="1024" width="640" height="768"/>
+ </objectgroup>
  <objectgroup id="3" name="objects">
   <object id="1" type="Cat" x="1107.23" y="875.145">
    <properties>
@@ -55,6 +58,20 @@
     <property name="maxSpeed" type="float" value="5"/>
     <property name="radius" type="float" value="0.4"/>
     <property name="spriteRadius" type="float" value="0.6"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="5" type="Guard" x="2441.7" y="928.33">
+   <properties>
+    <property name="category" value="00100"/>
+    <property name="exclude" value="00100"/>
+    <property name="force" type="float" value="1.5"/>
+    <property name="fov" type="float" value="60"/>
+    <property name="maxSpeed" type="float" value="10"/>
+    <property name="path" type="object" value="0"/>
+    <property name="radius" type="float" value="0.2"/>
+    <property name="spriteRadius" type="float" value="1"/>
+    <property name="viewDistance" type="float" value="5"/>
    </properties>
    <point/>
   </object>

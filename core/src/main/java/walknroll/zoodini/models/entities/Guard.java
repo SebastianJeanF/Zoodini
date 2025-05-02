@@ -39,13 +39,6 @@ public class Guard extends Enemy {
     private static final int MEDIUM_ZONE_SUS_INCREASE = 4;
     private static final int FAR_ZONE_SUS_INCREASE = 3;
 
-    public static void setSuspicionMeterCuriousTexture(Texture suspicionMeterCurious) {
-        Guard.SUSPICION_METER_CURIOUS = suspicionMeterCurious;
-    }
-
-    public static boolean isLoaded() {
-        return Guard.SUSPICION_METER_CURIOUS != null;
-    }
 
     private float fov;
     private float viewDistance;
@@ -90,6 +83,30 @@ public class Guard extends Enemy {
 
     private float originalFov;
 
+    private final float agroForceScale;
+    private final float alertedForceScale;
+    private final float distractedForceScale;
+
+    public float getAgroForceScale() {
+        return agroForceScale;
+    }
+
+    public float getAlertedForceScale() {
+        return alertedForceScale;
+    }
+
+    public float getDistractedForceScale() {
+        return distractedForceScale;
+    }
+
+    public static void setSuspicionMeterCuriousTexture(Texture suspicionMeterCurious) {
+        Guard.SUSPICION_METER_CURIOUS = suspicionMeterCurious;
+    }
+
+    public static boolean isLoaded() {
+        return Guard.SUSPICION_METER_CURIOUS != null;
+    }
+
     /**
      * Creates a new dude with degenerate settings
      * <p>
@@ -110,6 +127,10 @@ public class Guard extends Enemy {
         susThreshold = 10F;
         maxSusLevel = 100F;
         seesPlayer = false;
+        agroForceScale = properties.get("agroedForceScale", Float.class);
+        distractedForceScale = properties.get("distractedForceScale", Float.class);
+        alertedForceScale = properties.get("alertedForceScale", Float.class);
+
 
         MapObject path = properties.get("path", MapObject.class);
         if (path instanceof PolylineMapObject line) {
@@ -141,6 +162,7 @@ public class Guard extends Enemy {
                 IS_LOOP);
         suspsicionMeter.addAnimation(SUSPICION_METER, anim);
     }
+
 
     public void setMaxSusLevel() {
         this.susLevel = this.maxSusLevel;
