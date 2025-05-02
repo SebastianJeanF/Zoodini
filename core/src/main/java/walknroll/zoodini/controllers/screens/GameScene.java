@@ -251,11 +251,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     @Override
     public void onPauseStateChanged(boolean paused) {
         gamePaused = paused;
-        if (paused) {
-            soundController.pauseMusic();
-        } else {
-            soundController.resumeMusic();
-        }
     }
 
     @Override
@@ -451,7 +446,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * also paused before it is destroyed.
      */
     public void pause() {
-        soundController.pauseMusic();
     }
 
     /**
@@ -460,7 +454,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * This is usually when it regains focus.
      */
     public void resume() {
-        soundController.resumeMusic();
     }
 
     /**
