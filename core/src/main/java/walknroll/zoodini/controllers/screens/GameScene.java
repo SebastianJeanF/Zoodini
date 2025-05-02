@@ -383,7 +383,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         batch.setProjectionMatrix(camera.combined);
 
         mapRenderer.setView(camera);
-        mapRenderer.render(); //divide this into layerwise rendering if you want
+        mapRenderer.render(); // divide this into layerwise rendering if you want
         level.draw(batch, camera);
 
         if (Constants.DEBUG) {
@@ -555,8 +555,12 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 Obstacle enemy = guard.getObstacle();
                 if ((o1 == cat && o2 == enemy) || (o2 == cat && o1 == enemy) || (o1 == oct && o2 == enemy)
                         || (o2 == oct && o1 == enemy)) {
-                    setFailure(true);
-                    gameLost = true;
+                    if (Constants.INVINCIBLE) {
+                        contact.setEnabled(false);
+                    } else {
+                        setFailure(true);
+                        gameLost = true;
+                    }
                 }
             }
 
@@ -985,7 +989,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             activateInkProjectile(inkProjectile, octopus.getPosition(), octopus.getTarget());
         }
 
-        if (level.isOctopusPresent() && inkProjectile.getPosition().dst(inkProjectile.getStartPosition()) > octopus.getAbilityRange()) {
+        if (level.isOctopusPresent()
+                && inkProjectile.getPosition().dst(inkProjectile.getStartPosition()) > octopus.getAbilityRange()) {
             inkProjectile.setShouldDestroy(true);
         }
 
