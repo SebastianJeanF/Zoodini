@@ -4,6 +4,7 @@ import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
+import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.graphics.SpriteSheet;
@@ -47,8 +48,8 @@ public class Octopus extends PlayableAvatar {
     // Keys of doors
     private Array<Key> keys;
 
-    public Octopus(MapProperties properties, float units) {
-        super(AvatarType.OCTOPUS, properties, units);
+    public Octopus(MapProperties properties, JsonValue constants, float units) {
+        super(AvatarType.OCTOPUS, properties, constants, units);
         float r = properties.get("spriteRadius", Float.class) * OCTOPUS_IMAGE_SCALE * units;
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
         target = new Vector2();

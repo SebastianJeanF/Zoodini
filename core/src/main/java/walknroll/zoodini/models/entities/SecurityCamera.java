@@ -51,11 +51,11 @@ public class SecurityCamera extends ZoodiniSprite {
     PathFactory pf = new PathFactory();
     PathExtruder extruder = new PathExtruder();
 
-    public SecurityCamera(MapProperties properties, float units) {
+    public SecurityCamera(MapProperties properties, JsonValue constants, float units) {
         float[] pos = new float[2];
         pos[0] = properties.get("x", Float.class) / units;
         pos[1] = properties.get("y", Float.class) / units;
-        float radius = properties.get("radius", Float.class);
+        float radius = constants.getFloat("obstacleRadius");
         angle = properties.get("angle", Float.class);
         obstacle = new WheelObstacle(pos[0], pos[1], radius);
         obstacle.setName(properties.get("type", String.class));
@@ -67,14 +67,14 @@ public class SecurityCamera extends ZoodiniSprite {
         obstacle.setRestitution(0.0f);
         obstacle.setPhysicsUnits(units);
 
-        short collideBits = GameLevel.bitStringToShort(properties.get("category", String.class));
-        short excludeBits = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
+        short collideBits = GameLevel.bitStringToShort(constants.getString("category"));
+        short excludeBits = GameLevel.bitStringToComplement(constants.getString("exclude"));
         Filter filter = new Filter();
         filter.categoryBits = collideBits;
         filter.maskBits = excludeBits;
         obstacle.setFilterData(filter);
 
-        float r = properties.get("spriteRadius", Float.class) * units;
+        float r = constants.getFloat("spriteRadius") * units;
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 
 

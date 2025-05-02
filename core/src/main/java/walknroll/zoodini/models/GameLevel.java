@@ -225,6 +225,7 @@ public class GameLevel {
 
         MapLayer walls = map.getLayers().get("walls");
         createWallBodies(walls);
+        JsonValue constants = directory.getEntry("constants", JsonValue.class).get("constants");
 
         catPresent = false;
         octopusPresent = false;
@@ -235,7 +236,7 @@ public class GameLevel {
             String type = properties.get("type", String.class);
 
             if ("Cat".equalsIgnoreCase(type)) {
-                avatarCat = new Cat(properties, units);
+                avatarCat = new Cat(properties, constants.get("cat"), units);
                 avatarCat.setAnimation(AnimationState.IDLE,
                         directory.getEntry("cat-idle.animation", SpriteSheet.class));
                 avatarCat.setAnimation(AnimationState.WALK,
@@ -247,7 +248,7 @@ public class GameLevel {
                 activate(avatarCat);
                 catPresent = true;
             } else if ("Octopus".equalsIgnoreCase(type)) {
-                avatarOctopus = new Octopus(properties, units);
+                avatarOctopus = new Octopus(properties, constants.get("octopus"), units);
                 avatarOctopus.setAnimation(AnimationState.IDLE,
                         directory.getEntry("octopus-idle.animation", SpriteSheet.class));
                 avatarOctopus.setAnimation(AnimationState.WALK,
@@ -259,7 +260,7 @@ public class GameLevel {
                 activate(avatarOctopus);
                 octopusPresent = true;
             } else if ("Guard".equalsIgnoreCase(type)) {
-                Guard g = new Guard(properties, units);
+                Guard g = new Guard(properties, constants.get("guard"), units);
                 g.setAnimation(AnimationState.IDLE, directory.getEntry("guard-idle.animation", SpriteSheet.class));
                 g.setAnimation(AnimationState.WALK, directory.getEntry("guard-walk.animation", SpriteSheet.class));
                 g.setAnimation(AnimationState.WALK_DOWN,
@@ -272,19 +273,19 @@ public class GameLevel {
                 guards.add(g);
                 activate(g);
             } else if ("Camera".equalsIgnoreCase(type)) {
-                SecurityCamera cam = new SecurityCamera(properties, units);
+                SecurityCamera cam = new SecurityCamera(properties, constants.get("camera"), units);
                 cam.setAnimation(AnimationState.IDLE, directory.getEntry("camera-idle.animation", SpriteSheet.class));
                 securityCameras.add(cam);
                 activate(cam);
             } else if ("Door".equalsIgnoreCase(type)) {
-                Door door = new Door(directory, obj, units);
-                Key key = new Key(directory, obj.getProperties().get("key", MapObject.class), units);
+                Door door = new Door(directory, properties, constants.get("door"), units);
+                Key key = new Key(directory, obj.getProperties().get("key", MapObject.class).getProperties(), constants.get("key"), units);
                 doors.put(door, key);
                 keys.add(key);
                 activate(door);
                 activate(key);
             } else if ("Exit".equalsIgnoreCase(type)) {
-                exit = new Exit(directory, properties, units);
+                exit = new Exit(directory, properties, constants.get("exit"), units);
                 activate(exit);
             }
 

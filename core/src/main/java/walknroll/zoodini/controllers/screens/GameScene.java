@@ -383,7 +383,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         batch.setProjectionMatrix(camera.combined);
 
         mapRenderer.setView(camera);
-        mapRenderer.render(); //divide this into layerwise rendering if you want
+        mapRenderer.render(); // divide this into layerwise rendering if you want
         level.draw(batch, camera);
 
         if (Constants.DEBUG) {
@@ -555,8 +555,12 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 Obstacle enemy = guard.getObstacle();
                 if ((o1 == cat && o2 == enemy) || (o2 == cat && o1 == enemy) || (o1 == oct && o2 == enemy)
                         || (o2 == oct && o1 == enemy)) {
-                    setFailure(true);
-                    gameLost = true;
+                    if (Constants.INVINCIBLE) {
+                        contact.setEnabled(false);
+                    } else {
+                        setFailure(true);
+                        gameLost = true;
+                    }
                 }
             }
 
@@ -787,11 +791,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             if (guard.isMeowed()) {
                 direction.scl(1.0f);
             } else if (guard.isCameraAlerted()) {
-                direction.scl(3.0f);
+                direction.scl(guard.getAlertedForceScale());
             } else if (guard.isAgroed()) {
-                direction.scl(2.0f);
+                direction.scl(guard.getAgroedForceScale());
             } else if (guard.isSus()) {
-                direction.scl(1.5f);
+                direction.scl(guard.getSusForceScale());
             } else {
                 // guard is normally walking
                 direction.scl(1.0f);
@@ -800,7 +804,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             // Regardless of any other guard states, lower speed
             // if the guard is inked
             if (guard.isInkBlinded()) {
-                direction.scl(0.75f);
+                direction.scl(guard.getBlindedForceScale());
             }
 
             guard.setMovement(direction.x, direction.y);
@@ -985,7 +989,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             activateInkProjectile(inkProjectile, octopus.getPosition(), octopus.getTarget());
         }
 
-        if (level.isOctopusPresent() && inkProjectile.getPosition().dst(inkProjectile.getStartPosition()) > octopus.getAbilityRange()) {
+        if (level.isOctopusPresent()
+                && inkProjectile.getPosition().dst(inkProjectile.getStartPosition()) > octopus.getAbilityRange()) {
             inkProjectile.setShouldDestroy(true);
         }
 

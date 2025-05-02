@@ -1,5 +1,71 @@
 {
   "CAMERA_INTERPOLATION_DURATION" : 0.75,
+  "constants" : {
+    "guard" : {
+      "category": "00100",
+      "exclude" : "00100",
+      "force" : 1.0,
+      "maxSpeed" : 10.0,
+      "spriteRadius": 0.6,
+      "obstacleRadius" : 0.5,
+      "agroedForceScale" : 2.0,
+      "alertedForceScale" : 3.0,
+      "blindedForceScale" : 0.75,
+      "susForceScale" : 1.0
+    },
+    "cat": {
+      "category": "00010",
+      "exclude" : "00010",
+      "force" : 1.0,
+      "maxSpeed" : 10.0,
+      "spriteRadius": 0.6,
+      "obstacleRadius" : 0.4
+    },
+    "octopus" : {
+      "category": "00010",
+      "exclude" : "00010",
+      "force" : 1.0,
+      "maxSpeed" : 10.0,
+      "spriteRadius": 0.6,
+      "obstacleRadius" : 0.4
+    },
+    "camera" : {
+      "category": "010000",
+      "exclude" : "000000",
+      "spriteRadius": 0.6,
+      "obstacleRadius" : 0.2
+    },
+    "exit" : {
+      "category": "10000",
+      "exclude" : "00000",
+      "force" : 1.0,
+      "maxSpeed" : 10.0,
+      "size": 1.0,
+    },
+    "key" : {
+      "category": "10000",
+      "exclude" : "11101",
+      "force" : 1.0,
+      "maxSpeed" : 10.0,
+      "size" : 1.0
+    },
+    "door" : {
+      "category": "10000",
+      "exclude" : "00000",
+      "exclude-unlocked" : "00110",
+      "force" : 1.0,
+      "maxSpeed" : 10.0,
+      "size" : 1.0
+    },
+    "ink" : {
+      "category": "00010",
+      "exclude" : "10000",
+      "force" : 1.0,
+      "maxSpeed" : 10.0,
+      "spriteRadius": 1.0,
+      "obstacleRadius" : 1.0
+    }
+  },
   "ink": {
     "radius":       0.2,
     "spriterad":    0.2,

@@ -4,22 +4,17 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Disposable;
 import edu.cornell.gdiac.physics2.BoxObstacle;
 import edu.cornell.gdiac.physics2.Obstacle;
-import edu.cornell.gdiac.physics2.PolygonObstacle;
 import walknroll.zoodini.models.GameLevel;
-import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Guard;
 import walknroll.zoodini.models.entities.SecurityCamera;
 import walknroll.zoodini.models.nonentities.Door;
 import walknroll.zoodini.models.nonentities.Exit;
-import walknroll.zoodini.models.nonentities.ExteriorWall;
-import walknroll.zoodini.models.nonentities.InteriorWall;
 import walknroll.zoodini.models.nonentities.Key;
 
 public class MinimapActor extends Actor implements Disposable {
@@ -163,6 +158,35 @@ public class MinimapActor extends Actor implements Disposable {
         }
     }
 
+    private void drawMapEntity(Vector2 position, float width, float height, Color color) {
+        // Calculate the corners in world coordinates
+        float worldLeft = position.x - width/2;
+        float worldRight = position.x + width/2;
+        float worldBottom = position.y - height/2;
+        float worldTop = position.y + height/2;
+
+        // Use the same inversion logic for all static entities
+        float minimapLeftX = (worldLeft - level.getBounds().x) * scaleFactorX + BORDER_SIZE;
+        float minimapRightX = (worldRight - level.getBounds().x) * scaleFactorX + BORDER_SIZE;
+        float minimapTopY = (level.getBounds().y + level.getBounds().height - worldTop) * scaleFactorY + BORDER_SIZE;
+        float minimapBottomY = (level.getBounds().y + level.getBounds().height - worldBottom) * scaleFactorY + BORDER_SIZE;
+
+        // For rectangle drawing, calculate dimensions
+        float rectX = Math.min(minimapLeftX, minimapRightX);
+        float rectY = Math.min(minimapTopY, minimapBottomY);
+        float rectWidth = Math.abs(minimapRightX - minimapLeftX);
+        float rectHeight = Math.abs(minimapBottomY - minimapTopY);
+
+        // Draw the entity
+        pixmap.setColor(color);
+        pixmap.fillRectangle(
+            (int)rectX,
+            (int)rectY,
+            Math.max(1, (int)rectWidth),
+            Math.max(1, (int)rectHeight)
+        );
+    }
+
     /**
      * Draw any obstacle on the minimap (walls, etc.)
      */
@@ -183,42 +207,13 @@ public class MinimapActor extends Actor implements Disposable {
             height = 1.0f;
         }
 
-        // Calculate the corners in world coordinates
-        float worldLeft = x - width/2;
-        float worldRight = x + width/2;
-        float worldBottom = y - height/2;
-        float worldTop = y + height/2;
-
-        // Convert to minimap coordinates
-        // For walls specifically, manually correct the y coordinates here
-        float minimapLeftX = (worldLeft - level.getBounds().x) * scaleFactorX + BORDER_SIZE;
-        float minimapRightX = (worldRight - level.getBounds().x) * scaleFactorX + BORDER_SIZE;
-
-        // The key fix: invert the Y coordinates for walls specifically
-        float minimapTopY = (level.getBounds().y + level.getBounds().height - worldTop) * scaleFactorY + BORDER_SIZE;
-        float minimapBottomY = (level.getBounds().y + level.getBounds().height - worldBottom) * scaleFactorY + BORDER_SIZE;
-
-        // For rectangle drawing, we need the top-left corner and dimensions
-        float rectX = Math.min(minimapLeftX, minimapRightX);
-        float rectY = Math.min(minimapTopY, minimapBottomY);
-        float rectWidth = Math.abs(minimapRightX - minimapLeftX);
-        float rectHeight = Math.abs(minimapBottomY - minimapTopY);
-
-        // Draw the obstacle
-        pixmap.setColor(WALL_COLOR);
-        pixmap.fillRectangle(
-            (int)rectX,
-            (int)rectY,
-            Math.max(1, (int)rectWidth),
-            Math.max(1, (int)rectHeight)
-        );
+       drawMapEntity(new Vector2(x, y), width, height, WALL_COLOR);
     }
 
     /**
      * Draws all doors directly from the door collection
      */
     private void drawAllDoors() {
-        int doorCount = 0;
         pixmap.setColor(DOOR_COLOR);
 
         for (Door door : level.getDoors().keys()) {
@@ -231,19 +226,7 @@ public class MinimapActor extends Actor implements Disposable {
                 size = Math.max(box.getWidth(), box.getHeight());
             }
 
-            // Convert to minimap coordinates
-            Vector2 minimapPos = worldToMinimap(position.x, position.y);
-            int minimapSize = Math.max(3, (int)(size * scaleFactorX));
-
-            // Draw the door as a rectangle
-            pixmap.fillRectangle(
-                (int)(minimapPos.x - minimapSize/2),
-                (int)(minimapPos.y - minimapSize/2),
-                minimapSize,
-                minimapSize
-            );
-
-            doorCount++;
+            drawMapEntity(position, size, size, DOOR_COLOR);
         }
     }
 
@@ -258,19 +241,7 @@ public class MinimapActor extends Actor implements Disposable {
             if (!key.isCollected()) {
                 Vector2 position = key.getObstacle().getPosition();
                 float size = 0.5f;  // Keys are small
-
-                // Convert to minimap coordinates
-                Vector2 minimapPos = worldToMinimap(position.x, position.y);
-                int minimapSize = Math.max(2, (int)(size * scaleFactorX));
-
-                // Draw the key as a rectangle
-                pixmap.fillRectangle(
-                    (int)(minimapPos.x - minimapSize/2),
-                    (int)(minimapPos.y - minimapSize/2),
-                    minimapSize,
-                    minimapSize
-                );
-
+                drawMapEntity(position, size, size, KEY_COLOR);
             }
         }
     }
@@ -290,19 +261,7 @@ public class MinimapActor extends Actor implements Disposable {
                 size = Math.max(box.getWidth(), box.getHeight());
             }
 
-            // Convert to minimap coordinates
-            Vector2 minimapPos = worldToMinimap(position.x, position.y);
-            int minimapSize = Math.max(3, (int)(size * scaleFactorX));
-
-            // Draw the exit
-            pixmap.setColor(EXIT_COLOR);
-            pixmap.fillRectangle(
-                (int)(minimapPos.x - minimapSize/2),
-                (int)(minimapPos.y - minimapSize/2),
-                minimapSize,
-                minimapSize
-            );
-
+            drawMapEntity(position, size, size, EXIT_COLOR);
 
         }
     }

@@ -83,6 +83,27 @@ public class Guard extends Enemy {
 
     private float originalFov;
 
+    private final float agroedForceScale;
+    private final float blindedForceScale;
+    private final float alertedForceScale;
+    private final float susForceScale;
+
+    public float getSusForceScale() {
+        return susForceScale;
+    }
+
+    public float getAgroedForceScale() {
+        return agroedForceScale;
+    }
+
+    public float getBlindedForceScale() {
+        return blindedForceScale;
+    }
+
+    public float getAlertedForceScale() {
+        return alertedForceScale;
+    }
+
     public static void setSuspicionMeterCuriousTexture(Texture suspicionMeterCurious) {
         Guard.SUSPICION_METER_CURIOUS = suspicionMeterCurious;
     }
@@ -97,8 +118,8 @@ public class Guard extends Enemy {
      * The main purpose of this constructor is to set the initial capsule
      * orientation.
      */
-    public Guard(MapProperties properties, float units) {
-        super(properties, units);
+    public Guard(MapProperties properties, JsonValue constants, float units) {
+        super(properties, constants, units);
         fov = properties.get("fov", Float.class);
         currentPatrolIndex = 0;
         cameraAlerted = false;
@@ -112,6 +133,10 @@ public class Guard extends Enemy {
         maxSusLevel = 100F;
         seesPlayer = false;
 
+        agroedForceScale = constants.getFloat("agroedForceScale");
+        alertedForceScale = constants.getFloat("alertedForceScale");
+        blindedForceScale = constants.getFloat("blindedForceScale");
+        susForceScale = constants.getFloat("susForceScale");
 
         MapObject path = properties.get("path", MapObject.class);
         if (path instanceof PolylineMapObject line) {
