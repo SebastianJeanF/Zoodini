@@ -2,8 +2,8 @@
   "CAMERA_INTERPOLATION_DURATION" : 0.75,
   "constants" : {
     "guard" : {
-      "category": "00100",
-      "exclude" : "00100",
+      "category": "000100",
+      "exclude" : "000100",
       "force" : 1.0,
       "maxSpeed" : 10.0,
       "spriteRadius": 1,
@@ -17,8 +17,8 @@
       "fov" : 60.0
     },
     "cat": {
-      "category": "00010",
-      "exclude" : "00010",
+      "category": "000010",
+      "exclude" : "000010",
       "force" : 3.0,
       "maxSpeed" : 10.0,
       "spriteRadius": 0.6,
@@ -28,13 +28,13 @@
       "meowExpansionSpeed" : 10.0
     },
     "octopus" : {
-      "category": "00010",
-      "exclude" : "00010",
+      "category": "000010",
+      "exclude" : "000010",
       "force" : 4.0,
       "maxSpeed" : 10.0,
       "spriteRadius": 0.6,
       "obstacleRadius" : 0.6,
-      "abilityRange" : 3.5,
+      "abilityRange" : 5,
       "inkCapacity" : 100.0,
       "inkRegen" : 25.0,
       "inkUsage" : 25.0
@@ -43,35 +43,35 @@
       "category": "010000",
       "exclude" : "000000",
       "spriteRadius": 0.6,
-      "obstacleRadius" : 0.2,
+      "obstacleRadius" : 0.6,
       "disabledTime" : 5.0,
       "alarmDistance" : 5.0
     },
     "exit" : {
-      "category": "10000",
-      "exclude" : "00000",
+      "category": "010000",
+      "exclude" : "000000",
       "force" : 1.0,
       "maxSpeed" : 10.0,
       "size": 1.0
     },
     "key" : {
-      "category": "10000",
-      "exclude" : "11101",
+      "category": "010000",
+      "exclude" : "111101",
       "force" : 1.0,
       "maxSpeed" : 10.0,
       "size" : 1.0
     },
     "door" : {
-      "category": "10000",
-      "exclude" : "00000",
-      "exclude-unlocked" : "00110",
+      "category": "010000",
+      "exclude" : "000000",
+      "exclude-unlocked" : "000110",
       "force" : 1.0,
       "maxSpeed" : 10.0,
       "size" : 1.0
     },
     "ink" : {
-      "category": "00010",
-      "exclude" : "10000",
+      "category": "000010",
+      "exclude" : "000010",
       "force" : 1.0,
       "maxSpeed" : 10.0,
       "spriteRadius": 1.0,
@@ -82,8 +82,8 @@
     "radius":       0.2,
     "spriterad":    0.2,
     "startframe":   0,
-    "collide":      "00010",
-    "exclude":      "10000",
+    "collide": "000010",
+    "exclude" : "000010",
     "debug":        "#ffffffC0",
     "density":      1.0,
     "friction":     0.0,
