@@ -4,22 +4,17 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Disposable;
 import edu.cornell.gdiac.physics2.BoxObstacle;
 import edu.cornell.gdiac.physics2.Obstacle;
-import edu.cornell.gdiac.physics2.PolygonObstacle;
 import walknroll.zoodini.models.GameLevel;
-import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Guard;
 import walknroll.zoodini.models.entities.SecurityCamera;
 import walknroll.zoodini.models.nonentities.Door;
 import walknroll.zoodini.models.nonentities.Exit;
-import walknroll.zoodini.models.nonentities.ExteriorWall;
-import walknroll.zoodini.models.nonentities.InteriorWall;
 import walknroll.zoodini.models.nonentities.Key;
 
 public class MinimapActor extends Actor implements Disposable {
