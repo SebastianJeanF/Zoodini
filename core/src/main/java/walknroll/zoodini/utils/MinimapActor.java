@@ -49,8 +49,6 @@ public class MinimapActor extends Actor implements Disposable {
     private Texture minimapTexture;
     private Pixmap pixmap;
 
-    private boolean debug = true;
-
     // Flag to check if we need to redraw the map
     private boolean needsRedraw = true;
 
@@ -125,15 +123,12 @@ public class MinimapActor extends Actor implements Disposable {
         }
 
         // Draw doors directly from doors collection
-        System.out.println("Drawing doors...");
         drawAllDoors();
 
         // Draw keys
-        System.out.println("Drawing keys...");
         drawAllKeys();
 
         // Draw exit
-        System.out.println("Drawing exit...");
         drawExitDirect();
 
         // Update the minimap texture
@@ -188,9 +183,6 @@ public class MinimapActor extends Actor implements Disposable {
             height = 1.0f;
         }
 
-        // Debug output
-        System.out.println("Drawing obstacle at: " + x + "," + y + " with size: " + width + "x" + height);
-
         // Calculate the corners in world coordinates
         float worldLeft = x - width/2;
         float worldRight = x + width/2;
@@ -205,12 +197,6 @@ public class MinimapActor extends Actor implements Disposable {
         // The key fix: invert the Y coordinates for walls specifically
         float minimapTopY = (level.getBounds().y + level.getBounds().height - worldTop) * scaleFactorY + BORDER_SIZE;
         float minimapBottomY = (level.getBounds().y + level.getBounds().height - worldBottom) * scaleFactorY + BORDER_SIZE;
-
-        // Debug the conversion
-        System.out.println("  World corners: (" + worldLeft + "," + worldTop + ") to (" +
-            worldRight + "," + worldBottom + ")");
-        System.out.println("  Minimap corners: (" + minimapLeftX + "," + minimapTopY + ") to (" +
-            minimapRightX + "," + minimapBottomY + ")");
 
         // For rectangle drawing, we need the top-left corner and dimensions
         float rectX = Math.min(minimapLeftX, minimapRightX);
@@ -259,15 +245,12 @@ public class MinimapActor extends Actor implements Disposable {
 
             doorCount++;
         }
-
-        System.out.println("Drew " + doorCount + " doors");
     }
 
     /**
      * Draws all keys directly from the keys collection
      */
     private void drawAllKeys() {
-        int keyCount = 0;
         pixmap.setColor(KEY_COLOR);
 
         for (Key key : level.getKeys()) {
@@ -288,11 +271,8 @@ public class MinimapActor extends Actor implements Disposable {
                     minimapSize
                 );
 
-                keyCount++;
             }
         }
-
-        System.out.println("Drew " + keyCount + " keys");
     }
 
     /**
@@ -323,9 +303,7 @@ public class MinimapActor extends Actor implements Disposable {
                 minimapSize
             );
 
-            System.out.println("Drew exit at " + position + " (minimap: " + minimapPos + ")");
-        } else {
-            System.out.println("No exit found to draw");
+
         }
     }
 
