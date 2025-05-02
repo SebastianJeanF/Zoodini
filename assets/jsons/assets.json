@@ -225,7 +225,9 @@
     "guard-suspicion-curious": "textures/entities/guard/guard-suspicion-curious.png",
     "ink-text": "textures/ui/gameplay/ink-text.png",
     "cat-walk-transition" : "textures/entities/cat/cat-walk-transition.png",
-    "octopus" : "textures/entities/octopus/octopus.png"
+    "octopus" : "textures/entities/octopus/octopus.png",
+    "switch1" : "textures/ui/gameplay/switch1.png",
+    "switch2" : "textures/ui/gameplay/switch2.png"
   },
   "fonts": {
     "display": {

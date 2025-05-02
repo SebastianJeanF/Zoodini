@@ -72,6 +72,8 @@ public class UIController {
     private Table pauseMenuTable;
     private Image resumeButtonImage;
     private Image inkTextImage;
+    private Image switch1;
+    private Image switch2;
 
     private MeowCooldownIndicator meowCooldownIndicator;
 
@@ -103,7 +105,6 @@ public class UIController {
         minimap.setCatTexture((directory.getEntry("cat-walk-transition", Texture.class)));
         minimap.setOctopusTexture((directory.getEntry("octopus", Texture.class)));
 
-
         if (level.isOctopusPresent()) {
             SpriteSheet inkSprites = directory.getEntry("ink-meter.animation", SpriteSheet.class);
             Octopus o = level.getOctopus();
@@ -123,6 +124,9 @@ public class UIController {
         pauseBannerImage = new Image(directory.getEntry("game_paused", Texture.class));
         resumeIconImage = new Image(directory.getEntry("resume_icon", Texture.class));
         resumeButtonImage = new Image(directory.getEntry("resume_button", Texture.class));
+        switch1 = new Image(directory.getEntry("switch1", Texture.class));
+        switch2 = new Image(directory.getEntry("switch2", Texture.class));
+
     }
 
 
@@ -151,6 +155,22 @@ public class UIController {
         bottomLeftTable.add(inkMeter).align(Align.bottomLeft).padBottom(35);
         bottomLeftTable.add(inkTextImage);
 
+        Table topRightTable = new Table();
+        topRightTable.setFillParent(true);
+        topRightTable.setDebug(debug);
+        topRightTable.top().right();
+        Stack s = new Stack();
+        switch1.setVisible(false);
+        switch2.setVisible(false);
+        s.add(switch1);
+        s.add(switch2);
+        topRightTable.add(s).pad(10f);
+        Stack pauseStack = new Stack();
+        pauseStack.add(pauseIconImage);
+        pauseStack.add(resumeIconImage);
+        topRightTable.add(pauseStack).height(40f).width(40f).pad(10f);
+        stage.addActor(topRightTable);
+
 
         //TODO: don't hardcode positions. Use tables.
         if (smallCatIconImage != null) {
@@ -172,11 +192,6 @@ public class UIController {
         }
 
         if (pauseIconImage != null) {
-            float iconSize = 40f;
-            pauseIconImage.setSize(iconSize, iconSize);
-            float xPos = Gdx.graphics.getWidth() - iconSize - 20;
-            float yPos = Gdx.graphics.getHeight() - iconSize - 20;
-            pauseIconImage.setPosition(xPos, yPos);
             pauseIconImage.setVisible(true);
             pauseIconImage.addListener(new ClickListener() {
                 @Override
@@ -184,15 +199,10 @@ public class UIController {
                     togglePauseMenu(true);
                 }
             });
-            stage.addActor(pauseIconImage);
+            //stage.addActor(pauseIconImage);
         }
 
         if (resumeIconImage != null) {
-            float iconSize = 40f;
-            resumeIconImage.setSize(iconSize, iconSize);
-            float xPos = Gdx.graphics.getWidth() - iconSize - 20;
-            float yPos = Gdx.graphics.getHeight() - iconSize - 20;
-            resumeIconImage.setPosition(xPos, yPos);
             resumeIconImage.setVisible(false);
             resumeIconImage.addListener(new ClickListener() {
                 @Override
@@ -200,7 +210,6 @@ public class UIController {
                     togglePauseMenu(false);
                 }
             });
-            stage.addActor(resumeIconImage);
         }
 
         Drawable darkOverlay = skin.newDrawable("white", new Color(0, 0, 0, 0.7f));
@@ -364,9 +373,13 @@ public class UIController {
         if (avatar.getAvatarType() == AvatarType.CAT) {
             meowCooldownIndicator.setVisible(true);
             inkTextImage.setVisible(false);
+            switch1.setVisible(true);
+            switch2.setVisible(false);
             meowCooldownIndicator.update(level.getCat());
         } else {
             meowCooldownIndicator.setVisible(false);
+            switch1.setVisible(false);
+            switch2.setVisible(true);
             inkTextImage.setVisible(true);
         }
 
