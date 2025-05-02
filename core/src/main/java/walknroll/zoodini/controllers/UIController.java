@@ -168,7 +168,7 @@ public class UIController {
         Stack pauseStack = new Stack();
         pauseStack.add(pauseIconImage);
         pauseStack.add(resumeIconImage);
-        topRightTable.add(pauseStack).height(40f).width(40f).pad(10f);
+        topRightTable.add(pauseStack).height(switch1.getHeight()).width(switch1.getHeight()).pad(10f);
         stage.addActor(topRightTable);
 
 
