@@ -4,17 +4,23 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Disposable;
 import edu.cornell.gdiac.physics2.BoxObstacle;
+import edu.cornell.gdiac.physics2.Obstacle;
+import edu.cornell.gdiac.physics2.PolygonObstacle;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Guard;
+import walknroll.zoodini.models.entities.SecurityCamera;
 import walknroll.zoodini.models.nonentities.Door;
 import walknroll.zoodini.models.nonentities.Exit;
+import walknroll.zoodini.models.nonentities.ExteriorWall;
 import walknroll.zoodini.models.nonentities.InteriorWall;
-import walknroll.zoodini.utils.ZoodiniSprite;
+import walknroll.zoodini.models.nonentities.Key;
 
 public class MinimapActor extends Actor implements Disposable {
     // Minimap display parameters
@@ -28,11 +34,13 @@ public class MinimapActor extends Actor implements Disposable {
     private final Color CAT_COLOR = new Color(0.9f, 0.8f, 0.2f, 1f);
     private final Color OCTOPUS_COLOR = new Color(0.2f, 0.5f, 0.9f, 1f);
     private final Color GUARD_COLOR = new Color(0.9f, 0.2f, 0.2f, 1f);
+    private final Color CAMERA_COLOR = new Color(0.7f, 0.2f, 0.7f, 1f);
     private final Color DOOR_COLOR = new Color(0.6f, 0.4f, 0.2f, 1f);
     private final Color EXIT_COLOR = new Color(0.2f, 0.9f, 0.2f, 1f);
-    private int updateCounter = 0;
-    private static final int UPDATE_FREQUENCY = 10;
+    private final Color KEY_COLOR = new Color(0.9f, 0.9f, 0.2f, 1f);
 
+    private int updateCounter = 0;
+    private static final int UPDATE_FREQUENCY = 5;
 
     // Reference to game level for accessing entities
     private GameLevel level;
@@ -41,16 +49,17 @@ public class MinimapActor extends Actor implements Disposable {
     private Texture minimapTexture;
     private Pixmap pixmap;
 
+    private boolean debug = true;
+
     // Flag to check if we need to redraw the map
     private boolean needsRedraw = true;
-
-    // The visible player camera area on the minimap
-    private float cameraViewportWidth;
-    private float cameraViewportHeight;
 
     // The scale factor to convert from world units to minimap pixels
     private float scaleFactorX;
     private float scaleFactorY;
+
+    // Dot texture for dynamic entities
+    private Texture dotTexture;
 
     public MinimapActor(GameLevel level) {
         this.level = level;
@@ -58,6 +67,22 @@ public class MinimapActor extends Actor implements Disposable {
 
         // Initialize the pixmap and texture
         createMinimapTexture();
+        createDotTexture();
+
+        System.out.println("MinimapActor created");
+        System.out.println("Level bounds: " + level.getBounds());
+        System.out.println("Tile size: " + level.getTileSize());
+
+        // Debug: Count entities
+        System.out.println("Number of objects in level: " + level.getObjects().size());
+        System.out.println("Number of sprites in level: " + level.getSprites().size());
+        System.out.println("Number of guards: " + level.getGuards().size);
+        System.out.println("Number of security cameras: " + level.getSecurityCameras().size);
+        System.out.println("Number of keys: " + level.getKeys().size);
+        System.out.println("Number of doors: " + level.getDoors().size);
+        System.out.println("Exit exists: " + (level.getExit() != null));
+        System.out.println("Cat exists: " + (level.getCat() != null));
+        System.out.println("Octopus exists: " + (level.getOctopus() != null));
     }
 
     private void createMinimapTexture() {
@@ -68,6 +93,15 @@ public class MinimapActor extends Actor implements Disposable {
 
         // Create a texture from the pixmap
         minimapTexture = new Texture(pixmap);
+    }
+
+    private void createDotTexture() {
+        // Create a small circle texture for dynamic entities
+        Pixmap dotPixmap = new Pixmap(8, 8, Pixmap.Format.RGBA8888);
+        dotPixmap.setColor(Color.WHITE);
+        dotPixmap.fillCircle(4, 4, 3);
+        dotTexture = new Texture(dotPixmap);
+        dotPixmap.dispose();
     }
 
     /**
@@ -91,16 +125,45 @@ public class MinimapActor extends Actor implements Disposable {
         scaleFactorX = MINIMAP_SIZE / levelWidth;
         scaleFactorY = MINIMAP_SIZE / levelHeight;
 
-        // We'll implement the actual drawing of level elements in the next step
-        for (ZoodiniSprite sprite : level.getSprites()) {
-            if (sprite instanceof InteriorWall) {
-                drawWall((InteriorWall) sprite);
-            } else if (sprite instanceof Door) {
-                drawDoor((Door) sprite);
-            } else if (sprite instanceof Exit) {
-                drawExit((Exit) sprite);
+        System.out.println("Scale factors: X=" + scaleFactorX + ", Y=" + scaleFactorY);
+
+        // Draw grid
+        drawGrid();
+
+        // Draw all obstacles directly from level objects
+        System.out.println("Drawing obstacles...");
+        int wallCount = 0;
+
+        // Direct access to all objects in the level
+        for (Obstacle obstacle : level.getObjects()) {
+            if (obstacle.getName() != null) {
+                System.out.println("Found obstacle: " + obstacle.getName() +
+                    " at position: " + obstacle.getX() + "," + obstacle.getY());
+            }
+
+            // Categorize obstacles based on their properties
+            boolean isWall = obstacle.getBodyType() == BodyDef.BodyType.StaticBody &&
+                !obstacle.isSensor();
+
+            if (isWall) {
+                drawObstacle(obstacle);
+                wallCount++;
             }
         }
+
+        System.out.println("Drew " + wallCount + " walls");
+
+        // Draw doors directly from doors collection
+        System.out.println("Drawing doors...");
+        drawAllDoors();
+
+        // Draw keys
+        System.out.println("Drawing keys...");
+        drawAllKeys();
+
+        // Draw exit
+        System.out.println("Drawing exit...");
+        drawExitDirect();
 
         // Update the minimap texture
         minimapTexture.dispose();
@@ -110,93 +173,199 @@ public class MinimapActor extends Actor implements Disposable {
     }
 
     /**
+     * Draws a simple grid on the minimap for reference
+     */
+    private void drawGrid() {
+        pixmap.setColor(new Color(0.3f, 0.3f, 0.3f, 0.5f));
+
+        int gridSize = 5; // Grid cells in world units
+
+        for (int x = 0; x <= level.getBounds().width; x += gridSize) {
+            Vector2 start = worldToMinimap(x + level.getBounds().x, level.getBounds().y);
+            Vector2 end = worldToMinimap(x + level.getBounds().x, level.getBounds().y + level.getBounds().height);
+
+            // Draw vertical line
+            pixmap.drawLine((int)start.x, (int)start.y, (int)end.x, (int)end.y);
+        }
+
+        for (int y = 0; y <= level.getBounds().height; y += gridSize) {
+            Vector2 start = worldToMinimap(level.getBounds().x, y + level.getBounds().y);
+            Vector2 end = worldToMinimap(level.getBounds().x + level.getBounds().width, y + level.getBounds().y);
+
+            // Draw horizontal line
+            pixmap.drawLine((int)start.x, (int)start.y, (int)end.x, (int)end.y);
+        }
+    }
+
+    /**
+     * Draw any obstacle on the minimap (walls, etc.)
+     */
+    private void drawObstacle(Obstacle obstacle) {
+        // Get position and dimensions
+        float x = obstacle.getX();
+        float y = obstacle.getY();
+        float width = 0;
+        float height = 0;
+
+        if (obstacle instanceof BoxObstacle) {
+            BoxObstacle box = (BoxObstacle) obstacle;
+            width = box.getWidth();
+            height = box.getHeight();
+        } else {
+            // Default size for other obstacles
+            width = 1.0f;
+            height = 1.0f;
+        }
+
+        // Debug output
+        System.out.println("Drawing obstacle at: " + x + "," + y + " with size: " + width + "x" + height);
+
+        // Calculate the corners in world coordinates
+        float worldLeft = x - width/2;
+        float worldRight = x + width/2;
+        float worldBottom = y - height/2;
+        float worldTop = y + height/2;
+
+        // Convert to minimap coordinates
+        // For walls specifically, manually correct the y coordinates here
+        float minimapLeftX = (worldLeft - level.getBounds().x) * scaleFactorX + BORDER_SIZE;
+        float minimapRightX = (worldRight - level.getBounds().x) * scaleFactorX + BORDER_SIZE;
+
+        // The key fix: invert the Y coordinates for walls specifically
+        float minimapTopY = (level.getBounds().y + level.getBounds().height - worldTop) * scaleFactorY + BORDER_SIZE;
+        float minimapBottomY = (level.getBounds().y + level.getBounds().height - worldBottom) * scaleFactorY + BORDER_SIZE;
+
+        // Debug the conversion
+        System.out.println("  World corners: (" + worldLeft + "," + worldTop + ") to (" +
+            worldRight + "," + worldBottom + ")");
+        System.out.println("  Minimap corners: (" + minimapLeftX + "," + minimapTopY + ") to (" +
+            minimapRightX + "," + minimapBottomY + ")");
+
+        // For rectangle drawing, we need the top-left corner and dimensions
+        float rectX = Math.min(minimapLeftX, minimapRightX);
+        float rectY = Math.min(minimapTopY, minimapBottomY);
+        float rectWidth = Math.abs(minimapRightX - minimapLeftX);
+        float rectHeight = Math.abs(minimapBottomY - minimapTopY);
+
+        // Draw the obstacle
+        pixmap.setColor(WALL_COLOR);
+        pixmap.fillRectangle(
+            (int)rectX,
+            (int)rectY,
+            Math.max(1, (int)rectWidth),
+            Math.max(1, (int)rectHeight)
+        );
+    }
+
+    /**
+     * Draws all doors directly from the door collection
+     */
+    private void drawAllDoors() {
+        int doorCount = 0;
+        pixmap.setColor(DOOR_COLOR);
+
+        for (Door door : level.getDoors().keys()) {
+            Vector2 position = door.getObstacle().getPosition();
+            float size = 1.0f;  // Default size
+
+            // Try to determine actual size
+            if (door.getObstacle() instanceof BoxObstacle) {
+                BoxObstacle box = (BoxObstacle) door.getObstacle();
+                size = Math.max(box.getWidth(), box.getHeight());
+            }
+
+            // Convert to minimap coordinates
+            Vector2 minimapPos = worldToMinimap(position.x, position.y);
+            int minimapSize = Math.max(3, (int)(size * scaleFactorX));
+
+            // Draw the door as a rectangle
+            pixmap.fillRectangle(
+                (int)(minimapPos.x - minimapSize/2),
+                (int)(minimapPos.y - minimapSize/2),
+                minimapSize,
+                minimapSize
+            );
+
+            doorCount++;
+        }
+
+        System.out.println("Drew " + doorCount + " doors");
+    }
+
+    /**
+     * Draws all keys directly from the keys collection
+     */
+    private void drawAllKeys() {
+        int keyCount = 0;
+        pixmap.setColor(KEY_COLOR);
+
+        for (Key key : level.getKeys()) {
+            // Only draw if not collected
+            if (!key.isCollected()) {
+                Vector2 position = key.getObstacle().getPosition();
+                float size = 0.5f;  // Keys are small
+
+                // Convert to minimap coordinates
+                Vector2 minimapPos = worldToMinimap(position.x, position.y);
+                int minimapSize = Math.max(2, (int)(size * scaleFactorX));
+
+                // Draw the key as a rectangle
+                pixmap.fillRectangle(
+                    (int)(minimapPos.x - minimapSize/2),
+                    (int)(minimapPos.y - minimapSize/2),
+                    minimapSize,
+                    minimapSize
+                );
+
+                keyCount++;
+            }
+        }
+
+        System.out.println("Drew " + keyCount + " keys");
+    }
+
+    /**
+     * Draws the exit directly from the exit reference
+     */
+    private void drawExitDirect() {
+        Exit exit = level.getExit();
+        if (exit != null) {
+            Vector2 position = exit.getObstacle().getPosition();
+            float size = 1.0f;  // Default size
+
+            // Try to determine actual size
+            if (exit.getObstacle() instanceof BoxObstacle) {
+                BoxObstacle box = (BoxObstacle) exit.getObstacle();
+                size = Math.max(box.getWidth(), box.getHeight());
+            }
+
+            // Convert to minimap coordinates
+            Vector2 minimapPos = worldToMinimap(position.x, position.y);
+            int minimapSize = Math.max(3, (int)(size * scaleFactorX));
+
+            // Draw the exit
+            pixmap.setColor(EXIT_COLOR);
+            pixmap.fillRectangle(
+                (int)(minimapPos.x - minimapSize/2),
+                (int)(minimapPos.y - minimapSize/2),
+                minimapSize,
+                minimapSize
+            );
+
+            System.out.println("Drew exit at " + position + " (minimap: " + minimapPos + ")");
+        } else {
+            System.out.println("No exit found to draw");
+        }
+    }
+
+    /**
      * Converts a world position to minimap coordinates
      */
     private Vector2 worldToMinimap(float worldX, float worldY) {
         // Adjust for level bounds offset and scale to minimap size
         float minimapX = (worldX - level.getBounds().x) * scaleFactorX + BORDER_SIZE;
         float minimapY = (worldY - level.getBounds().y) * scaleFactorY + BORDER_SIZE;
-
-        // Flip Y coordinate because pixmap coordinates are top-down
-        minimapY = getHeight() - minimapY;
-
         return new Vector2(minimapX, minimapY);
-    }
-
-    /**
-     * Draws a wall on the minimap
-     */
-    private void drawWall(InteriorWall wall) {
-        Vector2 position = wall.getPosition();
-        float width = wall.getWidth();
-        float height = wall.getHeight();
-
-        // Convert world coordinates to minimap coordinates
-        Vector2 minimapPos = worldToMinimap(position.x - width/2, position.y - height/2);
-        float minimapWidth = width * scaleFactorX;
-        float minimapHeight = height * scaleFactorY;
-
-        // Draw the wall
-        pixmap.setColor(WALL_COLOR);
-        pixmap.fillRectangle(
-            (int)minimapPos.x,
-            (int)(minimapPos.y - minimapHeight), // Adjust for top-down coordinates
-            (int)minimapWidth,
-            (int)minimapHeight
-        );
-    }
-
-    /**
-     * Draws a door on the minimap
-     */
-    private void drawDoor(Door door) {
-        Vector2 position = door.getObstacle().getPosition();
-        float size = 1.0f;  // Default size if we can't determine actual size
-
-        if (door.getObstacle() instanceof BoxObstacle) {
-            BoxObstacle boxObstacle = (BoxObstacle) door.getObstacle();
-            size = Math.max(boxObstacle.getWidth(), boxObstacle.getHeight());
-        }
-
-        // Convert world coordinates to minimap coordinates
-        Vector2 minimapPos = worldToMinimap(position.x, position.y);
-        float minimapSize = size * scaleFactorX;
-
-        // Draw the door
-        pixmap.setColor(DOOR_COLOR);
-        pixmap.fillRectangle(
-            (int)(minimapPos.x - minimapSize/2),
-            (int)(minimapPos.y - minimapSize/2),
-            (int)minimapSize,
-            (int)minimapSize
-        );
-    }
-
-    /**
-     * Draws an exit on the minimap
-     */
-    private void drawExit(Exit exit) {
-        Vector2 position = exit.getObstacle().getPosition();
-        float size = 1.0f; // Default size
-
-        // Try to get size information from obstacle
-        if (exit.getObstacle() instanceof BoxObstacle) {
-            BoxObstacle boxObstacle = (BoxObstacle) exit.getObstacle();
-            size = Math.max(boxObstacle.getWidth(), boxObstacle.getHeight());
-        }
-
-        // Convert world coordinates to minimap coordinates
-        Vector2 minimapPos = worldToMinimap(position.x, position.y);
-        float minimapSize = size * scaleFactorX;
-
-        // Draw the exit
-        pixmap.setColor(EXIT_COLOR);
-        pixmap.fillRectangle(
-            (int)(minimapPos.x - minimapSize/2),
-            (int)(minimapPos.y - minimapSize/2),
-            (int)minimapSize,
-            (int)minimapSize
-        );
     }
 
     @Override
@@ -209,7 +378,7 @@ public class MinimapActor extends Actor implements Disposable {
         // Draw the minimap texture
         batch.draw(minimapTexture, getX(), getY(), getWidth(), getHeight());
 
-        // Draw dynamic entities (players, guards)
+        // Draw dynamic entities (players, guards, cameras)
         drawDynamicEntities(batch);
     }
 
@@ -220,40 +389,55 @@ public class MinimapActor extends Actor implements Disposable {
     private void drawDynamicEntities(Batch batch) {
         Color originalColor = batch.getColor().cpy();
 
-        // Draw the cat
-        Vector2 catPos = level.getCat().getPosition();
-        Vector2 minimapCatPos = worldToMinimap(catPos.x, catPos.y);
+        // Draw players
+        if (level.getCat() != null) {
+            Vector2 catPos = level.getCat().getPosition();
+            Vector2 minimapCatPos = worldToMinimap(catPos.x, catPos.y);
 
-        batch.setColor(CAT_COLOR);
-        drawDot(batch, minimapCatPos.x, minimapCatPos.y, 3f);
+            batch.setColor(CAT_COLOR);
+            batch.draw(dotTexture,
+                getX() + minimapCatPos.x - 4,
+                getY() + minimapCatPos.y - 4,
+                8, 8);
+        }
 
-        // Draw the octopus
-        Vector2 octopusPos = level.getOctopus().getPosition();
-        Vector2 minimapOctopusPos = worldToMinimap(octopusPos.x, octopusPos.y);
+        if (level.getOctopus() != null) {
+            Vector2 octopusPos = level.getOctopus().getPosition();
+            Vector2 minimapOctopusPos = worldToMinimap(octopusPos.x, octopusPos.y);
 
-        batch.setColor(OCTOPUS_COLOR);
-        drawDot(batch, minimapOctopusPos.x, minimapOctopusPos.y, 3f);
+            batch.setColor(OCTOPUS_COLOR);
+            batch.draw(dotTexture,
+                getX() + minimapOctopusPos.x - 4,
+                getY() + minimapOctopusPos.y - 4,
+                8, 8);
+        }
 
         // Draw guards
         batch.setColor(GUARD_COLOR);
         for (Guard guard : level.getGuards()) {
             Vector2 guardPos = guard.getPosition();
             Vector2 minimapGuardPos = worldToMinimap(guardPos.x, guardPos.y);
-            drawDot(batch, minimapGuardPos.x, minimapGuardPos.y, 2.5f);
+
+            batch.draw(dotTexture,
+                getX() + minimapGuardPos.x - 3,
+                getY() + minimapGuardPos.y - 3,
+                6, 6);
+        }
+
+        // Draw security cameras
+        batch.setColor(CAMERA_COLOR);
+        for (SecurityCamera camera : level.getSecurityCameras()) {
+            Vector2 cameraPos = camera.getPosition();
+            Vector2 minimapCameraPos = worldToMinimap(cameraPos.x, cameraPos.y);
+
+            batch.draw(dotTexture,
+                getX() + minimapCameraPos.x - 3,
+                getY() + minimapCameraPos.y - 3,
+                6, 6);
         }
 
         // Restore original color
         batch.setColor(originalColor);
-    }
-
-    /**
-     * Helper method to draw a simple dot
-     */
-    private void drawDot(Batch batch, float x, float y, float size) {
-        // Since we don't have a circle texture, we'll use a simple rectangle for now
-        // In a real implementation, you might want to use a circle texture
-        batch.draw(minimapTexture, x - size/2, y - size/2, size, size,
-            0, 0, 1, 1); // Use a 1x1 pixel from the texture
     }
 
     @Override
@@ -273,6 +457,9 @@ public class MinimapActor extends Actor implements Disposable {
         }
         if (pixmap != null) {
             pixmap.dispose();
+        }
+        if (dotTexture != null) {
+            dotTexture.dispose();
         }
     }
 }
