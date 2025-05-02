@@ -31,10 +31,10 @@ public class MinimapActor extends Actor implements Disposable {
     private final Color BACKGROUND_COLOR = new Color(0.1f, 0.1f, 0.1f, 0.7f);
     private final Color BORDER_COLOR = new Color(0.5f, 0.5f, 0.5f, 1f);
     private final Color WALL_COLOR = new Color(0.3f, 0.3f, 0.3f, 1f);
-    private final Color CAT_COLOR = new Color(0.9f, 0.8f, 0.2f, 1f);
-    private final Color OCTOPUS_COLOR = new Color(0.2f, 0.5f, 0.9f, 1f);
+    private final Color CAT_COLOR = new Color(1f, 0.65f, 0.0f, 1f);
+    private final Color OCTOPUS_COLOR = new Color(0.7f, 0.2f, 0.7f, 1f);
     private final Color GUARD_COLOR = new Color(0.9f, 0.2f, 0.2f, 1f);
-    private final Color CAMERA_COLOR = new Color(0.7f, 0.2f, 0.7f, 1f);
+    private final Color CAMERA_COLOR = new Color(0.9f, 0.8f, 0.2f, 1f);
     private final Color DOOR_COLOR = new Color(0.6f, 0.4f, 0.2f, 1f);
     private final Color EXIT_COLOR = new Color(0.2f, 0.9f, 0.2f, 1f);
     private final Color KEY_COLOR = new Color(0.9f, 0.9f, 0.2f, 1f);
