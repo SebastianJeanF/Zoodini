@@ -5,19 +5,9 @@
         "id": 1,
         "members": [
             {
-                "name": "alarmDistance",
-                "type": "float",
-                "value": 5
-            },
-            {
                 "name": "angle",
                 "type": "float",
                 "value": 90
-            },
-            {
-                "name": "disabledTime",
-                "type": "float",
-                "value": 5
             },
             {
                 "name": "fov",
@@ -43,21 +33,6 @@
         "drawFill": true,
         "id": 2,
         "members": [
-            {
-                "name": "abilityCooldown",
-                "type": "float",
-                "value": 5
-            },
-            {
-                "name": "abilityRange",
-                "type": "float",
-                "value": 7
-            },
-            {
-                "name": "meowExpandSpeed",
-                "type": "float",
-                "value": 10
-            }
         ],
         "name": "Cat",
         "type": "class",
@@ -134,26 +109,6 @@
         "drawFill": true,
         "id": 7,
         "members": [
-            {
-                "name": "abilityRange",
-                "type": "float",
-                "value": 3.5
-            },
-            {
-                "name": "inkCapacity",
-                "type": "float",
-                "value": 100
-            },
-            {
-                "name": "inkRegen",
-                "type": "float",
-                "value": 25
-            },
-            {
-                "name": "inkUsage",
-                "type": "float",
-                "value": 25
-            }
         ],
         "name": "Octopus",
         "type": "class",
