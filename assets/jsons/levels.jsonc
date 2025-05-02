@@ -2,7 +2,7 @@
 // THIS MUST BE IN CONSECUTIVE ORDER, OTHERWISE THINGS WILL BREAK WITH LEVEL LOADING
 // AGAIN: THIS MUST BE IN CONSECUTIVE ORDER
 {
-  "1": "maps/BetaMapEasy - Copy (2).tmx",
+  "1": "maps/Level1.tmx",
   "2": "maps/map5 - Copy.tmx",
   "3": "maps/BetaMapHard - Copy.tmx"
 }
