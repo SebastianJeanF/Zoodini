@@ -3,14 +3,14 @@ package walknroll.zoodini.models.entities;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.JsonValue;
-import edu.cornell.gdiac.assets.AssetDirectory;
+
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.utils.animation.Animation;
 import walknroll.zoodini.utils.animation.AnimationState;
+import walknroll.zoodini.utils.enums.AvatarType;
 
 /**
  * Player avatar for the plaform game.
@@ -18,13 +18,13 @@ import walknroll.zoodini.utils.animation.AnimationState;
  * Note that the constructor does very little. The true initialization happens
  * by reading the JSON value.
  */
-public class Octopus extends Avatar {
+public class Octopus extends PlayableAvatar {
     /// Whether or not this Otto instance has triggered the blind action
     private boolean inked;
     private final float OCTOPUS_IMAGE_SCALE = 1.25f;
     private final float abilityRange;
     /// Whether this Octopus is currently aiming at a target
-    private boolean currentlyAiming;
+    private boolean currentlyAiming = false;
 
     /// The direction this Octopus is aiming in
     private Vector2 target;
@@ -47,6 +47,19 @@ public class Octopus extends Avatar {
     // Keys of doors
     private Array<Key> keys;
 
+    public Octopus(MapProperties properties, float units) {
+        super(AvatarType.OCTOPUS, properties, units);
+        float r = properties.get("spriteRadius", Float.class) * OCTOPUS_IMAGE_SCALE * units;
+        mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
+        target = new Vector2();
+        this.abilityRange = properties.get("abilityRange", Float.class);
+        this.inkRemaining = properties.get("inkCapacity", Float.class);
+        this.inkRegen = properties.get("inkRegen", Float.class);
+        this.inkUsage = properties.get("inkUsage", Float.class);
+        this.inkCapacity = inkRemaining;
+        keys = new Array<Key>();
+    }
+
     public void assignKey(Key key) {
         if (keys == null) {
             keys = new Array<Key>();
@@ -58,11 +71,11 @@ public class Octopus extends Avatar {
         return keys;
     }
 
-    public float getInkRegen(){
+    public float getInkRegen() {
         return this.inkRegen;
     }
 
-    public float getInkCost(){
+    public float getInkCost() {
         return this.inkUsage;
     }
 
@@ -70,10 +83,12 @@ public class Octopus extends Avatar {
         return abilityRange;
     }
 
+    @Override
     public boolean didFire() {
         return didFire;
     }
 
+    @Override
     public void setDidFire(boolean didFire) {
         this.didFire = didFire;
     }
@@ -100,6 +115,7 @@ public class Octopus extends Avatar {
      *
      * @return Whether this Octopus instance is currently aiming
      */
+    @Override
     public boolean isCurrentlyAiming() {
         return currentlyAiming;
     }
@@ -109,6 +125,7 @@ public class Octopus extends Avatar {
      *
      * @param value Whether the Octopus is currently aiming
      */
+    @Override
     public void setCurrentlyAiming(boolean value) {
         this.currentlyAiming = value;
     }
@@ -139,15 +156,20 @@ public class Octopus extends Avatar {
 
     /**
      * Adds spritesheet to animate for a given state.
-     * */
+     */
     @Override
-    public void setAnimation(AnimationState state, SpriteSheet sheet){
-        switch(state){
-            //TODO: frame delays (number of frames elapsed before rendering the next sprite) is set to 16 for all states. This needs to be adjusted.
-            case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, 7, true));
-            case WALK -> animationController.addAnimation(AnimationState.WALK, new Animation(sheet, 0, sheet.getSize()-1, 6, true));
-            case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN, new Animation(sheet, 0, sheet.getSize()-1, 8, true));
-            case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP, new Animation(sheet, 0, sheet.getSize()-1, 6, true));
+    public void setAnimation(AnimationState state, SpriteSheet sheet) {
+        switch (state) {
+            // TODO: frame delays (number of frames elapsed before rendering the next
+            // sprite) is set to 16 for all states. This needs to be adjusted.
+            case IDLE -> animationController.addAnimation(AnimationState.IDLE,
+                    new Animation(sheet, 0, sheet.getSize() - 1, 7, true));
+            case WALK -> animationController.addAnimation(AnimationState.WALK,
+                    new Animation(sheet, 0, sheet.getSize() - 1, 6, true));
+            case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN,
+                    new Animation(sheet, 0, sheet.getSize() - 1, 8, true));
+            case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP,
+                    new Animation(sheet, 0, sheet.getSize() - 1, 6, true));
         }
     }
 
@@ -156,19 +178,6 @@ public class Octopus extends Avatar {
      */
     public void regenerateInk(float dt) {
         this.inkRemaining = Math.min(inkCapacity, this.inkRemaining + dt * inkRegen);
-    }
-
-    public Octopus(MapProperties properties, float units) {
-        super(AvatarType.OCTOPUS, properties, units);
-        float r = properties.get("spriteRadius", Float.class) * OCTOPUS_IMAGE_SCALE * units;
-        mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
-        target = new Vector2();
-        this.abilityRange = properties.get("abilityRange", Float.class);
-        this.inkRemaining = properties.get("inkCapacity", Float.class);
-        this.inkRegen = properties.get("inkRegen", Float.class);
-        this.inkUsage = properties.get("inkUsage", Float.class);
-        this.inkCapacity = inkRemaining;
-        keys = new Array<Key>();
     }
 
     @Override

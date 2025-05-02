@@ -82,7 +82,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
             int endY = (int)((rect.y + rect.height) / tileHeight);
 
             for (int x = startX; x < endX; x++) {
-                for (int y = startY; y <= endY; y++) {
+                for (int y = startY; y < endY; y++) {
                     getNode(x, y).isWall = true;
                 }
             }
@@ -92,7 +92,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         for (MapObject obj : objectLayer.getObjects()) {
             if (!(obj instanceof RectangleMapObject)
                 || (!"Camera".equalsIgnoreCase(obj.getProperties().get("type", String.class))
-                && !"Door".equalsIgnoreCase(obj.getProperties().get("type", String.class)))
+                && !"Exit".equalsIgnoreCase(obj.getProperties().get("type", String.class)))
                 ) continue;
 
             Rectangle rect = ((RectangleMapObject) obj).getRectangle();
@@ -211,7 +211,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         vec3 = cam.unproject(vec3).scl(1.0f / units * density);
         int x = MathUtils.floor(vec3.x);
         int y = MathUtils.floor(vec3.y);
-//        System.out.println("You clicked:" + x + " " + y);
+//        DebugPrinter.println("You clicked:" + x + " " + y);
         try {
             selected = getNode(x, y);
         } catch (IndexOutOfBoundsException e){

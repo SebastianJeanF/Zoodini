@@ -11,16 +11,29 @@ package walknroll.zoodini;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.JsonValue;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
+import edu.cornell.gdiac.graphics.SpriteSheet;
 import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.controllers.InputController;
-import walknroll.zoodini.controllers.screens.*;
+import walknroll.zoodini.controllers.SoundController;
+import walknroll.zoodini.controllers.screens.CreditsScene;
+import walknroll.zoodini.controllers.screens.GameOverScene;
+import walknroll.zoodini.controllers.screens.GameScene;
+import walknroll.zoodini.controllers.screens.GameWinScene;
+import walknroll.zoodini.controllers.screens.LevelSelectScene;
+import walknroll.zoodini.controllers.screens.MenuScene;
+import walknroll.zoodini.controllers.screens.SettingsScene;
+import walknroll.zoodini.controllers.screens.StoryboardScene;
 import walknroll.zoodini.models.entities.Guard;
 import walknroll.zoodini.utils.GameSettings;
+import walknroll.zoodini.utils.GameState;
 import walknroll.zoodini.utils.LevelPortal;
 
 /**
@@ -43,6 +56,10 @@ public class GDXRoot extends Game implements ScreenListener {
 	public static final int EXIT_LEVEL_SELECT = 5;
 	public static final int EXIT_LOSE = 6;
 	public static final int EXIT_WIN = 7;
+	public static final int EXIT_STORYBOARD = 8;
+
+	private static final String SETTINGS_PREFERENCES_FILENAME = "zoodini-settings";
+	private static final String STATE_PREFERENCES_FILENAME = "zoodini-state";
 
 	/** AssetManager to load game assets (textures, data, etc.) */
 	AssetDirectory directory;
@@ -57,8 +74,13 @@ public class GDXRoot extends Game implements ScreenListener {
 	private GameOverScene gameOver;
 	private GameWinScene gameWin;
 	private LevelSelectScene levelSelect;
+	private StoryboardScene storyBoard;
 
+	private Preferences settingsPrefs;
 	private GameSettings gameSettings;
+
+	private Preferences statePrefs;
+	private GameState gameState;
 
 	/**
 	 * Creates a new game from the configuration settings.
@@ -75,7 +97,13 @@ public class GDXRoot extends Game implements ScreenListener {
 	public void create() {
 		batch = new SpriteBatch();
 		directory = new AssetDirectory("jsons/assets.json");
-		gameSettings = new GameSettings();
+		settingsPrefs = Gdx.app.getPreferences(SETTINGS_PREFERENCES_FILENAME);
+		gameSettings = new GameSettings(settingsPrefs);
+		applyGameSettings();
+
+		statePrefs = Gdx.app.getPreferences(STATE_PREFERENCES_FILENAME);
+		gameState = new GameState(statePrefs);
+
 		loading = new MenuScene(directory, batch, 1);
 
 		loading.setScreenListener(this);
@@ -110,6 +138,9 @@ public class GDXRoot extends Game implements ScreenListener {
 		}
 		if (gameWin != null) {
 			gameWin.dispose();
+		}
+		if (storyBoard != null) {
+			storyBoard.dispose();
 		}
 
 		batch.dispose();
@@ -148,16 +179,18 @@ public class GDXRoot extends Game implements ScreenListener {
 			if (!Guard.isLoaded()) {
 				Guard.setSuspicionMeterCuriousTexture(directory.getEntry("guard-suspicion-curious", Texture.class));
 			}
+			if (!StoryboardScene.isLoaded()) {
+				StoryboardScene.setSpriteSheet(directory.getEntry("storyboard.animation", SpriteSheet.class));
+			}
 		} else if (screen == settings) {
 			// extract settings info from settings screen here
 			gameSettings = settings.getSettings();
-			InputController.getInstance().setAbilityKey(gameSettings.getAbilityKey());
-			InputController.getInstance().setSwapKey(gameSettings.getSwapKey());
-			switch (gameSettings.getResolution()) {
-				case SMALL -> Gdx.graphics.setWindowedMode(1280, 720);
-				case BIG -> Gdx.graphics.setWindowedMode(1920, 1080);
-				case FULLSCREEN -> Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+			gameSettings.saveToPreferences(settingsPrefs);
+			settingsPrefs.flush();
+			applyGameSettings();
 
+			if (settings.shouldResetState()) {
+				gameState = new GameState(); // new prefs are saved and flushed at end of method
 			}
 		} else if (screen == credits) {
 			// nothing to extract here
@@ -167,6 +200,13 @@ public class GDXRoot extends Game implements ScreenListener {
 			selectedLevel = gameOver.getLostLevel();
 		} else if (screen == gameWin) {
 			selectedLevel = gameWin.getNextLevel();
+		} else if (screen == storyBoard) {
+			selectedLevel = storyBoard.getSelectedLevel();
+			gameState.setStoryboardSeen(true);
+		}
+
+		if (selectedLevel != null && selectedLevel == gameState.getHighestClearance() + 1) {
+			gameState.setHighestClearance(gameState.getHighestClearance() + 1);
 		}
 
 		switch (exitCode) {
@@ -186,24 +226,17 @@ public class GDXRoot extends Game implements ScreenListener {
 				if (directory == null) {
 					throw new RuntimeException("Asset directory was somehow not loaded after initial boot");
 				}
-				levelSelect = new LevelSelectScene(batch, directory);
+				JsonValue levels = directory.getEntry("levels", JsonValue.class);
+				Array<Integer> levelKeys = new Array<>();
+				for (JsonValue value : levels) {
+					levelKeys.add(Integer.parseInt(value.name()));
+				}
+
+				levelSelect = new LevelSelectScene(batch, directory, levelKeys, gameState.getHighestClearance());
 				levelSelect.create();
 				levelSelect.setScreenListener(this);
 				setScreen(levelSelect);
 				disposeExcept(levelSelect);
-				break;
-			case GDXRoot.EXIT_PLAY:
-				if (directory == null) {
-					throw new RuntimeException("Asset directory was somehow not loaded after initial boot");
-				}
-				if (selectedLevel == null) {
-					throw new RuntimeException(
-							"Tried to change to GameScene without properly setting the target level");
-				}
-				gameplay = new GameScene(directory, batch, selectedLevel);
-				gameplay.setScreenListener(this);
-				setScreen(gameplay);
-				disposeExcept(gameplay);
 				break;
 			case GDXRoot.EXIT_QUIT:
 				Gdx.app.exit();
@@ -228,9 +261,53 @@ public class GDXRoot extends Game implements ScreenListener {
 				setScreen(gameWin);
 				disposeExcept(gameWin);
 				break;
+			case GDXRoot.EXIT_STORYBOARD:
+				if (gameState.isStoryboardSeen()) {
+					startGameplay(selectedLevel);
+				} else {
+					storyBoard = new StoryboardScene(batch, directory, selectedLevel);
+					storyBoard.create();
+					storyBoard.setScreenListener(this);
+					setScreen(storyBoard);
+					disposeExcept(storyBoard);
+					break;
+				}
+			case GDXRoot.EXIT_PLAY:
+				startGameplay(selectedLevel);
+				break;
 			default:
 				break;
 		}
+
+		gameState.saveToPreferences(statePrefs);
+		statePrefs.flush();
+	}
+
+	private void applyGameSettings() {
+		InputController.getInstance().setAbilityKey(this.gameSettings.getAbilityKey());
+		InputController.getInstance().setSwapKey(this.gameSettings.getSwapKey());
+		switch (this.gameSettings.getResolution().toLowerCase()) {
+			case "1280x720" -> Gdx.graphics.setWindowedMode(1280, 720);
+			case "1920x1080" -> Gdx.graphics.setWindowedMode(1920, 1080);
+			case "fullscreen" -> Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+
+		}
+		SoundController.getInstance().setMusicVolume(this.gameSettings.getMusicVolume() / 100f);
+		SoundController.getInstance().setSoundVolume(this.gameSettings.getSoundVolume() / 100f);
+	}
+
+	private void startGameplay(Integer selectedLevel) {
+		if (directory == null) {
+			throw new RuntimeException("Asset directory was somehow not loaded after initial boot");
+		}
+		if (selectedLevel == null) {
+			throw new RuntimeException(
+					"Tried to change to GameScene without properly setting the target level");
+		}
+		gameplay = new GameScene(directory, batch, selectedLevel);
+		gameplay.setScreenListener(this);
+		setScreen(gameplay);
+		disposeExcept(gameplay);
 	}
 
 	private void disposeExcept(Screen screen) {
@@ -261,6 +338,10 @@ public class GDXRoot extends Game implements ScreenListener {
 		if (gameWin != null && screen != gameWin) {
 			gameWin.dispose();
 			gameWin = null;
+		}
+		if (storyBoard != null && screen != storyBoard) {
+			storyBoard.dispose();
+			storyBoard = null;
 		}
 	}
 }

@@ -16,7 +16,7 @@ import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
-import walknroll.zoodini.models.entities.Avatar.AvatarType;
+
 //Scene2d stuff
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -33,6 +33,7 @@ import walknroll.zoodini.utils.CounterActor;
 import walknroll.zoodini.utils.InkMeterActor;
 import walknroll.zoodini.utils.MeowCooldownIndicator;
 import walknroll.zoodini.utils.MinimapActor;
+import walknroll.zoodini.utils.enums.AvatarType;
 
 public class UIController {
 
@@ -70,6 +71,7 @@ public class UIController {
     private Image overlayBackground;
     private Table pauseMenuTable;
     private Image resumeButtonImage;
+    private Image inkTextImage;
 
     private MeowCooldownIndicator meowCooldownIndicator;
 
@@ -96,24 +98,27 @@ public class UIController {
 
         setOctopusIconImage(new TextureRegion(directory.getEntry("octopus-icon", Texture.class)));
         octopusIconImage.setVisible(false);
-
-        SpriteSheet inkSprites = directory.getEntry("ink-meter.animation", SpriteSheet.class);
-        Octopus o = level.getOctopus();
-        inkMeter = new InkMeterActor(inkSprites, o.getInkCapacity(), o.getInkCost() ,o.getInkRegen());
-
         minimap = new MinimapActor(level);
         minimap.setPosition(20, Gdx.graphics.getHeight() - 180);
+        if (level.isOctopusPresent()) {
+            SpriteSheet inkSprites = directory.getEntry("ink-meter.animation", SpriteSheet.class);
+            Octopus o = level.getOctopus();
+            inkMeter = new InkMeterActor(inkSprites, o.getInkCapacity(), o.getInkCost(), o.getInkRegen());
+        } else {
+            inkMeter = null; // Make sure it's null when octopus is not present
+        }
 
+        inkTextImage = new Image(directory.getEntry("ink-text", Texture.class));
 
-        setSmallCatIcon(new TextureRegion(directory.getEntry("small-cat-icon", Texture.class)));
-        setSmallOctopusIcon(new TextureRegion(directory.getEntry("small-octopus-icon", Texture.class)));
-        setDangerIcon(new TextureRegion(directory.getEntry("danger-icon", Texture.class)));
-        setPauseIcon(new TextureRegion(directory.getEntry("pause_icon", Texture.class)));
-        setRestartIcon(new TextureRegion(directory.getEntry("restart_icon", Texture.class)));
-        setHomeIcon(new TextureRegion(directory.getEntry("home_icon", Texture.class)));
-        setPausedBanner(new TextureRegion(directory.getEntry("game_paused", Texture.class)));
-        setResumeIcon(new TextureRegion(directory.getEntry("resume_icon", Texture.class)));
-        setResumeButton(new TextureRegion(directory.getEntry("resume_button", Texture.class)));
+        smallCatIconImage = new Image(directory.getEntry("small-cat-icon", Texture.class));
+        smallOctopusIconImage = new Image(directory.getEntry("small-octopus-icon", Texture.class));
+        dangerIconImage = new Image(directory.getEntry("danger-icon", Texture.class));
+        pauseIconImage = new Image(directory.getEntry("pause_icon", Texture.class));
+        restartButton = new Image(directory.getEntry("restart_icon", Texture.class));
+        homeButton = new Image(directory.getEntry("home-icon", Texture.class));
+        pauseBannerImage = new Image(directory.getEntry("game_paused", Texture.class));
+        resumeIconImage = new Image(directory.getEntry("resume_icon", Texture.class));
+        resumeButtonImage = new Image(directory.getEntry("resume_button", Texture.class));
     }
 
 
@@ -140,6 +145,7 @@ public class UIController {
         stack.add(octopusIconImage);
         bottomLeftTable.add(stack).pad(30);
         bottomLeftTable.add(inkMeter).align(Align.bottomLeft).padBottom(35);
+        bottomLeftTable.add(inkTextImage);
 
 
         //TODO: don't hardcode positions. Use tables.
@@ -353,16 +359,20 @@ public class UIController {
         // In draw method, add:
         if (avatar.getAvatarType() == AvatarType.CAT) {
             meowCooldownIndicator.setVisible(true);
+            inkTextImage.setVisible(false);
             meowCooldownIndicator.update(level.getCat());
         } else {
             meowCooldownIndicator.setVisible(false);
+            inkTextImage.setVisible(true);
         }
 
         // Icons
         if (catIconImage != null) catIconImage.setVisible(!isOcto);
         if (octopusIconImage != null) octopusIconImage.setVisible(isOcto);
-        if (inkMeter != null) inkMeter.setVisible(isOcto);
-        inkMeter.sync(level.getOctopus().getInkRemaining());
+        if (inkMeter != null && level.isOctopusPresent()) {
+            inkMeter.setVisible(isOcto);
+            inkMeter.sync(level.getOctopus().getInkRemaining());
+        }
 
         if (dangerIconImage != null && smallCatIconImage != null && smallOctopusIconImage != null) {
             if (level.isInactiveAvatarInDanger()) {

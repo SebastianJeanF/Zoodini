@@ -110,7 +110,7 @@ public class GameWinScene implements Screen, InputProcessor {
                         GDXRoot.EXIT_PLAY),
                 new MenuButton(constants.getFloat("button.menu.x"), buttonY, constants.getFloat("button.menu.width"),
                         buttonHeight,
-                        "home-icon-borderless",
+                        "home-icon",
                         GDXRoot.EXIT_MENU));
     }
 

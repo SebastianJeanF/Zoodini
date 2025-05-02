@@ -23,8 +23,10 @@ import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Guard;
 //import walknroll.zoodini.utils.GameGraph;
 import walknroll.zoodini.controllers.aitools.TileGraph;
+import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.GameGraph.DistanceHeuristic;
 import walknroll.zoodini.utils.GameGraph.Node;
+import walknroll.zoodini.utils.enums.AvatarType;
 
 import java.util.List;
 
@@ -92,7 +94,7 @@ public class GuardAIController {
         this.pathFinder = new IndexedAStarPathFinder<>(tileGraph);
         this.heuristic = new ManhattanHeuristic<>();
         this.nextTargetLocation = new Vector2(0, 0);
-        this.CAT_MEOW_RADIUS = level.getCat().getAbilityRadius();
+        this.CAT_MEOW_RADIUS = level.getCat().getAbilityRange();
     }
 
     /**
@@ -120,11 +122,11 @@ public class GuardAIController {
                 if (validTile != null) {
                     // Convert the valid tile to world coordinates (use the center of the tile)
                     validWaypoints[i] = tileGraph.tileToWorld(validTile);
-                    System.out.println("Updated waypoint " + i + " from " + waypoint +
+                    DebugPrinter.println("Updated waypoint " + i + " from " + waypoint +
                         " to " + validWaypoints[i] + " (was in wall)");
                 } else {
                     // This should not happen if your graph has at least one non-wall tile
-                    System.err.println("Warning: Could not find a valid non-wall tile for waypoint " + i);
+                    DebugPrinter.println("Warning: Could not find a valid non-wall tile for waypoint " + i);
                     validWaypoints[i] = waypoint; // Keep the original as fallback
                 }
             } else {
@@ -152,9 +154,10 @@ public class GuardAIController {
      * @return true if the cat player has used its distraction ability, false otherwise
      */
     private boolean didDistractionOccur() {
-        InputController input = InputController.getInstance();
         float guardToPlayerDistance = guard.getPosition().dst(getActivePlayer().getPosition());
-        return input.didAbility() && getActivePlayer().getAvatarType() == Avatar.AvatarType.CAT && guardToPlayerDistance <= CAT_MEOW_RADIUS;
+        return (getActivePlayer().getAvatarType() == AvatarType.CAT &&
+                level.getCat().didJustMeow() &&
+                guardToPlayerDistance <= CAT_MEOW_RADIUS);
     }
 
     public Vector2 getCameraAlertPosition() {
@@ -192,6 +195,13 @@ public class GuardAIController {
         return nearest;
     }
 
+    /***
+     * Helper function to check if the guard has reached a target location.
+     * The guard "reaches" a target if it is within the radius of the arrival distance in world coords.
+     *
+     * @param target The target position to check against
+     * @return true if the guard has reached the target location, false otherwise
+     */
     private boolean hasReachedTargetLocation(Vector2 target) {
         // Use world coordinates and a reasonable threshold
         float arrivalDistance = 1f;
@@ -199,7 +209,7 @@ public class GuardAIController {
 
         // Optional debugging
 //        if (distance < 1.0f) {
-//            System.out.println("Distance to target: " + distance);
+//            DebugPrinter.println("Distance to target: " + distance);
 //        }
 
         return distance < arrivalDistance;
@@ -208,10 +218,10 @@ public class GuardAIController {
 //        }
 //        Vector2 guardTile = tileGraph.worldToTile(guard.getPosition()).getCoords();
 //        Vector2 targetTile = tileGraph.worldToTile(target).getCoords();
-//        System.out.println("Current guard tile " + guardTile);
-//        System.out.println("Current target tile " + targetTile);
-//        System.out.println(tileGraph.worldToTile(guard.getPosition()).isWall);
-//        System.out.println(tileGraph.worldToTile(target).isWall);
+//        DebugPrinter.println("Current guard tile " + guardTile);
+//        DebugPrinter.println("Current target tile " + targetTile);
+//        DebugPrinter.println(tileGraph.worldToTile(guard.getPosition()).isWall);
+//        DebugPrinter.println(tileGraph.worldToTile(target).isWall);
 //        return guardTile.x == targetTile.x && guardTile.y == targetTile.y;
     }
 
@@ -291,11 +301,26 @@ public class GuardAIController {
                     currState = GuardState.PATROL;
                     lastStateChangeTime = ticks;
                 }
+                // Player under camera; SUSPICIOUS -> ALERTED
                 else if (guard.isCameraAlerted()) {
                     currState = GuardState.AlERTED;
                     guard.startDeAggroTimer();
                     guard.setMaxSusLevel();
                     cameraAlertPosition.set(getActivePlayer().getPosition());
+                    lastStateChangeTime = ticks;
+                }
+                break;
+            case AlERTED:
+                // If guard has reached camera location; ALERTED -> PATROL
+                if (hasReachedTargetLocation(cameraAlertPosition)) {
+                    currState = GuardState.PATROL;
+                    guard.setCameraAlerted(false);
+                    lastStateChangeTime = ticks;
+                }
+                // Guard has not reached camera location, sus level is above threshold; ALERTED -> SUSPICIOUS
+                else if (guard.isSus()) {
+                    currState = GuardState.SUSPICIOUS;
+                    guard.setCameraAlerted(true); // TODO: Make this false (if we want guard to lose momentum after spotting)
                     lastStateChangeTime = ticks;
                 }
                 break;
@@ -312,18 +337,21 @@ public class GuardAIController {
                     guard.setMeow(false);
                     lastStateChangeTime = ticks;
                 }
-                break;
-            case AlERTED:
-                // If guard has reached camera location; ALERTED -> PATROL
-                if (hasReachedTargetLocation(cameraAlertPosition)) {
-                    currState = GuardState.PATROL;
-                    guard.setCameraAlerted(false);
+                else if (guard.isCameraAlerted()) {
+                    currState = GuardState.AlERTED;
+                    guard.setCameraAlerted(true);
+                    guard.setMeow(false);
+                    Vector2 playerPosition = getActivePlayer().getPosition();
+                    cameraAlertPosition.set(getValidTileCoords(playerPosition));
                     lastStateChangeTime = ticks;
                 }
-                // Guard has not reached camera location, sus level is above threshold; ALERTED -> SUSPICIOUS
-                else if (guard.isSus()) {
-                    currState = GuardState.SUSPICIOUS;
-                    guard.setCameraAlerted(true); // TODO: Make this false (if we want guard to lose momentum after spotting)
+                // Gar meows again -> should update distractPosition
+                else if (didDistractionOccur()) {
+                    DebugPrinter.println("here");
+                    currState = GuardState.DISTRACTED;
+                    guard.setMeow(true);
+                    Vector2 playerPosition = getActivePlayer().getPosition();
+                    distractPosition.set(getValidTileCoords(playerPosition));
                     lastStateChangeTime = ticks;
                 }
                 break;
@@ -373,10 +401,10 @@ public class GuardAIController {
 //        if (!canStateTransition()) {
 //            return;
 //        }
-        // System.out.println("Before Guard state: " + currState);
+//        DebugPrinter.println("Before Guard state: " + currState);
         updateSusLevel();
         updateGuardState();
-        // System.out.println("After Guard state: " + currState);
+//        DebugPrinter.println("After Guard state: " + currState);
 
         setNextTargetLocation();
 
@@ -412,12 +440,20 @@ public class GuardAIController {
         return currState;
     }
 
+    /**
+     * Helper function that checks if the target position is not a wall.
+     * If the target position is a wall, it returns the world coords of the nearest non-wall tile.
+     * If the target position is not a wall, it returns the original target position.
+     *
+     * @param target The target position to check
+     * @return A valid Vector2 position that is not a wall
+     */
     public Vector2 getValidTileCoords(Vector2 target) {
         TileNode targetTile = tileGraph.worldToTile(target);
         if (!targetTile.isWall) {
             return target;
         } else {
-            System.out.println("Target tile is a wall: " + targetTile.getCoords());
+            DebugPrinter.println("Target tile is a wall: " + targetTile.getCoords());
             // If the target tile is a wall, find the nearest non-wall tile
             TileNode newTile = tileGraph.getNearestValidTile(target);
             return tileGraph.tileToWorld(newTile);
@@ -571,8 +607,8 @@ public class GuardAIController {
         TileNode start = tileGraph.worldToTile(currPosWorld);
         TileNode end = tileGraph.worldToTile(targetPosWorld);
 
-//        System.out.println("Current guard Position: " + currPosWorld);
-        // System.out.println("Graph's target: "+ end.getWorldPosition());
+//        DebugPrinter.println("Current guard Position: " + currPosWorld);
+        // DebugPrinter.println("Graph's target: "+ end.getWorldPosition());
         // Check if start or end node is null
         if (start == null || end == null) {
             // System.err.println("Error: Start or end node is null.");

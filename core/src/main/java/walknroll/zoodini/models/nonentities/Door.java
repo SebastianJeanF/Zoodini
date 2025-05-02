@@ -57,6 +57,7 @@ public class Door extends ZoodiniSprite {
     private short collideBits;
     private short excludeBitsLocked;
     private short excludeBitsUnlocked;
+    private float units;
 
 
     public boolean isUnlocking() {
@@ -126,6 +127,7 @@ public class Door extends ZoodiniSprite {
 		obstacle.setName(properties.get("type", String.class));
 		obstacle.setSensor(false);
 		obstacle.setPhysicsUnits(units);
+        this.units = units;
 
 		float w = size * units;
 		float h = size * units;
@@ -149,12 +151,13 @@ public class Door extends ZoodiniSprite {
 
         lockedTexture = new TextureRegion(directory.getEntry("locked_door", Texture.class));
         unlockedTexture = new TextureRegion(directory.getEntry("unlocked_door", Texture.class));
-        unlockTimer = new CircleTimer(0, 0, 30, Color.YELLOW);
+        unlockTimer = new CircleTimer(0.2f, Color.YELLOW, units);
 
         // Set initial state (locked by default)
         setLocked(true);
         setTextureRegion(lockedTexture);
         resetTimer(); //TODO: get this from json
+        unlockTimer.setPosition(this.obstacle.getPosition());
 
         if(!properties.get("key", MapObject.class).getProperties().get("type", String.class).equalsIgnoreCase("Key")){
             throw new AssertionError("The associated key to this door is not of type key");
@@ -165,54 +168,22 @@ public class Door extends ZoodiniSprite {
         super.update(dt);
         if(isLocked() && isUnlocking()){
             remainingTimeToUnlock -= dt;
-//            System.out.println(remainingTimeToUnlock);
         } else {
             resetTimer();
         }
-
         if(remainingTimeToUnlock <= 0.0f){
             setLocked(false);
         }
+        unlockTimer.setProgress(remainingTimeToUnlock / UNLOCK_DURATION);
+
     }
 
-    public void showUnlockProgress(float progress, Vector2 doorPosition, Camera gameCamera, float tileSize) {
-        showUnlockTimer = true;
-        Vector3 screenPos = new Vector3(doorPosition.x * tileSize, doorPosition.y * tileSize, 0);
-        gameCamera.project(screenPos);
-        unlockTimer.setPosition(screenPos.x, screenPos.y);
-        unlockTimer.setProgress(progress);
-    }
-
-    public void hideUnlockProgress() {
-        showUnlockTimer = false;
-    }
 
     @Override
     public void draw(SpriteBatch batch) {
         super.draw(batch);
-
-
-
-    }
-
-    public void drawDoorUnlocking(SpriteBatch batch, Camera camera) {
-        // Save batch state
-        boolean wasDrawing = batch.isDrawing();
-
-        // Always end the batch to ensure the CircleTimer draws on top
-        if (wasDrawing) {
-            batch.end();
-        }
-
-        if (showUnlockTimer) {
-            // Clear depth buffer to ensure timer appears on top
-            Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
-            unlockTimer.draw();
-        }
-
-        // Restore batch state
-        if (wasDrawing) {
-            batch.begin(camera);
+        if(isLocked() && isUnlocking){
+            unlockTimer.draw(batch);
         }
     }
 }

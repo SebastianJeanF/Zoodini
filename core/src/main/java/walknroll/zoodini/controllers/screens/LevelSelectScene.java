@@ -16,18 +16,18 @@ import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.GDXRoot;
+import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.LevelPortal;
 
 public class LevelSelectScene implements Screen {
-    // TODO: this should become data driven at some point
-    // there are a bunch of copies so i can see how the wrapping works lol
-    static final Integer[] AVAILABLE_LEVELS = { 5, 6, 7, 7, 7, 7, 7, 7, 7 };
+    private Array<Integer> availableLevels;
 
     private ScreenListener listener;
 
@@ -46,10 +46,14 @@ public class LevelSelectScene implements Screen {
     private Skin skin;
 
     private int selectedLevel;
+    private int highestClearance;
 
-    public LevelSelectScene(SpriteBatch batch, AssetDirectory assets) {
+    public LevelSelectScene(SpriteBatch batch, AssetDirectory assets, Array<Integer> availableLevels,
+            int highestClearance) {
         this.batch = batch;
         this.assets = assets;
+        this.availableLevels = availableLevels;
+        this.highestClearance = highestClearance;
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
@@ -145,16 +149,21 @@ public class LevelSelectScene implements Screen {
         table.pad(Value.percentWidth(0.01f));
         // table.setDebug(true); // This is optional, but enables debug lines for
 
-        for (int i = 0; i < LevelSelectScene.AVAILABLE_LEVELS.length; i++) {
-            int levelKey = LevelSelectScene.AVAILABLE_LEVELS[i];
+        for (int i = 0; i < this.availableLevels.size; i++) {
+            int levelKey = this.availableLevels.get(i);
             Stack portalStack = new Stack();
-            ImageButton levelButton = new ImageButton(new LevelPortal(false, false), new LevelPortal(false, true));
-            levelButton.addListener(new ChangeListener() {
-                public void changed(ChangeEvent event, Actor actor) {
-                    LevelSelectScene.this.selectedLevel = levelKey;
-                    LevelSelectScene.this.listener.exitScreen(LevelSelectScene.this, GDXRoot.EXIT_PLAY);
-                }
-            });
+            boolean levelOpen = Constants.DEBUG | highestClearance >= levelKey;
+            boolean levelCompleted = Constants.DEBUG | levelKey < highestClearance;
+            ImageButton levelButton = new ImageButton(new LevelPortal(levelOpen, false, levelCompleted),
+                    new LevelPortal(levelOpen, true && levelOpen, levelCompleted));
+            if (levelOpen) {
+                levelButton.addListener(new ChangeListener() {
+                    public void changed(ChangeEvent event, Actor actor) {
+                        LevelSelectScene.this.selectedLevel = levelKey;
+                        LevelSelectScene.this.listener.exitScreen(LevelSelectScene.this, GDXRoot.EXIT_STORYBOARD);
+                    }
+                });
+            }
             portalStack.add(levelButton);
             Container<Label> labelContainer = new Container<>(new Label(String.valueOf(levelKey), skin));
             labelContainer.setFillParent(true);
