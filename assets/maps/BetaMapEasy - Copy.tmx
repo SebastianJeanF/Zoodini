@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="21" height="28" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="98">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="21" height="28" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="111">
  <tileset firstgid="1" name="outdoor" tilewidth="32" tileheight="32" tilecount="4096" columns="64">
   <image source="../tilesets/outdoor.png" width="2048" height="2048"/>
  </tileset>
@@ -34,7 +34,7 @@
  <tileset firstgid="9680" name="mazeTest3" tilewidth="128" tileheight="128" tilecount="182" columns="14">
   <image source="../../../../Zoodini-images/bush.png" width="1901" height="1700"/>
  </tileset>
- <tileset firstgid="9862" name="mazeTest4" tilewidth="128" tileheight="128" tilecount="195" columns="15">
+ <tileset firstgid="9862" name="mazeTest4" tilewidth="128" tileheight="128" tilecount="0" columns="15">
   <image source="../tilesets/maze-high-quality.png" width="1920" height="1664"/>
  </tileset>
  <layer id="1" name="ground" width="21" height="28">
@@ -159,5 +159,12 @@
    </properties>
    <point/>
   </object>
+  <object id="98" x="-589.474" y="5136.84" width="2795.79" height="2155.79"/>
+  <object id="99" x="-6164.21" y="5035.79" width="11536.8" height="2138.95"/>
+  <object id="100" x="4547.37" y="6568.42" width="16.8421"/>
+  <object id="102" x="3149.47" y="6130.53"/>
+  <object id="104" x="1195.79" y="5861.05" height="16.8421"/>
+  <object id="105" x="252.632" y="5608.42" width="16.8421" height="16.8421"/>
+  <object id="106" x="-1650.53" y="6231.58"/>
  </objectgroup>
 </map>

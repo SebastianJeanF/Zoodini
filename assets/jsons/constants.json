@@ -6,7 +6,7 @@
       "exclude" : "00100",
       "force" : 1.0,
       "maxSpeed" : 10.0,
-      "spriteRadius": 0.6,
+      "spriteRadius": 1,
       "obstacleRadius" : 0.5,
       "agroedForceScale" : 2.0,
       "alertedForceScale" : 3.0,
@@ -18,7 +18,7 @@
     "cat": {
       "category": "00010",
       "exclude" : "00010",
-      "force" : 1.0,
+      "force" : 5.0,
       "maxSpeed" : 10.0,
       "spriteRadius": 0.6,
       "obstacleRadius" : 0.4,
@@ -51,7 +51,7 @@
       "exclude" : "00000",
       "force" : 1.0,
       "maxSpeed" : 10.0,
-      "size": 1.0,
+      "size": 1.0
     },
     "key" : {
       "category": "10000",
