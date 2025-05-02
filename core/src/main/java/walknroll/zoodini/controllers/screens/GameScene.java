@@ -810,9 +810,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
             if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
-                Vector2 catPos = level.getCat().getPosition();
-                Vector2 octPos = level.getOctopus().getPosition();
-                if (entry.value.contains(catPos) || entry.value.contains(octPos)) {
+                Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : new Vector2();
+                Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : new Vector2();
+                if ((level.isCatPresent() && entry.value.contains(catPos)) || (level.isOctopusPresent() && entry.value.contains(octPos))) {
 
                     ((SecurityCamera) entry.key).activateRing();
 
@@ -832,8 +832,12 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                         }
                     }
                 } else {
-                    level.getCat().setUnderCamera(false);
-                    level.getOctopus().setUnderCamera(false);
+                    if (level.isCatPresent()) {
+                        level.getCat().setUnderCamera(false);
+                    }
+                    if (level.isOctopusPresent()) {
+                        level.getOctopus().setUnderCamera(false);
+                    }
                 }
             }
         }
