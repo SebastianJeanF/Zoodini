@@ -68,21 +68,6 @@ public class MinimapActor extends Actor implements Disposable {
         // Initialize the pixmap and texture
         createMinimapTexture();
         createDotTexture();
-
-        System.out.println("MinimapActor created");
-        System.out.println("Level bounds: " + level.getBounds());
-        System.out.println("Tile size: " + level.getTileSize());
-
-        // Debug: Count entities
-        System.out.println("Number of objects in level: " + level.getObjects().size());
-        System.out.println("Number of sprites in level: " + level.getSprites().size());
-        System.out.println("Number of guards: " + level.getGuards().size);
-        System.out.println("Number of security cameras: " + level.getSecurityCameras().size);
-        System.out.println("Number of keys: " + level.getKeys().size);
-        System.out.println("Number of doors: " + level.getDoors().size);
-        System.out.println("Exit exists: " + (level.getExit() != null));
-        System.out.println("Cat exists: " + (level.getCat() != null));
-        System.out.println("Octopus exists: " + (level.getOctopus() != null));
     }
 
     private void createMinimapTexture() {
