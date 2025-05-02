@@ -65,9 +65,9 @@ public class Exit extends ZoodiniSprite {
      * @param directory The asset directory (for textures, etc)
      * @param units     The physics units for this avatar
      */
-    public Exit(AssetDirectory directory, MapProperties properties, float units) {
+    public Exit(AssetDirectory directory, MapProperties properties, JsonValue constants, float units) {
         float[] pos = {properties.get("x", Float.class) / units, properties.get("y", Float.class) / units};
-        float size = properties.get("size", Float.class);
+        float size = constants.getFloat("size");
 
         obstacle = new BoxObstacle(pos[0], pos[1], size, size);
         obstacle.setName(properties.get("type", String.class));
@@ -86,8 +86,8 @@ public class Exit extends ZoodiniSprite {
         obstacle.setRestitution(0.0f);
 
         // Create the collision filter (used for light penetration)
-        short collideBits = GameLevel.bitStringToShort(properties.get("category", String.class));
-        short excludeBits = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
+        short collideBits = GameLevel.bitStringToShort(constants.getString("category"));
+        short excludeBits = GameLevel.bitStringToComplement(constants.getString("exclude"));
         Filter filter = new Filter();
         filter.categoryBits = collideBits;
         filter.maskBits = excludeBits;

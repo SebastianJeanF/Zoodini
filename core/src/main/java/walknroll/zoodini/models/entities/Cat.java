@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
+import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import edu.cornell.gdiac.math.Path2;
@@ -46,8 +47,8 @@ public class Cat extends PlayableAvatar {
 
     PathExtruder pe = new PathExtruder();
 
-    public Cat(MapProperties properties, float units) {
-        super(AvatarType.CAT, properties, units);
+    public Cat(MapProperties properties, JsonValue constants, float units) {
+        super(AvatarType.CAT, properties, constants, units);
         this.abilityRange = properties.get("abilityRange", Float.class);
 
         // Initialize ring effect properties

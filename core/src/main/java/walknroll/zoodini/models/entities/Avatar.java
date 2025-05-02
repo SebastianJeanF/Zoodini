@@ -204,13 +204,13 @@ public class Avatar extends ZoodiniSprite {
 	 * @param properties The properties of tiled map object
 	 * @param units      The physics units for this avatar
 	 */
-	public Avatar(AvatarType avatarType, MapProperties properties, float units) {
+	public Avatar(AvatarType avatarType, MapProperties properties, JsonValue constants, float units) {
 		this.avatarType = avatarType;
 
         float[] pos = new float[2];
         pos[0] = properties.get("x", Float.class) / units;
         pos[1] = properties.get("y", Float.class) / units;
-		float radius = properties.get("radius",Float.class);
+		float radius = constants.getFloat("obstacleRadius");
 
 		obstacle = new WheelObstacle(pos[0], pos[1], radius);
 		obstacle.setName(properties.get("type", String.class));
@@ -221,16 +221,16 @@ public class Avatar extends ZoodiniSprite {
 		obstacle.setRestitution(0.0f);
 		obstacle.setPhysicsUnits(units);
 
-		setForce(properties.get("force", Float.class));
+		setForce(constants.getFloat("force"));
 		setDamping(10.0f);
-		setMaxSpeed(properties.get("maxSpeed", Float.class));
+		setMaxSpeed(constants.getFloat("maxSpeed"));
 
 		Filter filter = new Filter();
-		filter.categoryBits = GameLevel.bitStringToShort(properties.get("category", String.class));
-		filter.maskBits = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
+		filter.categoryBits = GameLevel.bitStringToShort(constants.getString("category"));
+		filter.maskBits = GameLevel.bitStringToComplement(constants.getString("exclude"));
 		obstacle.setFilterData(filter);
 
-        float r = properties.get("spriteRadius", Float.class) * units;
+        float r = constants.getFloat("spriteRadius") * units;
 		mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 
         underCamera = false;

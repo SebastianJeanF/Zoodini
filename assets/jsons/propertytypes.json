@@ -15,34 +15,14 @@
                 "value": 90
             },
             {
-                "name": "category",
-                "type": "string",
-                "value": "01000"
-            },
-            {
                 "name": "disabledTime",
                 "type": "float",
                 "value": 5
             },
             {
-                "name": "exclude",
-                "type": "string",
-                "value": "00000"
-            },
-            {
                 "name": "fov",
                 "type": "float",
                 "value": 60
-            },
-            {
-                "name": "radius",
-                "type": "float",
-                "value": 0.2
-            },
-            {
-                "name": "spriteRadius",
-                "type": "float",
-                "value": 0.6
             },
             {
                 "name": "viewDistance",
@@ -74,39 +54,9 @@
                 "value": 7
             },
             {
-                "name": "category",
-                "type": "string",
-                "value": "00010"
-            },
-            {
-                "name": "exclude",
-                "type": "string",
-                "value": "00010"
-            },
-            {
-                "name": "force",
-                "type": "float",
-                "value": 6
-            },
-            {
-                "name": "maxSpeed",
-                "type": "float",
-                "value": 10
-            },
-            {
                 "name": "meowExpandSpeed",
                 "type": "float",
                 "value": 10
-            },
-            {
-                "name": "radius",
-                "type": "float",
-                "value": 0.4
-            },
-            {
-                "name": "spriteRadius",
-                "type": "float",
-                "value": 0.6
             }
         ],
         "name": "Cat",
@@ -122,26 +72,6 @@
         "drawFill": true,
         "id": 3,
         "members": [
-            {
-                "name": "category",
-                "type": "string",
-                "value": "10000"
-            },
-            {
-                "name": "exclude",
-                "type": "string",
-                "value": "00000"
-            },
-            {
-                "name": "excludeUnlocked",
-                "type": "string",
-                "value": "00110"
-            },
-            {
-                "name": "size",
-                "type": "float",
-                "value": 1.25
-            }
         ],
         "name": "Door",
         "type": "class",
@@ -157,21 +87,6 @@
         "drawFill": true,
         "id": 4,
         "members": [
-            {
-                "name": "category",
-                "type": "string",
-                "value": "10000"
-            },
-            {
-                "name": "exclude",
-                "type": "string",
-                "value": "00000"
-            },
-            {
-                "name": "size",
-                "type": "float",
-                "value": 1.25
-            }
         ],
         "name": "Exit",
         "type": "class",
@@ -187,44 +102,14 @@
         "id": 5,
         "members": [
             {
-                "name": "category",
-                "type": "string",
-                "value": "00100"
-            },
-            {
-                "name": "exclude",
-                "type": "string",
-                "value": "00100"
-            },
-            {
-                "name": "force",
-                "type": "float",
-                "value": 2
-            },
-            {
                 "name": "fov",
                 "type": "float",
                 "value": 60
             },
             {
-                "name": "maxSpeed",
-                "type": "float",
-                "value": 10
-            },
-            {
                 "name": "path",
                 "type": "object",
                 "value": 0
-            },
-            {
-                "name": "radius",
-                "type": "float",
-                "value": 0.5
-            },
-            {
-                "name": "spriteRadius",
-                "type": "float",
-                "value": 0.6
             },
             {
                 "name": "viewDistance",
@@ -245,21 +130,6 @@
         "drawFill": true,
         "id": 6,
         "members": [
-            {
-                "name": "category",
-                "type": "string",
-                "value": "10000"
-            },
-            {
-                "name": "exclude",
-                "type": "string",
-                "value": "11101"
-            },
-            {
-                "name": "size",
-                "type": "float",
-                "value": 1
-            }
         ],
         "name": "Key",
         "type": "class",
@@ -280,21 +150,6 @@
                 "value": 3.5
             },
             {
-                "name": "category",
-                "type": "string",
-                "value": "00010"
-            },
-            {
-                "name": "exclude",
-                "type": "string",
-                "value": "00010"
-            },
-            {
-                "name": "force",
-                "type": "float",
-                "value": 3
-            },
-            {
                 "name": "inkCapacity",
                 "type": "float",
                 "value": 100
@@ -308,21 +163,6 @@
                 "name": "inkUsage",
                 "type": "float",
                 "value": 25
-            },
-            {
-                "name": "maxSpeed",
-                "type": "float",
-                "value": 5
-            },
-            {
-                "name": "radius",
-                "type": "float",
-                "value": 0.4
-            },
-            {
-                "name": "spriteRadius",
-                "type": "float",
-                "value": 0.6
             }
         ],
         "name": "Octopus",

@@ -117,11 +117,9 @@ public class Door extends ZoodiniSprite {
 	 * @param directory The asset directory (for textures, etc)
 	 * @param units     The physics units for this avatar
 	 */
-	public Door(AssetDirectory directory, MapObject obj, float units) {
-        mapObject = obj;
-        MapProperties properties = mapObject.getProperties();
+	public Door(AssetDirectory directory, MapProperties properties, JsonValue constants, float units) {
 		float[] pos = {properties.get("x",Float.class) / units, properties.get("y", Float.class) / units};
-		float size = properties.get("size", Float.class);
+		float size = constants.getFloat("size");
 
 		obstacle = new BoxObstacle(pos[0], pos[1], size, size);
 		obstacle.setName(properties.get("type", String.class));
@@ -141,9 +139,9 @@ public class Door extends ZoodiniSprite {
 		obstacle.setRestitution(0.0f);
 
 		// Create the collision filter (used for light penetration)
-		this.collideBits = GameLevel.bitStringToShort(properties.get("category", String.class));
-		this.excludeBitsLocked = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
-		this.excludeBitsUnlocked = GameLevel.bitStringToComplement(properties.get("excludeUnlocked", String.class));
+		this.collideBits = GameLevel.bitStringToShort(constants.getString("category"));
+		this.excludeBitsLocked = GameLevel.bitStringToComplement(constants.getString("exclude"));
+		this.excludeBitsUnlocked = GameLevel.bitStringToComplement(constants.getString("exclude-unlocked"));
 		Filter filter = new Filter();
 		filter.categoryBits = this.collideBits;
 		filter.maskBits = this.excludeBitsLocked;

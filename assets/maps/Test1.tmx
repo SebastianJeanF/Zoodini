@@ -63,11 +63,11 @@
     <property name="abilityRange" type="float" value="7"/>
     <property name="category" value="00010"/>
     <property name="exclude" value="00010"/>
-    <property name="force" type="float" value="6"/>
+    <property name="force" type="float" value="4"/>
     <property name="maxSpeed" type="float" value="10"/>
     <property name="meowExpandSpeed" type="float" value="10"/>
     <property name="radius" type="float" value="0.4"/>
-    <property name="spriteRadius" type="float" value="0.6"/>
+    <property name="spriteRadius" type="float" value="0.5"/>
    </properties>
    <point/>
   </object>
@@ -131,7 +131,7 @@
    </properties>
    <point/>
   </object>
-  <object id="8" type="Guard" x="1084" y="460">
+  <object id="8" type="Guard" x="632" y="296">
    <properties>
     <property name="category" value="00100"/>
     <property name="exclude" value="00100"/>
@@ -145,7 +145,7 @@
    </properties>
    <point/>
   </object>
-  <object id="9" type="Guard" x="1240" y="476">
+  <object id="9" type="Guard" x="2328" y="336">
    <properties>
     <property name="category" value="00100"/>
     <property name="exclude" value="00100"/>

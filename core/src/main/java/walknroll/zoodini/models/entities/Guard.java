@@ -97,8 +97,8 @@ public class Guard extends Enemy {
      * The main purpose of this constructor is to set the initial capsule
      * orientation.
      */
-    public Guard(MapProperties properties, float units) {
-        super(properties, units);
+    public Guard(MapProperties properties, JsonValue constants, float units) {
+        super(properties, constants, units);
         fov = properties.get("fov", Float.class);
         currentPatrolIndex = 0;
         cameraAlerted = false;
