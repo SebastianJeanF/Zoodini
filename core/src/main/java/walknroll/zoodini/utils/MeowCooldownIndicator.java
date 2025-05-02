@@ -1,5 +1,6 @@
 package walknroll.zoodini.utils;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -13,17 +14,20 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+
+import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.models.entities.Cat;
 
 public class MeowCooldownIndicator extends Actor {
-    // UI Components
-    private Image cooldownPentagon; // Dark red pentagon (on cooldown)
-    private Image readyPentagon;    // Bright red pentagon (ready to use)
-    private Label meowLabel;
-    private GlyphLayout layout;
-
     // Configuration
     private static final float PENTAGON_SIZE = 150f;
+    // UI Components
+    private Image cooldownPentagon; // Dark red pentagon (on cooldown)
+    private Image readyPentagon; // Bright red pentagon (ready to use)
+    private Label meowStateLabel;
+    private Label meowLabel;
+
+    private GlyphLayout layout;
     private final Color DARK_RED = new Color(0.6f, 0.1f, 0.1f, 0.9f);
     private final Color LIGHT_RED = new Color(0.9f, 0.2f, 0.2f, 0.9f);
     private final float FONT_SCALE = 0.4f; // Even smaller font
@@ -48,7 +52,8 @@ public class MeowCooldownIndicator extends Actor {
         BitmapFont labelFont = new BitmapFont(font.getData(), font.getRegion(), font.isFlipped());
         labelFont.getData().setScale(FONT_SCALE);
         LabelStyle meowStyle = new LabelStyle(labelFont, Color.WHITE);
-        meowLabel = new Label("MEOW!", meowStyle);
+        meowStateLabel = new Label("...", meowStyle);
+        meowLabel = new Label("Meow!", meowStyle);
         layout = new GlyphLayout();
     }
 
@@ -66,10 +71,14 @@ public class MeowCooldownIndicator extends Actor {
         }
 
         // Center the text in the pentagon
+        layout.setText(meowStateLabel.getStyle().font, meowStateLabel.getText());
+        meowStateLabel.setPosition(getX() + (PENTAGON_SIZE - layout.width) / 2,
+                getY() + PENTAGON_SIZE / 2 + layout.height / 2 - 25);
+        meowStateLabel.draw(batch, parentAlpha);
+
         layout.setText(meowLabel.getStyle().font, meowLabel.getText());
-        float textX = getX() + (PENTAGON_SIZE - layout.width) / 2;
-        float textY = getY() + PENTAGON_SIZE/2 + layout.height/2 - 25;
-        meowLabel.setPosition(textX, textY);
+        meowLabel.setPosition(getX() + (PENTAGON_SIZE - layout.width) / 2,
+                getY() + PENTAGON_SIZE / 2 + layout.height / 2 - 90);
         meowLabel.draw(batch, parentAlpha);
     }
 
@@ -79,7 +88,8 @@ public class MeowCooldownIndicator extends Actor {
      * @param cat The cat whose cooldown to display
      */
     public void update(Cat cat) {
-        if (cat == null) return;
+        if (cat == null)
+            return;
 
         // Update which pentagon is visible based on cooldown state
         boolean isOnCooldown = !cat.canUseAbility();
@@ -88,11 +98,29 @@ public class MeowCooldownIndicator extends Actor {
 
         // Update text based on cooldown state
         if (cat.canUseAbility()) {
-            meowLabel.setText("MEOW!");
+            InputController ic = InputController.getInstance();
+            meowStateLabel.setText("[" + Input.Keys.toString(ic.getAbilityKey()) + "]");
         } else {
             // Display remaining seconds rounded up
-            int seconds = (int)Math.ceil(cat.getMeowCooldownRemaining());
-            meowLabel.setText(String.valueOf(seconds));
+            int seconds = (int) Math.ceil(cat.getMeowCooldownRemaining());
+            meowStateLabel.setText(String.valueOf(seconds));
+        }
+    }
+
+    /**
+     * Disposes of resources used by this indicator
+     */
+    public void dispose() {
+        if (cooldownPentagon != null && cooldownPentagon.getDrawable() instanceof TextureRegionDrawable) {
+            ((TextureRegionDrawable) cooldownPentagon.getDrawable()).getRegion().getTexture().dispose();
+        }
+
+        if (readyPentagon != null && readyPentagon.getDrawable() instanceof TextureRegionDrawable) {
+            ((TextureRegionDrawable) readyPentagon.getDrawable()).getRegion().getTexture().dispose();
+        }
+
+        if (meowStateLabel != null && meowStateLabel.getStyle().font != null) {
+            meowStateLabel.getStyle().font.dispose();
         }
     }
 
@@ -101,7 +129,7 @@ public class MeowCooldownIndicator extends Actor {
      */
     private Drawable createPentagonDrawable(Color color) {
         int radius = 100;
-        Pixmap pixmap = new Pixmap(radius*2, radius*2, Pixmap.Format.RGBA8888);
+        Pixmap pixmap = new Pixmap(radius * 2, radius * 2, Pixmap.Format.RGBA8888);
         pixmap.setColor(color);
 
         // Draw a pentagon
@@ -116,34 +144,17 @@ public class MeowCooldownIndicator extends Actor {
         }
 
         // Fill the pentagon
-        for (int i = 0; i < vertices-1; i++) {
+        for (int i = 0; i < vertices - 1; i++) {
             pixmap.fillTriangle(radius, radius,
-                (int)xPoints[i], (int)yPoints[i],
-                (int)xPoints[i+1], (int)yPoints[i+1]);
+                    (int) xPoints[i], (int) yPoints[i],
+                    (int) xPoints[i + 1], (int) yPoints[i + 1]);
         }
         pixmap.fillTriangle(radius, radius,
-            (int)xPoints[vertices-1], (int)yPoints[vertices-1],
-            (int)xPoints[0], (int)yPoints[0]);
+                (int) xPoints[vertices - 1], (int) yPoints[vertices - 1],
+                (int) xPoints[0], (int) yPoints[0]);
 
         Texture texture = new Texture(pixmap);
         pixmap.dispose();
         return new TextureRegionDrawable(new TextureRegion(texture));
-    }
-
-    /**
-     * Disposes of resources used by this indicator
-     */
-    public void dispose() {
-        if (cooldownPentagon != null && cooldownPentagon.getDrawable() instanceof TextureRegionDrawable) {
-            ((TextureRegionDrawable)cooldownPentagon.getDrawable()).getRegion().getTexture().dispose();
-        }
-
-        if (readyPentagon != null && readyPentagon.getDrawable() instanceof TextureRegionDrawable) {
-            ((TextureRegionDrawable)readyPentagon.getDrawable()).getRegion().getTexture().dispose();
-        }
-
-        if (meowLabel != null && meowLabel.getStyle().font != null) {
-            meowLabel.getStyle().font.dispose();
-        }
     }
 }
