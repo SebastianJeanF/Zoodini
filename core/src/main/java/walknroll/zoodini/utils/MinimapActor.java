@@ -110,33 +110,19 @@ public class MinimapActor extends Actor implements Disposable {
         scaleFactorX = MINIMAP_SIZE / levelWidth;
         scaleFactorY = MINIMAP_SIZE / levelHeight;
 
-        System.out.println("Scale factors: X=" + scaleFactorX + ", Y=" + scaleFactorY);
-
         // Draw grid
         drawGrid();
 
-        // Draw all obstacles directly from level objects
-        System.out.println("Drawing obstacles...");
-        int wallCount = 0;
-
         // Direct access to all objects in the level
         for (Obstacle obstacle : level.getObjects()) {
-            if (obstacle.getName() != null) {
-                System.out.println("Found obstacle: " + obstacle.getName() +
-                    " at position: " + obstacle.getX() + "," + obstacle.getY());
-            }
-
             // Categorize obstacles based on their properties
             boolean isWall = obstacle.getBodyType() == BodyDef.BodyType.StaticBody &&
                 !obstacle.isSensor();
 
             if (isWall) {
                 drawObstacle(obstacle);
-                wallCount++;
             }
         }
-
-        System.out.println("Drew " + wallCount + " walls");
 
         // Draw doors directly from doors collection
         System.out.println("Drawing doors...");
