@@ -334,7 +334,7 @@ public class GameLevel {
         visions.clear();
         guards.clear();
         securityCameras.clear();
-
+        objects.clear();
         sprites.clear();
         if (world != null) {
             world.dispose();

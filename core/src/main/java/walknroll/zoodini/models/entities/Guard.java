@@ -140,7 +140,7 @@ public class Guard extends Enemy {
 
         MapObject path = properties.get("path", MapObject.class);
         if (path instanceof PolylineMapObject line) {
-            float[] vertices = line.getPolyline().getTransformedVertices();
+            float[] vertices = line.getPolyline().getTransformedVertices().clone();
             for (int i = 0; i < vertices.length; i++) {
                 vertices[i] /= units;
             }
