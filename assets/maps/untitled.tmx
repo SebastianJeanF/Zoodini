@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="11">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="13">
  <tileset firstgid="1" source="../tilesets/path-1.tsx"/>
  <tileset firstgid="211" source="../tilesets/path-2.tsx"/>
  <tileset firstgid="421" source="../tilesets/walls-1.tsx"/>
@@ -66,6 +66,35 @@
     <property name="meowExpandSpeed" type="float" value="10"/>
     <property name="radius" type="float" value="0.4"/>
     <property name="spriteRadius" type="float" value="0.6"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="11" type="Octopus" x="688.393" y="700.161">
+   <properties>
+    <property name="abilityRange" type="float" value="3.5"/>
+    <property name="category" value="00010"/>
+    <property name="exclude" value="00010"/>
+    <property name="force" type="float" value="1"/>
+    <property name="inkCapacity" type="float" value="100"/>
+    <property name="inkRegen" type="float" value="25"/>
+    <property name="inkUsage" type="float" value="25"/>
+    <property name="maxSpeed" type="float" value="5"/>
+    <property name="radius" type="float" value="0.4"/>
+    <property name="spriteRadius" type="float" value="0.6"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="12" type="Camera" x="952.839" y="1270.45">
+   <properties>
+    <property name="alarmDistance" type="float" value="5"/>
+    <property name="angle" type="float" value="90"/>
+    <property name="category" value="01000"/>
+    <property name="disabledTime" type="float" value="5"/>
+    <property name="exclude" value="00000"/>
+    <property name="fov" type="float" value="60"/>
+    <property name="radius" type="float" value="0.2"/>
+    <property name="spriteRadius" type="float" value="0.6"/>
+    <property name="viewDistance" type="float" value="5"/>
    </properties>
    <point/>
   </object>
