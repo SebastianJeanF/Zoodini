@@ -120,7 +120,7 @@ public class Guard extends Enemy {
      */
     public Guard(MapProperties properties, JsonValue constants, float units) {
         super(properties, constants, units);
-        fov = properties.get("fov", Float.class);
+        fov = constants.getFloat("fov");
         currentPatrolIndex = 0;
         cameraAlerted = false;
         isChasing = false;
@@ -128,7 +128,7 @@ public class Guard extends Enemy {
         chaseTimer = 0;
         AnimationState state = AnimationState.SUSPICION_METER;
         suspsicionMeter = new AnimationController(state);
-        viewDistance = properties.get("viewDistance", Float.class);
+        viewDistance = constants.getFloat("viewDistance");
         susThreshold = 10F;
         maxSusLevel = 100F;
         seesPlayer = false;

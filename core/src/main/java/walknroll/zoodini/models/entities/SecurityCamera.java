@@ -78,11 +78,11 @@ public class SecurityCamera extends ZoodiniSprite {
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 
 
-        maxDisabledTime = properties.get("disabledTime", Float.class);
+        maxDisabledTime = constants.getFloat("disabledTime");
         disabled = false;
 
         // Initialize ring effect properties
-        alarmDistance = properties.get("alarmDistance", Float.class);
+        alarmDistance = constants.getFloat("alarmDistance");
         expansionSpeed = 10.0f;
         ringThickness = 0.1f;
         ringColor = new Color(1, 0, 0, 0.5f); // Semi-transparent red
