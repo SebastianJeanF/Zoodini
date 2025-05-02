@@ -36,8 +36,8 @@ public class Guard extends Enemy {
     private static final float MEDIUM_DISTANCE_FACTOR = 0.8f; //
     // Suspicion increase amounts for each zone
     private static final int CLOSE_ZONE_SUS_INCREASE = 5;
-    private static final int MEDIUM_ZONE_SUS_INCREASE = 4;
-    private static final int FAR_ZONE_SUS_INCREASE = 3;
+    private static final int MEDIUM_ZONE_SUS_INCREASE = 3;
+    private static final int FAR_ZONE_SUS_INCREASE = 2;
 
 
     private float fov;
@@ -87,6 +87,7 @@ public class Guard extends Enemy {
     private final float blindedForceScale;
     private final float alertedForceScale;
     private final float susForceScale;
+    private final float distractedForceScale;
 
     public float getSusForceScale() {
         return susForceScale;
@@ -102,6 +103,10 @@ public class Guard extends Enemy {
 
     public float getAlertedForceScale() {
         return alertedForceScale;
+    }
+
+    public float getDistractedForceScale() {
+        return distractedForceScale;
     }
 
     public static void setSuspicionMeterCuriousTexture(Texture suspicionMeterCurious) {
@@ -137,6 +142,7 @@ public class Guard extends Enemy {
         alertedForceScale = constants.getFloat("alertedForceScale");
         blindedForceScale = constants.getFloat("blindedForceScale");
         susForceScale = constants.getFloat("susForceScale");
+        distractedForceScale = constants.getFloat("distractedForceScale");
 
         MapObject path = properties.get("path", MapObject.class);
         if (path instanceof PolylineMapObject line) {
