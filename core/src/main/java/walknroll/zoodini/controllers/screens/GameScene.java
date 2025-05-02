@@ -1018,8 +1018,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     private void resetAvatarState(PlayableAvatar avatar) {
         avatar.setCurrentlyAiming(false);
-        avatar.setMovement(0, 0);
-        avatar.applyForce();
+        avatar.resetPhysics();
     }
 
     private void onSwap(InputController input) {

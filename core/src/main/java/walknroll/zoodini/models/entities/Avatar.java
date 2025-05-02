@@ -251,6 +251,11 @@ public class Avatar extends ZoodiniSprite {
         }
     }
 
+	public void resetPhysics() {
+		forceCache.setZero();
+		movement.setZero();
+		applyForce();
+	}
 
     /**
 	 * Applies the force to the body of this avatar
