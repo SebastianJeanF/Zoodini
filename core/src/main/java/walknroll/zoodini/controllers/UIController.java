@@ -99,7 +99,11 @@ public class UIController {
         setOctopusIconImage(new TextureRegion(directory.getEntry("octopus-icon", Texture.class)));
         octopusIconImage.setVisible(false);
         minimap = new MinimapActor(level);
-        minimap.setPosition(20, Gdx.graphics.getHeight() - 180);
+        minimap.setPosition(20, Gdx.graphics.getHeight() - (minimap.getHeight() + 20));
+        minimap.setCatTexture((directory.getEntry("cat-walk-transition", Texture.class)));
+        minimap.setOctopusTexture((directory.getEntry("octopus", Texture.class)));
+
+
         if (level.isOctopusPresent()) {
             SpriteSheet inkSprites = directory.getEntry("ink-meter.animation", SpriteSheet.class);
             Octopus o = level.getOctopus();

@@ -34,6 +34,9 @@ public class MinimapActor extends Actor implements Disposable {
     private final Color EXIT_COLOR = new Color(0.2f, 0.9f, 0.2f, 1f);
     private final Color KEY_COLOR = new Color(0.9f, 0.9f, 0.2f, 1f);
 
+    private Texture octopusTexture;
+    private Texture catTexture;
+
     private int updateCounter = 0;
     private static final int UPDATE_FREQUENCY = 5;
 
@@ -61,6 +64,14 @@ public class MinimapActor extends Actor implements Disposable {
         // Initialize the pixmap and texture
         createMinimapTexture();
         createDotTexture();
+    }
+
+    public void setOctopusTexture(Texture t){
+        octopusTexture = t;
+    }
+
+    public void setCatTexture(Texture t){
+        catTexture = t;
     }
 
     private void createMinimapTexture() {
@@ -302,8 +313,8 @@ public class MinimapActor extends Actor implements Disposable {
             Vector2 catPos = level.getCat().getPosition();
             Vector2 minimapCatPos = worldToMinimap(catPos.x, catPos.y);
 
-            batch.setColor(CAT_COLOR);
-            batch.draw(dotTexture,
+            //batch.setColor(CAT_COLOR);
+            batch.draw(catTexture,
                 getX() + minimapCatPos.x - 4,
                 getY() + minimapCatPos.y - 4,
                 8, 8);
@@ -313,8 +324,8 @@ public class MinimapActor extends Actor implements Disposable {
             Vector2 octopusPos = level.getOctopus().getPosition();
             Vector2 minimapOctopusPos = worldToMinimap(octopusPos.x, octopusPos.y);
 
-            batch.setColor(OCTOPUS_COLOR);
-            batch.draw(dotTexture,
+            //batch.setColor(OCTOPUS_COLOR);
+            batch.draw(octopusTexture,
                 getX() + minimapOctopusPos.x - 4,
                 getY() + minimapOctopusPos.y - 4,
                 8, 8);
