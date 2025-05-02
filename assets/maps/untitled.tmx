@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="5">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="11">
  <tileset firstgid="1" source="../tilesets/path-1.tsx"/>
  <tileset firstgid="211" source="../tilesets/path-2.tsx"/>
  <tileset firstgid="421" source="../tilesets/walls-1.tsx"/>
@@ -29,7 +29,33 @@
  </layer>
  <objectgroup id="2" name="walls"/>
  <objectgroup id="3" name="objects">
-  <object id="1" type="Cat" x="1107.23" y="875.145">
+  <object id="5" type="Exit" x="1582.72" y="1882.79">
+   <properties>
+    <property name="category" value="10000"/>
+    <property name="exclude" value="00000"/>
+    <property name="size" type="float" value="1.25"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="8" type="Door" x="2129.9" y="1459.16">
+   <properties>
+    <property name="category" value="10000"/>
+    <property name="exclude" value="00000"/>
+    <property name="excludeUnlocked" value="00110"/>
+    <property name="key" type="object" value="9"/>
+    <property name="size" type="float" value="1.25"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="9" type="Key" x="1500.34" y="1335.6">
+   <properties>
+    <property name="category" value="10000"/>
+    <property name="exclude" value="11101"/>
+    <property name="size" type="float" value="1"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="10" type="Cat" x="1323.83" y="870.788">
    <properties>
     <property name="abilityCooldown" type="float" value="5"/>
     <property name="abilityRange" type="float" value="7"/>
@@ -41,9 +67,6 @@
     <property name="radius" type="float" value="0.4"/>
     <property name="spriteRadius" type="float" value="0.6"/>
    </properties>
-   <point/>
-  </object>
-  <object id="3" type="Exit" x="1800.41" y="1588.6">
    <point/>
   </object>
  </objectgroup>

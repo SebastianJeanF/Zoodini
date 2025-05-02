@@ -234,8 +234,6 @@ public class GameLevel {
             MapProperties properties = obj.getProperties();
             String type = properties.get("type", String.class);
 
-            if (type == null) continue;
-
             if ("Cat".equalsIgnoreCase(type)) {
                 avatarCat = new Cat(properties, units);
                 avatarCat.setAnimation(AnimationState.IDLE,

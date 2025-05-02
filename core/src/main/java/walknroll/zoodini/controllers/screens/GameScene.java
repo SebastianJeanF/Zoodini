@@ -521,12 +521,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             return;
 
         try {
-
             Obstacle o1 = (Obstacle) body1.getUserData();
             Obstacle o2 = (Obstacle) body2.getUserData();
 
-            Obstacle cat = level.getCat().getObstacle();
-            Obstacle oct = level.getOctopus().getObstacle();
+            Obstacle cat = level.isCatPresent() ? level.getCat().getObstacle() : null;
+            Obstacle oct = level.isOctopusPresent() ? level.getOctopus().getObstacle() : null;
             Obstacle exit = level.getExit().getObstacle();
             Obstacle projectile = level.getProjectile().getObstacle();
 
@@ -781,29 +780,27 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
 
         if (direction.len() > 0) {
-            direction.nor().scl(guard.getForce());
+            direction.nor().scl(guard.getForce()).scl(MOVEMENT_SCALE);
 
             float radius = ((WheelObstacle) guard.getObstacle()).getRadius();
-            float speedScale = (float) (16 * Math.pow((radius / .8f), 2));
-            // direction.scl(speedScale);
 
             if (guard.isMeowed()) {
-                direction.scl(3f * speedScale);
+                direction.scl(1.0f);
             } else if (guard.isCameraAlerted()) {
-                direction.scl(10f * speedScale);
+                direction.scl(3.0f);
             } else if (guard.isAgroed()) {
-                direction.scl(5.5f * speedScale);
+                direction.scl(2.0f);
             } else if (guard.isSus()) {
-                direction.scl(5f * speedScale);
+                direction.scl(1.5f);
             } else {
                 // guard is normally walking
-                direction.scl(4f * speedScale);
+                direction.scl(1.0f);
             }
 
             // Regardless of any other guard states, lower speed
             // if the guard is inked
             if (guard.isInkBlinded()) {
-                direction.scl(.5f);
+                direction.scl(0.75f);
             }
 
             guard.setMovement(direction.x, direction.y);
@@ -922,7 +919,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         float vertical = input.getVertical();
         float horizontal = input.getHorizontal();
         moveAvatar(vertical, horizontal, avatar);
-        level.getOctopus().regenerateInk(dt);
+        if (level.isOctopusPresent()) {
+            level.getOctopus().regenerateInk(dt);
+        }
 
         if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
             Octopus octopus = (Octopus) avatar;
@@ -982,11 +981,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             inkProjectile.destroy();
         }
 
-        if (octopus.didFire()) {
+        if (level.isOctopusPresent() && octopus.didFire()) {
             activateInkProjectile(inkProjectile, octopus.getPosition(), octopus.getTarget());
         }
 
-        if (inkProjectile.getPosition().dst(inkProjectile.getStartPosition()) > octopus.getAbilityRange()) {
+        if (level.isOctopusPresent() && inkProjectile.getPosition().dst(inkProjectile.getStartPosition()) > octopus.getAbilityRange()) {
             inkProjectile.setShouldDestroy(true);
         }
 

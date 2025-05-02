@@ -96,9 +96,13 @@ public class UIController {
         setOctopusIconImage(new TextureRegion(directory.getEntry("octopus-icon", Texture.class)));
         octopusIconImage.setVisible(false);
 
-        SpriteSheet inkSprites = directory.getEntry("ink-meter.animation", SpriteSheet.class);
-        Octopus o = level.getOctopus();
-        inkMeter = new InkMeterActor(inkSprites, o.getInkCapacity(), o.getInkCost() ,o.getInkRegen());
+        if (level.isOctopusPresent()) {
+            SpriteSheet inkSprites = directory.getEntry("ink-meter.animation", SpriteSheet.class);
+            Octopus o = level.getOctopus();
+            inkMeter = new InkMeterActor(inkSprites, o.getInkCapacity(), o.getInkCost(), o.getInkRegen());
+        } else {
+            inkMeter = null; // Make sure it's null when octopus is not present
+        }
 
         inkTextImage = new Image(directory.getEntry("ink-text", Texture.class));
 
@@ -359,8 +363,10 @@ public class UIController {
         // Icons
         if (catIconImage != null) catIconImage.setVisible(!isOcto);
         if (octopusIconImage != null) octopusIconImage.setVisible(isOcto);
-        if (inkMeter != null) inkMeter.setVisible(isOcto);
-        inkMeter.sync(level.getOctopus().getInkRemaining());
+        if (inkMeter != null && level.isOctopusPresent()) {
+            inkMeter.setVisible(isOcto);
+            inkMeter.sync(level.getOctopus().getInkRemaining());
+        }
 
         if (dangerIconImage != null && smallCatIconImage != null && smallOctopusIconImage != null) {
             if (level.isInactiveAvatarInDanger()) {
