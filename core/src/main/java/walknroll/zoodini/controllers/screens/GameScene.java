@@ -178,7 +178,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         camera = new OrthographicCamera();
 
-        float NUM_TILES_WIDE = 20f;
+        float NUM_TILES_WIDE = 18f;
         camera.setToOrtho(false, level.getTileSize() * NUM_TILES_WIDE,
                 level.getTileSize() * NUM_TILES_WIDE * 720f / 1280f);
 
@@ -779,19 +779,15 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         if (direction.len() > 0) {
             direction.nor().scl(guard.getForce()).scl(MOVEMENT_SCALE);
 
-            float radius = ((WheelObstacle) guard.getObstacle()).getRadius();
 
             if (guard.isMeowed()) {
-                direction.scl(1.0f);
+                direction.scl(guard.getDistractedForceScale());
             } else if (guard.isCameraAlerted()) {
                 direction.scl(guard.getAlertedForceScale());
             } else if (guard.isAgroed()) {
                 direction.scl(guard.getAgroedForceScale());
             } else if (guard.isSus()) {
                 direction.scl(guard.getSusForceScale());
-            } else {
-                // guard is normally walking
-                direction.scl(1.0f);
             }
 
             // Regardless of any other guard states, lower speed

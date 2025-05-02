@@ -243,7 +243,7 @@ public class GuardAIController {
                 guard.deltaSusLevel(susIncrease); // Increase suspicion
             } else {
                 // Only decrease suspicion if not in ALERTED state
-                if (currState != GuardState.AlERTED) {
+                if (currState != GuardState.AlERTED ) {
                     guard.deltaSusLevel(-1); // Decrease suspicion
                 }
             }
