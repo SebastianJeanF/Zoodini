@@ -23,7 +23,7 @@ public abstract class PlayableAvatar extends Avatar {
     public abstract void setDidFire(boolean value);
 
     @Override
-    public float getMaxSpeed() {
-        return super.getMaxSpeed() / (this.isCurrentlyAiming() ? 2f : 1f);
+    public float getForce() {
+        return super.getForce() / (this.isCurrentlyAiming() ? 2f : 1f);
     }
 }
