@@ -863,11 +863,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             Vector2 movementDir = guard.getMovementDirection();
             visionCone.updateFacingDirection(dt, movementDir);
 
-            Vector2 catPos = level.getCat().getPosition();
-            Vector2 octPos = level.getOctopus().getPosition();
+            Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : new Vector2();
+            Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : new Vector2();
 
             // Check if cat is detected
-            if (visionCone.contains(catPos)) {
+            if (level.isCatPresent() && visionCone.contains(catPos)) {
                 guard.setAgroed(true);
                 guard.setAggroTarget(level.getCat());
                 guard.setTarget(level.getCat().getPosition());
@@ -878,7 +878,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             }
 
             // Check if octopus is detected
-            else if (visionCone.contains(octPos)) {
+            else if (level.isOctopusPresent() && visionCone.contains(octPos)) {
                 guard.setAgroed(true);
                 guard.setAggroTarget(level.getOctopus());
                 guard.setTarget(level.getOctopus().getPosition());
@@ -890,8 +890,12 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             // No player detected
             else {
                 // Only set to false if the guard isn't being alerted by a camera
-                level.getOctopus().setUnderVisionCone(false);
-                level.getCat().setUnderVisionCone(false);
+                if (level.isOctopusPresent()) {
+                    level.getOctopus().setUnderVisionCone(false);
+                }
+                if (level.isCatPresent()) {
+                    level.getCat().setUnderVisionCone(false);
+                }
                 guard.setSeesPlayer(false);
                 guard.setSeenPlayer(null);
                 if (!guard.isCameraAlerted()) {

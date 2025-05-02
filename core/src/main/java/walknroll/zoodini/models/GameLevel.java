@@ -513,11 +513,12 @@ public class GameLevel {
     }
 
     public boolean isInactiveAvatarInDanger() {
-        if (catActive) {
+        if (catActive && octopusPresent) {
             return isInDanger(avatarOctopus);
-        } else {
+        } else if (!catActive && catPresent) {
             return isInDanger(avatarCat);
         }
+        return false;
     }
 
     // ------------------Helpers-----------------------//
