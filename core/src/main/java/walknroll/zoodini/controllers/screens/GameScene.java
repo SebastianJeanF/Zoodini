@@ -612,10 +612,12 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             // Handle exit collision (only if door is unlocked)
             if ((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)) {
                 catArrived = true;
+                checkWinCondition();
             }
 
             if ((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)) {
                 octopusArrived = true;
+                checkWinCondition();
             }
 
             if (catArrived && octopusArrived && !failed) {
@@ -624,6 +626,27 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void checkWinCondition() {
+        if (!failed) {
+            boolean levelComplete = false;
+
+            if (level.isCatPresent() && level.isOctopusPresent()) {
+                // Both characters present - need both to reach exit
+                levelComplete = catArrived && octopusArrived;
+            } else if (level.isCatPresent()) {
+                // Only cat present
+                levelComplete = catArrived;
+            } else if (level.isOctopusPresent()) {
+                // Only octopus present
+                levelComplete = octopusArrived;
+            }
+
+            if (levelComplete) {
+                setComplete(true);
+            }
         }
     }
 
@@ -1001,7 +1024,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     }
 
     private void onSwap(InputController input) {
-        if (input.didSwap() && !inCameraTransition) {
+        if (input.didSwap() && !inCameraTransition && level.isCatPresent() && level.isOctopusPresent()) {
             resetAvatarState(level.getAvatar());
             resetAvatarState(level.getInactiveAvatar());
             // Save previous camera position before swapping
