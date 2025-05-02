@@ -50,13 +50,15 @@ public class Octopus extends PlayableAvatar {
 
     public Octopus(MapProperties properties, JsonValue constants, float units) {
         super(AvatarType.OCTOPUS, properties, constants, units);
-        float r = properties.get("spriteRadius", Float.class) * OCTOPUS_IMAGE_SCALE * units;
+        float r = constants.getFloat("spriteRadius") * OCTOPUS_IMAGE_SCALE * units;
+        //TODO: we don't need OCTOPUS_IMAGE_SCALE
+
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
         target = new Vector2();
-        this.abilityRange = properties.get("abilityRange", Float.class);
-        this.inkRemaining = properties.get("inkCapacity", Float.class);
-        this.inkRegen = properties.get("inkRegen", Float.class);
-        this.inkUsage = properties.get("inkUsage", Float.class);
+        this.abilityRange = constants.getFloat("abilityRange");
+        this.inkRemaining = constants.getFloat("inkCapacity");
+        this.inkRegen = constants.getFloat("inkRegen");
+        this.inkUsage = constants.getFloat("inkUsage");
         this.inkCapacity = inkRemaining;
         keys = new Array<Key>();
     }

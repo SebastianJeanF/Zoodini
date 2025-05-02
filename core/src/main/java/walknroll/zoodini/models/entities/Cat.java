@@ -49,10 +49,10 @@ public class Cat extends PlayableAvatar {
 
     public Cat(MapProperties properties, JsonValue constants, float units) {
         super(AvatarType.CAT, properties, constants, units);
-        this.abilityRange = properties.get("abilityRange", Float.class);
+        this.abilityRange = constants.getFloat("abilityRange");
 
         // Initialize ring effect properties
-        expansionSpeed = properties.get("meowExpandSpeed", Float.class); // 1 m/s
+        expansionSpeed = constants.getFloat("meowExpansionSpeed");
         ringThickness = 0.3f;
         ringColor = new Color(211f, 211f, 211f, 0.5f); // Semi-transparent green
         currentRadius = 0f;
@@ -61,7 +61,7 @@ public class Cat extends PlayableAvatar {
         affineCache = new Affine2();
 
         // Initialize cooldown properties
-        meowCooldown = properties.get("abilityCooldown", Float.class); // 10 seconds default
+        meowCooldown = constants.getFloat("abilityCooldown"); // 10 seconds default
         meowCooldownRemaining = 0;
         onCooldown = false;
         keys = new Array<Key>();

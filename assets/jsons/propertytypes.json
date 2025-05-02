@@ -102,19 +102,9 @@
         "id": 5,
         "members": [
             {
-                "name": "fov",
-                "type": "float",
-                "value": 60
-            },
-            {
                 "name": "path",
                 "type": "object",
                 "value": 0
-            },
-            {
-                "name": "viewDistance",
-                "type": "float",
-                "value": 5
             }
         ],
         "name": "Guard",
