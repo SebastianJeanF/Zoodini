@@ -83,6 +83,27 @@ public class Guard extends Enemy {
 
     private float originalFov;
 
+    private final float agroedForceScale;
+    private final float blindedForceScale;
+    private final float alertedForceScale;
+    private final float susForceScale;
+
+    public float getSusForceScale() {
+        return susForceScale;
+    }
+
+    public float getAgroedForceScale() {
+        return agroedForceScale;
+    }
+
+    public float getBlindedForceScale() {
+        return blindedForceScale;
+    }
+
+    public float getAlertedForceScale() {
+        return alertedForceScale;
+    }
+
     public static void setSuspicionMeterCuriousTexture(Texture suspicionMeterCurious) {
         Guard.SUSPICION_METER_CURIOUS = suspicionMeterCurious;
     }
@@ -112,6 +133,10 @@ public class Guard extends Enemy {
         maxSusLevel = 100F;
         seesPlayer = false;
 
+        agroedForceScale = constants.getFloat("agroedForceScale");
+        alertedForceScale = constants.getFloat("alertedForceScale");
+        blindedForceScale = constants.getFloat("blindedForceScale");
+        susForceScale = constants.getFloat("susForceScale");
 
         MapObject path = properties.get("path", MapObject.class);
         if (path instanceof PolylineMapObject line) {

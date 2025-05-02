@@ -787,11 +787,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             if (guard.isMeowed()) {
                 direction.scl(1.0f);
             } else if (guard.isCameraAlerted()) {
-                direction.scl(3.0f);
+                direction.scl(guard.getAlertedForceScale());
             } else if (guard.isAgroed()) {
-                direction.scl(2.0f);
+                direction.scl(guard.getAgroedForceScale());
             } else if (guard.isSus()) {
-                direction.scl(1.5f);
+                direction.scl(guard.getSusForceScale());
             } else {
                 // guard is normally walking
                 direction.scl(1.0f);
@@ -800,7 +800,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             // Regardless of any other guard states, lower speed
             // if the guard is inked
             if (guard.isInkBlinded()) {
-                direction.scl(0.75f);
+                direction.scl(guard.getBlindedForceScale());
             }
 
             guard.setMovement(direction.x, direction.y);

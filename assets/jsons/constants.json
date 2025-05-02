@@ -8,9 +8,10 @@
       "maxSpeed" : 10.0,
       "spriteRadius": 0.6,
       "obstacleRadius" : 0.5,
-      "agroForceScale" : 2.0,
-      "alertForceScale" : 3.0,
-      "distractForceScale" : 0.75
+      "agroedForceScale" : 2.0,
+      "alertedForceScale" : 3.0,
+      "blindedForceScale" : 0.75,
+      "susForceScale" : 1.0
     },
     "cat": {
       "category": "00010",
