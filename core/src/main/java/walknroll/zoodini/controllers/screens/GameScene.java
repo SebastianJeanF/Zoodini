@@ -763,13 +763,13 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             float radius = ((WheelObstacle) guard.getObstacle()).getRadius();
 
             if (guard.isMeowed()) {
-                direction.scl(guard.getDistractedForceScale());
-            } else if (guard.isCameraAlerted()) {
-                direction.scl(guard.getAlertedForceScale());
-            } else if (guard.isAgroed()) {
-                direction.scl(guard.getAgroForceScale());
-            } else if (guard.isSus()) {
                 direction.scl(1.0f);
+            } else if (guard.isCameraAlerted()) {
+                direction.scl(3.0f);
+            } else if (guard.isAgroed()) {
+                direction.scl(2.0f);
+            } else if (guard.isSus()) {
+                direction.scl(1.5f);
             } else {
                 // guard is normally walking
                 direction.scl(1.0f);
@@ -778,7 +778,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             // Regardless of any other guard states, lower speed
             // if the guard is inked
             if (guard.isInkBlinded()) {
-                direction.scl(guard.getDistractedForceScale());
+                direction.scl(0.75f);
             }
 
             guard.setMovement(direction.x, direction.y);

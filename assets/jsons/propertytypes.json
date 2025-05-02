@@ -187,24 +187,9 @@
         "id": 5,
         "members": [
             {
-                "name": "agroedForceScale",
-                "type": "float",
-                "value": 2
-            },
-            {
-                "name": "alertedForceScale",
-                "type": "float",
-                "value": 3
-            },
-            {
                 "name": "category",
                 "type": "string",
                 "value": "00100"
-            },
-            {
-                "name": "distractedForceScale",
-                "type": "float",
-                "value": 0.8
             },
             {
                 "name": "exclude",

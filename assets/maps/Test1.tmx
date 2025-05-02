@@ -102,10 +102,7 @@
   </object>
   <object id="5" type="Guard" x="2364" y="564">
    <properties>
-    <property name="agroedForceScale" type="float" value="2"/>
-    <property name="alertedForceScale" type="float" value="3"/>
     <property name="category" value="00100"/>
-    <property name="distractedForceScale" type="float" value="0.8"/>
     <property name="exclude" value="00100"/>
     <property name="force" type="float" value="2"/>
     <property name="fov" type="float" value="60"/>
@@ -136,10 +133,7 @@
   </object>
   <object id="8" type="Guard" x="1084" y="460">
    <properties>
-    <property name="agroedForceScale" type="float" value="2"/>
-    <property name="alertedForceScale" type="float" value="3"/>
     <property name="category" value="00100"/>
-    <property name="distractedForceScale" type="float" value="0.8"/>
     <property name="exclude" value="00100"/>
     <property name="force" type="float" value="2"/>
     <property name="fov" type="float" value="60"/>
@@ -153,10 +147,7 @@
   </object>
   <object id="9" type="Guard" x="1240" y="476">
    <properties>
-    <property name="agroedForceScale" type="float" value="2"/>
-    <property name="alertedForceScale" type="float" value="3"/>
     <property name="category" value="00100"/>
-    <property name="distractedForceScale" type="float" value="0.8"/>
     <property name="exclude" value="00100"/>
     <property name="force" type="float" value="2"/>
     <property name="fov" type="float" value="60"/>

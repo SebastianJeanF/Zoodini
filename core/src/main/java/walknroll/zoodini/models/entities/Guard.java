@@ -83,22 +83,6 @@ public class Guard extends Enemy {
 
     private float originalFov;
 
-    private final float agroForceScale;
-    private final float alertedForceScale;
-    private final float distractedForceScale;
-
-    public float getAgroForceScale() {
-        return agroForceScale;
-    }
-
-    public float getAlertedForceScale() {
-        return alertedForceScale;
-    }
-
-    public float getDistractedForceScale() {
-        return distractedForceScale;
-    }
-
     public static void setSuspicionMeterCuriousTexture(Texture suspicionMeterCurious) {
         Guard.SUSPICION_METER_CURIOUS = suspicionMeterCurious;
     }
@@ -127,9 +111,6 @@ public class Guard extends Enemy {
         susThreshold = 10F;
         maxSusLevel = 100F;
         seesPlayer = false;
-        agroForceScale = properties.get("agroedForceScale", Float.class);
-        distractedForceScale = properties.get("distractedForceScale", Float.class);
-        alertedForceScale = properties.get("alertedForceScale", Float.class);
 
 
         MapObject path = properties.get("path", MapObject.class);
