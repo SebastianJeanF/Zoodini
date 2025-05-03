@@ -30,7 +30,6 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
 
 import box2dLight.PositionalLight;
-import box2dLight.RayHandler;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
@@ -138,9 +137,6 @@ public class GameLevel {
 
     /** Reference to the exit (for collision detection) */
     private Exit exit;
-    private OrthographicCamera raycamera;
-    private ObjectMap<Guard, PositionalLight> guardLights = new ObjectMap<>();
-    private PositionalLight[] avatarLights = new PositionalLight[2]; // TODO: array or separate field for two avatars?
     private Array<Guard> guards = new Array<>();
     private Array<SecurityCamera> securityCameras = new Array<>();
     private ObjectMap<ZoodiniSprite, VisionCone> visions = new ObjectMap<>();
@@ -148,7 +144,7 @@ public class GameLevel {
 
     private Array<Key> keys = new Array<>();
 
-    private ObjectMap<Door, Key> doors = new ObjectMap<>();
+    private PooledList<Door> doors = new PooledList<>();
 
     /** All the object sprites in the world. */
     protected PooledList<ZoodiniSprite> sprites = new PooledList<ZoodiniSprite>();
@@ -162,7 +158,6 @@ public class GameLevel {
 
     /** Size of one tile. This serves as scaling factor for all drawings */
     private float units;
-    RayHandler rayHandler;
     // TO FIX THE TIMESTEP
     /** The maximum frames per second setting for this level */
     protected int maxFPS;
@@ -224,8 +219,8 @@ public class GameLevel {
         bounds = new Rectangle(0, 0, width, height);
 
         MapLayer walls = map.getLayers().get("walls");
-        createWallBodies(walls);
         JsonValue constants = directory.getEntry("constants", JsonValue.class).get("constants");
+        createWallBodies(walls, constants.get("walls"));
 
         catPresent = false;
         octopusPresent = false;
@@ -279,10 +274,11 @@ public class GameLevel {
                 activate(cam);
             } else if ("Door".equalsIgnoreCase(type)) {
                 Door door = new Door(directory, properties, constants.get("door"), units);
-                Key key = new Key(directory, obj.getProperties().get("key", MapObject.class).getProperties(), constants.get("key"), units);
-                doors.put(door, key);
-                keys.add(key);
+                doors.add(door);
                 activate(door);
+            } else if ("Key".equalsIgnoreCase(type)) {
+                Key key = new Key(directory, properties, constants.get("key"), units);
+                keys.add(key);
                 activate(key);
             } else if ("Exit".equalsIgnoreCase(type)) {
                 exit = new Exit(directory, properties, constants.get("exit"), units);
@@ -297,19 +293,11 @@ public class GameLevel {
             catActive = false;
         }
 
-        initializeVisionCones();
-
-        // raycamera = new OrthographicCamera(gSize[0], gSize[1]);
-        // raycamera.setToOrtho(false, gSize[0], gSize[1]);
-        // rayHandler = new RayHandler(world, Gdx.graphics.getWidth(),
-        // Gdx.graphics.getHeight());
-        // RayHandler.useDiffuseLight(true);
-        // RayHandler.setGammaCorrection(true);
-        // rayHandler.setAmbientLight(0.5f,0.5f,0.5f,0.5f);
+        initializeVisionCones(constants.get("visioncone"));
 
         // Initialize an ink projectile (but do not add it to the physics world, we only
         // do that on demand)
-        JsonValue projectileData = directory.getEntry("constants", JsonValue.class).get("ink");
+        JsonValue projectileData = directory.getEntry("constants", JsonValue.class).get("constants").get("ink");
         inkProjectile = new InkProjectile(projectileData, units);
         inkProjectile.setAnimation(AnimationState.EXPLODE,
                 directory.getEntry("ink-explosion.animation", SpriteSheet.class));
@@ -356,10 +344,6 @@ public class GameLevel {
 
             updateFlipSprite(getAvatar());
 
-            if (rayHandler != null) {
-                rayHandler.setCombinedMatrix(raycamera);
-            }
-
             if (avatarCat != null) {
                 avatarCat.update(dt);
             }
@@ -386,7 +370,7 @@ public class GameLevel {
                 vc.update(world);
             }
 
-            for (Door door : doors.keys()) {
+            for (Door door : doors) {
                 door.update(dt);
             }
 
@@ -466,7 +450,7 @@ public class GameLevel {
      * @param batch  the sprite batch to draw to
      * @param camera the drawing camera
      */
-    public void draw(SpriteBatch batch, Camera camera) {
+public void draw(SpriteBatch batch, Camera camera) {
         // Draw the sprites first (will be hidden by shadows)
 
         batch.begin(camera);
@@ -610,7 +594,7 @@ public class GameLevel {
      *
      * @return a reference to the doors
      */
-    public ObjectMap<Door, Key> getDoors() {
+    public PooledList<Door> getDoors() {
         return doors;
     }
 
@@ -724,12 +708,12 @@ public class GameLevel {
         sprite.getObstacle().activatePhysics(world);
     }
 
-    private void initializeVisionCones() {
+    private void initializeVisionCones(JsonValue constants) {
         Color c = Color.WHITE.cpy().add(0, 0, 0, -0.5f);
         for (SecurityCamera cam : securityCameras) {
             float fov = cam.getFov();
             float dist = cam.getViewDistance();
-            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, "000000", "111110");
+            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, constants);
             float angle = cam.getAngle();
             vc.attachToBody(cam.getObstacle().getBody(), angle);
             vc.setVisibility(true);
@@ -739,7 +723,7 @@ public class GameLevel {
         for (Guard guard : guards) {
             float fov = guard.getFov();
             float dist = guard.getViewDistance();
-            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, "000000", "111110");
+            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units,  constants);
             vc.attachToBody(guard.getObstacle().getBody(), 90.0f);
             vc.setVisibility(debug);
             visions.put(guard, vc);
@@ -750,7 +734,7 @@ public class GameLevel {
      * Create and register rectangle obstacles from a tile layer.
      * The layer must consist of tiles that has an object assigned to it.
      */
-    private void createWallBodies(MapLayer layer) {
+    private void createWallBodies(MapLayer layer, JsonValue constants) {
         for (MapObject wall : layer.getObjects()) {
             if (wall instanceof RectangleMapObject rec) {
                 Rectangle rectangle = rec.getRectangle(); // dimensions given in pixels
@@ -764,8 +748,8 @@ public class GameLevel {
                 obstacle.setBodyType(BodyType.StaticBody);
 
                 Filter filter = new Filter();
-                short collideBits = GameLevel.bitStringToShort("0001");
-                short excludeBits = GameLevel.bitStringToComplement("0000");
+                short collideBits = GameLevel.bitStringToShort(constants.getString("category"));
+                short excludeBits = GameLevel.bitStringToComplement(constants.getString("exclude"));
                 filter.categoryBits = collideBits;
                 filter.maskBits = excludeBits;
                 obstacle.setFilterData(filter);
@@ -838,6 +822,8 @@ public class GameLevel {
         return horiz && vert;
     }
 
+    PathFactory pathFactory = new PathFactory();
+    PathExtruder pathExtruder = new PathExtruder();
     private void drawAbilityRange(SpriteBatch batch, Camera camera) {
         PlayableAvatar avatar = getAvatar();
         batch.setTexture(null);
@@ -845,12 +831,13 @@ public class GameLevel {
         float x = avatar.getObstacle().getX();
         float y = avatar.getObstacle().getY();
 
-        Path2 rangePath = new PathFactory().makeNgon(x, y, avatar.getAbilityRange(), 64); // radius = 1.0m. 64 vertices
-        PathExtruder rangeExtruder = new PathExtruder(rangePath);
-        rangeExtruder.calculate(0.05f); // line thickness = 0.05m
+        Path2 rangePath = pathFactory.makeNgon(x, y, avatar.getAbilityRange(), 64); // radius = 1.0m. 64 vertices
+        //TODO: ideally don't call makeNgon
+        pathExtruder.set(rangePath);
+        pathExtruder.calculate(0.05f); // line thickness = 0.05m
         affineCache.idt();
         affineCache.scale(getTileSize(), getTileSize());
-        batch.draw((TextureRegion) null, rangeExtruder.getPolygon(), affineCache);
+        batch.fill(pathExtruder.getPolygon(), affineCache);
         batch.setColor(Color.WHITE);
     }
 
@@ -867,6 +854,7 @@ public class GameLevel {
      * @param batch  the sprite batch used for rendering
      * @param camera the camera used to unproject screen coordinates to world
      *               coordinates
+     *
      */
     private void drawOctopusReticle(SpriteBatch batch, Camera camera) {
         Octopus octopus = (Octopus) getAvatar();
@@ -878,12 +866,13 @@ public class GameLevel {
         Vector2 target = octopus.getTarget();
 
         // TODO: a couple of magic numbers here need to be config values I think
-        Path2 reticlePath = new PathFactory().makeNgon(target.x + x, target.y + y, 0.25f, 64); // radius = 1.0m. 64
-                                                                                               // vertices
-        PathExtruder reticleExtruder = new PathExtruder(reticlePath);
-        reticleExtruder.calculate(0.1f); // line thickness = 0.1m
+        Path2 reticlePath = pathFactory.makeNgon(target.x + x, target.y + y, 0.25f, 64);
+        //TODO: ideally don't call makeNgon
+        pathExtruder.set(reticlePath);
+        pathExtruder.calculate(0.1f); // line thickness = 0.1m
         affineCache.idt();
         affineCache.scale(getTileSize(), getTileSize());
-        batch.draw((TextureRegion) null, reticleExtruder.getPolygon(), affineCache);
+        batch.fill(pathExtruder.getPolygon(), affineCache);
+        batch.setColor(Color.WHITE);
     }
 }

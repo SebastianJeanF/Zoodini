@@ -98,12 +98,12 @@ public class UIController {
      * Initialize all the Actors (Images, Buttons, etc.)
      */
     private void initializeActors(AssetDirectory directory, GameLevel level){
-        setFont(directory.getEntry("display", BitmapFont.class));
+        displayFont = directory.getEntry("display", BitmapFont.class);
 
-        setCatIconImage(new TextureRegion(directory.getEntry("cat-icon", Texture.class)));
+        catIconImage = new Image(directory.getEntry("cat-icon", Texture.class));
         catIconImage.setVisible(false);
 
-        setOctopusIconImage(new TextureRegion(directory.getEntry("octopus-icon", Texture.class)));
+        octopusIconImage = new Image((directory.getEntry("octopus-icon", Texture.class)));
         octopusIconImage.setVisible(false);
         minimap = new MinimapActor(level);
         minimap.setPosition(20, Gdx.graphics.getHeight() - (minimap.getHeight() + 20));
@@ -327,52 +327,6 @@ public class UIController {
         meowCooldownIndicator.setPosition(viewport.getScreenWidth() - 200, 40);  // Position it where needed
         stage.addActor(meowCooldownIndicator);
 
-    }
-
-    public void setFont(BitmapFont f) {
-        displayFont = f;
-    }
-
-    public void setCatIconImage(TextureRegion icon) {
-        catIconImage = new Image(icon);
-    }
-    public void setOctopusIconImage(TextureRegion icon) {
-        octopusIconImage = new Image(icon);
-    }
-
-    public void setSmallCatIcon(TextureRegion icon) {
-        smallCatIconImage = new Image(icon);
-    }
-
-    public void setSmallOctopusIcon(TextureRegion icon) {
-        smallOctopusIconImage = new Image(icon);
-    }
-
-    public void setDangerIcon(TextureRegion icon) {
-        dangerIconImage = new Image(icon);
-    }
-    public void setPauseIcon (TextureRegion icon){
-        pauseIconImage = new Image(icon);
-    }
-
-    public void setRestartIcon (TextureRegion icon){
-        restartButton = new Image(icon);
-    }
-
-    public void setHomeIcon (TextureRegion icon){
-        homeButton = new Image(icon);
-    }
-
-    public void setPausedBanner (TextureRegion icon){
-        pauseBannerImage = new Image(icon);
-    }
-
-    public void setResumeIcon (TextureRegion icon){
-        resumeIconImage = new Image(icon);
-    }
-
-    public void setResumeButton (TextureRegion icon){
-        resumeButtonImage = new Image(icon);
     }
 
     public void update(float dt){

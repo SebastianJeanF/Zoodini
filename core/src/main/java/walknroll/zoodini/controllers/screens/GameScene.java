@@ -14,6 +14,7 @@ package walknroll.zoodini.controllers.screens;
 
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import edu.cornell.gdiac.util.PooledList;
 import java.util.HashMap;
 
 import com.badlogic.gdx.Screen;
@@ -136,13 +137,13 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     private SoundController soundController;
 
-    private Vector3 tmp = new Vector3();
 
-    private Vector2 tmp2 = new Vector2();
-
-    // -----------------Main logic--------------------------//
-
+    /** Caches */
+    private Vector3 vec3tmp = new Vector3();
+    private Vector2 vec2tmp = new Vector2();
     private Vector2 angleCache = new Vector2();
+    private Vector2 vec2tmp2 = new Vector2();
+    private Vector2 vec2tmp3 = new Vector2();
 
     /**
      * Sets whether the level is completed.
@@ -223,7 +224,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         setFailure(false);
         countdown = -1;
 
-        //map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString("" + this.currentLevel));
+        // map = new TmxMapLoader().load(directory.getEntry("levels",
+        // JsonValue.class).getString("" + this.currentLevel));
         // Reload the json each time
         level.populate(directory, map);
         level.getWorld().setContactListener(this);
@@ -592,12 +594,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 }
             }
 
-            ObjectMap<Door, Key> doors = level.getDoors();
-            for (Door door : doors.keys()) {
-
-                doors.get(door);
+            PooledList<Door> doors = level.getDoors();
+            for (Door door : doors) {
                 Obstacle doorObs = door.getObstacle();
-                Key rightKey = doors.get(door);
 
                 if (o1 == doorObs || o2 == doorObs) {
                     DebugPrinter.println("Door collision");
@@ -674,11 +673,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             Obstacle oct = level.getOctopus().getObstacle();
             Obstacle exit = level.getExit().getObstacle();
 
-            ObjectMap<Door, Key> doors = level.getDoors();
+            PooledList<Door> doors = level.getDoors();
 
-            for (Door door : doors.keys()) {
-
-                doors.get(door);
+            for (Door door : doors) {
                 Obstacle doorObs = door.getObstacle();
 
                 // Check if there is door that should stop being unlocked
@@ -788,17 +785,19 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
 
         if (direction.len() > 0) {
-            direction.nor().scl(guard.getForce()).scl(MOVEMENT_SCALE);
-
+            direction.nor().scl(MOVEMENT_SCALE);
 
             if (guard.isMeowed()) {
-                direction.scl(guard.getDistractedForceScale());
+                direction.scl(guard.getDistractedForce());
             } else if (guard.isCameraAlerted()) {
-                direction.scl(guard.getAlertedForceScale());
+                direction.scl(guard.getAlertedForce());
             } else if (guard.isAgroed()) {
-                direction.scl(guard.getAgroedForceScale());
+                direction.scl(guard.getAgroedForce());
             } else if (guard.isSus()) {
-                direction.scl(guard.getSusForceScale());
+                direction.scl(guard.getSusForce());
+            } else {
+                // if the guard is not in any special state, apply normal force
+                direction.scl(guard.getForce());
             }
 
             // Regardless of any other guard states, lower speed
@@ -814,12 +813,15 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     }
 
     private void updateSecurityCameraVisionCones() {
+        vec2tmp2.set(0,0);
+        vec2tmp3.set(0,0);
         ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
             if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
-                Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : new Vector2();
-                Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : new Vector2();
-                if ((level.isCatPresent() && entry.value.contains(catPos)) || (level.isOctopusPresent() && entry.value.contains(octPos))) {
+                Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : vec2tmp2;
+                Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : vec2tmp3;
+                if ((level.isCatPresent() && entry.value.contains(catPos))
+                        || (level.isOctopusPresent() && entry.value.contains(octPos))) {
 
                     ((SecurityCamera) entry.key).activateRing();
 
@@ -857,6 +859,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * security cameras.
      */
     private void updateGuardVisionCones(float dt) {
+        vec2tmp2.set(0,0);
+        vec2tmp3.set(0,0);
         ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
 
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
@@ -874,8 +878,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             Vector2 movementDir = guard.getMovementDirection();
             visionCone.updateFacingDirection(dt, movementDir);
 
-            Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : new Vector2();
-            Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : new Vector2();
+            Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : vec2tmp2;
+            Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : vec2tmp3;
 
             // Check if cat is detected
             if (level.isCatPresent() && visionCone.contains(catPos)) {
@@ -920,8 +924,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * Applies movement forces to the avatar and change firing states.
      */
     private void processPlayerAction(InputController input, float dt) {
-        tmp.setZero();
-        tmp2.setZero();
+        vec3tmp.setZero();
+        vec2tmp.setZero();
 
         if (input.didSwap()) {
             onSwap(input);
@@ -930,20 +934,22 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         Avatar avatar = level.getAvatar();
         float vertical = input.getVertical();
         float horizontal = input.getHorizontal();
-        moveAvatar(vertical, horizontal, avatar);
+        if (avatar != level.getInactiveAvatar()) {
+            moveAvatar(vertical, horizontal, avatar);
+        }
         if (level.isOctopusPresent()) {
             level.getOctopus().regenerateInk(dt);
         }
 
         if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
             Octopus octopus = (Octopus) avatar;
-            tmp.set(input.getAiming(), 0);
-            tmp = camera.unproject(tmp);
-            tmp2.set(tmp.x, tmp.y)
+            vec3tmp.set(input.getAiming(), 0);
+            vec3tmp = camera.unproject(vec3tmp);
+            vec2tmp.set(vec3tmp.x, vec3tmp.y)
                     .scl(1.0f / level.getTileSize())
                     .sub(octopus.getPosition())
                     .clamp(0.0f, octopus.getAbilityRange()); // this decides the distance for projectile to travel
-            octopus.setTarget(tmp2); // set a target vector relative to octopus's position as origin.
+            octopus.setTarget(vec2tmp); // set a target vector relative to octopus's position as origin.
 
             if (input.didAbility() && octopus.canUseAbility()) { // check for ink resource here.
                 octopus.setCurrentlyAiming(!octopus.isCurrentlyAiming()); // turn the reticle on and off
@@ -973,8 +979,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             }
         }
 
-        tmp.setZero();
-        tmp2.setZero();
+        vec3tmp.setZero();
+        vec2tmp.setZero();
     }
 
     /**
@@ -985,7 +991,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private void processNPCAction(float dt) {
         Octopus octopus = level.getOctopus();
         InkProjectile inkProjectile = level.getProjectile();
-        ObjectMap<Door, Key> doors = level.getDoors();
+        PooledList<Door> doors = level.getDoors();
 
         // Projectiles
         // TODO: not sure about the order of if statements here.
@@ -1006,11 +1012,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         updateGuards(guards);
 
         // TODO: Might need to comment out again
-        for (ObjectMap.Entry<Door, Key> entry : doors.entries()) {
-            Door door = entry.key;
-            Key key = entry.value;
+        for (Door door : level.getDoors()) {
             if (!door.isLocked()) {
-                key.setUsed(true);
                 Vector2 doorPos = door.getObstacle().getPosition();
                 graph.getNode((int) doorPos.x, (int) doorPos.y).isWall = false;
             }
