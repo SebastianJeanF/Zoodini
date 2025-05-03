@@ -381,7 +381,10 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         mapRenderer.setView(camera);
         mapRenderer.render(); // divide this into layerwise rendering if you want
+
         level.draw(batch, camera);
+
+        mapRenderer.render(new int[]{1});
 
         if (Constants.DEBUG) {
             graph.clearMarkedNodes();
