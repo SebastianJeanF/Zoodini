@@ -3,4 +3,5 @@
 // AGAIN: THIS MUST BE IN CONSECUTIVE ORDER
 {
   "1": "maps/Tutorial1.tmx",
+  "2" : "maps/debugMap.tmx",
 }
