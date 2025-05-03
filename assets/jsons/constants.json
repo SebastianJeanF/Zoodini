@@ -71,7 +71,7 @@
     },
     "ink" : {
       "category": "001000000",
-      "exclude" : "000011101",
+      "exclude" : "000011001",
       "radius":       0.2,
       "spriterad":    0.2,
       "startframe":   0,
