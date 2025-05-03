@@ -788,17 +788,20 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
 
         if (direction.len() > 0) {
-            direction.nor().scl(guard.getForce()).scl(MOVEMENT_SCALE);
-
+            direction.nor().scl(MOVEMENT_SCALE);
 
             if (guard.isMeowed()) {
-                direction.scl(guard.getDistractedForceScale());
+                direction.scl(guard.getDistractedForce());
             } else if (guard.isCameraAlerted()) {
-                direction.scl(guard.getAlertedForceScale());
+                direction.scl(guard.getAlertedForce());
             } else if (guard.isAgroed()) {
-                direction.scl(guard.getAgroedForceScale());
+                direction.scl(guard.getAgroedForce());
             } else if (guard.isSus()) {
-                direction.scl(guard.getSusForceScale());
+                direction.scl(guard.getSusForce());
+            }
+            else {
+                // if the guard is not in any special state, apply normal force
+                direction.scl(guard.getForce());
             }
 
             // Regardless of any other guard states, lower speed
