@@ -233,35 +233,35 @@ public class GameLevel {
             if ("Cat".equalsIgnoreCase(type)) {
                 avatarCat = new Cat(properties, constants.get("cat"), units);
                 avatarCat.setAnimation(AnimationState.IDLE,
-                        directory.getEntry("cat-idle.animation", SpriteSheet.class));
+                        directory.getEntry("cat-idle.animation", SpriteSheet.class), 16);
                 avatarCat.setAnimation(AnimationState.WALK,
-                        directory.getEntry("cat-walk.animation", SpriteSheet.class));
+                        directory.getEntry("cat-walk.animation", SpriteSheet.class), 4);
                 avatarCat.setAnimation(AnimationState.WALK_DOWN,
-                        directory.getEntry("cat-walk-down.animation", SpriteSheet.class));
+                        directory.getEntry("cat-walk-down.animation", SpriteSheet.class), 8);
                 avatarCat.setAnimation(AnimationState.WALK_UP,
-                        directory.getEntry("cat-walk-up.animation", SpriteSheet.class));
+                        directory.getEntry("cat-walk-up.animation", SpriteSheet.class), 6);
                 activate(avatarCat);
                 catPresent = true;
             } else if ("Octopus".equalsIgnoreCase(type)) {
                 avatarOctopus = new Octopus(properties, constants.get("octopus"), units);
                 avatarOctopus.setAnimation(AnimationState.IDLE,
-                        directory.getEntry("octopus-idle.animation", SpriteSheet.class));
+                        directory.getEntry("octopus-idle.animation", SpriteSheet.class),7);
                 avatarOctopus.setAnimation(AnimationState.WALK,
-                        directory.getEntry("octopus-walk.animation", SpriteSheet.class));
+                        directory.getEntry("octopus-walk.animation", SpriteSheet.class), 6);
                 avatarOctopus.setAnimation(AnimationState.WALK_DOWN,
-                        directory.getEntry("octopus-walk-down.animation", SpriteSheet.class));
+                        directory.getEntry("octopus-walk-down.animation", SpriteSheet.class), 8);
                 avatarOctopus.setAnimation(AnimationState.WALK_UP,
-                        directory.getEntry("octopus-walk-up.animation", SpriteSheet.class));
+                        directory.getEntry("octopus-walk-up.animation", SpriteSheet.class), 6);
                 activate(avatarOctopus);
                 octopusPresent = true;
             } else if ("Guard".equalsIgnoreCase(type)) {
                 Guard g = new Guard(properties, constants.get("guard"), units);
-                g.setAnimation(AnimationState.IDLE, directory.getEntry("guard-idle.animation", SpriteSheet.class));
-                g.setAnimation(AnimationState.WALK, directory.getEntry("guard-walk.animation", SpriteSheet.class));
+                g.setAnimation(AnimationState.IDLE, directory.getEntry("guard-idle.animation", SpriteSheet.class), 16);
+                g.setAnimation(AnimationState.WALK, directory.getEntry("guard-walk.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK_DOWN,
-                        directory.getEntry("guard-walk-down.animation", SpriteSheet.class));
+                        directory.getEntry("guard-walk-down.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK_UP,
-                        directory.getEntry("guard-walk-up.animation", SpriteSheet.class));
+                        directory.getEntry("guard-walk-up.animation", SpriteSheet.class), 16);
                 g.setSusMeter(directory.getEntry("suspicion-meter.animation", SpriteSheet.class)); // TODO: There must
                                                                                                    // be a better way to
                                                                                                    // do this
@@ -269,7 +269,7 @@ public class GameLevel {
                 activate(g);
             } else if ("Camera".equalsIgnoreCase(type)) {
                 SecurityCamera cam = new SecurityCamera(properties, constants.get("camera"), units);
-                cam.setAnimation(AnimationState.IDLE, directory.getEntry("camera-idle.animation", SpriteSheet.class));
+                cam.setAnimation(AnimationState.IDLE, directory.getEntry("camera-idle.animation", SpriteSheet.class), 16);
                 securityCameras.add(cam);
                 activate(cam);
             } else if ("Door".equalsIgnoreCase(type)) {
@@ -299,10 +299,10 @@ public class GameLevel {
         // do that on demand)
         JsonValue projectileData = directory.getEntry("constants", JsonValue.class).get("constants").get("ink");
         inkProjectile = new InkProjectile(projectileData, units);
-        inkProjectile.setAnimation(AnimationState.EXPLODE,
-                directory.getEntry("ink-explosion.animation", SpriteSheet.class));
+        SpriteSheet sheet1 = directory.getEntry("ink-explosion.animation", SpriteSheet.class);
+        inkProjectile.setAnimation(AnimationState.EXPLODE, sheet1, sheet1.getSize() / 30);
         inkProjectile.setAnimation(AnimationState.IDLE,
-                directory.getEntry("ink-idle.animation", SpriteSheet.class));
+                directory.getEntry("ink-idle.animation", SpriteSheet.class), 0);
         activate(inkProjectile);
         inkProjectile.setDrawingEnabled(false);
         inkProjectile.getObstacle().setActive(false);
