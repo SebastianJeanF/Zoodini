@@ -223,7 +223,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         setFailure(false);
         countdown = -1;
 
-        //map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString("" + this.currentLevel));
+        // map = new TmxMapLoader().load(directory.getEntry("levels",
+        // JsonValue.class).getString("" + this.currentLevel));
         // Reload the json each time
         level.populate(directory, map);
         level.getWorld().setContactListener(this);
@@ -798,8 +799,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 direction.scl(guard.getAgroedForce());
             } else if (guard.isSus()) {
                 direction.scl(guard.getSusForce());
-            }
-            else {
+            } else {
                 // if the guard is not in any special state, apply normal force
                 direction.scl(guard.getForce());
             }
@@ -822,7 +822,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
                 Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : new Vector2();
                 Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : new Vector2();
-                if ((level.isCatPresent() && entry.value.contains(catPos)) || (level.isOctopusPresent() && entry.value.contains(octPos))) {
+                if ((level.isCatPresent() && entry.value.contains(catPos))
+                        || (level.isOctopusPresent() && entry.value.contains(octPos))) {
 
                     ((SecurityCamera) entry.key).activateRing();
 
@@ -933,7 +934,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         Avatar avatar = level.getAvatar();
         float vertical = input.getVertical();
         float horizontal = input.getHorizontal();
-        moveAvatar(vertical, horizontal, avatar);
+        if (avatar != level.getInactiveAvatar()) {
+            moveAvatar(vertical, horizontal, avatar);
+        }
         if (level.isOctopusPresent()) {
             level.getOctopus().regenerateInk(dt);
         }
