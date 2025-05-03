@@ -137,13 +137,13 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     private SoundController soundController;
 
-    private Vector3 tmp = new Vector3();
 
-    private Vector2 tmp2 = new Vector2();
-
-    // -----------------Main logic--------------------------//
-
+    /** Caches */
+    private Vector3 vec3tmp = new Vector3();
+    private Vector2 vec2tmp = new Vector2();
     private Vector2 angleCache = new Vector2();
+    private Vector2 vec2tmp2 = new Vector2();
+    private Vector2 vec2tmp3 = new Vector2();
 
     /**
      * Sets whether the level is completed.
@@ -813,11 +813,13 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     }
 
     private void updateSecurityCameraVisionCones() {
+        vec2tmp2.set(0,0);
+        vec2tmp3.set(0,0);
         ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
             if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
-                Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : new Vector2();
-                Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : new Vector2();
+                Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : vec2tmp2;
+                Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : vec2tmp3;
                 if ((level.isCatPresent() && entry.value.contains(catPos))
                         || (level.isOctopusPresent() && entry.value.contains(octPos))) {
 
@@ -857,6 +859,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * security cameras.
      */
     private void updateGuardVisionCones(float dt) {
+        vec2tmp2.set(0,0);
+        vec2tmp3.set(0,0);
         ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
 
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
@@ -874,8 +878,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             Vector2 movementDir = guard.getMovementDirection();
             visionCone.updateFacingDirection(dt, movementDir);
 
-            Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : new Vector2();
-            Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : new Vector2();
+            Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : vec2tmp2;
+            Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : vec2tmp3;
 
             // Check if cat is detected
             if (level.isCatPresent() && visionCone.contains(catPos)) {
@@ -920,8 +924,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * Applies movement forces to the avatar and change firing states.
      */
     private void processPlayerAction(InputController input, float dt) {
-        tmp.setZero();
-        tmp2.setZero();
+        vec3tmp.setZero();
+        vec2tmp.setZero();
 
         if (input.didSwap()) {
             onSwap(input);
@@ -939,13 +943,13 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
             Octopus octopus = (Octopus) avatar;
-            tmp.set(input.getAiming(), 0);
-            tmp = camera.unproject(tmp);
-            tmp2.set(tmp.x, tmp.y)
+            vec3tmp.set(input.getAiming(), 0);
+            vec3tmp = camera.unproject(vec3tmp);
+            vec2tmp.set(vec3tmp.x, vec3tmp.y)
                     .scl(1.0f / level.getTileSize())
                     .sub(octopus.getPosition())
                     .clamp(0.0f, octopus.getAbilityRange()); // this decides the distance for projectile to travel
-            octopus.setTarget(tmp2); // set a target vector relative to octopus's position as origin.
+            octopus.setTarget(vec2tmp); // set a target vector relative to octopus's position as origin.
 
             if (input.didAbility() && octopus.canUseAbility()) { // check for ink resource here.
                 octopus.setCurrentlyAiming(!octopus.isCurrentlyAiming()); // turn the reticle on and off
@@ -975,8 +979,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             }
         }
 
-        tmp.setZero();
-        tmp2.setZero();
+        vec3tmp.setZero();
+        vec2tmp.setZero();
     }
 
     /**
