@@ -211,7 +211,11 @@ public class GDXRoot extends Game implements ScreenListener {
 
 		switch (exitCode) {
 			case GDXRoot.EXIT_CREDITS:
-				credits = new CreditsScene(batch);
+				if (directory == null) {
+					throw new RuntimeException("Asset directory was somehow not loaded after initial boot");
+				}
+				credits = new CreditsScene(batch, this.directory);
+				credits.create();
 				credits.setScreenListener(this);
 				setScreen(credits);
 				disposeExcept(credits);
