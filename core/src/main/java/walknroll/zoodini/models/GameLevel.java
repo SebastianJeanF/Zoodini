@@ -831,12 +831,12 @@ public void draw(SpriteBatch batch, Camera camera) {
         float x = avatar.getObstacle().getX();
         float y = avatar.getObstacle().getY();
 
-        Path2 rangePath = new PathFactory().makeNgon(x, y, avatar.getAbilityRange(), 64); // radius = 1.0m. 64 vertices
-        PathExtruder rangeExtruder = new PathExtruder(rangePath);
-        rangeExtruder.calculate(0.05f); // line thickness = 0.05m
+        Path2 rangePath = pathFactory.makeNgon(x, y, avatar.getAbilityRange(), 64); // radius = 1.0m. 64 vertices
+        pathExtruder.set(rangePath);
+        pathExtruder.calculate(0.05f); // line thickness = 0.05m
         affineCache.idt();
         affineCache.scale(getTileSize(), getTileSize());
-        batch.draw((TextureRegion) null, rangeExtruder.getPolygon(), affineCache);
+        batch.fill(pathExtruder.getPolygon(), affineCache);
         batch.setColor(Color.WHITE);
     }
 
@@ -864,12 +864,13 @@ public void draw(SpriteBatch batch, Camera camera) {
         Vector2 target = octopus.getTarget();
 
         // TODO: a couple of magic numbers here need to be config values I think
-        Path2 reticlePath = new PathFactory().makeNgon(target.x + x, target.y + y, 0.25f, 64); // radius = 1.0m. 64
+        Path2 reticlePath = pathFactory.makeNgon(target.x + x, target.y + y, 0.25f, 64); // radius = 1.0m. 64
                                                                                                // vertices
-        PathExtruder reticleExtruder = new PathExtruder(reticlePath);
-        reticleExtruder.calculate(0.1f); // line thickness = 0.1m
+        pathExtruder.set(reticlePath);
+        pathExtruder.calculate(0.1f); // line thickness = 0.1m
         affineCache.idt();
         affineCache.scale(getTileSize(), getTileSize());
-        batch.draw((TextureRegion) null, reticleExtruder.getPolygon(), affineCache);
+        batch.fill(pathExtruder.getPolygon(), affineCache);
+        batch.setColor(Color.WHITE);
     }
 }
