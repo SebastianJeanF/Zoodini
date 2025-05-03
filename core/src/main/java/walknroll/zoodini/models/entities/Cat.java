@@ -124,24 +124,24 @@ public class Cat extends PlayableAvatar{
         return justMeowed;
     }
 
-    /**
-     * Adds spritesheet to animate for a given state.
-     */
-    @Override
-    public void setAnimation(AnimationState state, SpriteSheet sheet) {
-        switch (state) {
-            // TODO: frame delays (number of frames elapsed before rendering the next
-            // sprite) is set to 16 for all states. This needs to be adjusted.
-            case IDLE -> animationController.addAnimation(AnimationState.IDLE,
-                    new Animation(sheet, 0, sheet.getSize() - 1, 16, true));
-            case WALK -> animationController.addAnimation(AnimationState.WALK,
-                    new Animation(sheet, 0, sheet.getSize() - 1, 4, true));
-            case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN,
-                    new Animation(sheet, 0, sheet.getSize() - 1, 8, true));
-            case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP,
-                    new Animation(sheet, 0, sheet.getSize() - 1, 6, true));
-        }
-    }
+//    /**
+//     * Adds spritesheet to animate for a given state.
+//     */
+//    @Override
+//    public void setAnimation(AnimationState state, SpriteSheet sheet) {
+//        switch (state) {
+//            // TODO: frame delays (number of frames elapsed before rendering the next
+//            // sprite) is set to 16 for all states. This needs to be adjusted.
+//            case IDLE -> animationController.addAnimation(AnimationState.IDLE,
+//                    new Animation(sheet, 0, sheet.getSize() - 1, 16, true));
+//            case WALK -> animationController.addAnimation(AnimationState.WALK,
+//                    new Animation(sheet, 0, sheet.getSize() - 1, 4, true));
+//            case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN,
+//                    new Animation(sheet, 0, sheet.getSize() - 1, 8, true));
+//            case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP,
+//                    new Animation(sheet, 0, sheet.getSize() - 1, 6, true));
+//        }
+//    }
 
     @Override
     public void update(float dt) {

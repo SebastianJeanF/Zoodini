@@ -32,7 +32,7 @@ public abstract class PlayableAvatar extends Avatar {
     }
 
     public int getNumKeys(){
-        DebugPrinter.println("Num keys: " + numKeys);
+//        DebugPrinter.println("Num keys: " + numKeys);
         return numKeys;
     }
 

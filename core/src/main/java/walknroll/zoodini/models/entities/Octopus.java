@@ -157,24 +157,24 @@ public class Octopus extends PlayableAvatar {
         this.inkRemaining -= inkUsage;
     }
 
-    /**
-     * Adds spritesheet to animate for a given state.
-     */
-    @Override
-    public void setAnimation(AnimationState state, SpriteSheet sheet) {
-        switch (state) {
-            // TODO: frame delays (number of frames elapsed before rendering the next
-            // sprite) is set to 16 for all states. This needs to be adjusted.
-            case IDLE -> animationController.addAnimation(AnimationState.IDLE,
-                    new Animation(sheet, 0, sheet.getSize() - 1, 7, true));
-            case WALK -> animationController.addAnimation(AnimationState.WALK,
-                    new Animation(sheet, 0, sheet.getSize() - 1, 6, true));
-            case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN,
-                    new Animation(sheet, 0, sheet.getSize() - 1, 8, true));
-            case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP,
-                    new Animation(sheet, 0, sheet.getSize() - 1, 6, true));
-        }
-    }
+//    /**
+//     * Adds spritesheet to animate for a given state.
+//     */
+//    @Override
+//    public void setAnimation(AnimationState state, SpriteSheet sheet, int frameDelay) {
+//        switch (state) {
+//            // TODO: frame delays (number of frames elapsed before rendering the next
+//            // sprite) is set to 16 for all states. This needs to be adjusted.
+//            case IDLE -> animationController.addAnimation(AnimationState.IDLE,
+//                    new Animation(sheet, 0, sheet.getSize() - 1, 7, true));
+//            case WALK -> animationController.addAnimation(AnimationState.WALK,
+//                    new Animation(sheet, 0, sheet.getSize() - 1, 6, true));
+//            case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN,
+//                    new Animation(sheet, 0, sheet.getSize() - 1, 8, true));
+//            case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP,
+//                    new Animation(sheet, 0, sheet.getSize() - 1, 6, true));
+//        }
+//    }
 
     /**
      * Regenerate one game tick's worth of ink points

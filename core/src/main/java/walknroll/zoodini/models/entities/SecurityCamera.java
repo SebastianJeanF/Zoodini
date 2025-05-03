@@ -99,10 +99,10 @@ public class SecurityCamera extends ZoodiniSprite {
     /**
      * Adds spritesheet to animate for a given state.
      * */
-    public void setAnimation(AnimationState state, SpriteSheet sheet){
+    public void setAnimation(AnimationState state, SpriteSheet sheet, int frameDelay){
         switch(state){
-            case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
-            case BLIND -> animationController.addAnimation(AnimationState.BLIND, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
+            case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, frameDelay, true));
+            case BLIND -> animationController.addAnimation(AnimationState.BLIND, new Animation(sheet, 0, sheet.getSize()-1, frameDelay, true));
         }
     }
 
