@@ -227,7 +227,7 @@ public class MinimapActor extends Actor implements Disposable {
     private void drawAllDoors() {
         pixmap.setColor(DOOR_COLOR);
 
-        for (Door door : level.getDoors().keys()) {
+        for (Door door : level.getDoors()) {
             Vector2 position = door.getObstacle().getPosition();
             float size = 1.0f;  // Default size
 

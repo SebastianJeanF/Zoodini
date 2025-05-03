@@ -148,7 +148,7 @@ public class GameLevel {
 
     private Array<Key> keys = new Array<>();
 
-    private ObjectMap<Door, Key> doors = new ObjectMap<>();
+    private PooledList<Door> doors = new PooledList<>();
 
     /** All the object sprites in the world. */
     protected PooledList<ZoodiniSprite> sprites = new PooledList<ZoodiniSprite>();
@@ -279,10 +279,11 @@ public class GameLevel {
                 activate(cam);
             } else if ("Door".equalsIgnoreCase(type)) {
                 Door door = new Door(directory, properties, constants.get("door"), units);
-                Key key = new Key(directory, obj.getProperties().get("key", MapObject.class).getProperties(), constants.get("key"), units);
-                doors.put(door, key);
-                keys.add(key);
+                doors.add(door);
                 activate(door);
+            } else if ("Key".equalsIgnoreCase(type)) {
+                Key key = new Key(directory, properties, constants.get("key"), units);
+                keys.add(key);
                 activate(key);
             } else if ("Exit".equalsIgnoreCase(type)) {
                 exit = new Exit(directory, properties, constants.get("exit"), units);
@@ -386,7 +387,7 @@ public class GameLevel {
                 vc.update(world);
             }
 
-            for (Door door : doors.keys()) {
+            for (Door door : doors) {
                 door.update(dt);
             }
 
@@ -610,7 +611,7 @@ public class GameLevel {
      *
      * @return a reference to the doors
      */
-    public ObjectMap<Door, Key> getDoors() {
+    public PooledList<Door> getDoors() {
         return doors;
     }
 

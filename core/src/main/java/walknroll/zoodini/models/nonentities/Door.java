@@ -167,10 +167,6 @@ public class Door extends ZoodiniSprite {
         setTextureRegion(lockedTexture);
         resetTimer(); //TODO: get this from json
         unlockTimer.setPosition(this.obstacle.getPosition());
-
-        if(!properties.get("key", MapObject.class).getProperties().get("type", String.class).equalsIgnoreCase("Key")){
-            throw new AssertionError("The associated key to this door is not of type key");
-        }
     }
 
     public void update(float dt){
