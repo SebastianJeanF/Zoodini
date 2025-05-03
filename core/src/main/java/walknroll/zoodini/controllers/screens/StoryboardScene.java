@@ -40,7 +40,7 @@ public class StoryboardScene implements Screen {
     private SpriteBatch batch;
 
     private int width;
-    @SuppressWarnings("unused")
+    @SuppressWarnings("sunused")
     private int height;
 
     private Stage stage;
