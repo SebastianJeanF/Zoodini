@@ -30,7 +30,6 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
 
 import box2dLight.PositionalLight;
-import box2dLight.RayHandler;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
@@ -138,9 +137,6 @@ public class GameLevel {
 
     /** Reference to the exit (for collision detection) */
     private Exit exit;
-    private OrthographicCamera raycamera;
-    private ObjectMap<Guard, PositionalLight> guardLights = new ObjectMap<>();
-    private PositionalLight[] avatarLights = new PositionalLight[2]; // TODO: array or separate field for two avatars?
     private Array<Guard> guards = new Array<>();
     private Array<SecurityCamera> securityCameras = new Array<>();
     private ObjectMap<ZoodiniSprite, VisionCone> visions = new ObjectMap<>();
@@ -162,7 +158,6 @@ public class GameLevel {
 
     /** Size of one tile. This serves as scaling factor for all drawings */
     private float units;
-    RayHandler rayHandler;
     // TO FIX THE TIMESTEP
     /** The maximum frames per second setting for this level */
     protected int maxFPS;
@@ -224,8 +219,8 @@ public class GameLevel {
         bounds = new Rectangle(0, 0, width, height);
 
         MapLayer walls = map.getLayers().get("walls");
-        createWallBodies(walls);
         JsonValue constants = directory.getEntry("constants", JsonValue.class).get("constants");
+        createWallBodies(walls, constants.get("walls"));
 
         catPresent = false;
         octopusPresent = false;
@@ -300,17 +295,9 @@ public class GameLevel {
 
         initializeVisionCones();
 
-        // raycamera = new OrthographicCamera(gSize[0], gSize[1]);
-        // raycamera.setToOrtho(false, gSize[0], gSize[1]);
-        // rayHandler = new RayHandler(world, Gdx.graphics.getWidth(),
-        // Gdx.graphics.getHeight());
-        // RayHandler.useDiffuseLight(true);
-        // RayHandler.setGammaCorrection(true);
-        // rayHandler.setAmbientLight(0.5f,0.5f,0.5f,0.5f);
-
         // Initialize an ink projectile (but do not add it to the physics world, we only
         // do that on demand)
-        JsonValue projectileData = directory.getEntry("constants", JsonValue.class).get("ink");
+        JsonValue projectileData = directory.getEntry("constants", JsonValue.class).get("constants").get("ink");
         inkProjectile = new InkProjectile(projectileData, units);
         inkProjectile.setAnimation(AnimationState.EXPLODE,
                 directory.getEntry("ink-explosion.animation", SpriteSheet.class));
@@ -356,10 +343,6 @@ public class GameLevel {
         if (fixedStep(dt)) {
 
             updateFlipSprite(getAvatar());
-
-            if (rayHandler != null) {
-                rayHandler.setCombinedMatrix(raycamera);
-            }
 
             if (avatarCat != null) {
                 avatarCat.update(dt);
@@ -751,7 +734,7 @@ public void draw(SpriteBatch batch, Camera camera) {
      * Create and register rectangle obstacles from a tile layer.
      * The layer must consist of tiles that has an object assigned to it.
      */
-    private void createWallBodies(MapLayer layer) {
+    private void createWallBodies(MapLayer layer, JsonValue constants) {
         for (MapObject wall : layer.getObjects()) {
             if (wall instanceof RectangleMapObject rec) {
                 Rectangle rectangle = rec.getRectangle(); // dimensions given in pixels
@@ -765,8 +748,8 @@ public void draw(SpriteBatch batch, Camera camera) {
                 obstacle.setBodyType(BodyType.StaticBody);
 
                 Filter filter = new Filter();
-                short collideBits = GameLevel.bitStringToShort("0001");
-                short excludeBits = GameLevel.bitStringToComplement("0000");
+                short collideBits = GameLevel.bitStringToShort(constants.getString("category"));
+                short excludeBits = GameLevel.bitStringToComplement(constants.getString("exclude"));
                 filter.categoryBits = collideBits;
                 filter.maskBits = excludeBits;
                 obstacle.setFilterData(filter);

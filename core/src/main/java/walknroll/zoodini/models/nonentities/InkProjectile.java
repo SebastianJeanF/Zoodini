@@ -135,7 +135,7 @@ public class InkProjectile extends ZoodiniSprite {
         obstacle.setRestitution(json.getFloat("restitution"));
         obstacle.setPhysicsUnits(units);
 
-        short collideBits = GameLevel.bitStringToShort(json.getString("collide"));
+        short collideBits = GameLevel.bitStringToShort(json.getString("category"));
         short excludeBits = GameLevel.bitStringToComplement(json.getString("exclude"));
         Filter filter = new Filter();
         filter.categoryBits = collideBits;

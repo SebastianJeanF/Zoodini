@@ -1,6 +1,10 @@
 {
   "CAMERA_INTERPOLATION_DURATION" : 0.75,
   "constants" : {
+    "walls" : {
+      "category": "0000000",
+      "exclude" : "0000000"
+    },
     "cat": {
       "category": "0000001",
       "exclude" : "1000001",
@@ -72,22 +76,17 @@
     "ink" : {
       "category": "1000000",
       "exclude" : "0011101",
+      "radius":       0.2,
+      "spriterad":    0.2,
+      "startframe":   0,
       "force" : 1.0,
       "maxSpeed" : 10.0,
       "spriteRadius": 1.0,
-      "obstacleRadius" : 1.0
+      "obstacleRadius" : 1.0,
+      "density":      1.0,
+      "friction":     0.0,
+      "restitution":  0.0
     }
-  },
-  "ink": {
-    "radius":       0.2,
-    "spriterad":    0.2,
-    "startframe":   0,
-    "collide": "1000000",
-    "exclude" : "0011101",
-    "debug":        "#ffffffC0",
-    "density":      1.0,
-    "friction":     0.0,
-    "restitution":  0.0
   },
   "gameOverScreen": {
     "height" : 576,
