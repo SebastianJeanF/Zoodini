@@ -36,7 +36,7 @@ public class Guard extends Enemy {
     private static final float MEDIUM_DISTANCE_FACTOR = 0.8f; //
     // Suspicion increase amounts for each zone
     private static final int CLOSE_ZONE_SUS_INCREASE = 5;
-    private static final int MEDIUM_ZONE_SUS_INCREASE = 3;
+    private static final int MEDIUM_ZONE_SUS_INCREASE = 5;
     private static final int FAR_ZONE_SUS_INCREASE = 2;
 
 

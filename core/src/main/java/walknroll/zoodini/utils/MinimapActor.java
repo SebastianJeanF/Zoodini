@@ -19,7 +19,7 @@ import walknroll.zoodini.models.nonentities.Key;
 
 public class MinimapActor extends Actor implements Disposable {
     // Minimap display parameters
-    private final float MINIMAP_SIZE = 150f; // Size in pixels
+    private final float MINIMAP_SIZE = 200f; // Size in pixels
     private final float BORDER_SIZE = 2f;    // Border thickness
 
     // Colors for different entities on the minimap
