@@ -21,7 +21,7 @@
       "obstacleRadius" : 0.6,
       "abilityRange" : 6,
       "inkCapacity" : 50.0,
-      "inkRegen" : 5.0,
+      "inkRegen" : 4,
       "inkUsage" : 25.0
     },
     "guard" : {
