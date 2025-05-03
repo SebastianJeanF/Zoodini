@@ -55,6 +55,7 @@ import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 import walknroll.zoodini.utils.animation.AnimationState;
 import walknroll.zoodini.utils.enums.AvatarType;
+import walknroll.zoodini.utils.enums.ExitAnimal;
 
 /**
  * Represents a single level in our game
@@ -288,7 +289,8 @@ public class GameLevel {
                 keys.add(key);
                 activate(key);
             } else if ("Exit".equalsIgnoreCase(type)) {
-                exit = new Exit(directory, properties, entityConstants.get("exit"), units);
+                exit = new Exit(directory, properties, entityConstants.get("exit"), units, ExitAnimal.PENGUIN);
+                exit.create(directory);
                 activate(exit);
             }
 
@@ -384,6 +386,8 @@ public class GameLevel {
             for (Key key : keys) {
                 key.update(dt);
             }
+
+            exit.update(dt);
 
             // checkPlayerInVisionCones();
         }

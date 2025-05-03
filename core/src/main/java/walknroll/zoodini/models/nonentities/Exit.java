@@ -9,19 +9,22 @@
  */
 package walknroll.zoodini.models.nonentities;
 
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-import com.badlogic.gdx.utils.*;
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.utils.JsonValue;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
-import edu.cornell.gdiac.assets.ParserUtils;
+import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteMesh;
-import edu.cornell.gdiac.physics2.*;
+import edu.cornell.gdiac.graphics.SpriteSheet;
+import edu.cornell.gdiac.physics2.BoxObstacle;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.utils.ZoodiniSprite;
+import walknroll.zoodini.utils.enums.ExitAnimal;
 
 /**
  * A sensor obstacle representing the end of the level.
@@ -37,27 +40,13 @@ public class Exit extends ZoodiniSprite {
     /** The texture to use when the door is unlocked */
     private TextureRegion unlockedTexture;
 
-    /**
-     * Returns whether this door is locked.
-     *
-     * @return whether this door is locked
-     */
-    public boolean isLocked() {
-        return locked;
-    }
+    private ExitAnimal creature;
 
-    /**
-     * Sets whether this door is locked.
-     * Updates the texture accordingly.
-     *
-     * @param value whether this door is locked
-     */
-    public void setLocked(boolean value) {
-        locked = value;
-        setTextureRegion(locked ? lockedTexture : unlockedTexture);
-    }
+    private Animation<TextureRegion> animation;
+    private SpriteSheet spriteTextures;
+    private float animationTime;
 
-
+    private float textureScale;
 
     /**
      * Creates a door with the given settings
@@ -65,9 +54,12 @@ public class Exit extends ZoodiniSprite {
      * @param directory The asset directory (for textures, etc)
      * @param units     The physics units for this avatar
      */
-    public Exit(AssetDirectory directory, MapProperties properties, JsonValue constants, float units) {
-        float[] pos = {properties.get("x", Float.class) / units, properties.get("y", Float.class) / units};
+    public Exit(AssetDirectory directory, MapProperties properties, JsonValue constants, float units,
+            ExitAnimal creature) {
+        float[] pos = { properties.get("x", Float.class) / units, properties.get("y", Float.class) / units };
         float size = constants.getFloat("size");
+        textureScale = constants.getFloat("spriteScale");
+        this.creature = creature;
 
         obstacle = new BoxObstacle(pos[0], pos[1], size, size);
         obstacle.setName(properties.get("type", String.class));
@@ -98,5 +90,74 @@ public class Exit extends ZoodiniSprite {
         // Set initial state (locked by default)
         locked = true;
         setTextureRegion(unlockedTexture);
+    }
+
+    /**
+     * Returns whether this door is locked.
+     *
+     * @return whether this door is locked
+     */
+    public boolean isLocked() {
+        return locked;
+    }
+
+    /**
+     * Sets whether this door is locked.
+     * Updates the texture accordingly.
+     *
+     * @param value whether this door is locked
+     */
+    public void setLocked(boolean value) {
+        locked = value;
+        setTextureRegion(locked ? lockedTexture : unlockedTexture);
+    }
+
+    public void create(AssetDirectory directory) {
+        switch (this.creature) {
+            case PANDA:
+                spriteTextures = directory.getEntry("panda-idle.animation", SpriteSheet.class);
+                break;
+            case PENGUIN:
+                spriteTextures = directory.getEntry("penguin-idle.animation", SpriteSheet.class);
+                break;
+            case RABBIT:
+                spriteTextures = directory.getEntry("rabbit-idle.animation", SpriteSheet.class);
+                break;
+            default:
+                break;
+
+        }
+
+        TextureRegion[][] tmp = TextureRegion.split(spriteTextures.getTexture(), spriteTextures.getRegionWidth(),
+                spriteTextures.getRegionHeight());
+
+        TextureRegion[] frames = new TextureRegion[spriteTextures.getSize()];
+        for (int i = 0; i < spriteTextures.getSize(); i++) {
+            frames[i] = tmp[0][i];
+        }
+
+        animation = new Animation<TextureRegion>(0.1f, frames);
+        animationTime = 0f;
+    }
+
+    @Override
+    public void update(float dt) {
+        animationTime += dt;
+    }
+
+    @Override
+    public void draw(SpriteBatch batch) {
+        if (this.obstacle != null && this.mesh != null) {
+            float x = this.obstacle.getX();
+            float y = this.obstacle.getY();
+            float a = this.obstacle.getAngle();
+            float u = this.obstacle.getPhysicsUnits();
+            this.transform.idt();
+            this.transform.preRotate((float) ((double) (a * 180.0F) / Math.PI));
+            this.transform.preTranslate(x * u, y * u);
+            this.transform.scale(textureScale, textureScale);
+            batch.draw(animation.getKeyFrame(animationTime, true), this.transform);
+            batch.setTexture((Texture) null);
+        }
     }
 }
