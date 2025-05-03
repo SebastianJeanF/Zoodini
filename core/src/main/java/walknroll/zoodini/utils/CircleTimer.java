@@ -19,12 +19,18 @@ public class CircleTimer {
     private float x, y, radius;
     private Color color;
     private float units;
+    private Poly2 circle;
+    private Poly2 triangle;
+    private float[] triangleVertices;
 
     public CircleTimer(float radius, Color color, float units) {
         this.radius = radius;
         this.color = color;
         this.progress = 0;
         this.units = units;
+        circle = polyFactory.makeNgon(0,0,radius, 36);
+        triangle = polyFactory.makeTriangle(0,0,0,0,0,0);
+        triangleVertices = new float[6];
     }
 
     public void setProgress(float progress) {
@@ -55,7 +61,6 @@ public class CircleTimer {
 
         // Draw background circle
         batch.setColor(0.2f, 0.2f, 0.2f, 0.7f);
-        Poly2 circle = polyFactory.makeNgon(0,0,radius,36);
         batch.fill(circle, affineCache);
 
         // Draw progress arc
@@ -74,11 +79,17 @@ public class CircleTimer {
             float nextRad = nextAngle * MathUtils.degreesToRadians;
 
             // Draw triangle to approximate arc segment
-            Poly2 triangle = polyFactory.makeTriangle(
-                0, 0,
-                radius * MathUtils.cos(currentRad), radius * MathUtils.sin(currentRad),
-                radius * MathUtils.cos(nextRad), radius * MathUtils.sin(nextRad)
-            );
+//            Poly2 triangle = polyFactory.makeTriangle(
+//                0, 0,
+//                radius * MathUtils.cos(currentRad), radius * MathUtils.sin(currentRad),
+//                radius * MathUtils.cos(nextRad), radius * MathUtils.sin(nextRad)
+//            );
+            int idx = 2;
+            triangle.vertices.ensureCapacity(6);
+            triangle.vertices.items[idx++] = radius * MathUtils.cos(currentRad);
+            triangle.vertices.items[idx++] = radius * MathUtils.sin(currentRad);
+            triangle.vertices.items[idx++] = radius * MathUtils.cos(nextRad);
+            triangle.vertices.items[idx++] = radius * MathUtils.sin(nextRad);
             batch.fill(
                 triangle, affineCache
             );
