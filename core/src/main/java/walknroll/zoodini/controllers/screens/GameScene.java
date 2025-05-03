@@ -934,18 +934,27 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             onSwap(input);
         }
 
-        Avatar avatar = level.getAvatar();
-        float vertical = input.getVertical();
-        float horizontal = input.getHorizontal();
-        if (avatar != level.getInactiveAvatar()) {
-            moveAvatar(vertical, horizontal, avatar);
+        Cat cat = level.getCat();
+        Octopus octopus = level.getOctopus();
+        float verticalCat = input.getVerticalCat();
+        float horizontalCat = input.getHorizontalCat();
+        float verticalOct = input.getVerticalOct();
+        float horizontalOct = input.getHorizontalOct();
+
+        Avatar focused = level.getAvatar();
+
+        if(cat != null) {
+            moveAvatar(verticalCat, horizontalCat, cat);
         }
+        if(octopus != null) {
+            moveAvatar(verticalOct, horizontalOct, octopus);
+        }
+
         if (level.isOctopusPresent()) {
             level.getOctopus().regenerateInk(dt);
         }
 
-        if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
-            Octopus octopus = (Octopus) avatar;
+        if (focused.getAvatarType() == AvatarType.OCTOPUS) {
             vec3tmp.set(input.getAiming(), 0);
             vec3tmp = camera.unproject(vec3tmp);
             vec2tmp.set(vec3tmp.x, vec3tmp.y)
@@ -966,8 +975,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 octopus.setDidFire(false);
             }
 
-        } else if (avatar.getAvatarType() == AvatarType.CAT) {
-            Cat cat = (Cat) avatar;
+        } else if (focused.getAvatarType() == AvatarType.CAT) {
 
             if (input.isAbilityHeld() && cat.canUseAbility()) {
                 cat.setCurrentlyAiming(true);

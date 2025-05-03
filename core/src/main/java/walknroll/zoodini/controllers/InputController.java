@@ -14,6 +14,7 @@ package walknroll.zoodini.controllers;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.Input.Buttons;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import edu.cornell.gdiac.util.Controllers;
@@ -71,9 +72,15 @@ public class InputController extends InputAdapter {
 	private boolean leftPrevious;
 
 	/** How much did we move horizontally? */
-	private float horizontal;
+	private float horizontalCat;
 	/** How much did we move vertically? */
-	private float vertical;
+	private float verticalCat;
+
+    /** How much did we move horizontally? */
+    private float horizontalOct;
+
+    /** How much did we move vertically? */
+    private float verticalOct;
 
 	/** Where are we targeting? */
 	private Vector2 aiming;
@@ -103,6 +110,7 @@ public class InputController extends InputAdapter {
 		swapKey = Input.Keys.SPACE;
 	}
 
+
 	public int getAbilityKey() {
 		return abilityKey;
 	}
@@ -111,6 +119,14 @@ public class InputController extends InputAdapter {
 		return swapKey;
 	}
 
+    public float getHorizontalOct() {
+        return horizontalOct;
+    }
+
+    public float getVerticalOct() {
+        return verticalOct;
+    }
+
 	/**
 	 * Returns the amount of sideways movement.
 	 *
@@ -118,8 +134,8 @@ public class InputController extends InputAdapter {
 	 *
 	 * @return the amount of sideways movement.
 	 */
-	public float getHorizontal() {
-		return horizontal;
+	public float getHorizontalCat() {
+		return horizontalCat;
 	}
 
 	/**
@@ -129,8 +145,8 @@ public class InputController extends InputAdapter {
 	 *
 	 * @return the amount of vertical movement.
 	 */
-	public float getVertical() {
-		return vertical;
+	public float getVerticalCat() {
+		return verticalCat;
 	}
 
 	/**
@@ -238,35 +254,31 @@ public class InputController extends InputAdapter {
 
 		// Check to see if a GamePad is connected
 		if (xbox != null && xbox.isConnected()) {
-			readGamepad();
+			//readGamepad();
 			readKeyboard(true); // Read as a back-up
 		} else {
 			readKeyboard(false);
 		}
 	}
 
-	/**
-	 * Reads input from an X-Box controller connected to this computer.
-	 *
-	 * The method provides both the input bounds and the drawing scale. It needs
-	 * the drawing scale to convert screen coordinates to world coordinates. The
-	 * bounds are for the crosshair. They cannot go outside of this zone.
-	 *
-	 * @param bounds The input bounds for the crosshair.
-	 * @param scale  The drawing scale
-	 */
-	private void readGamepad() {
-		resetPressed = xbox.getStart();
-		exitPressed = xbox.getBack();
-		nextPressed = xbox.getRBumper();
-		prevPressed = xbox.getLBumper();
-		debugPressed = xbox.getY();
-		swapPressed = xbox.getA();
-
-		// Increase animation frame, but only if trying to move
-		horizontal = xbox.getLeftX();
-		vertical = xbox.getLeftY();
-	}
+//	/**
+//	 * Reads input from an X-Box controller connected to this computer.
+//	 *
+//	 * The method provides both the input bounds and the drawing scale. It needs
+//	 * the drawing scale to convert screen coordinates to world coordinates. The
+//	 * bounds are for the crosshair. They cannot go outside of this zone.
+//	 *
+//	 * @param bounds The input bounds for the crosshair.
+//	 * @param scale  The drawing scale
+//	 */
+//	private void readGamepad() {
+//		resetPressed = xbox.getStart();
+//		exitPressed = xbox.getBack();
+//		nextPressed = xbox.getRBumper();
+//		prevPressed = xbox.getLBumper();
+//		debugPressed = xbox.getY();
+//		swapPressed = xbox.getA();
+//	}
 
 	/**
 	 * Reads input from the keyboard.
@@ -289,21 +301,37 @@ public class InputController extends InputAdapter {
 		leftClicked = (secondary && leftClicked) || (Gdx.input.isButtonPressed(Buttons.LEFT));
 
 		// Directional controls
-		horizontal = (secondary ? horizontal : 0.0f);
-		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-			horizontal += 1.0f;
+        horizontalCat = (secondary ? horizontalCat : 0.0f);
+		if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
+            horizontalCat += 1.0f;
 		}
-		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-			horizontal -= 1.0f;
+		if (Gdx.input.isKeyPressed(Keys.LEFT)) {
+            horizontalCat -= 1.0f;
 		}
 
-		vertical = (secondary ? vertical : 0.0f);
-		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-			vertical += 1.0f;
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-			vertical -= 1.0f;
-		}
+        verticalCat = (secondary ? verticalCat : 0.0f);
+        if (Gdx.input.isKeyPressed(Keys.UP)) {
+            verticalCat += 1.0f;
+        }
+        if (Gdx.input.isKeyPressed(Keys.DOWN)) {
+            verticalCat -= 1.0f;
+        }
+
+        verticalOct = (secondary ? verticalOct : 0.0f);
+        if (Gdx.input.isKeyPressed(Keys.W)) {
+            verticalOct += 1.0f;
+        }
+        if (Gdx.input.isKeyPressed(Keys.S)) {
+            verticalOct -= 1.0f;
+        }
+
+        horizontalOct = (secondary ? horizontalOct : 0.0f);
+        if (Gdx.input.isKeyPressed(Keys.D)) {
+            horizontalOct += 1.0f;
+        }
+        if (Gdx.input.isKeyPressed(Keys.A)) {
+            horizontalOct -= 1.0f;
+        }
 
 		aiming.set(Gdx.input.getX(), Gdx.input.getY());
 	}

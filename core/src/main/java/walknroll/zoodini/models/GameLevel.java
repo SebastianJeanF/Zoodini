@@ -342,7 +342,8 @@ public class GameLevel {
     public void update(float dt) {
         if (fixedStep(dt)) {
 
-            updateFlipSprite(getAvatar());
+            updateFlipSprite(getOctopus());
+            updateFlipSprite(getCat());
 
             if (avatarCat != null) {
                 avatarCat.update(dt);
@@ -800,6 +801,9 @@ public void draw(SpriteBatch batch, Camera camera) {
     }
 
     private void updateFlipSprite(Avatar avatar) {
+        if(avatar == null){
+            return;
+        }
         // flips the sprite if the avatar is moving left
         if (!avatar.isFlipped() && avatar.getMovement().x < 0.0f
                 || avatar.isFlipped() && avatar.getMovement().x > 0.0f) {
