@@ -467,7 +467,7 @@ public class GameLevel {
      * @param batch  the sprite batch to draw to
      * @param camera the drawing camera
      */
-    public void draw(SpriteBatch batch, Camera camera) {
+public void draw(SpriteBatch batch, Camera camera) {
         // Draw the sprites first (will be hidden by shadows)
 
         batch.begin(camera);
