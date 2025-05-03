@@ -785,7 +785,10 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
 
         if (direction.len() > 0) {
-            direction.nor().scl(MOVEMENT_SCALE);
+            // Use math formula cale the force based on the radius
+            // This allows the radius to be changed, without affected
+            float radius = ((WheelObstacle) guard.getObstacle()).getRadius();
+            direction.nor().scl((float) (MOVEMENT_SCALE * Math.pow( (radius/ .5f) , 2)));
 
             if (guard.isMeowed()) {
                 direction.scl(guard.getDistractedForce());

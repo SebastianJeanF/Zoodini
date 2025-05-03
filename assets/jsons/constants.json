@@ -30,7 +30,7 @@
       "force" : 1.5,
       "maxSpeed" : 10.0,
       "spriteRadius": 1,
-      "obstacleRadius" : 0.5,
+      "obstacleRadius" : 0.4,
       "agroedForce" : 2.8,
       "alertedForce" : 4,
       "susForce" : 2,
