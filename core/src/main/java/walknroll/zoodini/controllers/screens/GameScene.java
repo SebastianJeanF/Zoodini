@@ -1078,8 +1078,12 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             angle = (float) Math.PI * (angle - 90.0f) / 180.0f;
             avatar.getObstacle().setAngle(angle);
         }
+        float radius = ((WheelObstacle) avatar.getObstacle()).getRadius();
 
-        angleCache.scl(avatar.getForce()).scl(MOVEMENT_SCALE);
+        angleCache.scl(avatar.getForce())
+            .scl(MOVEMENT_SCALE)
+            .scl((float) Math.pow( (radius/ .4f) , 2)); // Scale the force based on the radius
+
         avatar.setMovement(angleCache.x, angleCache.y);
         avatar.applyForce();
     }
