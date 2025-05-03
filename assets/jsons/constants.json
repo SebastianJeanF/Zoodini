@@ -43,9 +43,9 @@
       "category": "010000",
       "exclude" : "000000",
       "spriteRadius": 0.6,
-      "obstacleRadius" : 0.6,
+      "obstacleRadius" : 0.4,
       "disabledTime" : 5.0,
-      "alarmDistance" : 5.0
+      "alarmDistance" : 6.0
     },
     "exit" : {
       "category": "010000",

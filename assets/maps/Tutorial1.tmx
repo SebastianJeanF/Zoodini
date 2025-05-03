@@ -100,20 +100,5 @@
    </properties>
    <point/>
   </object>
-  <object id="88" type="Octopus" x="3264" y="608">
-   <properties>
-    <property name="abilityRange" type="float" value="7"/>
-    <property name="category" value="00010"/>
-    <property name="exclude" value="00010"/>
-    <property name="force" type="float" value="3"/>
-    <property name="inkCapacity" type="float" value="50"/>
-    <property name="inkRegen" type="float" value="5"/>
-    <property name="inkUsage" type="float" value="25"/>
-    <property name="maxSpeed" type="float" value="5"/>
-    <property name="radius" type="float" value="0.6"/>
-    <property name="spriteRadius" type="float" value="0.6"/>
-   </properties>
-   <point/>
-  </object>
  </objectgroup>
 </map>
