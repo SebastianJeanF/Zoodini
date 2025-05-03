@@ -229,7 +229,7 @@ public class SettingsScene implements Screen {
         table.defaults().spaceBottom(10f);
         table.top().pad(Value.percentWidth(0.01f)).padTop(Value.percentHeight(0.3f));
 
-        Value labelWidth = Value.percentWidth(0.25f, table);
+        Value labelWidth = Value.percentWidth(0.2f, table);
         Value controlWidth = Value.percentWidth(0.5f, table);
 
         table.add(new Label("Music Volume", skin, "title")).left().width(labelWidth);

@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
@@ -43,7 +44,8 @@ public class LevelSelectScene implements Screen {
     private int height;
 
     private Stage stage;
-    private Skin skin;
+    private Skin levelSelectSkin;
+    private Skin normalButtonSkin;
 
     private int selectedLevel;
     private int highestClearance;
@@ -61,9 +63,21 @@ public class LevelSelectScene implements Screen {
         stage = new Stage(new ScreenViewport(camera));
         Gdx.input.setInputProcessor(stage);
 
-        skin = new Skin(Gdx.files.internal("uiskins/levelselect/uiskin.json"));
+        levelSelectSkin = new Skin(Gdx.files.internal("uiskins/levelselect/uiskin.json"));
+        normalButtonSkin = new Skin(Gdx.files.internal("uiskins/orange/uiskin.json"));
 
         Table table = makeLevelSelectTable();
+
+        table.row();
+        TextButton menuReturn = new TextButton("Back to Menu", normalButtonSkin);
+        menuReturn.addListener(new ChangeListener() {
+            public void changed(ChangeEvent event, Actor actor) {
+                listener.exitScreen(LevelSelectScene.this, GDXRoot.EXIT_MENU);
+            }
+        });
+        menuReturn.setPosition(0.01f * width, (0.01f * height) + 10f);
+        menuReturn.setWidth(0.2f * width);
+        stage.addActor(menuReturn);
 
         stage.addActor(table);
     }
@@ -99,7 +113,8 @@ public class LevelSelectScene implements Screen {
     }
 
     public void dispose() {
-        skin.dispose();
+        levelSelectSkin.dispose();
+        normalButtonSkin.dispose();
         stage.dispose();
     }
 
@@ -165,7 +180,7 @@ public class LevelSelectScene implements Screen {
                 });
             }
             portalStack.add(levelButton);
-            Container<Label> labelContainer = new Container<>(new Label(String.valueOf(levelKey), skin));
+            Container<Label> labelContainer = new Container<>(new Label(String.valueOf(levelKey), levelSelectSkin));
             labelContainer.setFillParent(true);
             labelContainer.setTouchable(Touchable.disabled);
             portalStack.add(labelContainer);
