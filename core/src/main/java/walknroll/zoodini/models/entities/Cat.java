@@ -13,13 +13,14 @@ import edu.cornell.gdiac.graphics.SpriteSheet;
 import edu.cornell.gdiac.math.Path2;
 import edu.cornell.gdiac.math.PathExtruder;
 import edu.cornell.gdiac.math.PathFactory;
+import edu.cornell.gdiac.physics2.ObstacleData;
 import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.animation.Animation;
 import walknroll.zoodini.utils.animation.AnimationState;
 import walknroll.zoodini.utils.enums.AvatarType;
 
-public class Cat extends PlayableAvatar {
+public class Cat extends PlayableAvatar{
     /// Whether or not this Gar instance has triggered the meow action
     private boolean meowed;
     private boolean justMeowed;
@@ -44,7 +45,6 @@ public class Cat extends PlayableAvatar {
     private Array<Key> keys;
 
     PathFactory pf = new PathFactory();
-
     PathExtruder pe = new PathExtruder();
 
     public Cat(MapProperties properties, JsonValue constants, float units) {
@@ -65,7 +65,6 @@ public class Cat extends PlayableAvatar {
         meowCooldownRemaining = 0;
         onCooldown = false;
         keys = new Array<Key>();
-
     }
 
     public void assignKey(Key key) {
@@ -169,7 +168,6 @@ public class Cat extends PlayableAvatar {
         }
 
         updateJustMeowed();
-
     }
 
     @Override

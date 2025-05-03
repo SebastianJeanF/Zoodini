@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
@@ -29,6 +31,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 
 
 import walknroll.zoodini.models.entities.Octopus;
+import walknroll.zoodini.models.entities.PlayableAvatar;
 import walknroll.zoodini.utils.CounterActor;
 import walknroll.zoodini.utils.InkMeterActor;
 import walknroll.zoodini.utils.MeowCooldownIndicator;
@@ -74,6 +77,8 @@ public class UIController {
     private Image inkTextImage;
     private Image switch1;
     private Image switch2;
+    private Image keyInventory;
+    private Label keyCount;
 
     private MeowCooldownIndicator meowCooldownIndicator;
 
@@ -126,7 +131,9 @@ public class UIController {
         resumeButtonImage = new Image(directory.getEntry("resume_button", Texture.class));
         switch1 = new Image(directory.getEntry("switch1", Texture.class));
         switch2 = new Image(directory.getEntry("switch2", Texture.class));
-
+        keyInventory = new Image(directory.getEntry("key-inventory", Texture.class));
+        LabelStyle style = new LabelStyle(displayFont, Color.BLACK);
+        keyCount = new Label("x0", style);
     }
 
 
@@ -159,12 +166,23 @@ public class UIController {
         topRightTable.setFillParent(true);
         topRightTable.setDebug(debug);
         topRightTable.top().right();
-        Stack s = new Stack();
+        topRightTable.add(keyInventory);
+
+        Stack inventory = new Stack();
+        inventory.add(keyInventory);
+        Table inventoryTable = new Table();
+        inventoryTable.right();
+        inventoryTable.add(keyCount).padRight(15f);
+        inventory.add(inventoryTable);
+        topRightTable.add(inventory);
+
+        Stack avatarSwitch = new Stack();
         switch1.setVisible(false);
         switch2.setVisible(false);
-        s.add(switch1);
-        s.add(switch2);
-        topRightTable.add(s).pad(10f);
+        avatarSwitch.add(switch1);
+        avatarSwitch.add(switch2);
+        topRightTable.add(avatarSwitch).pad(10f);
+
         Stack pauseStack = new Stack();
         pauseStack.add(pauseIconImage);
         pauseStack.add(resumeIconImage);
@@ -366,7 +384,7 @@ public class UIController {
             Gdx.input.setInputProcessor(stage);
         }
 
-        Avatar avatar = level.getAvatar();
+        PlayableAvatar avatar = level.getAvatar();
         boolean isOcto = avatar.getAvatarType() == AvatarType.OCTOPUS;
 
         // In draw method, add:
@@ -382,6 +400,8 @@ public class UIController {
             switch2.setVisible(true);
             inkTextImage.setVisible(true);
         }
+
+        keyCount.setText("x" + avatar.getNumKeys());
 
         // Icons
         if (catIconImage != null) catIconImage.setVisible(!isOcto);

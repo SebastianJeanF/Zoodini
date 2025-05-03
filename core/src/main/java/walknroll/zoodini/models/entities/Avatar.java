@@ -322,7 +322,6 @@ public class Avatar extends ZoodiniSprite {
         if (sprite != null) {
             sprite.setFrame(animationController.getCurrentFrame());
         }
-
         obstacle.update(dt);
 	}
 
