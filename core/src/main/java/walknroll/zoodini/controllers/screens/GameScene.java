@@ -137,7 +137,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     private SoundController soundController;
 
-
     /** Caches */
     private Vector3 vec3tmp = new Vector3();
     private Vector2 vec2tmp = new Vector2();
@@ -384,7 +383,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         level.draw(batch, camera);
 
-        mapRenderer.render(new int[]{1});
+        mapRenderer.render(new int[] { 1 });
 
         if (Constants.DEBUG) {
             graph.clearMarkedNodes();
@@ -672,8 +671,14 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             Obstacle o1 = (Obstacle) body1.getUserData();
             Obstacle o2 = (Obstacle) body2.getUserData();
 
-            Obstacle cat = level.getCat().getObstacle();
-            Obstacle oct = level.getOctopus().getObstacle();
+            Obstacle cat = null;
+            if (level.getCat() != null) {
+                cat = level.getCat().getObstacle();
+            }
+            Obstacle oct = null;
+            if (level.getOctopus() != null) {
+                level.getOctopus().getObstacle();
+            }
             Obstacle exit = level.getExit().getObstacle();
 
             PooledList<Door> doors = level.getDoors();
@@ -791,7 +796,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             // Use math formula cale the force based on the radius
             // This allows the radius to be changed, without affected
             float radius = ((WheelObstacle) guard.getObstacle()).getRadius();
-            direction.nor().scl((float) (MOVEMENT_SCALE * Math.pow( (radius/ .5f) , 2)));
+            direction.nor().scl((float) (MOVEMENT_SCALE * Math.pow((radius / .5f), 2)));
 
             if (guard.isMeowed()) {
                 direction.scl(guard.getDistractedForce());
@@ -819,8 +824,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     }
 
     private void updateSecurityCameraVisionCones() {
-        vec2tmp2.set(0,0);
-        vec2tmp3.set(0,0);
+        vec2tmp2.set(0, 0);
+        vec2tmp3.set(0, 0);
         ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
             if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
@@ -865,8 +870,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * security cameras.
      */
     private void updateGuardVisionCones(float dt) {
-        vec2tmp2.set(0,0);
-        vec2tmp3.set(0,0);
+        vec2tmp2.set(0, 0);
+        vec2tmp3.set(0, 0);
         ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
 
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
