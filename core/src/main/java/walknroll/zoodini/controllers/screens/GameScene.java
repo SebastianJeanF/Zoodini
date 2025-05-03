@@ -566,6 +566,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 Obstacle keyObs = key.getObstacle();
                 if ((o1 == cat && o2 == keyObs) || (o2 == cat && o1 == keyObs)) {
                     key.setCollected(true);
+                    level.getCat().increaseNumKeys();
+
+                    // TODO: Verify that the code below can be safely removed
                     key.setOwner(AvatarType.CAT);
                     level.getCat().assignKey(key);
                 }
@@ -580,8 +583,12 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 Obstacle keyObs = key.getObstacle();
                 if ((o1 == oct && o2 == keyObs) || (o2 == oct && o1 == keyObs)) {
                     key.setCollected(true);
+                    level.getOctopus().increaseNumKeys();
+
+                    // TODO: Verify that the code below can be safely removed
                     key.setOwner(AvatarType.OCTOPUS);
                     level.getOctopus().assignKey(key);
+
                 }
             }
 
@@ -593,13 +600,17 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 Key rightKey = doors.get(door);
 
                 if (o1 == doorObs || o2 == doorObs) {
+                    DebugPrinter.println("Door collision");
                     Obstacle other = (o1 == doorObs) ? o2 : o1;
 
-                    boolean canUnlock = (other == cat && level.getCat().getKeys().contains(rightKey, true))
-                            || (other == oct && level.getOctopus().getKeys().contains(rightKey, true));
+                    // Check if playable character has a key
+                    boolean canUnlock = (other == cat && level.getCat().getNumKeys() > 0)
+                            || (other == oct && level.getOctopus().getNumKeys() > 0);
 
-                    if (canUnlock && rightKey.isCollected() && !rightKey.isUsed() && door.isLocked()) {
+                    if (canUnlock && door.isLocked()) {
+                        DebugPrinter.println("Unlocking door");
                         door.setUnlocking(true);
+                        door.setUnlocker(level.getAvatar());
                     }
                 }
 
@@ -669,15 +680,15 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
                 doors.get(door);
                 Obstacle doorObs = door.getObstacle();
-                Key rightKey = doors.get(door);
 
+                // Check if there is door that should stop being unlocked
                 if (o1 == doorObs || o2 == doorObs) {
                     Obstacle other = (o1 == doorObs) ? o2 : o1;
 
-                    boolean canUnlock = (other == cat && level.getCat().getKeys().contains(rightKey, true))
-                            || (other == oct && level.getOctopus().getKeys().contains(rightKey, true));
+                    boolean canUnlock = (other == cat && level.getCat().getNumKeys() > 0)
+                            || (other == oct && level.getOctopus().getNumKeys() > 0);
 
-                    if (canUnlock && rightKey.isCollected() && !rightKey.isUsed() && door.isLocked()) {
+                    if (canUnlock && door.isLocked()) {
                         door.setUnlocking(false);
                     }
                 }

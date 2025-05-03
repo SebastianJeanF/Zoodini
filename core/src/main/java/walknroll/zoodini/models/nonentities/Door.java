@@ -27,6 +27,8 @@ import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.physics2.*;
 import java.util.Iterator;
 import walknroll.zoodini.models.GameLevel;
+import walknroll.zoodini.models.entities.Avatar;
+import walknroll.zoodini.models.entities.PlayableAvatar;
 import walknroll.zoodini.utils.CircleTimer;
 import walknroll.zoodini.utils.ZoodiniSprite;
 
@@ -58,6 +60,8 @@ public class Door extends ZoodiniSprite {
     private short excludeBitsLocked;
     private short excludeBitsUnlocked;
     private float units;
+
+    private PlayableAvatar unlocker;
 
 
     public boolean isUnlocking() {
@@ -109,7 +113,14 @@ public class Door extends ZoodiniSprite {
         setTextureRegion(locked ? lockedTexture : unlockedTexture);
     }
 
-
+    /**
+     * Sets who is the most recent character to
+     * attempt to unlock this door.
+     * @param avatar the character that is trying to unlock this door
+     */
+    public void setUnlocker(PlayableAvatar avatar){
+        unlocker = avatar;
+    }
 
 	/**
 	 * Creates a door with the given settings
@@ -171,6 +182,7 @@ public class Door extends ZoodiniSprite {
         }
         if(remainingTimeToUnlock <= 0.0f){
             setLocked(false);
+            unlocker.decreaseNumKeys();
         }
         unlockTimer.setProgress(remainingTimeToUnlock / UNLOCK_DURATION);
 
