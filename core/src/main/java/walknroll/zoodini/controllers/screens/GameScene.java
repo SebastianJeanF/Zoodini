@@ -14,6 +14,7 @@ package walknroll.zoodini.controllers.screens;
 
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import edu.cornell.gdiac.util.PooledList;
 import java.util.HashMap;
 
 import com.badlogic.gdx.Screen;
@@ -223,7 +224,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         setFailure(false);
         countdown = -1;
 
-        //map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString("" + this.currentLevel));
+        // map = new TmxMapLoader().load(directory.getEntry("levels",
+        // JsonValue.class).getString("" + this.currentLevel));
         // Reload the json each time
         level.populate(directory, map);
         level.getWorld().setContactListener(this);
@@ -592,12 +594,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 }
             }
 
-            ObjectMap<Door, Key> doors = level.getDoors();
-            for (Door door : doors.keys()) {
-
-                doors.get(door);
+            PooledList<Door> doors = level.getDoors();
+            for (Door door : doors) {
                 Obstacle doorObs = door.getObstacle();
-                Key rightKey = doors.get(door);
 
                 if (o1 == doorObs || o2 == doorObs) {
                     DebugPrinter.println("Door collision");
@@ -674,11 +673,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             Obstacle oct = level.getOctopus().getObstacle();
             Obstacle exit = level.getExit().getObstacle();
 
-            ObjectMap<Door, Key> doors = level.getDoors();
+            PooledList<Door> doors = level.getDoors();
 
-            for (Door door : doors.keys()) {
-
-                doors.get(door);
+            for (Door door : doors) {
                 Obstacle doorObs = door.getObstacle();
 
                 // Check if there is door that should stop being unlocked
@@ -798,8 +795,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 direction.scl(guard.getAgroedForce());
             } else if (guard.isSus()) {
                 direction.scl(guard.getSusForce());
-            }
-            else {
+            } else {
                 // if the guard is not in any special state, apply normal force
                 direction.scl(guard.getForce());
             }
@@ -822,7 +818,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
                 Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : new Vector2();
                 Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : new Vector2();
-                if ((level.isCatPresent() && entry.value.contains(catPos)) || (level.isOctopusPresent() && entry.value.contains(octPos))) {
+                if ((level.isCatPresent() && entry.value.contains(catPos))
+                        || (level.isOctopusPresent() && entry.value.contains(octPos))) {
 
                     ((SecurityCamera) entry.key).activateRing();
 
@@ -933,7 +930,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         Avatar avatar = level.getAvatar();
         float vertical = input.getVertical();
         float horizontal = input.getHorizontal();
-        moveAvatar(vertical, horizontal, avatar);
+        if (avatar != level.getInactiveAvatar()) {
+            moveAvatar(vertical, horizontal, avatar);
+        }
         if (level.isOctopusPresent()) {
             level.getOctopus().regenerateInk(dt);
         }
@@ -988,7 +987,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private void processNPCAction(float dt) {
         Octopus octopus = level.getOctopus();
         InkProjectile inkProjectile = level.getProjectile();
-        ObjectMap<Door, Key> doors = level.getDoors();
+        PooledList<Door> doors = level.getDoors();
 
         // Projectiles
         // TODO: not sure about the order of if statements here.
@@ -1009,11 +1008,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         updateGuards(guards);
 
         // TODO: Might need to comment out again
-        for (ObjectMap.Entry<Door, Key> entry : doors.entries()) {
-            Door door = entry.key;
-            Key key = entry.value;
+        for (Door door : level.getDoors()) {
             if (!door.isLocked()) {
-                key.setUsed(true);
                 Vector2 doorPos = door.getObstacle().getPosition();
                 graph.getNode((int) doorPos.x, (int) doorPos.y).isWall = false;
             }
