@@ -5,5 +5,6 @@
   "1": "maps/Tutorial1.tmx",
   "2": "maps/Tutorial2.tmx",
   "3": "maps/Hard-Level-2.tmx",
-  "4" : "maps/debugMap.tmx"
+  "4" : "maps/debugMap.tmx",
+  "5" : "maps/medium1.tmx"
 }
