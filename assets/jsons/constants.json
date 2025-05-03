@@ -2,8 +2,8 @@
   "CAMERA_INTERPOLATION_DURATION" : 0.75,
   "constants" : {
     "cat": {
-      "category": "00000001",
-      "exclude" : "01000001",
+      "category": "000000001",
+      "exclude" : "001000001",
       "force" : 3.0,
       "maxSpeed" : 10.0,
       "spriteRadius": 0.6,
@@ -13,8 +13,8 @@
       "meowExpansionSpeed" : 10.0
     },
     "octopus" : {
-      "category": "00000001",
-      "exclude" : "01000001",
+      "category": "000000001",
+      "exclude" : "001000001",
       "force" : 4.0,
       "maxSpeed" : 10.0,
       "spriteRadius": 0.6,
@@ -25,8 +25,8 @@
       "inkUsage" : 25.0
     },
     "guard" : {
-      "category": "00000010",
-      "exclude" : "00011010",
+      "category": "000000010",
+      "exclude" : "000011010",
       "force" : 1.5,
       "maxSpeed" : 10.0,
       "spriteRadius": 1,
@@ -40,38 +40,38 @@
       "fov" : 60.0
     },
     "camera" : {
-      "category": "00000100",
-      "exclude" : "00010000",
+      "category": "000000100",
+      "exclude" : "000010000",
       "spriteRadius": 0.6,
       "obstacleRadius" : 0.6,
       "disabledTime" : 5.0,
       "alarmDistance" : 5.0
     },
     "exit" : {
-      "category": "00001000",
-      "exclude" : "01110110",
+      "category": "000001000",
+      "exclude" : "001110110",
       "force" : 1.0,
       "maxSpeed" : 10.0,
       "size": 1.0
     },
     "key" : {
-      "category": "00010000",
-      "exclude" : "01111110",
+      "category": "000010000",
+      "exclude" : "001111110",
       "force" : 1.0,
       "maxSpeed" : 10.0,
       "size" : 1.0
     },
     "door" : {
-      "category": "00100000",
-      "exclude" : "00011100",
-      "exclude-unlocked" : "01101111",
+      "category": "000100000",
+      "exclude" : "000011100",
+      "exclude-unlocked" : "001101111",
       "force" : 1.0,
       "maxSpeed" : 10.0,
       "size" : 3.0
     },
     "ink" : {
-      "category": "01000000",
-      "exclude" : "00011101",
+      "category": "001000000",
+      "exclude" : "000011101",
       "radius":       0.2,
       "spriterad":    0.2,
       "startframe":   0,
@@ -84,8 +84,12 @@
       "restitution":  0.0
     },
     "walls" : {
-      "category": "10000000",
-      "exclude" : "10000000"
+      "category": "010000000",
+      "exclude" : "010000000"
+    },
+    "visioncone" : {
+      "category": "100000000",
+      "exclude" : "101111111"
     }
   },
   "gameOverScreen": {

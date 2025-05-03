@@ -293,7 +293,7 @@ public class GameLevel {
             catActive = false;
         }
 
-        initializeVisionCones();
+        initializeVisionCones(constants.get("visioncone"));
 
         // Initialize an ink projectile (but do not add it to the physics world, we only
         // do that on demand)
@@ -708,12 +708,12 @@ public void draw(SpriteBatch batch, Camera camera) {
         sprite.getObstacle().activatePhysics(world);
     }
 
-    private void initializeVisionCones() {
+    private void initializeVisionCones(JsonValue constants) {
         Color c = Color.WHITE.cpy().add(0, 0, 0, -0.5f);
         for (SecurityCamera cam : securityCameras) {
             float fov = cam.getFov();
             float dist = cam.getViewDistance();
-            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, "000000", "111110");
+            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, constants);
             float angle = cam.getAngle();
             vc.attachToBody(cam.getObstacle().getBody(), angle);
             vc.setVisibility(true);
@@ -723,7 +723,7 @@ public void draw(SpriteBatch batch, Camera camera) {
         for (Guard guard : guards) {
             float fov = guard.getFov();
             float dist = guard.getViewDistance();
-            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, "000000", "111110");
+            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units,  constants);
             vc.attachToBody(guard.getObstacle().getBody(), 90.0f);
             vc.setVisibility(debug);
             visions.put(guard, vc);
@@ -822,6 +822,8 @@ public void draw(SpriteBatch batch, Camera camera) {
         return horiz && vert;
     }
 
+    PathFactory pathFactory = new PathFactory();
+    PathExtruder pathExtruder = new PathExtruder();
     private void drawAbilityRange(SpriteBatch batch, Camera camera) {
         PlayableAvatar avatar = getAvatar();
         batch.setTexture(null);
