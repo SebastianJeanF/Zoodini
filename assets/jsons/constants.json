@@ -18,7 +18,7 @@
       "force" : 2.0,
       "maxSpeed" : 10.0,
       "spriteRadius": 0.6,
-      "obstacleRadius" : 1,
+      "obstacleRadius" : 0.6,
       "abilityRange" : 5,
       "inkCapacity" : 50.0,
       "inkRegen" : 5.0,
@@ -35,7 +35,7 @@
       "alertedForce" : 3.5,
       "susForce" : 1.55,
       "distractedForce" : 1,
-      "blindedForceScale" : 0.75,
+      "blindedForceScale" : 0.65,
       "viewDistance" : 5.0,
       "fov" : 50.0
     },
