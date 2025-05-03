@@ -1,6 +1,6 @@
 {
   "CAMERA_INTERPOLATION_DURATION" : 0.75,
-  "constants" : {
+  "entities" : {
     "cat": {
       "category": "000000001",
       "exclude" : "001000001",

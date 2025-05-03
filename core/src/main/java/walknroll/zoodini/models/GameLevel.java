@@ -219,8 +219,8 @@ public class GameLevel {
         bounds = new Rectangle(0, 0, width, height);
 
         MapLayer walls = map.getLayers().get("walls");
-        JsonValue constants = directory.getEntry("constants", JsonValue.class).get("constants");
-        createWallBodies(walls, constants.get("walls"));
+        JsonValue entityConstants = directory.getEntry("constants", JsonValue.class).get("entities");
+        createWallBodies(walls, entityConstants.get("walls"));
 
         catPresent = false;
         octopusPresent = false;
@@ -231,7 +231,7 @@ public class GameLevel {
             String type = properties.get("type", String.class);
 
             if ("Cat".equalsIgnoreCase(type)) {
-                avatarCat = new Cat(properties, constants.get("cat"), units);
+                avatarCat = new Cat(properties, entityConstants.get("cat"), units);
                 avatarCat.setAnimation(AnimationState.IDLE,
                         directory.getEntry("cat-idle.animation", SpriteSheet.class), 16);
                 avatarCat.setAnimation(AnimationState.WALK,
@@ -243,7 +243,7 @@ public class GameLevel {
                 activate(avatarCat);
                 catPresent = true;
             } else if ("Octopus".equalsIgnoreCase(type)) {
-                avatarOctopus = new Octopus(properties, constants.get("octopus"), units);
+                avatarOctopus = new Octopus(properties, entityConstants.get("octopus"), units);
                 avatarOctopus.setAnimation(AnimationState.IDLE,
                         directory.getEntry("octopus-idle.animation", SpriteSheet.class),7);
                 avatarOctopus.setAnimation(AnimationState.WALK,
@@ -255,7 +255,7 @@ public class GameLevel {
                 activate(avatarOctopus);
                 octopusPresent = true;
             } else if ("Guard".equalsIgnoreCase(type)) {
-                Guard g = new Guard(properties, constants.get("guard"), units);
+                Guard g = new Guard(properties, entityConstants.get("guard"), units);
                 g.setAnimation(AnimationState.IDLE, directory.getEntry("guard-idle.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK, directory.getEntry("guard-walk.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK_DOWN,
@@ -268,20 +268,20 @@ public class GameLevel {
                 guards.add(g);
                 activate(g);
             } else if ("Camera".equalsIgnoreCase(type)) {
-                SecurityCamera cam = new SecurityCamera(properties, constants.get("camera"), units);
+                SecurityCamera cam = new SecurityCamera(properties, entityConstants.get("camera"), units);
                 cam.setAnimation(AnimationState.IDLE, directory.getEntry("camera-idle.animation", SpriteSheet.class), 16);
                 securityCameras.add(cam);
                 activate(cam);
             } else if ("Door".equalsIgnoreCase(type)) {
-                Door door = new Door(directory, properties, constants.get("door"), units);
+                Door door = new Door(directory, properties, entityConstants.get("door"), units);
                 doors.add(door);
                 activate(door);
             } else if ("Key".equalsIgnoreCase(type)) {
-                Key key = new Key(directory, properties, constants.get("key"), units);
+                Key key = new Key(directory, properties, entityConstants.get("key"), units);
                 keys.add(key);
                 activate(key);
             } else if ("Exit".equalsIgnoreCase(type)) {
-                exit = new Exit(directory, properties, constants.get("exit"), units);
+                exit = new Exit(directory, properties, entityConstants.get("exit"), units);
                 activate(exit);
             }
 
@@ -293,11 +293,11 @@ public class GameLevel {
             catActive = false;
         }
 
-        initializeVisionCones(constants.get("visioncone"));
+        initializeVisionCones(entityConstants.get("visioncone"));
 
         // Initialize an ink projectile (but do not add it to the physics world, we only
         // do that on demand)
-        JsonValue projectileData = directory.getEntry("constants", JsonValue.class).get("constants").get("ink");
+        JsonValue projectileData = directory.getEntry("constants", JsonValue.class).get("entities").get("ink");
         inkProjectile = new InkProjectile(projectileData, units);
         SpriteSheet sheet1 = directory.getEntry("ink-explosion.animation", SpriteSheet.class);
         inkProjectile.setAnimation(AnimationState.EXPLODE, sheet1, sheet1.getSize() / 30);
