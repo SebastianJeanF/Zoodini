@@ -832,6 +832,7 @@ public void draw(SpriteBatch batch, Camera camera) {
         float y = avatar.getObstacle().getY();
 
         Path2 rangePath = pathFactory.makeNgon(x, y, avatar.getAbilityRange(), 64); // radius = 1.0m. 64 vertices
+        //TODO: ideally don't call makeNgon
         pathExtruder.set(rangePath);
         pathExtruder.calculate(0.05f); // line thickness = 0.05m
         affineCache.idt();
@@ -853,6 +854,7 @@ public void draw(SpriteBatch batch, Camera camera) {
      * @param batch  the sprite batch used for rendering
      * @param camera the camera used to unproject screen coordinates to world
      *               coordinates
+     *
      */
     private void drawOctopusReticle(SpriteBatch batch, Camera camera) {
         Octopus octopus = (Octopus) getAvatar();
@@ -864,8 +866,8 @@ public void draw(SpriteBatch batch, Camera camera) {
         Vector2 target = octopus.getTarget();
 
         // TODO: a couple of magic numbers here need to be config values I think
-        Path2 reticlePath = pathFactory.makeNgon(target.x + x, target.y + y, 0.25f, 64); // radius = 1.0m. 64
-                                                                                               // vertices
+        Path2 reticlePath = pathFactory.makeNgon(target.x + x, target.y + y, 0.25f, 64);
+        //TODO: ideally don't call makeNgon
         pathExtruder.set(reticlePath);
         pathExtruder.calculate(0.1f); // line thickness = 0.1m
         affineCache.idt();
