@@ -1,6 +1,10 @@
 {
   "CAMERA_INTERPOLATION_DURATION" : 0.75,
   "constants" : {
+    "visioncone" : {
+      "category": "0000000",
+      "exclude" : "0000000"
+    },
     "walls" : {
       "category": "0000000",
       "exclude" : "0000000"
