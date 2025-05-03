@@ -3,7 +3,9 @@
 // AGAIN: THIS MUST BE IN CONSECUTIVE ORDER
 {
   "1": "maps/Tutorial1.tmx",
-  "2" : "maps/debugMap.tmx",
-  "3": "maps/Hard-Level-2.tmx",
-  "4": "maps/OctopusLevel1.tmx"
+  "2": "maps/Tutorial2.tmx",
+  "3": "maps/Tutorial3.tmx",
+  "4": "maps/Tutorial4.tmx",
+  "5" : "maps/Hard-Level-2.tmx",
+  "6": "maps/debugMap.tmx",
 }
