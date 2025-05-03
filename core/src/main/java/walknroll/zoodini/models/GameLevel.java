@@ -245,7 +245,7 @@ public class GameLevel {
             } else if ("Octopus".equalsIgnoreCase(type)) {
                 avatarOctopus = new Octopus(properties, entityConstants.get("octopus"), units);
                 avatarOctopus.setAnimation(AnimationState.IDLE,
-                        directory.getEntry("octopus-idle.animation", SpriteSheet.class),7);
+                        directory.getEntry("octopus-idle.animation", SpriteSheet.class), 7);
                 avatarOctopus.setAnimation(AnimationState.WALK,
                         directory.getEntry("octopus-walk.animation", SpriteSheet.class), 6);
                 avatarOctopus.setAnimation(AnimationState.WALK_DOWN,
@@ -262,6 +262,12 @@ public class GameLevel {
                         directory.getEntry("guard-walk-down.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK_UP,
                         directory.getEntry("guard-walk-up.animation", SpriteSheet.class), 16);
+                g.setAnimation(AnimationState.WALK_DOWN_BLIND,
+                        directory.getEntry("guard-walk-down-inked.animation", SpriteSheet.class), 16);
+                g.setAnimation(AnimationState.WALK_BLIND,
+                        directory.getEntry("guard-walk-inked.animation", SpriteSheet.class), 16);
+                g.setAnimation(AnimationState.WALK_UP_BLIND,
+                        directory.getEntry("guard-walk-up-inked.animation", SpriteSheet.class), 16);
                 g.setSusMeter(directory.getEntry("suspicion-meter.animation", SpriteSheet.class)); // TODO: There must
                                                                                                    // be a better way to
                                                                                                    // do this
@@ -269,7 +275,8 @@ public class GameLevel {
                 activate(g);
             } else if ("Camera".equalsIgnoreCase(type)) {
                 SecurityCamera cam = new SecurityCamera(properties, entityConstants.get("camera"), units);
-                cam.setAnimation(AnimationState.IDLE, directory.getEntry("camera-idle.animation", SpriteSheet.class), 16);
+                cam.setAnimation(AnimationState.IDLE, directory.getEntry("camera-idle.animation", SpriteSheet.class),
+                        16);
                 securityCameras.add(cam);
                 activate(cam);
             } else if ("Door".equalsIgnoreCase(type)) {
@@ -450,7 +457,7 @@ public class GameLevel {
      * @param batch  the sprite batch to draw to
      * @param camera the drawing camera
      */
-public void draw(SpriteBatch batch, Camera camera) {
+    public void draw(SpriteBatch batch, Camera camera) {
         // Draw the sprites first (will be hidden by shadows)
 
         batch.begin(camera);
@@ -723,7 +730,7 @@ public void draw(SpriteBatch batch, Camera camera) {
         for (Guard guard : guards) {
             float fov = guard.getFov();
             float dist = guard.getViewDistance();
-            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units,  constants);
+            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, constants);
             vc.attachToBody(guard.getObstacle().getBody(), 90.0f);
             vc.setVisibility(debug);
             visions.put(guard, vc);
@@ -824,6 +831,7 @@ public void draw(SpriteBatch batch, Camera camera) {
 
     PathFactory pathFactory = new PathFactory();
     PathExtruder pathExtruder = new PathExtruder();
+
     private void drawAbilityRange(SpriteBatch batch, Camera camera) {
         PlayableAvatar avatar = getAvatar();
         batch.setTexture(null);
@@ -832,7 +840,7 @@ public void draw(SpriteBatch batch, Camera camera) {
         float y = avatar.getObstacle().getY();
 
         Path2 rangePath = pathFactory.makeNgon(x, y, avatar.getAbilityRange(), 64); // radius = 1.0m. 64 vertices
-        //TODO: ideally don't call makeNgon
+        // TODO: ideally don't call makeNgon
         pathExtruder.set(rangePath);
         pathExtruder.calculate(0.05f); // line thickness = 0.05m
         affineCache.idt();
@@ -867,7 +875,7 @@ public void draw(SpriteBatch batch, Camera camera) {
 
         // TODO: a couple of magic numbers here need to be config values I think
         Path2 reticlePath = pathFactory.makeNgon(target.x + x, target.y + y, 0.25f, 64);
-        //TODO: ideally don't call makeNgon
+        // TODO: ideally don't call makeNgon
         pathExtruder.set(reticlePath);
         pathExtruder.calculate(0.1f); // line thickness = 0.1m
         affineCache.idt();

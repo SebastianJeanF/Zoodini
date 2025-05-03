@@ -22,6 +22,17 @@
         }
       }
     },
+    "guard-walk-inked": {
+      "file": "textures/entities/guard/guard_walking_inked.png",
+      "wrap": false,
+      "sprites": {
+        "animation": {
+          "size": 4,
+          "rows": 1,
+          "cols": 4
+        }
+      }
+    },
     "guard-walk-up": {
       "file": "textures/entities/guard/guard_walk_up.png",
       "wrap": false,
@@ -33,8 +44,30 @@
         }
       }
     },
+    "guard-walk-up-inked": {
+      "file": "textures/entities/guard/guard_walk_up_inked.png",
+      "wrap": false,
+      "sprites": {
+        "animation": {
+          "size": 4,
+          "rows": 1,
+          "cols": 4
+        }
+      }
+    },
     "guard-walk-down": {
       "file": "textures/entities/guard/guard_walk_down.png",
+      "wrap": false,
+      "sprites": {
+        "animation": {
+          "size": 5,
+          "rows": 1,
+          "cols": 5
+        }
+      }
+    },
+    "guard-walk-down-inked": {
+      "file": "textures/entities/guard/guard_walk_down_inked.png",
       "wrap": false,
       "sprites": {
         "animation": {

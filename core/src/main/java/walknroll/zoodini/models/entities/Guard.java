@@ -529,6 +529,20 @@ public class Guard extends Enemy {
 
     }
 
+    public boolean isEven(int number) {
+        switch (number) {
+            case 1: return false;
+            case 2: return true;
+            case 3: return false;
+            case 4: return true;
+            case 5: return false;
+            case 6: return true;
+            case 7: return false;
+            case 8: return true;
+            default: throw new RuntimeException("passed illegal argument to isEven");
+        }
+    }
+
     /**
      * Get the X pixel offset for the suspicion meter based on the guard's state
      * and movement direction.
@@ -546,7 +560,7 @@ public class Guard extends Enemy {
             if (guardState == AnimationState.WALK_UP) {
                 return (-95f * SCALE);
             }
-            else if (guardState == AnimationState.WALK_DOWN) {
+            else if (guardState == AnimationState.WALK_DOWN || guardState == AnimationState.WALK_DOWN_BLIND) {
                 return (-90f * SCALE);
             }
             // Else if the guard is moving to the right
