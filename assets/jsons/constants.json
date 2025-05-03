@@ -32,12 +32,12 @@
       "spriteRadius": 1,
       "obstacleRadius" : 0.5,
       "agroedForce" : 2.8,
-      "alertedForce" : 4,
-      "susForce" : 2,
-      "distractedForce" : 1.5,
+      "alertedForce" : 3.5,
+      "susForce" : 1.55,
+      "distractedForce" : 1,
       "blindedForceScale" : 0.75,
       "viewDistance" : 5.0,
-      "fov" : 60.0
+      "fov" : 50.0
     },
     "camera" : {
       "category": "000000100",
