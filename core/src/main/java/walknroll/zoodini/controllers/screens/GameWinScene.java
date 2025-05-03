@@ -102,16 +102,11 @@ public class GameWinScene implements Screen, InputProcessor {
         Gdx.input.setInputProcessor(this);
 
         float buttonY = constants.getFloat("button.y");
-        float buttonHeight = constants.getFloat("button.height");
         buttons = Array.with(
                 new MenuButton(constants.getFloat("button.next.x"), buttonY, constants.getFloat("button.next.width"),
-                        buttonHeight,
-                        "game-win-next-level",
-                        GDXRoot.EXIT_PLAY),
+                        constants.getFloat("button.next.height"), "game-win-next-level", GDXRoot.EXIT_PLAY),
                 new MenuButton(constants.getFloat("button.menu.x"), buttonY, constants.getFloat("button.menu.width"),
-                        buttonHeight,
-                        "home-icon",
-                        GDXRoot.EXIT_MENU));
+                        constants.getFloat("button.menu.height"), "home-icon", GDXRoot.EXIT_MENU));
     }
 
     /**
