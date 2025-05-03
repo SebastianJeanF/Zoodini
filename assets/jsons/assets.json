@@ -227,7 +227,8 @@
     "cat-walk-transition" : "textures/entities/cat/cat-walk-transition.png",
     "octopus" : "textures/entities/octopus/octopus.png",
     "switch1" : "textures/ui/gameplay/switch1.png",
-    "switch2" : "textures/ui/gameplay/switch2.png"
+    "switch2" : "textures/ui/gameplay/switch2.png",
+    "key-inventory" : "textures/ui/gameplay/key-inventory.png"
   },
   "fonts": {
     "display": {
