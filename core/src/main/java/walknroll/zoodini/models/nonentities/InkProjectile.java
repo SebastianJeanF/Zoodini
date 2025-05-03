@@ -151,10 +151,10 @@ public class InkProjectile extends ZoodiniSprite {
         animationController = new AnimationController(AnimationState.IDLE);
     }
 
-    public void setAnimation(AnimationState state, SpriteSheet sheet){
+    public void setAnimation(AnimationState state, SpriteSheet sheet, int frameDelay){
         switch(state){
-            case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
-            case EXPLODE -> animationController.addAnimation(AnimationState.EXPLODE, new Animation(sheet, 0, sheet.getSize()-1, 30 / sheet.getSize(), true));
+            case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, frameDelay, true));
+            case EXPLODE -> animationController.addAnimation(AnimationState.EXPLODE, new Animation(sheet, 0, sheet.getSize()-1, frameDelay, true));
         }
     }
 

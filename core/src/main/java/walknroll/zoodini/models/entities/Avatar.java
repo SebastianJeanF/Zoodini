@@ -26,6 +26,7 @@ import edu.cornell.gdiac.assets.ParserUtils;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.graphics.SpriteSheet;
+import edu.cornell.gdiac.physics2.CapsuleObstacle;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.physics2.WheelObstacle;
 import walknroll.zoodini.models.GameLevel;
@@ -212,7 +213,7 @@ public class Avatar extends ZoodiniSprite {
         pos[1] = properties.get("y", Float.class) / units;
 		float radius = constants.getFloat("obstacleRadius");
 
-		obstacle = new WheelObstacle(pos[0], pos[1], radius);
+        obstacle = new WheelObstacle(pos[0], pos[1], radius);
 		obstacle.setName(properties.get("type", String.class));
 		obstacle.setFixedRotation(false);
         obstacle.setBodyType(BodyType.DynamicBody);
@@ -241,13 +242,13 @@ public class Avatar extends ZoodiniSprite {
     /**
      * Adds spritesheet to animate for a given state.
      * */
-    public void setAnimation(AnimationState state, SpriteSheet sheet){
+    public void setAnimation(AnimationState state, SpriteSheet sheet, int frameDelay){
         switch(state){
             //TODO: frame delays (number of frames elapsed before rendering the next sprite) is set to 16 for all states. This needs to be adjusted.
-            case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
-            case WALK -> animationController.addAnimation(AnimationState.WALK, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
-            case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
-            case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
+            case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, frameDelay, true));
+            case WALK -> animationController.addAnimation(AnimationState.WALK, new Animation(sheet, 0, sheet.getSize()-1, frameDelay, true));
+            case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN, new Animation(sheet, 0, sheet.getSize()-1, frameDelay, true));
+            case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP, new Animation(sheet, 0, sheet.getSize()-1, frameDelay, true));
         }
     }
 
