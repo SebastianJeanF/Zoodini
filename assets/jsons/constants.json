@@ -19,7 +19,7 @@
       "maxSpeed" : 10.0,
       "spriteRadius": 0.6,
       "obstacleRadius" : 0.6,
-      "abilityRange" : 5,
+      "abilityRange" : 7,
       "inkCapacity" : 50.0,
       "inkRegen" : 4,
       "inkUsage" : 25.0
