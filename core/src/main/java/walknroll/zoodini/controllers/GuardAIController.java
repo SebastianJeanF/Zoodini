@@ -1,37 +1,30 @@
 package walknroll.zoodini.controllers;
 
+import java.util.ArrayList;
+import java.util.List;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.Heuristic;
+import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
-
 
 import edu.cornell.gdiac.graphics.SpriteBatch;
-import java.util.ArrayList;
-import java.util.Arrays;
 import walknroll.zoodini.controllers.aitools.ManhattanHeuristic;
+import walknroll.zoodini.controllers.aitools.TileGraph;
 import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Guard;
-//import walknroll.zoodini.utils.GameGraph;
-import walknroll.zoodini.controllers.aitools.TileGraph;
-import walknroll.zoodini.utils.GameGraph.DistanceHeuristic;
-import walknroll.zoodini.utils.GameGraph.Node;
+import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.enums.AvatarType;
-
-import java.util.List;
 
 /**
  * Controller class that manages the AI behavior for guard entities.
- * Handles guard patrolling, chasing, returning to patrol, and responding to distractions.
+ * Handles guard patrolling, chasing, returning to patrol, and responding to
+ * distractions.
  */
 public class GuardAIController {
     /** Guard identifier for this AI controller */
@@ -53,7 +46,6 @@ public class GuardAIController {
     /** Temporary distraction flag */
     private boolean tempDistract;
 
-
     private long ticks;
 
     private long lastStateChangeTime = 0;
@@ -61,7 +53,6 @@ public class GuardAIController {
     private final long STATE_CHANGE_COOLDOWN = 10;
 
     private float CAT_MEOW_RADIUS;
-
 
     /** Graph representation of the game */
     private TileGraph tileGraph;
@@ -72,12 +63,11 @@ public class GuardAIController {
 
     private Vector2 nextTargetLocation;
 
-
     /**
      * Constructs a new GuardAIController for a specific guard.
      *
-     * @param guard The guard entity that this controller will manage
-     * @param level The game level containing relevant game state information
+     * @param guard     The guard entity that this controller will manage
+     * @param level     The game level containing relevant game state information
      * @param tileGraph The graph representation of the level for pathfinding
      */
     public GuardAIController(Guard guard, GameLevel level, TileGraph<TileNode> tileGraph) {
@@ -93,11 +83,12 @@ public class GuardAIController {
         this.pathFinder = new IndexedAStarPathFinder<>(tileGraph);
         this.heuristic = new ManhattanHeuristic<>();
         this.nextTargetLocation = new Vector2(0, 0);
-        this.CAT_MEOW_RADIUS = level.getCat().getAbilityRange();
+        this.CAT_MEOW_RADIUS = level.isCatPresent() ? level.getCat().getAbilityRange() : 0;
     }
 
     /**
-     * Validates waypoints and updates any that are in wall tiles to be in valid non-wall tiles.
+     * Validates waypoints and updates any that are in wall tiles to be in valid
+     * non-wall tiles.
      *
      * @param waypoints The array of waypoints to validate
      * @return A new array of valid waypoints in world coordinates
@@ -121,11 +112,11 @@ public class GuardAIController {
                 if (validTile != null) {
                     // Convert the valid tile to world coordinates (use the center of the tile)
                     validWaypoints[i] = tileGraph.tileToWorld(validTile);
-                    System.out.println("Updated waypoint " + i + " from " + waypoint +
-                        " to " + validWaypoints[i] + " (was in wall)");
+                    DebugPrinter.println("Updated waypoint " + i + " from " + waypoint +
+                            " to " + validWaypoints[i] + " (was in wall)");
                 } else {
                     // This should not happen if your graph has at least one non-wall tile
-                    System.err.println("Warning: Could not find a valid non-wall tile for waypoint " + i);
+                    DebugPrinter.println("Warning: Could not find a valid non-wall tile for waypoint " + i);
                     validWaypoints[i] = waypoint; // Keep the original as fallback
                 }
             } else {
@@ -137,7 +128,6 @@ public class GuardAIController {
         return validWaypoints;
     }
 
-
     /**
      * Helper function to retrieve the currently active player avatar.
      *
@@ -148,9 +138,11 @@ public class GuardAIController {
     }
 
     /**
-     * Helper function that checks if a distraction from the cat's ability has occurred.
+     * Helper function that checks if a distraction from the cat's ability has
+     * occurred.
      *
-     * @return true if the cat player has used its distraction ability, false otherwise
+     * @return true if the cat player has used its distraction ability, false
+     *         otherwise
      */
     private boolean didDistractionOccur() {
         float guardToPlayerDistance = guard.getPosition().dst(getActivePlayer().getPosition());
@@ -196,7 +188,8 @@ public class GuardAIController {
 
     /***
      * Helper function to check if the guard has reached a target location.
-     * The guard "reaches" a target if it is within the radius of the arrival distance in world coords.
+     * The guard "reaches" a target if it is within the radius of the arrival
+     * distance in world coords.
      *
      * @param target The target position to check against
      * @return true if the guard has reached the target location, false otherwise
@@ -207,27 +200,30 @@ public class GuardAIController {
         float distance = guard.getPosition().dst(target);
 
         // Optional debugging
-//        if (distance < 1.0f) {
-//            System.out.println("Distance to target: " + distance);
-//        }
+        // if (distance < 1.0f) {
+        // DebugPrinter.println("Distance to target: " + distance);
+        // }
 
         return distance < arrivalDistance;
-//        if (!tileGraph.isValidTile(target)) {
-//            target = tileGraph.getNearestValidTile(target).getCoords();
-//        }
-//        Vector2 guardTile = tileGraph.worldToTile(guard.getPosition()).getCoords();
-//        Vector2 targetTile = tileGraph.worldToTile(target).getCoords();
-//        System.out.println("Current guard tile " + guardTile);
-//        System.out.println("Current target tile " + targetTile);
-//        System.out.println(tileGraph.worldToTile(guard.getPosition()).isWall);
-//        System.out.println(tileGraph.worldToTile(target).isWall);
-//        return guardTile.x == targetTile.x && guardTile.y == targetTile.y;
+        // if (!tileGraph.isValidTile(target)) {
+        // target = tileGraph.getNearestValidTile(target).getCoords();
+        // }
+        // Vector2 guardTile = tileGraph.worldToTile(guard.getPosition()).getCoords();
+        // Vector2 targetTile = tileGraph.worldToTile(target).getCoords();
+        // DebugPrinter.println("Current guard tile " + guardTile);
+        // DebugPrinter.println("Current target tile " + targetTile);
+        // DebugPrinter.println(tileGraph.worldToTile(guard.getPosition()).isWall);
+        // DebugPrinter.println(tileGraph.worldToTile(target).isWall);
+        // return guardTile.x == targetTile.x && guardTile.y == targetTile.y;
     }
 
     /**
-     * Helper function to update the guard's suspicion level based on its current state.
-     * Increases suspicion if the guard is in line of sight of the player, otherwise decreases it.
-     * Also handles de-aggro timer when the guard is not in line of sight and not under camera.
+     * Helper function to update the guard's suspicion level based on its current
+     * state.
+     * Increases suspicion if the guard is in line of sight of the player, otherwise
+     * decreases it.
+     * Also handles de-aggro timer when the guard is not in line of sight and not
+     * under camera.
      */
     private void updateSusLevel() {
         if (currState != GuardState.CHASE) { // Only update when not chasing
@@ -236,8 +232,8 @@ public class GuardAIController {
                 // If guard is alerted by a camera, increase suspicion to max
                 // otherwise, calculate the increase based on distance to player
                 int susIncrease = currState == GuardState.AlERTED
-                    ? (int) guard.getMaxSusLevel()
-                    : guard.calculateSusIncrease(guard.getSeenPlayer().getPosition());
+                        ? (int) guard.getMaxSusLevel()
+                        : guard.calculateSusIncrease(guard.getSeenPlayer().getPosition());
 
                 guard.deltaSusLevel(susIncrease); // Increase suspicion
             } else {
@@ -266,13 +262,12 @@ public class GuardAIController {
         return ticks - lastStateChangeTime > STATE_CHANGE_COOLDOWN;
     }
 
-
-
     /**
      * Updates the guard's state based on current conditions and state priority.
      */
     private void updateGuardState() {
-        // First check for max suspicion level, which always leads to CHASE (highest priority)
+        // First check for max suspicion level, which always leads to CHASE (highest
+        // priority)
         if (guard.isMaxSusLevel() && currState != GuardState.CHASE) {
             currState = GuardState.CHASE;
             guard.startDeAggroTimer();
@@ -294,8 +289,8 @@ public class GuardAIController {
             case SUSPICIOUS:
                 // Suspicion level is below threshold; SUSPICIOUS -> PATROL
                 // TODO: Experimenting guard leaving sus state only when sus level is 0
-               if(!guard.isSus()){
-//                if (guard.getSusLevel() == 0) {
+                if (!guard.isSus()) {
+                    // if (guard.getSusLevel() == 0) {
 
                     currState = GuardState.PATROL;
                     lastStateChangeTime = ticks;
@@ -316,10 +311,12 @@ public class GuardAIController {
                     guard.setCameraAlerted(false);
                     lastStateChangeTime = ticks;
                 }
-                // Guard has not reached camera location, sus level is above threshold; ALERTED -> SUSPICIOUS
+                // Guard has not reached camera location, sus level is above threshold; ALERTED
+                // -> SUSPICIOUS
                 else if (guard.isSus()) {
                     currState = GuardState.SUSPICIOUS;
-                    guard.setCameraAlerted(true); // TODO: Make this false (if we want guard to lose momentum after spotting)
+                    guard.setCameraAlerted(true); // TODO: Make this false (if we want guard to lose momentum after
+                                                  // spotting)
                     lastStateChangeTime = ticks;
                 }
                 break;
@@ -330,13 +327,13 @@ public class GuardAIController {
                     guard.setMeow(false);
                     lastStateChangeTime = ticks;
                 }
-                // Guard has not reached meow location, sus level is above threshold; DISTRACTED -> SUSPICIOUS
+                // Guard has not reached meow location, sus level is above threshold; DISTRACTED
+                // -> SUSPICIOUS
                 else if (guard.isSus()) {
                     currState = GuardState.SUSPICIOUS;
                     guard.setMeow(false);
                     lastStateChangeTime = ticks;
-                }
-                else if (guard.isCameraAlerted()) {
+                } else if (guard.isCameraAlerted()) {
                     currState = GuardState.AlERTED;
                     guard.setCameraAlerted(true);
                     guard.setMeow(false);
@@ -346,7 +343,7 @@ public class GuardAIController {
                 }
                 // Gar meows again -> should update distractPosition
                 else if (didDistractionOccur()) {
-                    System.out.println("here");
+                    DebugPrinter.println("here");
                     currState = GuardState.DISTRACTED;
                     guard.setMeow(true);
                     Vector2 playerPosition = getActivePlayer().getPosition();
@@ -361,7 +358,8 @@ public class GuardAIController {
                     lastStateChangeTime = ticks;
                 }
                 // Guard is not sus and is meowed; PATROL -> DISTRACTED
-                // Due to ordering of checks, this will only happen if the guard is not suspicious
+                // Due to ordering of checks, this will only happen if the guard is not
+                // suspicious
                 // This makes sense since we don't want the guard to deagrro by being meowed
                 else if (didDistractionOccur()) {
                     currState = GuardState.DISTRACTED;
@@ -374,7 +372,8 @@ public class GuardAIController {
                     lastStateChangeTime = ticks;
                 }
                 // Guard is not sus, not meowed, but player under camera; PATROL -> ALERTED
-                // Due to ordering of checks, this will only happen if the guard is not suspicious
+                // Due to ordering of checks, this will only happen if the guard is not
+                // suspicious
                 // Guard shouldn't deaggro if other player touches camera
                 else if (guard.isCameraAlerted()) {
                     currState = GuardState.AlERTED;
@@ -394,29 +393,31 @@ public class GuardAIController {
 
     /**
      * Updates the guard's AI state and behavior.
-     * This is the main function that should be called each frame to progress the guard's AI.
-     * Handles suspicion level changes, state transitions, and movement target updates.
+     * This is the main function that should be called each frame to progress the
+     * guard's AI.
+     * Handles suspicion level changes, state transitions, and movement target
+     * updates.
      */
     public void update() {
         ticks++;
         // Only change state every 5 ticks
-//        if (!canStateTransition()) {
-//            return;
-//        }
-        System.out.println("Before Guard state: " + currState);
+        // if (!canStateTransition()) {
+        // return;
+        // }
+        // DebugPrinter.println("Before Guard state: " + currState);
         updateSusLevel();
         updateGuardState();
-        System.out.println("After Guard state: " + currState);
+        // DebugPrinter.println("After Guard state: " + currState);
 
         setNextTargetLocation();
-
 
     }
 
     /**
      * Helper function to check if the player has been spotted by the guard.
      *
-     * @return true if the guard is aggravated and at maximum suspicion level, false otherwise
+     * @return true if the guard is aggravated and at maximum suspicion level, false
+     *         otherwise
      */
     private boolean checkPlayerIsSpotted() {
         // TODO: Replace with real guard.isAgroed() method
@@ -424,7 +425,8 @@ public class GuardAIController {
     }
 
     /**
-     * Helper function that calculates the distance between the guard and a target position.
+     * Helper function that calculates the distance between the guard and a target
+     * position.
      *
      * @param target The position to calculate distance to
      * @return The distance from the guard to the target position
@@ -444,8 +446,10 @@ public class GuardAIController {
 
     /**
      * Helper function that checks if the target position is not a wall.
-     * If the target position is a wall, it returns the world coords of the nearest non-wall tile.
-     * If the target position is not a wall, it returns the original target position.
+     * If the target position is a wall, it returns the world coords of the nearest
+     * non-wall tile.
+     * If the target position is not a wall, it returns the original target
+     * position.
      *
      * @param target The target position to check
      * @return A valid Vector2 position that is not a wall
@@ -455,17 +459,18 @@ public class GuardAIController {
         if (!targetTile.isObstacle) {
             return target;
         } else {
-            System.out.println("Target tile is a wall: " + targetTile.getCoords());
+            DebugPrinter.println("Target tile is a wall: " + targetTile.getCoords());
             // If the target tile is a wall, find the nearest non-wall tile
             TileNode newTile = tileGraph.getNearestValidTile(target);
             return tileGraph.tileToWorld(newTile);
         }
     }
 
-
     /**
-     * Helper function that determines the next waypoint location based on pathfinding.
-     * Uses the game graph to find a path from the guard's current position to the target location.
+     * Helper function that determines the next waypoint location based on
+     * pathfinding.
+     * Uses the game graph to find a path from the guard's current position to the
+     * target location.
      *
      * @param targetLocation The destination the guard is trying to reach
      * @return The next position the guard should move towards
@@ -492,8 +497,10 @@ public class GuardAIController {
     }
 
     /**
-     * Helper function that updates the next target location based on the guard's current state.
-     * Handles different targeting logic for patrol, chase, return, and distracted states.
+     * Helper function that updates the next target location based on the guard's
+     * current state.
+     * Handles different targeting logic for patrol, chase, return, and distracted
+     * states.
      */
     private void setNextTargetLocation() {
         Vector2 newTarget = null;
@@ -517,15 +524,15 @@ public class GuardAIController {
                 break;
             case SUSPICIOUS:
                 // If guard is sus but not max sus level, slowly move towards player
-                // TODO: in order to move more slowly towards player update vector magnitude in moveGuard function in GameScene
+                // TODO: in order to move more slowly towards player update vector magnitude in
+                // moveGuard function in GameScene
                 targetPlayer = guard.getAggroTarget();
                 if (targetPlayer != null) {
                     newTarget = getNextWaypointLocation(targetPlayer.getPosition());
                 } else {
                     // Fall back to patrol behavior or some default position
-                    newTarget = waypoints.length > 0 ?
-                        getNextWaypointLocation(waypoints[currentWaypointIndex]) :
-                        guard.getPosition();
+                    newTarget = waypoints.length > 0 ? getNextWaypointLocation(waypoints[currentWaypointIndex])
+                            : guard.getPosition();
                 }
                 break;
             case CHASE:
@@ -534,9 +541,8 @@ public class GuardAIController {
                     newTarget = getNextWaypointLocation(targetPlayer.getPosition());
                 } else {
                     // If no target, maybe return to patrol
-                    newTarget = waypoints.length > 0 ?
-                        getNextWaypointLocation(waypoints[currentWaypointIndex]) :
-                        guard.getPosition();
+                    newTarget = waypoints.length > 0 ? getNextWaypointLocation(waypoints[currentWaypointIndex])
+                            : guard.getPosition();
                 }
                 break;
             case DISTRACTED:
@@ -557,7 +563,7 @@ public class GuardAIController {
         }
 
         nextTargetLocation = getValidTileCoords(newTarget);
-//        nextTargetLocation = newTarget;
+        // nextTargetLocation = newTarget;
 
     }
 
@@ -587,31 +593,31 @@ public class GuardAIController {
     /**
      * Draws debug visualization of the pathfinding graph.
      *
-     * @param batch The SpriteBatch to draw with
-     * @param camera The camera to use for coordinate transformations
+     * @param batch   The SpriteBatch to draw with
+     * @param camera  The camera to use for coordinate transformations
      * @param texture The texture to use for drawing nodes
      */
-    public void drawGraphDebug(SpriteBatch batch , OrthographicCamera camera, Texture texture) {
+    public void drawGraphDebug(SpriteBatch batch, OrthographicCamera camera, Texture texture) {
         tileGraph.draw(batch, camera, 1.0f);
-//        gameGraph.drawGraphDebug(batch, camera, nextTargetLocation, texture);
+        // gameGraph.drawGraphDebug(batch, camera, nextTargetLocation, texture);
     }
-
 
     /**
      * Finds the shortest path between two positions in the world using A*.
      *
      * @INVARIANT this.heuristic must be initialized
-     * @param currPosWorld The starting position in world coordinates
+     * @param currPosWorld   The starting position in world coordinates
      * @param targetPosWorld The target position in world coordinates
-     * @return A list of nodes representing the path from start to target, excluding the start node
+     * @return A list of nodes representing the path from start to target, excluding
+     *         the start node
      */
     public List<TileNode> getPath(Vector2 currPosWorld, Vector2 targetPosWorld) {
         GraphPath<TileNode> graphPath = new DefaultGraphPath<>();
         TileNode start = tileGraph.worldToTile(currPosWorld);
         TileNode end = tileGraph.worldToTile(targetPosWorld);
 
-//        System.out.println("Current guard Position: " + currPosWorld);
-        // System.out.println("Graph's target: "+ end.getWorldPosition());
+        // DebugPrinter.println("Current guard Position: " + currPosWorld);
+        // DebugPrinter.println("Graph's target: "+ end.getWorldPosition());
         // Check if start or end node is null
         if (start == null || end == null) {
             // System.err.println("Error: Start or end node is null.");
@@ -648,12 +654,13 @@ public class GuardAIController {
         SUSPICIOUS,
         /** Guard is chasing target (susLevel = 100 & agroLevel > 0) */
         CHASE,
-        /** Guard is distracted by meow*/
+        /** Guard is distracted by meow */
         DISTRACTED,
-        /** Guard is alerted by camera*/
+        /** Guard is alerted by camera */
         AlERTED;
-        private GuardState() {}
-    }
 
+        private GuardState() {
+        }
+    }
 
 }

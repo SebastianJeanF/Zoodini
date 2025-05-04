@@ -22,6 +22,17 @@
         }
       }
     },
+    "guard-walk-inked": {
+      "file": "textures/entities/guard/guard_walking_inked.png",
+      "wrap": false,
+      "sprites": {
+        "animation": {
+          "size": 4,
+          "rows": 1,
+          "cols": 4
+        }
+      }
+    },
     "guard-walk-up": {
       "file": "textures/entities/guard/guard_walk_up.png",
       "wrap": false,
@@ -33,8 +44,30 @@
         }
       }
     },
+    "guard-walk-up-inked": {
+      "file": "textures/entities/guard/guard_walk_up_inked.png",
+      "wrap": false,
+      "sprites": {
+        "animation": {
+          "size": 4,
+          "rows": 1,
+          "cols": 4
+        }
+      }
+    },
     "guard-walk-down": {
       "file": "textures/entities/guard/guard_walk_down.png",
+      "wrap": false,
+      "sprites": {
+        "animation": {
+          "size": 5,
+          "rows": 1,
+          "cols": 5
+        }
+      }
+    },
+    "guard-walk-down-inked": {
+      "file": "textures/entities/guard/guard_walk_down_inked.png",
       "wrap": false,
       "sprites": {
         "animation": {
@@ -198,6 +231,39 @@
         }
       }
     },
+    "panda-idle": {
+      "file": "textures/entities/static/panda-chained.png",
+      "wrap": false,
+      "sprites": {
+        "animation": {
+          "size": 3,
+          "rows": 1,
+          "cols": 3
+        }
+      }
+    },
+    "rabbit-idle": {
+      "file": "textures/entities/static/rabbit-chained.png",
+      "wrap": false,
+      "sprites": {
+        "animation": {
+          "size": 3,
+          "rows": 1,
+          "cols": 3
+        }
+      }
+    },
+    "penguin-idle": {
+      "file": "textures/entities/static/penguin-chained.png",
+      "wrap": false,
+      "sprites": {
+        "animation": {
+          "size": 3,
+          "rows": 1,
+          "cols": 3
+        }
+      }
+    },
     "game-over-splash": "textures/ui/game-lose/game-over-splash.png",
     "game-over-menu-button": "textures/ui/game-lose/game-over-menu-button.png",
     "game-over-restart-button": "textures/ui/game-lose/game-over-restart-button.png",
@@ -223,7 +289,12 @@
     "level-bg": "textures/ui/level-select/level_bg.png",
     "level-cell": "textures/ui/level-select/level_cell.png",
     "guard-suspicion-curious": "textures/entities/guard/guard-suspicion-curious.png",
-    "ink-text": "textures/ui/gameplay/ink-text.png"
+    "ink-text": "textures/ui/gameplay/ink-text.png",
+    "cat-walk-transition" : "textures/entities/cat/cat-walk-transition.png",
+    "octopus" : "textures/entities/octopus/octopus.png",
+    "switch1" : "textures/ui/gameplay/switch1.png",
+    "switch2" : "textures/ui/gameplay/switch2.png",
+    "key-inventory" : "textures/ui/gameplay/key-inventory.png"
   },
   "fonts": {
     "display": {
@@ -240,7 +311,7 @@
   },
   "jsons": {
     "constants": "jsons/constants.json",
-    "levels": "jsons/levels.json"
+    "levels": "jsons/levels.jsonc"
   },
   "skins": {
     "default": "uiskins/default/uiskin.json",

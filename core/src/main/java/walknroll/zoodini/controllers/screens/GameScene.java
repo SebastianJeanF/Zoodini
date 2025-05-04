@@ -12,23 +12,36 @@
  */
 package walknroll.zoodini.controllers.screens;
 
+import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import edu.cornell.gdiac.util.PooledList;
+import java.util.HashMap;
 
-import com.badlogic.gdx.*;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.utils.*;
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.ContactImpulse;
+import com.badlogic.gdx.physics.box2d.ContactListener;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.Manifold;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectSet;
+import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.Timer;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
-import edu.cornell.gdiac.util.*;
-import org.w3c.dom.Text;
+import edu.cornell.gdiac.physics2.Obstacle;
+import edu.cornell.gdiac.physics2.WheelObstacle;
+import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.GDXRoot;
 import walknroll.zoodini.controllers.GuardAIController;
 import walknroll.zoodini.controllers.InputController;
@@ -37,21 +50,20 @@ import walknroll.zoodini.controllers.UIController;
 import walknroll.zoodini.controllers.aitools.TileGraph;
 import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
-import walknroll.zoodini.models.entities.*;
+import walknroll.zoodini.models.entities.Avatar;
+import walknroll.zoodini.models.entities.Cat;
+import walknroll.zoodini.models.entities.Guard;
+import walknroll.zoodini.models.entities.Octopus;
+import walknroll.zoodini.models.entities.PlayableAvatar;
+import walknroll.zoodini.models.entities.SecurityCamera;
 import walknroll.zoodini.models.nonentities.Door;
 import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
-import edu.cornell.gdiac.physics2.*;
+import walknroll.zoodini.utils.Constants;
+import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 import walknroll.zoodini.utils.enums.AvatarType;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import walknroll.zoodini.utils.VisionCone;
-import walknroll.zoodini.utils.ZoodiniSprite;
-
 
 /**
  * Gameplay controller for the game.
@@ -65,33 +77,28 @@ import walknroll.zoodini.utils.ZoodiniSprite;
  * singleton asset manager to manage the various assets.
  */
 public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener {
+    /** How many frames after winning/losing do we continue? */
+    public static final int EXIT_COUNT = 120;
+    // ASSETS
+    /** Need an ongoing reference to the asset directory */
+    protected AssetDirectory directory;
 
-    private boolean debug = true;
-    private boolean brainrot = false;
-
-	// ASSETS
-	/** Need an ongoing reference to the asset directory */
-	protected AssetDirectory directory;
     /** Value for current level */
     private int currentLevel;
 
+    /** The orthographic camera */
+    private OrthographicCamera camera;
 
-    /** How many frames after winning/losing do we continue? */
-	public static final int EXIT_COUNT = 120;
-
-	/** The orthographic camera */
-	private OrthographicCamera camera;
-
-	/** Reference to the game canvas */
-	protected SpriteBatch batch;
-	/** Listener that will update the player mode when we are done */
-	private ScreenListener listener;
+    /** Reference to the game canvas */
+    protected SpriteBatch batch;
+    /** Listener that will update the player mode when we are done */
+    private ScreenListener listener;
     /** All the UI elements belong to this */
     private UIController ui;
-	/** Reference to the game level */
-	protected GameLevel level;
-	/** Mark set to handle more sophisticated collision callbacks */
-	protected ObjectSet<Fixture> sensorFixtures;
+    /** Reference to the game level */
+    protected GameLevel level;
+    /** Mark set to handle more sophisticated collision callbacks */
+    protected ObjectSet<Fixture> sensorFixtures;
     /** The current level */
     private final HashMap<Guard, GuardAIController> guardToAIController = new HashMap<>();
 
@@ -99,7 +106,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private TiledMap map;
     /** Graph representing the map */
     private TileGraph<TileNode> graph;
-
+    /** Tiled renderer */
+    private TiledMapRenderer mapRenderer;
 
     // Win/lose related fields
     /** Whether or not this is an active controller */
@@ -114,15 +122,12 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     /** Constant scale used for player movement */
     private final float MOVEMENT_SCALE = 32f;
 
-	// Camera movement fields
-	private Vector2 cameraTargetPosition;
-	private Vector2 cameraPreviousPosition;
-	private float cameraTransitionTimer;
-	private float cameraTransitionDuration;
-	private boolean inCameraTransition;
-
-	// general-purpose cache vector
-	private Vector2 cacheVec = new Vector2();
+    // Camera movement fields
+    private Vector2 cameraTargetPosition;
+    private Vector2 cameraPreviousPosition;
+    private float cameraTransitionTimer;
+    private float cameraTransitionDuration;
+    private boolean inCameraTransition;
 
     // Game Paused Menu
     private boolean gamePaused = false;
@@ -132,66 +137,75 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     private SoundController soundController;
 
+    /** Caches */
+    private Vector3 vec3tmp = new Vector3();
+    private Vector2 vec2tmp = new Vector2();
+    private Vector2 angleCache = new Vector2();
+    private Vector2 vec2tmp2 = new Vector2();
+    private Vector2 vec2tmp3 = new Vector2();
 
-    public int getCurrentLevel() {
-        return currentLevel;
-    }
+    /**
+     * Sets whether the level is completed.
+     *
+     * If true, the level will advance after a countdown
+     *
+     * @param value whether the level is completed.
+     */
+    private boolean octopusArrived = false;
 
-	/**
-	 * Creates a new game world
-	 *
-	 * The physics bounds and drawing scale are now stored in the LevelModel and
-	 * defined by the appropriate JSON file.
-	 */
-	public GameScene(AssetDirectory directory, SpriteBatch batch, int currentLevel) {
-		this.directory = directory;
-		this.batch = batch;
+    private boolean catArrived = false;
+
+    /**
+     * Creates a new game world
+     *
+     * The physics bounds and drawing scale are now stored in the LevelModel and
+     * defined by the appropriate JSON file.
+     */
+    public GameScene(AssetDirectory directory, SpriteBatch batch, int currentLevel) {
+        this.directory = directory;
+        this.batch = batch;
         this.currentLevel = currentLevel;
         level = new GameLevel();
-        map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString(""+this.currentLevel));
-		level.populate(directory, map);
-		level.getWorld().setContactListener(this);
+        map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString("" + this.currentLevel));
+        level.populate(directory, map);
+        level.getWorld().setContactListener(this);
+        mapRenderer = new OrthogonalTiledMapRenderer(map);
 
-		complete = false;
-		failed = false;
-		active = false;
-		countdown = -1;
+        complete = false;
+        failed = false;
+        active = false;
+        countdown = -1;
 
-		camera = new OrthographicCamera();
+        camera = new OrthographicCamera();
 
-        //30m, 20m is the map dimension. 1 tile = 1m
-//        float SCALE = 1.0f;
-//		camera.setToOrtho(false, level.getTileSize() * 15 * SCALE,  level.getTileSize() * 10 * SCALE);
-
-        // TODO: Use the
-        float NUM_TILES_WIDE = 15f;
-        camera.setToOrtho(false, level.getTileSize() * NUM_TILES_WIDE,  level.getTileSize() * NUM_TILES_WIDE * 720f/1280f);
-
+        float NUM_TILES_WIDE = 18f;
+        camera.setToOrtho(false, level.getTileSize() * NUM_TILES_WIDE,
+                level.getTileSize() * NUM_TILES_WIDE * 720f / 1280f);
 
         // Initialize camera tracking variables
-		cameraTargetPosition = new Vector2();
-		cameraPreviousPosition = new Vector2();
-		cameraTransitionTimer = 0;
-		cameraTransitionDuration = directory.getEntry("constants", JsonValue.class)
-				.getFloat("CAMERA_INTERPOLATION_DURATION");
-		inCameraTransition = false;
+        cameraTargetPosition = new Vector2();
+        cameraPreviousPosition = new Vector2();
+        cameraTransitionTimer = 0;
+        cameraTransitionDuration = directory.getEntry("constants", JsonValue.class)
+                .getFloat("CAMERA_INTERPOLATION_DURATION");
+        inCameraTransition = false;
 
-
-        //UI Controller
+        // UI Controller
         ui = new UIController(directory, level);
         ui.setPauseMenuListener(this);
 
         graph = new TileGraph<>(map, false, 1);
         initializeAIControllers();
 
-		setComplete(false);
-		setFailure(false);
+        setComplete(false);
+        setFailure(false);
 
         soundController = SoundController.getInstance();
-	}
+    }
 
-
-    //-----------------Main logic--------------------------//
+    public int getCurrentLevel() {
+        return currentLevel;
+    }
 
     /**
      * Resets the status of the game so that we can play again.
@@ -209,13 +223,13 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         setFailure(false);
         countdown = -1;
 
-        map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString(""+this.currentLevel));
+        // map = new TmxMapLoader().load(directory.getEntry("levels",
+        // JsonValue.class).getString("" + this.currentLevel));
         // Reload the json each time
         level.populate(directory, map);
         level.getWorld().setContactListener(this);
         initializeAIControllers();
     }
-
 
     /**
      * Called when the Screen should render itself.
@@ -234,14 +248,10 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             }
         }
     }
+
     @Override
     public void onPauseStateChanged(boolean paused) {
         gamePaused = paused;
-        if (paused) {
-            soundController.pauseMusic();
-        } else {
-            soundController.resumeMusic();
-        }
     }
 
     @Override
@@ -251,9 +261,18 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     @Override
     public void onReturnToMenu() {
-        if (listener != null) {
-            listener.exitScreen(this, GDXRoot.EXIT_MENU);
-        }
+        // Immediately stop music before transitioning to menu
+        soundController.stopMusic();
+
+        // Small delay before transition to ensure audio properly stops
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                if (listener != null) {
+                    listener.exitScreen(GameScene.this, GDXRoot.EXIT_MENU);
+                }
+            }
+        }, 0.1f);
     }
 
     /**
@@ -327,115 +346,13 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
         InputController input = InputController.getInstance();
         processPlayerAction(input, dt);
-        level.update(dt); //collisions
+        level.update(dt); // collisions
         updateVisionCones(dt);
         updateGuardAI();
         processNPCAction(dt);
         updateCamera(dt);
 
         ui.update(dt);
-    }
-
-
-    private void thinkAll(float dt){
-        InputController input = InputController.getInstance();
-    }
-
-    private void moveAll(float dt){
-
-    }
-
-    private void updateSecurityCameraVisionCones() {
-        ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
-        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
-            if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
-                Vector2 catPos = level.getCat().getPosition();
-                Vector2 octPos = level.getOctopus().getPosition();
-                if (entry.value.contains(catPos) || entry.value.contains(octPos)) {
-
-                    ((SecurityCamera) entry.key).activateRing();
-
-                    Avatar detectedPlayer = entry.value.contains(catPos) ? level.getCat() : level.getOctopus();
-
-                    detectedPlayer.setUnderCamera(true);
-
-                    for (Guard guard : level.getGuards()) {
-                        float guardToCameraDistance = guard.getPosition().dst(((SecurityCamera) entry.key).getPosition());
-                        if (guardToCameraDistance <= ((SecurityCamera) entry.key).getAlarmDistance()) {
-                            guard.setAggroTarget(detectedPlayer);
-                            guard.setCameraAlerted(true);
-
-                            // Optionally set target position directly if needed
-                            guard.setTarget(detectedPlayer.getPosition());
-                        }
-                    }
-                } else {
-                    level.getCat().setUnderCamera(false);
-                    level.getOctopus().setUnderCamera(false);
-                }
-            }
-        }
-    }
-
-    /**
-     * Checks if the player is in the vision cones of any guards and updates their states accordingly.
-     * This function specifically handles guard vision detection, separate from security cameras.
-     */
-    private void updateGuardVisionCones(float dt) {
-        ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
-
-        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry: visions.entries()) {
-            // Skip if not a guard
-            if (!(entry.key instanceof Guard)) {
-                continue;
-            }
-
-            Guard guard = (Guard) entry.key;
-            VisionCone visionCone = entry.value;
-
-            visionCone.setRadius(guard.getViewDistance());
-            visionCone.setWideness(guard.getFov());
-
-            Vector2 movementDir = guard.getMovementDirection();
-            visionCone.updateFacingDirection(dt, movementDir);
-
-
-            Vector2 catPos = level.getCat().getPosition();
-            Vector2 octPos = level.getOctopus().getPosition();
-
-            // Check if cat is detected
-            if (visionCone.contains(catPos)) {
-                guard.setAgroed(true);
-                guard.setAggroTarget(level.getCat());
-                guard.setTarget(level.getCat().getPosition());
-                level.getCat().setUnderVisionCone(true);
-                guard.setSeesPlayer(true);
-                guard.setSeenPlayer(level.getCat());
-//                System.out.println("Guard detected cat: " + guard.getAggroTarget());
-            }
-
-            // Check if octopus is detected
-            else if (visionCone.contains(octPos)) {
-                guard.setAgroed(true);
-                guard.setAggroTarget(level.getOctopus());
-                guard.setTarget(level.getOctopus().getPosition());
-                level.getOctopus().setUnderVisionCone(true);
-                guard.setSeesPlayer(true);
-                guard.setSeenPlayer(level.getOctopus());
-//                System.out.println("Guard detected octopus: " + guard.getAggroTarget());
-            }
-            // No player detected
-            else {
-                // Only set to false if the guard isn't being alerted by a camera
-                level.getOctopus().setUnderVisionCone(false);
-                level.getCat().setUnderVisionCone(false);
-                guard.setSeesPlayer(false);
-                guard.setSeenPlayer(null);
-                if (!guard.isCameraAlerted()) {
-                    guard.setAgroed(false);
-                }
-            }
-        }
     }
 
     /**
@@ -445,117 +362,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     public void updateVisionCones(float dt) {
         updateSecurityCameraVisionCones();
         updateGuardVisionCones(dt);
-    }
-
-    private Vector3 tmp = new Vector3();
-    private Vector2 tmp2 = new Vector2();
-
-    /**
-     * Applies movement forces to the avatar and change firing states.
-     */
-    private void processPlayerAction(InputController input, float dt){
-        tmp.setZero();
-        tmp2.setZero();
-
-        if(input.didSwap()){
-            onSwap(input);
-        }
-
-        Avatar avatar = level.getAvatar();
-        float vertical = input.getVertical();
-        float horizontal = input.getHorizontal();
-        moveAvatar(vertical, horizontal, avatar);
-        level.getOctopus().regenerateInk(dt);
-
-        if(avatar.getAvatarType() == AvatarType.OCTOPUS){
-            Octopus octopus = (Octopus) avatar;
-            tmp.set(input.getAiming(), 0);
-            tmp = camera.unproject(tmp);
-            tmp2.set(tmp.x, tmp.y)
-                .scl(1.0f / level.getTileSize())
-                .sub(octopus.getPosition())
-                .clamp(0.0f, octopus.getAbilityRange()); //this decides the distance for projectile to travel
-            octopus.setTarget(tmp2); //set a target vector relative to octopus's position as origin.
-
-            if(input.didAbility() && octopus.canUseAbility()) { //check for ink resource here.
-                octopus.setCurrentlyAiming(!octopus.isCurrentlyAiming()); //turn the reticle on and off
-            }
-
-            if(octopus.isCurrentlyAiming() && input.didLeftClick()){
-                octopus.setDidFire(true);
-                octopus.setCurrentlyAiming(false);
-                octopus.consumeInk();
-            } else {
-                octopus.setDidFire(false);
-            }
-
-        } else if(avatar.getAvatarType() == AvatarType.CAT) {
-            Cat cat = (Cat) avatar;
-
-            if (input.didAbility() && cat.canUseAbility()) {
-                cat.setCurrentlyAiming(!cat.isCurrentlyAiming());
-            }
-
-            if (cat.isCurrentlyAiming() && input.didLeftClick()) {
-                cat.setDidFire(true);
-                cat.setCurrentlyAiming(false);
-                soundController.playCatMeow();
-            } else {
-                cat.setDidFire(false);
-            }
-        }
-
-
-        tmp.setZero();
-        tmp2.setZero();
-    }
-
-    /**
-     * Applies movement forces to NPCs.
-     * Does NOT modify internal states of the NPCs. That is the
-     * responsibility of ContactListener
-     */
-    private void processNPCAction(float dt){
-        Octopus octopus = level.getOctopus();
-        InkProjectile inkProjectile = level.getProjectile();
-        ObjectMap<Door, Key> doors = level.getDoors();
-        Array<Key> keys = level.getKeys();
-
-        //Projectiles
-        //TODO: not sure about the order of if statements here.
-        if(inkProjectile.getShouldDestroy()){
-            inkProjectile.destroy();
-        }
-
-        if(octopus.didFire()){
-            activateInkProjectile(inkProjectile, octopus.getPosition(), octopus.getTarget());
-        }
-
-        if(inkProjectile.getPosition().dst(inkProjectile.getStartPosition()) > inkProjectile.getEndPosition().len()){
-            inkProjectile.setShouldDestroy(true);
-        }
-
-        Array<Guard> guards = level.getGuards();
-        updateGuards(guards);
-
-        Array<SecurityCamera> cams = level.getSecurityCameras();
-
-
-        // TODO: Might need to comment out again
-        for (ObjectMap.Entry<Door, Key> entry : doors.entries()) {
-            Door door = entry.key;
-            Key key = entry.value;
-            if(!door.isLocked()){
-                key.setUsed(true);
-                Vector2 doorPos = door.getObstacle().getPosition();
-                graph.getNode((int)doorPos.x, (int)doorPos.y).isObstacle = false;
-            }
-
-            if(!door.isUnlocking()){
-                door.resetTimer();
-            }
-        }
-
     }
 
     /**
@@ -572,12 +378,15 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         // Set the camera's updated view
         batch.setProjectionMatrix(camera.combined);
 
+        mapRenderer.setView(camera);
+        mapRenderer.render(); // divide this into layerwise rendering if you want
+
         level.draw(batch, camera);
 
+        mapRenderer.render(new int[] { 1 });
 
-        if(debug) {
+        if (Constants.DEBUG) {
             graph.clearMarkedNodes();
-
 
             // For each guard, mark their target nodes for display
             guardToAIController.forEach((guard, controller) -> {
@@ -594,7 +403,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
             graph.draw(batch, camera, level.getTileSize());
             InputController ic = InputController.getInstance();
-            if(ic.didLeftClick()) {
+            if (ic.didLeftClick()) {
                 graph.markNearestTile(camera, ic.getAiming(), level.getTileSize());
             }
         }
@@ -611,11 +420,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         ui.dispose();
     }
 
-
-    //-----------------Helper Methods--------------------//
-
     public void initializeAIControllers() {
-//        this.gameGraph = new GameGraph(12, 16, level.getBounds().x, level.getBounds().y, level.getSprites());
         Array<Guard> guards = level.getGuards();
         for (Guard g : guards) {
             GuardAIController aiController = new GuardAIController(g, level, graph);
@@ -623,186 +428,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
     }
 
-    private void updateGuardAI() {
-        guardToAIController.forEach((guard, controller) -> {
-            controller.update();
-            guard.think(controller.getMovementDirection(), controller.getNextTargetLocation());
-        });
-    }
-
-
-//    private void checkDeactivateKeyOnCollect() {
-//        // Deactivate collected key's physics body if needed
-//        if (keyCollected && level.getKey() != null && level.getKey().getObstacle().isActive()) {
-//            // This is the safe time to modify physics bodies
-//            level.getKey().getObstacle().setActive(false);
-//        }
-//    }
-
-    private void onSwap(InputController input) {
-        if (input.didSwap() && !inCameraTransition) {
-            level.getAvatar().setCurrentlyAiming(false);
-            // stop active character movement
-            level.getAvatar().setMovement(0, 0);
-            level.getAvatar().applyForce();
-            // Save previous camera position before swapping
-            cameraPreviousPosition.set(cameraTargetPosition);
-
-            // swap the active character
-            level.swapActiveAvatar();
-
-            // Start camera transition
-            cameraTransitionTimer = 0;
-            inCameraTransition = true;
-        }
-    }
-
-    private Vector2 angleCache = new Vector2();
-
-    /**
-     * @param verticalForce
-     * @param horizontalForce
-     * @param avatar
-     */
-    private void moveAvatar(float verticalForce, float horizontalForce, Avatar avatar) {
-        // Rotate the avatar to face the direction of movement
-        angleCache.set(horizontalForce, verticalForce);
-        if (angleCache.len2() > 0.0f) {
-            // Prevent faster movement when going diagonallyd
-            if (angleCache.len() > 1.0f) {
-                angleCache.nor();
-            }
-
-            float angle = angleCache.angleDeg();
-            // Convert to radians with up as 0
-            angle = (float) Math.PI * (angle - 90.0f) / 180.0f;
-            avatar.getObstacle().setAngle(angle);
-        }
-
-        angleCache.scl(avatar.getForce()).scl(MOVEMENT_SCALE);
-        avatar.setMovement(angleCache.x, angleCache.y);
-        avatar.applyForce();
-    }
-
-    private void activateInkProjectile(InkProjectile projectile, Vector2 origin, Vector2 target) {
-        projectile.activate();
-        projectile.setPosition(origin);
-        projectile.setStartPosition(origin);
-        projectile.setEndPosition(target);
-        projectile.setMovement(target.nor());
-        projectile.applyForce();
-    }
-
-
-	/**
-	 * Updates the camera position with interpolation when transitioning
-	 */
-	private void updateCamera(float dt) {
-        PlayableAvatar avatar = level.getAvatar();
-        if (avatar.isCurrentlyAiming()) {
-            camera.zoom = Math.min(1.2f, camera.zoom + 0.01f);
-        } else {
-            camera.zoom = Math.max(1.0f, camera.zoom - 0.005f);
-        }
-
-        cameraTargetPosition.set(avatar.getPosition());
-
-        // Get viewport dimensions in world units
-        float viewWidth = camera.viewportWidth / level.getTileSize();
-        float viewHeight = camera.viewportHeight / level.getTileSize();
-
-
-        // Calculate soft boundaries that allow partial dead space
-        float minX = level.getBounds().x + (viewWidth * 0.5f * camera.zoom);
-        float maxX = level.getBounds().x + (level.getBounds().width) - (viewWidth * 0.5f * camera.zoom);
-        float minY = level.getBounds().y + (viewHeight * 0.5f * camera.zoom);
-        float maxY = level.getBounds().y + (level.getBounds().height) - (viewHeight * 0.5f * camera.zoom);
-
-        // Clamp camera position with soft boundaries
-        cameraTargetPosition.x = Math.max(minX, Math.min(cameraTargetPosition.x, maxX));
-        cameraTargetPosition.y = Math.max(minY, Math.min(cameraTargetPosition.y, maxY));
-
-		if (inCameraTransition) {
-			// Update transition timer
-			cameraTransitionTimer += dt;
-
-			if (cameraTransitionTimer >= cameraTransitionDuration) {
-				// Transition complete
-				inCameraTransition = false;
-				camera.position.set(cameraTargetPosition.x, cameraTargetPosition.y, 0);
-			} else {
-				// Calculate interpolated position
-				float alpha = cameraTransitionTimer / cameraTransitionDuration;
-				float x = Interpolation.smooth.apply(cameraPreviousPosition.x, cameraTargetPosition.x, alpha);
-				float y = Interpolation.smooth.apply(cameraPreviousPosition.y, cameraTargetPosition.y, alpha);
-				camera.position.set(x, y, 0);
-			}
-		} else {
-			// Just follow the target directly
-			camera.position.set(cameraTargetPosition.x, cameraTargetPosition.y, 0);
-		}
-
-		// Apply scaling to match world units
-		camera.position.x *= level.getTileSize();
-		camera.position.y *= level.getTileSize();
-
-		// Update the camera
-		camera.update();
-	}
-
-
-	void updateGuards(Array<Guard> guards) {
-        for (Guard guard : guards) {
-            moveGuard(guard);
-        }
-	}
-
-
-	void moveGuard(Guard guard) {
-        Vector2 direction = guard.getMovementDirection();
-        if(direction == null){ //ideally should never be null.
-            System.out.println("Guard direction is null");
-            return;
-        }
-
-		if (direction.len() > 0) {
-			direction.nor().scl(guard.getForce());
-
-            float radius = ((WheelObstacle) guard.getObstacle()).getRadius();
-            float speedScale = (float)(16 * Math.pow( (radius/ .8f) , 2));
-//            direction.scl(speedScale);
-
-			if (guard.isMeowed()) {
-				direction.scl(3f * speedScale);
-			} else if (guard.isCameraAlerted()) {
-                direction.scl(12f * speedScale);
-            }
-            else if (guard.isAgroed()) {
-				direction.scl(6.5f * speedScale);
-			} else if (guard.isSus()) {
-                direction.scl(6f * speedScale);
-            } else {
-                // guard is normally walking
-                direction.scl(5f * speedScale);
-            }
-
-            // Regardless of any other guard states, lower speed
-            // if the guard is inked
-            if (guard.isInkBlinded()) {
-                direction.scl(.5f);
-            }
-
-            guard.setMovement(direction.x, direction.y);
-		}
-
-		// Update the guard's orientation to face the direction of movement.
-		Vector2 movement = guard.getMovementDirection();
-//		if (movement.len2() > 0.0001f) { // Only update if there is significant movement
-//			guard.setAngle(movement.angleRad() - (float) Math.PI/2);
-//		}
-		guard.applyForce();
-	}
-
+    // -----------------Helper Methods--------------------//
 
     /**
      * Called when the Screen is resized.
@@ -817,267 +443,282 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         // IGNORE FOR NOW
     }
 
-	/**
-	 * Called when the Screen is paused.
-	 *
-	 * This is usually when it's not active or visible on screen. An Application is
-	 * also paused before it is destroyed.
-	 */
-	public void pause() {
-		// TODO Auto-generated method stub
-        soundController.pauseMusic();
-	}
-
-	/**
-	 * Called when the Screen is resumed from a paused state.
-	 *
-	 * This is usually when it regains focus.
-	 */
-	public void resume() {
-		// TODO Auto-generated method stub
-        soundController.resumeMusic();
-	}
-
-	/**
-	 * Called when this screen becomes the current screen for a Game.
-	 */
-	public void show() {
-		// Useless if called in outside animation loop
-		active = true;
-        soundController.playMusic("game-music", true);
-	}
-
-	/**
-	 * Called when this screen is no longer the current screen for a Game.
-	 */
-	public void hide() {
-		// Useless if called in outside animation loop
-		active = false;
-        soundController.stopMusic();
-	}
-
-	/**
-	 * Sets the ScreenListener for this mode
-	 *
-	 * The ScreenListener will respond to requests to quit.
-	 */
-	public void setScreenListener(ScreenListener listener) {
-		this.listener = listener;
-	}
-
-
-
-	/**
-	 * Callback method for the start of a collision
-	 *
-	 * This method is called when we first get a collision between two objects. We
-	 * use
-	 * this method to test if it is the "right" kind of collision. In particular, we
-	 * use it to test if we made it to the win door.
-	 *
-	 * @param contact The two bodies that collided
-	 */
-	public void beginContact(Contact contact) {
-		Fixture fix1 = contact.getFixtureA();
-		Fixture fix2 = contact.getFixtureB();
-
-		Body body1 = fix1.getBody();
-		Body body2 = fix2.getBody();
-
-		Object fd1 = fix1.getUserData();
-		Object fd2 = fix2.getUserData();
-
-        boolean gameOver = countdown != -1;
-        if (gameOver) return;
-
-        try {
-
-            Obstacle o1 = (Obstacle) body1.getUserData();
-            Obstacle o2 = (Obstacle) body2.getUserData();
-
-            Obstacle cat = level.getCat().getObstacle();
-            Obstacle oct = level.getOctopus().getObstacle();
-            Obstacle exit = level.getExit().getObstacle();
-			Obstacle projectile = level.getProjectile().getObstacle();
-
-            Array<Guard> guards = level.getGuards();
-
-			if ((o1 == projectile || o2 == projectile)) {
-				Array<SecurityCamera> secCameras = level.getSecurityCameras();
-				for (int i = 0; i < secCameras.size; i++) {
-					SecurityCamera cam = secCameras.get(i);
-					Obstacle camObstacle = cam.getObstacle();
-					if (o1 == camObstacle || o2 == camObstacle) {
-						cam.disable();
-                        contact.setEnabled(false);
-						break;
-					}
-				}
-                for (Guard guard : guards) {
-                    Obstacle enemy = guard.getObstacle();
-                    if (o1 == enemy || o2 == enemy){
-                        applyInkEffect(guard);
-                    }
-                }
-                level.getProjectile().setShouldDestroy(true);
-			}
-
-
-            for(Guard guard : guards){
-                Obstacle enemy = guard.getObstacle();
-                if((o1 == cat && o2 == enemy) || (o2 == cat && o1 == enemy) || (o1 == oct && o2 == enemy) || (o2 == oct && o1 == enemy)){
-                    setFailure(true);
-                    gameLost = true;
-                }
-            }
-
-            // CAT
-            for(Key key : level.getKeys()) {
-                if (key.isCollected()) { continue;} //skip if the key is not collected
-
-                Obstacle keyObs = key.getObstacle();
-                if ((o1 == cat && o2 == keyObs) || (o2 == cat && o1 == keyObs)) {
-                    key.setCollected(true);
-                    key.setOwner(AvatarType.CAT);
-                    level.getCat().assignKey(key);
-                }
-            }
-
-            // OCTOPUS
-            for(Key key : level.getKeys()) {
-                if (key.isCollected()) { continue;} //skip if the key is not collected
-
-                Obstacle keyObs = key.getObstacle();
-                if ((o1 == oct && o2 == keyObs) || (o2 == oct && o1 == keyObs)) {
-                    key.setCollected(true);
-                    key.setOwner(AvatarType.OCTOPUS);
-                    level.getOctopus().assignKey(key);
-                }
-            }
-
-            ObjectMap<Door, Key> doors = level.getDoors();
-            for(Door door : doors.keys()) {
-
-                doors.get(door);
-                Obstacle doorObs = door.getObstacle();
-                Key rightKey = doors.get(door);
-
-                if (o1 == doorObs || o2 == doorObs) {
-                    Obstacle other = (o1 == doorObs) ? o2 : o1;
-
-                    boolean canUnlock =
-                        (other == cat   && level.getCat().getKeys().contains(rightKey, true))
-                            || (other == oct  && level.getOctopus().getKeys().contains(rightKey, true));
-
-                    if (canUnlock && rightKey.isCollected() && !rightKey.isUsed() && door.isLocked()) {
-                        door.setUnlocking(true);
-                    }
-                }
-
-            }
-
-            // Handle exit collision (only if door is unlocked)
-            if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
-                catArrived = true;
-            }
-
-            if((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)){
-                octopusArrived = true;
-            }
-
-            if(catArrived && octopusArrived && !failed){
-                setComplete(true);
-            }
-
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-    private void applyInkEffect(Guard guard) {
-        System.out.println("Guard hit by ink!");
-        // Set ink effect duration (in seconds)
-        final float INK_EFFECT_DURATION = 5.0f;
-
-        // Store original vision parameters and apply reduction
-        guard.setInkBlinded(true);
-        guard.setInkBlindTimer(INK_EFFECT_DURATION);
-
-        final float MIN_VIEW_DISTANCE = 3f;
-        final float MIN_FOV = 50f;
-
-        // Reduce the view distance and FOV angle with minimum thresholds
-        float reducedViewDistance = Math.max(guard.getViewDistance() * 0.6f, MIN_VIEW_DISTANCE);
-        float reducedFov = Math.max(guard.getFov() * 0.6f, MIN_FOV);
-        // Reduce the view distance and FOV angle
-        guard.setTempViewDistance(reducedViewDistance); // 60% reduction
-        guard.setTempFov(reducedFov); // 60% reduction
+    /**
+     * Called when the Screen is paused.
+     *
+     * This is usually when it's not active or visible on screen. An Application is
+     * also paused before it is destroyed.
+     */
+    public void pause() {
     }
 
-	/** Unused ContactListener method */
-	public void endContact(Contact contact) {
+    /**
+     * Called when the Screen is resumed from a paused state.
+     *
+     * This is usually when it regains focus.
+     */
+    public void resume() {
+    }
+
+    /**
+     * Called when this screen becomes the current screen for a Game.
+     */
+    public void show() {
+        // Useless if called in outside animation loop
+        active = true;
+        // soundController.playMusic("game-music", true);
+        soundController.stopMusic();
+
+        // Then start the game music with a slight delay to prevent audio glitches
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                soundController.playMusic("game-music", true);
+            }
+        }, 0.1f);
+    }
+
+    /**
+     * Called when this screen is no longer the current screen for a Game.
+     */
+    public void hide() {
+        // Useless if called in outside animation loop
+        active = false;
+        soundController.stopMusic();
+    }
+
+    /**
+     * Sets the ScreenListener for this mode
+     *
+     * The ScreenListener will respond to requests to quit.
+     */
+    public void setScreenListener(ScreenListener listener) {
+        this.listener = listener;
+    }
+
+    /**
+     * Callback method for the start of a collision
+     *
+     * This method is called when we first get a collision between two objects. We
+     * use
+     * this method to test if it is the "right" kind of collision. In particular, we
+     * use it to test if we made it to the win door.
+     *
+     * @param contact The two bodies that collided
+     */
+    public void beginContact(Contact contact) {
         Fixture fix1 = contact.getFixtureA();
         Fixture fix2 = contact.getFixtureB();
 
         Body body1 = fix1.getBody();
         Body body2 = fix2.getBody();
 
-        Object fd1 = fix1.getUserData();
-        Object fd2 = fix2.getUserData();
+        boolean gameOver = countdown != -1;
+        if (gameOver)
+            return;
+
+        try {
+            Obstacle o1 = (Obstacle) body1.getUserData();
+            Obstacle o2 = (Obstacle) body2.getUserData();
+
+            Obstacle cat = level.isCatPresent() ? level.getCat().getObstacle() : null;
+            Obstacle oct = level.isOctopusPresent() ? level.getOctopus().getObstacle() : null;
+            Obstacle exit = level.getExit().getObstacle();
+            Obstacle projectile = level.getProjectile().getObstacle();
+
+            Array<Guard> guards = level.getGuards();
+
+            if ((o1 == projectile || o2 == projectile)) {
+                Array<SecurityCamera> secCameras = level.getSecurityCameras();
+                for (int i = 0; i < secCameras.size; i++) {
+                    SecurityCamera cam = secCameras.get(i);
+                    Obstacle camObstacle = cam.getObstacle();
+                    if (o1 == camObstacle || o2 == camObstacle) {
+                        cam.disable();
+                        contact.setEnabled(false);
+                        break;
+                    }
+                }
+                for (Guard guard : guards) {
+                    Obstacle enemy = guard.getObstacle();
+                    if (o1 == enemy || o2 == enemy) {
+                        applyInkEffect(guard);
+                    }
+                }
+                level.getProjectile().setShouldDestroy(true);
+            }
+
+            for (Guard guard : guards) {
+                Obstacle enemy = guard.getObstacle();
+                if ((o1 == cat && o2 == enemy) || (o2 == cat && o1 == enemy) || (o1 == oct && o2 == enemy)
+                        || (o2 == oct && o1 == enemy)) {
+                    if (Constants.INVINCIBLE) {
+                        contact.setEnabled(false);
+                    } else {
+                        setFailure(true);
+                        gameLost = true;
+                    }
+                }
+            }
+
+            // CAT
+            for (Key key : level.getKeys()) {
+                if (key.isCollected()) {
+                    continue;
+                } // skip if the key is not collected
+
+                Obstacle keyObs = key.getObstacle();
+                if ((o1 == cat && o2 == keyObs) || (o2 == cat && o1 == keyObs)) {
+                    key.setCollected(true);
+                    level.getCat().increaseNumKeys();
+
+                    // TODO: Verify that the code below can be safely removed
+                    key.setOwner(AvatarType.CAT);
+                    level.getCat().assignKey(key);
+                }
+            }
+
+            // OCTOPUS
+            for (Key key : level.getKeys()) {
+                if (key.isCollected()) {
+                    continue;
+                } // skip if the key is not collected
+
+                Obstacle keyObs = key.getObstacle();
+                if ((o1 == oct && o2 == keyObs) || (o2 == oct && o1 == keyObs)) {
+                    key.setCollected(true);
+                    level.getOctopus().increaseNumKeys();
+
+                    // TODO: Verify that the code below can be safely removed
+                    key.setOwner(AvatarType.OCTOPUS);
+                    level.getOctopus().assignKey(key);
+
+                }
+            }
+
+            PooledList<Door> doors = level.getDoors();
+            for (Door door : doors) {
+                Obstacle doorObs = door.getObstacle();
+
+                if (o1 == doorObs || o2 == doorObs) {
+                    DebugPrinter.println("Door collision");
+                    Obstacle other = (o1 == doorObs) ? o2 : o1;
+
+                    // Check if playable character has a key
+                    boolean canUnlock = (other == cat && level.getCat().getNumKeys() > 0)
+                            || (other == oct && level.getOctopus().getNumKeys() > 0);
+
+                    if (canUnlock && door.isLocked()) {
+                        DebugPrinter.println("Unlocking door");
+                        door.setUnlocking(true);
+                        door.setUnlocker(level.getAvatar());
+                    }
+                }
+
+            }
+
+            // Handle exit collision (only if door is unlocked)
+            if ((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)) {
+                catArrived = true;
+                checkWinCondition();
+            }
+
+            if ((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)) {
+                octopusArrived = true;
+                checkWinCondition();
+            }
+
+            if (catArrived && octopusArrived && !failed) {
+                setComplete(true);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void checkWinCondition() {
+        if (!failed) {
+            boolean levelComplete = false;
+
+            if (level.isCatPresent() && level.isOctopusPresent()) {
+                // Both characters present - need both to reach exit
+                levelComplete = catArrived && octopusArrived;
+            } else if (level.isCatPresent()) {
+                // Only cat present
+                levelComplete = catArrived;
+            } else if (level.isOctopusPresent()) {
+                // Only octopus present
+                levelComplete = octopusArrived;
+            }
+
+            if (levelComplete) {
+                setComplete(true);
+            }
+        }
+    }
+
+    /** Unused ContactListener method */
+    public void endContact(Contact contact) {
+        Fixture fix1 = contact.getFixtureA();
+        Fixture fix2 = contact.getFixtureB();
+
+        Body body1 = fix1.getBody();
+        Body body2 = fix2.getBody();
 
         try {
 
             Obstacle o1 = (Obstacle) body1.getUserData();
             Obstacle o2 = (Obstacle) body2.getUserData();
 
-            Obstacle cat = level.getCat().getObstacle();
-            Obstacle oct = level.getOctopus().getObstacle();
+            Obstacle cat = null;
+            if (level.getCat() != null) {
+                cat = level.getCat().getObstacle();
+            }
+            Obstacle oct = null;
+            if (level.getOctopus() != null) {
+                level.getOctopus().getObstacle();
+            }
             Obstacle exit = level.getExit().getObstacle();
 
-            ObjectMap<Door,Key> doors = level.getDoors();
+            PooledList<Door> doors = level.getDoors();
 
-            for(Door door : doors.keys()) {
-
-                doors.get(door);
+            for (Door door : doors) {
                 Obstacle doorObs = door.getObstacle();
-                Key rightKey = doors.get(door);
 
+                // Check if there is door that should stop being unlocked
                 if (o1 == doorObs || o2 == doorObs) {
                     Obstacle other = (o1 == doorObs) ? o2 : o1;
 
-                    boolean canUnlock =
-                        (other == cat   && level.getCat().getKeys().contains(rightKey, true))
-                            || (other == oct  && level.getOctopus().getKeys().contains(rightKey, true));
+                    boolean canUnlock = (other == cat && level.getCat().getNumKeys() > 0)
+                            || (other == oct && level.getOctopus().getNumKeys() > 0);
 
-                    if (canUnlock && rightKey.isCollected() && !rightKey.isUsed() && door.isLocked()) {
+                    if (canUnlock && door.isLocked()) {
                         door.setUnlocking(false);
                     }
                 }
             }
 
-
-            if((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)){
+            if ((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)) {
                 catArrived = false;
             }
 
-            if((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)){
+            if ((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)) {
                 octopusArrived = false;
             }
-
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-	}
+    }
 
-	/** Unused ContactListener method */
-	public void postSolve(Contact contact, ContactImpulse impulse) {
-	}
+    /** Unused ContactListener method */
+    public void postSolve(Contact contact, ContactImpulse impulse) {
+    }
 
-	/** Unused ContactListener method */
-	public void preSolve(Contact contact, Manifold oldManifold) {
-	}
+    /** Unused ContactListener method */
+    public void preSolve(Contact contact, Manifold oldManifold) {
+    }
 
     /**
      * Returns true if the level is completed.
@@ -1090,15 +731,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         return complete;
     }
 
-    /**
-     * Sets whether the level is completed.
-     *
-     * If true, the level will advance after a countdown
-     *
-     * @param value whether the level is completed.
-     */
-    private boolean octopusArrived = false;
-    private boolean catArrived = false;
     public void setComplete(boolean value) {
         if (value) {
             countdown = EXIT_COUNT;
@@ -1142,10 +774,407 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     /**
      * Sets the levelID
-     * */
-    public void setCurrentLevel(int v){
+     */
+    public void setCurrentLevel(int v) {
         currentLevel = v;
     }
 
+    void updateGuards(Array<Guard> guards) {
+        for (Guard guard : guards) {
+            moveGuard(guard);
+        }
+    }
+
+    void moveGuard(Guard guard) {
+        Vector2 direction = guard.getMovementDirection();
+        if (direction == null) { // ideally should never be null.
+            DebugPrinter.println("Guard direction is null");
+            return;
+        }
+
+        if (direction.len() > 0) {
+            // Use math formula cale the force based on the radius
+            // This allows the radius to be changed, without affected
+            float radius = ((WheelObstacle) guard.getObstacle()).getRadius();
+            direction.nor().scl((float) (MOVEMENT_SCALE * Math.pow((radius / .5f), 2)));
+
+            if (guard.isMeowed()) {
+                direction.scl(guard.getDistractedForce());
+            } else if (guard.isCameraAlerted()) {
+                direction.scl(guard.getAlertedForce());
+            } else if (guard.isAgroed()) {
+                direction.scl(guard.getAgroedForce());
+            } else if (guard.isSus()) {
+                direction.scl(guard.getSusForce());
+            } else {
+                // if the guard is not in any special state, apply normal force
+                direction.scl(guard.getForce());
+            }
+
+            // Regardless of any other guard states, lower speed
+            // if the guard is inked
+            if (guard.isInkBlinded()) {
+                direction.scl(guard.getBlindedForceScale());
+            }
+
+            guard.setMovement(direction.x, direction.y);
+        }
+
+        guard.applyForce();
+    }
+
+    private void updateSecurityCameraVisionCones() {
+        vec2tmp2.set(0, 0);
+        vec2tmp3.set(0, 0);
+        ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
+        for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
+            if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
+                Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : vec2tmp2;
+                Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : vec2tmp3;
+                if ((level.isCatPresent() && entry.value.contains(catPos))
+                        || (level.isOctopusPresent() && entry.value.contains(octPos))) {
+
+                    ((SecurityCamera) entry.key).activateRing();
+
+                    Avatar detectedPlayer = entry.value.contains(catPos) ? level.getCat() : level.getOctopus();
+
+                    detectedPlayer.setUnderCamera(true);
+
+                    for (Guard guard : level.getGuards()) {
+                        float guardToCameraDistance = guard.getPosition()
+                                .dst(((SecurityCamera) entry.key).getPosition());
+                        if (guardToCameraDistance <= ((SecurityCamera) entry.key).getAlarmDistance()) {
+                            guard.setAggroTarget(detectedPlayer);
+                            guard.setCameraAlerted(true);
+
+                            // Optionally set target position directly if needed
+                            guard.setTarget(detectedPlayer.getPosition());
+                        }
+                    }
+                } else {
+                    if (level.isCatPresent()) {
+                        level.getCat().setUnderCamera(false);
+                    }
+                    if (level.isOctopusPresent()) {
+                        level.getOctopus().setUnderCamera(false);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Checks if the player is in the vision cones of any guards and updates their
+     * states accordingly.
+     * This function specifically handles guard vision detection, separate from
+     * security cameras.
+     */
+    private void updateGuardVisionCones(float dt) {
+        vec2tmp2.set(0, 0);
+        vec2tmp3.set(0, 0);
+        ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
+
+        for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
+            // Skip if not a guard
+            if (!(entry.key instanceof Guard)) {
+                continue;
+            }
+
+            Guard guard = (Guard) entry.key;
+            VisionCone visionCone = entry.value;
+
+            visionCone.setRadius(guard.getViewDistance());
+            visionCone.setWideness(guard.getFov());
+
+            Vector2 movementDir = guard.getMovementDirection();
+            visionCone.updateFacingDirection(dt, movementDir);
+
+            Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : vec2tmp2;
+            Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : vec2tmp3;
+
+            // Check if cat is detected
+            if (level.isCatPresent() && visionCone.contains(catPos)) {
+                guard.setAgroed(true);
+                guard.setAggroTarget(level.getCat());
+                guard.setTarget(level.getCat().getPosition());
+                level.getCat().setUnderVisionCone(true);
+                guard.setSeesPlayer(true);
+                guard.setSeenPlayer(level.getCat());
+                // DebugPrinter.println("Guard detected cat: " + guard.getAggroTarget());
+            }
+
+            // Check if octopus is detected
+            else if (level.isOctopusPresent() && visionCone.contains(octPos)) {
+                guard.setAgroed(true);
+                guard.setAggroTarget(level.getOctopus());
+                guard.setTarget(level.getOctopus().getPosition());
+                level.getOctopus().setUnderVisionCone(true);
+                guard.setSeesPlayer(true);
+                guard.setSeenPlayer(level.getOctopus());
+                // DebugPrinter.println("Guard detected octopus: " + guard.getAggroTarget());
+            }
+            // No player detected
+            else {
+                // Only set to false if the guard isn't being alerted by a camera
+                if (level.isOctopusPresent()) {
+                    level.getOctopus().setUnderVisionCone(false);
+                }
+                if (level.isCatPresent()) {
+                    level.getCat().setUnderVisionCone(false);
+                }
+                guard.setSeesPlayer(false);
+                guard.setSeenPlayer(null);
+                if (!guard.isCameraAlerted()) {
+                    guard.setAgroed(false);
+                }
+            }
+        }
+    }
+
+    /**
+     * Applies movement forces to the avatar and change firing states.
+     */
+    private void processPlayerAction(InputController input, float dt) {
+        vec3tmp.setZero();
+        vec2tmp.setZero();
+
+        if (input.didSwap()) {
+            onSwap(input);
+        }
+
+        Avatar avatar = level.getAvatar();
+        float vertical = input.getVertical();
+        float horizontal = input.getHorizontal();
+        if (avatar != level.getInactiveAvatar()) {
+            moveAvatar(vertical, horizontal, avatar);
+        }
+        if (level.isOctopusPresent()) {
+            level.getOctopus().regenerateInk(dt);
+        }
+
+        if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
+            Octopus octopus = (Octopus) avatar;
+            vec3tmp.set(input.getAiming(), 0);
+            vec3tmp = camera.unproject(vec3tmp);
+            vec2tmp.set(vec3tmp.x, vec3tmp.y)
+                    .scl(1.0f / level.getTileSize())
+                    .sub(octopus.getPosition())
+                    .clamp(0.0f, octopus.getAbilityRange()); // this decides the distance for projectile to travel
+            octopus.setTarget(vec2tmp); // set a target vector relative to octopus's position as origin.
+
+            if (input.didAbility() && octopus.canUseAbility()) { // check for ink resource here.
+                octopus.setCurrentlyAiming(!octopus.isCurrentlyAiming()); // turn the reticle on and off
+            }
+
+            if (octopus.isCurrentlyAiming() && input.didLeftClick()) {
+                octopus.setDidFire(true);
+                octopus.setCurrentlyAiming(false);
+                octopus.consumeInk();
+            } else {
+                octopus.setDidFire(false);
+            }
+
+        } else if (avatar.getAvatarType() == AvatarType.CAT) {
+            Cat cat = (Cat) avatar;
+
+            if (input.isAbilityHeld() && cat.canUseAbility()) {
+                cat.setCurrentlyAiming(true);
+            }
+
+            if (cat.isCurrentlyAiming() && !input.isAbilityHeld()) {
+                cat.setDidFire(true);
+                cat.setCurrentlyAiming(false);
+                soundController.playCatMeow();
+            } else {
+                cat.setDidFire(false);
+            }
+        }
+
+        vec3tmp.setZero();
+        vec2tmp.setZero();
+    }
+
+    /**
+     * Applies movement forces to NPCs.
+     * Does NOT modify internal states of the NPCs. That is the
+     * responsibility of ContactListener
+     */
+    private void processNPCAction(float dt) {
+        Octopus octopus = level.getOctopus();
+        InkProjectile inkProjectile = level.getProjectile();
+        PooledList<Door> doors = level.getDoors();
+
+        // Projectiles
+        // TODO: not sure about the order of if statements here.
+        if (inkProjectile.getShouldDestroy()) {
+            inkProjectile.destroy();
+        }
+
+        if (level.isOctopusPresent() && octopus.didFire()) {
+            activateInkProjectile(inkProjectile, octopus.getPosition(), octopus.getTarget());
+        }
+
+        if (level.isOctopusPresent()
+                && inkProjectile.getPosition().dst(inkProjectile.getStartPosition()) > octopus.getAbilityRange()) {
+            inkProjectile.setShouldDestroy(true);
+        }
+
+        Array<Guard> guards = level.getGuards();
+        updateGuards(guards);
+
+        // TODO: Might need to comment out again
+        for (Door door : level.getDoors()) {
+            if (!door.isLocked()) {
+                Vector2 doorPos = door.getObstacle().getPosition();
+                graph.getNode((int) doorPos.x, (int) doorPos.y).isWall = false;
+            }
+
+            if (!door.isUnlocking()) {
+                door.resetTimer();
+            }
+        }
+
+    }
+
+    private void updateGuardAI() {
+        guardToAIController.forEach((guard, controller) -> {
+            controller.update();
+            guard.think(controller.getMovementDirection(), controller.getNextTargetLocation());
+        });
+    }
+
+    private void resetAvatarState(PlayableAvatar avatar) {
+        avatar.setCurrentlyAiming(false);
+        avatar.resetPhysics();
+    }
+
+    private void onSwap(InputController input) {
+        if (input.didSwap() && !inCameraTransition && level.isCatPresent() && level.isOctopusPresent()) {
+            resetAvatarState(level.getAvatar());
+            resetAvatarState(level.getInactiveAvatar());
+            // Save previous camera position before swapping
+            cameraPreviousPosition.set(cameraTargetPosition);
+
+            // swap the active character
+            level.swapActiveAvatar();
+
+            // Start camera transition
+            cameraTransitionTimer = 0;
+            inCameraTransition = true;
+        }
+    }
+
+    /**
+     * @param verticalForce
+     * @param horizontalForce
+     * @param avatar
+     */
+    private void moveAvatar(float verticalForce, float horizontalForce, Avatar avatar) {
+        // Rotate the avatar to face the direction of movement
+        angleCache.set(horizontalForce, verticalForce);
+        if (angleCache.len2() > 0.0f) {
+            // Prevent faster movement when going diagonallyd
+            if (angleCache.len() > 1.0f) {
+                angleCache.nor();
+            }
+
+            float angle = angleCache.angleDeg();
+            // Convert to radians with up as 0
+            angle = (float) Math.PI * (angle - 90.0f) / 180.0f;
+            avatar.getObstacle().setAngle(angle);
+        }
+        float radius = ((WheelObstacle) avatar.getObstacle()).getRadius();
+
+        angleCache.scl(avatar.getForce())
+            .scl(MOVEMENT_SCALE)
+            .scl((float) Math.pow( (radius/ .4f) , 2)); // Scale the force based on the radius
+
+        avatar.setMovement(angleCache.x, angleCache.y);
+        avatar.applyForce();
+    }
+
+    private void activateInkProjectile(InkProjectile projectile, Vector2 origin, Vector2 target) {
+        projectile.activate();
+        projectile.setPosition(origin);
+        projectile.setStartPosition(origin);
+        projectile.setEndPosition(target);
+        projectile.setMovement(target.nor());
+        projectile.applyForce();
+    }
+
+    /**
+     * Updates the camera position with interpolation when transitioning
+     */
+    private void updateCamera(float dt) {
+        PlayableAvatar avatar = level.getAvatar();
+        if (avatar.isCurrentlyAiming()) {
+            camera.zoom = Math.min(1.2f, camera.zoom + 0.01f);
+        } else {
+            camera.zoom = Math.max(1.0f, camera.zoom - 0.005f);
+        }
+
+        cameraTargetPosition.set(avatar.getPosition());
+
+        // Get viewport dimensions in world units
+        float viewWidth = camera.viewportWidth / level.getTileSize();
+        float viewHeight = camera.viewportHeight / level.getTileSize();
+
+        // Calculate soft boundaries that allow partial dead space
+        float minX = level.getBounds().x + (viewWidth * 0.5f * camera.zoom);
+        float maxX = level.getBounds().x + (level.getBounds().width) - (viewWidth * 0.5f * camera.zoom);
+        float minY = level.getBounds().y + (viewHeight * 0.5f * camera.zoom);
+        float maxY = level.getBounds().y + (level.getBounds().height) - (viewHeight * 0.5f * camera.zoom);
+
+        // Clamp camera position with soft boundaries
+        cameraTargetPosition.x = Math.max(minX, Math.min(cameraTargetPosition.x, maxX));
+        cameraTargetPosition.y = Math.max(minY, Math.min(cameraTargetPosition.y, maxY));
+
+        if (inCameraTransition) {
+            // Update transition timer
+            cameraTransitionTimer += dt;
+
+            if (cameraTransitionTimer >= cameraTransitionDuration) {
+                // Transition complete
+                inCameraTransition = false;
+                camera.position.set(cameraTargetPosition.x, cameraTargetPosition.y, 0);
+            } else {
+                // Calculate interpolated position
+                float alpha = cameraTransitionTimer / cameraTransitionDuration;
+                float x = Interpolation.smooth.apply(cameraPreviousPosition.x, cameraTargetPosition.x, alpha);
+                float y = Interpolation.smooth.apply(cameraPreviousPosition.y, cameraTargetPosition.y, alpha);
+                camera.position.set(x, y, 0);
+            }
+        } else {
+            // Just follow the target directly
+            camera.position.set(cameraTargetPosition.x, cameraTargetPosition.y, 0);
+        }
+
+        // Apply scaling to match world units
+        camera.position.x *= level.getTileSize();
+        camera.position.y *= level.getTileSize();
+
+        // Update the camera
+        camera.update();
+    }
+
+    private void applyInkEffect(Guard guard) {
+        DebugPrinter.println("Guard hit by ink!");
+        // Set ink effect duration (in seconds)
+        final float INK_EFFECT_DURATION = 5.0f;
+
+        // Store original vision parameters and apply reduction
+        guard.setInkBlinded(true);
+        guard.setInkBlindTimer(INK_EFFECT_DURATION);
+
+        final float MIN_VIEW_DISTANCE = 3f;
+        final float MIN_FOV = 50f;
+
+        // Reduce the view distance and FOV angle with minimum thresholds
+        float reducedViewDistance = Math.max(guard.getViewDistance() * 0.6f, MIN_VIEW_DISTANCE);
+        float reducedFov = Math.max(guard.getFov() * 0.6f, MIN_FOV);
+        // Reduce the view distance and FOV angle
+        guard.setTempViewDistance(reducedViewDistance); // 60% reduction
+        guard.setTempFov(reducedFov); // 60% reduction
+    }
 
 }

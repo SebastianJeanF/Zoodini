@@ -135,7 +135,7 @@ public class InkProjectile extends ZoodiniSprite {
         obstacle.setRestitution(json.getFloat("restitution"));
         obstacle.setPhysicsUnits(units);
 
-        short collideBits = GameLevel.bitStringToShort(json.getString("collide"));
+        short collideBits = GameLevel.bitStringToShort(json.getString("category"));
         short excludeBits = GameLevel.bitStringToComplement(json.getString("exclude"));
         Filter filter = new Filter();
         filter.categoryBits = collideBits;
@@ -151,10 +151,10 @@ public class InkProjectile extends ZoodiniSprite {
         animationController = new AnimationController(AnimationState.IDLE);
     }
 
-    public void setAnimation(AnimationState state, SpriteSheet sheet){
+    public void setAnimation(AnimationState state, SpriteSheet sheet, int frameDelay){
         switch(state){
-            case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
-            case EXPLODE -> animationController.addAnimation(AnimationState.EXPLODE, new Animation(sheet, 0, sheet.getSize()-1, 30 / sheet.getSize(), true));
+            case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, frameDelay, true));
+            case EXPLODE -> animationController.addAnimation(AnimationState.EXPLODE, new Animation(sheet, 0, sheet.getSize()-1, frameDelay, true));
         }
     }
 

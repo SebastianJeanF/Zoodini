@@ -85,6 +85,33 @@ public class InputController extends InputAdapter {
 	XBoxController xbox;
 
 	/**
+	 * Creates a new input controller
+	 *
+	 * The input controller attempts to connect to the X-Box controller at device 0,
+	 * if it exists. Otherwise, it falls back to the keyboard control.
+	 */
+	public InputController() {
+		// If we have a game-pad for id, then use it.
+		Array<XBoxController> controllers = Controllers.get().getXBoxControllers();
+		if (controllers.size > 0) {
+			xbox = controllers.get(0);
+		} else {
+			xbox = null;
+		}
+		aiming = new Vector2();
+		abilityKey = Input.Keys.E;
+		swapKey = Input.Keys.SPACE;
+	}
+
+	public int getAbilityKey() {
+		return abilityKey;
+	}
+
+	public int getSwapKey() {
+		return swapKey;
+	}
+
+	/**
 	 * Returns the amount of sideways movement.
 	 *
 	 * -1 = left, 1 = right, 0 = still
@@ -192,25 +219,6 @@ public class InputController extends InputAdapter {
 
 	public void setSwapKey(int keycode) {
 		swapKey = keycode;
-	}
-
-	/**
-	 * Creates a new input controller
-	 *
-	 * The input controller attempts to connect to the X-Box controller at device 0,
-	 * if it exists. Otherwise, it falls back to the keyboard control.
-	 */
-	public InputController() {
-		// If we have a game-pad for id, then use it.
-		Array<XBoxController> controllers = Controllers.get().getXBoxControllers();
-		if (controllers.size > 0) {
-			xbox = controllers.get(0);
-		} else {
-			xbox = null;
-		}
-		aiming = new Vector2();
-		abilityKey = Input.Keys.E;
-		swapKey = Input.Keys.SPACE;
 	}
 
 	/**

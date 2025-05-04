@@ -1,24 +1,16 @@
-package edu.cornell.cis3152.lighting.utils;
+package walknroll.zoodini.utils;
 
 public class DebugPrinter {
-    // Flag to control whether debug output is enabled.
-    private static boolean debugEnabled = true;
-
-    // Setter to control debug mode.
-    public static void setDebugEnabled(boolean enabled) {
-        debugEnabled = enabled;
-    }
-
-    // Wrapper for System.out.println()
+    // Wrapper for DebugPrinter.println()
     public static void println(String message) {
-        if (debugEnabled) {
+        if (Constants.DEBUG) {
             System.out.println(message);
         }
     }
 
     // Wrapper for System.out.print()
     public static void print(String message) {
-        if (debugEnabled) {
+        if (Constants.DEBUG) {
             System.out.print(message);
         }
     }

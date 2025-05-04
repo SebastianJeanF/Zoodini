@@ -11,8 +11,11 @@ package walknroll.zoodini;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.JsonValue;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
@@ -20,9 +23,17 @@ import edu.cornell.gdiac.graphics.SpriteSheet;
 import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.controllers.SoundController;
-import walknroll.zoodini.controllers.screens.*;
+import walknroll.zoodini.controllers.screens.CreditsScene;
+import walknroll.zoodini.controllers.screens.GameOverScene;
+import walknroll.zoodini.controllers.screens.GameScene;
+import walknroll.zoodini.controllers.screens.GameWinScene;
+import walknroll.zoodini.controllers.screens.LevelSelectScene;
+import walknroll.zoodini.controllers.screens.MenuScene;
+import walknroll.zoodini.controllers.screens.SettingsScene;
+import walknroll.zoodini.controllers.screens.StoryboardScene;
 import walknroll.zoodini.models.entities.Guard;
 import walknroll.zoodini.utils.GameSettings;
+import walknroll.zoodini.utils.GameState;
 import walknroll.zoodini.utils.LevelPortal;
 
 /**
@@ -47,6 +58,9 @@ public class GDXRoot extends Game implements ScreenListener {
 	public static final int EXIT_WIN = 7;
 	public static final int EXIT_STORYBOARD = 8;
 
+	private static final String SETTINGS_PREFERENCES_FILENAME = "zoodini-settings";
+	private static final String STATE_PREFERENCES_FILENAME = "zoodini-state";
+
 	/** AssetManager to load game assets (textures, data, etc.) */
 	AssetDirectory directory;
 	/** Drawing context to display graphics (VIEW CLASS) */
@@ -62,9 +76,11 @@ public class GDXRoot extends Game implements ScreenListener {
 	private LevelSelectScene levelSelect;
 	private StoryboardScene storyBoard;
 
+	private Preferences settingsPrefs;
 	private GameSettings gameSettings;
 
-	private boolean storyboardSeen = false;
+	private Preferences statePrefs;
+	private GameState gameState;
 
 	/**
 	 * Creates a new game from the configuration settings.
@@ -81,7 +97,13 @@ public class GDXRoot extends Game implements ScreenListener {
 	public void create() {
 		batch = new SpriteBatch();
 		directory = new AssetDirectory("jsons/assets.json");
-		gameSettings = new GameSettings();
+		settingsPrefs = Gdx.app.getPreferences(SETTINGS_PREFERENCES_FILENAME);
+		gameSettings = new GameSettings(settingsPrefs);
+		applyGameSettings();
+
+		statePrefs = Gdx.app.getPreferences(STATE_PREFERENCES_FILENAME);
+		gameState = new GameState(statePrefs);
+
 		loading = new MenuScene(directory, batch, 1);
 
 		loading.setScreenListener(this);
@@ -163,16 +185,13 @@ public class GDXRoot extends Game implements ScreenListener {
 		} else if (screen == settings) {
 			// extract settings info from settings screen here
 			gameSettings = settings.getSettings();
-			InputController.getInstance().setAbilityKey(gameSettings.getAbilityKey());
-			InputController.getInstance().setSwapKey(gameSettings.getSwapKey());
-			switch (gameSettings.getResolution()) {
-				case SMALL -> Gdx.graphics.setWindowedMode(1280, 720);
-				case BIG -> Gdx.graphics.setWindowedMode(1920, 1080);
-				case FULLSCREEN -> Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+			gameSettings.saveToPreferences(settingsPrefs);
+			settingsPrefs.flush();
+			applyGameSettings();
 
+			if (settings.shouldResetState()) {
+				gameState = new GameState(); // new prefs are saved and flushed at end of method
 			}
-			SoundController.getInstance().setMusicVolume(gameSettings.getMusicVolume() / 100f);
-			SoundController.getInstance().setSoundVolume(gameSettings.getSoundVolume() / 100f);
 		} else if (screen == credits) {
 			// nothing to extract here
 		} else if (screen == levelSelect) {
@@ -183,12 +202,20 @@ public class GDXRoot extends Game implements ScreenListener {
 			selectedLevel = gameWin.getNextLevel();
 		} else if (screen == storyBoard) {
 			selectedLevel = storyBoard.getSelectedLevel();
-			storyboardSeen = true;
+			gameState.setStoryboardSeen(true);
+		}
+
+		if (selectedLevel != null && selectedLevel == gameState.getHighestClearance() + 1) {
+			gameState.setHighestClearance(gameState.getHighestClearance() + 1);
 		}
 
 		switch (exitCode) {
 			case GDXRoot.EXIT_CREDITS:
-				credits = new CreditsScene(batch);
+				if (directory == null) {
+					throw new RuntimeException("Asset directory was somehow not loaded after initial boot");
+				}
+				credits = new CreditsScene(batch, this.directory);
+				credits.create();
 				credits.setScreenListener(this);
 				setScreen(credits);
 				disposeExcept(credits);
@@ -203,7 +230,13 @@ public class GDXRoot extends Game implements ScreenListener {
 				if (directory == null) {
 					throw new RuntimeException("Asset directory was somehow not loaded after initial boot");
 				}
-				levelSelect = new LevelSelectScene(batch, directory);
+				JsonValue levels = directory.getEntry("levels", JsonValue.class);
+				Array<Integer> levelKeys = new Array<>();
+				for (JsonValue value : levels) {
+					levelKeys.add(Integer.parseInt(value.name()));
+				}
+
+				levelSelect = new LevelSelectScene(batch, directory, levelKeys, gameState.getHighestClearance());
 				levelSelect.create();
 				levelSelect.setScreenListener(this);
 				setScreen(levelSelect);
@@ -233,7 +266,7 @@ public class GDXRoot extends Game implements ScreenListener {
 				disposeExcept(gameWin);
 				break;
 			case GDXRoot.EXIT_STORYBOARD:
-				if (storyboardSeen == true) {
+				if (gameState.isStoryboardSeen()) {
 					startGameplay(selectedLevel);
 				} else {
 					storyBoard = new StoryboardScene(batch, directory, selectedLevel);
@@ -249,6 +282,22 @@ public class GDXRoot extends Game implements ScreenListener {
 			default:
 				break;
 		}
+
+		gameState.saveToPreferences(statePrefs);
+		statePrefs.flush();
+	}
+
+	private void applyGameSettings() {
+		InputController.getInstance().setAbilityKey(this.gameSettings.getAbilityKey());
+		InputController.getInstance().setSwapKey(this.gameSettings.getSwapKey());
+		switch (this.gameSettings.getResolution().toLowerCase()) {
+			case "1280x720" -> Gdx.graphics.setWindowedMode(1280, 720);
+			case "1920x1080" -> Gdx.graphics.setWindowedMode(1920, 1080);
+			case "fullscreen" -> Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+
+		}
+		SoundController.getInstance().setMusicVolume(this.gameSettings.getMusicVolume() / 100f);
+		SoundController.getInstance().setSoundVolume(this.gameSettings.getSoundVolume() / 100f);
 	}
 
 	private void startGameplay(Integer selectedLevel) {

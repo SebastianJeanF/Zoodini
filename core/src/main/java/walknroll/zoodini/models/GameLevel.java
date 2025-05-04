@@ -1,32 +1,8 @@
 /*
  * GameLevel.java
  *
- * This stores all of the information to define a level for a top down game with
- * light and shadows. As with Lab 4, it has an avatar, some walls, and an exit.
- * This model supports JSON loading, and so the world is part of this object as
- * well. See the JSON demo for more information.
- *
- * There are two major differences from JSON Demo. First is the fixStep method.
- * This ensures that the physics engine is really moving at the same rate as the
- * visual framerate. You can usually survive without this addition. However,
- * when the physics adjusts shadows, it is very important. See this website for
- * more information about what is going on here.
- *
- * http://gafferongames.com/game-physics/fix-your-timestep/
- *
- * The second addition is the RayHandler. This is an attachment to the physics
- * world for drawing shadows. Technically, this is a view, and really should be
- * part of GameScene.  However, in true graphics programmer garbage design, this
- * is tightly coupled the the physics world and cannot be separated.  So we
- * store it here and make it part of the draw method. This is the best of many
- * bad options.
- *
- * TODO: Refactor this design to decouple the RayHandler as much as possible.
- * Next year, maybe.
- *
- * @author: Walker M. White
- * @version: 2/15/2025
  */
+
 package walknroll.zoodini.models;
 
 import com.badlogic.gdx.graphics.Camera;
@@ -41,7 +17,6 @@ import com.badlogic.gdx.maps.objects.EllipseMapObject;
 import com.badlogic.gdx.maps.objects.PolygonMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Ellipse;
 import com.badlogic.gdx.math.Polygon;
@@ -55,7 +30,6 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
 
 import box2dLight.PositionalLight;
-import box2dLight.RayHandler;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
@@ -76,10 +50,12 @@ import walknroll.zoodini.models.nonentities.Door;
 import walknroll.zoodini.models.nonentities.Exit;
 import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
+import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 import walknroll.zoodini.utils.animation.AnimationState;
 import walknroll.zoodini.utils.enums.AvatarType;
+import walknroll.zoodini.utils.enums.ExitAnimal;
 
 /**
  * Represents a single level in our game
@@ -148,8 +124,6 @@ public class GameLevel {
 
     /** Whether or not the level is in debug more (showing off physics) */
     private boolean debug;
-    /** Specialized renderer for rendering tiles */
-    private OrthogonalTiledMapRenderer mapRenderer;
     // Physics objects for the game
     /** Reference to the cat avatar */
     private Cat avatarCat;
@@ -164,9 +138,6 @@ public class GameLevel {
 
     /** Reference to the exit (for collision detection) */
     private Exit exit;
-    private OrthographicCamera raycamera;
-    private ObjectMap<Guard, PositionalLight> guardLights = new ObjectMap<>();
-    private PositionalLight[] avatarLights = new PositionalLight[2]; // TODO: array or separate field for two avatars?
     private Array<Guard> guards = new Array<>();
     private Array<SecurityCamera> securityCameras = new Array<>();
     private ObjectMap<ZoodiniSprite, VisionCone> visions = new ObjectMap<>();
@@ -174,7 +145,7 @@ public class GameLevel {
 
     private Array<Key> keys = new Array<>();
 
-    private ObjectMap<Door, Key> doors = new ObjectMap<>();
+    private PooledList<Door> doors = new PooledList<>();
 
     /** All the object sprites in the world. */
     protected PooledList<ZoodiniSprite> sprites = new PooledList<ZoodiniSprite>();
@@ -188,7 +159,6 @@ public class GameLevel {
 
     /** Size of one tile. This serves as scaling factor for all drawings */
     private float units;
-    RayHandler rayHandler;
     // TO FIX THE TIMESTEP
     /** The maximum frames per second setting for this level */
     protected int maxFPS;
@@ -207,6 +177,9 @@ public class GameLevel {
 
     Affine2 affineCache = new Affine2();
 
+    private boolean catPresent;
+    private boolean octopusPresent;
+
     /**
      * Creates a new GameLevel
      *
@@ -216,7 +189,7 @@ public class GameLevel {
     public GameLevel() {
         world = null;
         bounds = new Rectangle(0, 0, 1, 1);
-        debug = false;
+        debug = Constants.DEBUG;
         catActive = true;
     }
 
@@ -239,7 +212,6 @@ public class GameLevel {
         maxTimePerFrame = timeStep * maxSteps;
 
         world = new World(Vector2.Zero, false);
-        mapRenderer = new OrthogonalTiledMapRenderer(map);
 
         MapProperties props = map.getProperties();
         int width = props.get("width", Integer.class);
@@ -248,7 +220,11 @@ public class GameLevel {
         bounds = new Rectangle(0, 0, width, height);
 
         MapLayer walls = map.getLayers().get("walls");
-        createWallBodies(walls);
+        JsonValue entityConstants = directory.getEntry("constants", JsonValue.class).get("entities");
+        createWallBodies(walls, entityConstants.get("walls"));
+
+        catPresent = false;
+        octopusPresent = false;
 
         MapLayer objectLayer = map.getLayers().get("objects");
         for (MapObject obj : objectLayer.getObjects()) {
@@ -256,77 +232,93 @@ public class GameLevel {
             String type = properties.get("type", String.class);
 
             if ("Cat".equalsIgnoreCase(type)) {
-                avatarCat = new Cat(properties, units);
+                avatarCat = new Cat(properties, entityConstants.get("cat"), units);
                 avatarCat.setAnimation(AnimationState.IDLE,
-                        directory.getEntry("cat-idle.animation", SpriteSheet.class));
+                        directory.getEntry("cat-idle.animation", SpriteSheet.class), 16);
                 avatarCat.setAnimation(AnimationState.WALK,
-                        directory.getEntry("cat-walk.animation", SpriteSheet.class));
+                        directory.getEntry("cat-walk.animation", SpriteSheet.class), 4);
                 avatarCat.setAnimation(AnimationState.WALK_DOWN,
-                        directory.getEntry("cat-walk-down.animation", SpriteSheet.class));
+                        directory.getEntry("cat-walk-down.animation", SpriteSheet.class), 8);
                 avatarCat.setAnimation(AnimationState.WALK_UP,
-                        directory.getEntry("cat-walk-up.animation", SpriteSheet.class));
+                        directory.getEntry("cat-walk-up.animation", SpriteSheet.class), 6);
                 activate(avatarCat);
+                catPresent = true;
             } else if ("Octopus".equalsIgnoreCase(type)) {
-                avatarOctopus = new Octopus(properties, units);
+                avatarOctopus = new Octopus(properties, entityConstants.get("octopus"), units);
                 avatarOctopus.setAnimation(AnimationState.IDLE,
-                        directory.getEntry("octopus-idle.animation", SpriteSheet.class));
+                        directory.getEntry("octopus-idle.animation", SpriteSheet.class), 7);
                 avatarOctopus.setAnimation(AnimationState.WALK,
-                        directory.getEntry("octopus-walk.animation", SpriteSheet.class));
+                        directory.getEntry("octopus-walk.animation", SpriteSheet.class), 6);
                 avatarOctopus.setAnimation(AnimationState.WALK_DOWN,
-                        directory.getEntry("octopus-walk-down.animation", SpriteSheet.class));
+                        directory.getEntry("octopus-walk-down.animation", SpriteSheet.class), 8);
                 avatarOctopus.setAnimation(AnimationState.WALK_UP,
-                        directory.getEntry("octopus-walk-up.animation", SpriteSheet.class));
+                        directory.getEntry("octopus-walk-up.animation", SpriteSheet.class), 6);
                 activate(avatarOctopus);
+                octopusPresent = true;
             } else if ("Guard".equalsIgnoreCase(type)) {
-                Guard g = new Guard(properties, units);
-                g.setAnimation(AnimationState.IDLE, directory.getEntry("guard-idle.animation", SpriteSheet.class));
-                g.setAnimation(AnimationState.WALK, directory.getEntry("guard-walk.animation", SpriteSheet.class));
+                Guard g = new Guard(properties, entityConstants.get("guard"), units);
+                g.setAnimation(AnimationState.IDLE, directory.getEntry("guard-idle.animation", SpriteSheet.class), 16);
+                g.setAnimation(AnimationState.WALK, directory.getEntry("guard-walk.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK_DOWN,
-                        directory.getEntry("guard-walk-down.animation", SpriteSheet.class));
+                        directory.getEntry("guard-walk-down.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK_UP,
-                        directory.getEntry("guard-walk-up.animation", SpriteSheet.class));
+                        directory.getEntry("guard-walk-up.animation", SpriteSheet.class), 16);
+                g.setAnimation(AnimationState.WALK_DOWN_BLIND,
+                        directory.getEntry("guard-walk-down-inked.animation", SpriteSheet.class), 16);
+                g.setAnimation(AnimationState.WALK_BLIND,
+                        directory.getEntry("guard-walk-inked.animation", SpriteSheet.class), 16);
+                g.setAnimation(AnimationState.WALK_UP_BLIND,
+                        directory.getEntry("guard-walk-up-inked.animation", SpriteSheet.class), 16);
                 g.setSusMeter(directory.getEntry("suspicion-meter.animation", SpriteSheet.class)); // TODO: There must
                                                                                                    // be a better way to
                                                                                                    // do this
                 guards.add(g);
                 activate(g);
             } else if ("Camera".equalsIgnoreCase(type)) {
-                SecurityCamera cam = new SecurityCamera(properties, units);
-                cam.setAnimation(AnimationState.IDLE, directory.getEntry("camera-idle.animation", SpriteSheet.class));
+                SecurityCamera cam = new SecurityCamera(properties, entityConstants.get("camera"), units);
+                cam.setAnimation(AnimationState.IDLE, directory.getEntry("camera-idle.animation", SpriteSheet.class),
+                        16);
                 securityCameras.add(cam);
                 activate(cam);
             } else if ("Door".equalsIgnoreCase(type)) {
-                Door door = new Door(directory, obj, units);
-                Key key = new Key(directory, obj.getProperties().get("key", MapObject.class), units);
-                doors.put(door, key);
-                keys.add(key);
+                Door door = new Door(directory, properties, entityConstants.get("door"), units);
+                doors.add(door);
                 activate(door);
+            } else if ("Key".equalsIgnoreCase(type)) {
+                Key key = new Key(directory, properties, entityConstants.get("key"), units);
+                keys.add(key);
                 activate(key);
             } else if ("Exit".equalsIgnoreCase(type)) {
-                exit = new Exit(directory, properties, units);
+                ExitAnimal animalType = null;
+                switch (properties.get("creature", "", String.class)) {
+                    case "RABBIT" -> animalType = ExitAnimal.RABBIT;
+                    case "PENGUIN" -> animalType = ExitAnimal.PENGUIN;
+                    case "PANDA" -> animalType = ExitAnimal.PANDA;
+                    default -> animalType = ExitAnimal.PANDA;
+                }
+                exit = new Exit(directory, properties, entityConstants.get("exit"), units, animalType);
+                exit.create(directory);
                 activate(exit);
             }
 
         }
 
-        initializeVisionCones();
+        if (catPresent) {
+            catActive = true;
+        } else if (octopusPresent) {
+            catActive = false;
+        }
 
-        // raycamera = new OrthographicCamera(gSize[0], gSize[1]);
-        // raycamera.setToOrtho(false, gSize[0], gSize[1]);
-        // rayHandler = new RayHandler(world, Gdx.graphics.getWidth(),
-        // Gdx.graphics.getHeight());
-        // RayHandler.useDiffuseLight(true);
-        // RayHandler.setGammaCorrection(true);
-        // rayHandler.setAmbientLight(0.5f,0.5f,0.5f,0.5f);
+        initializeVisionCones(entityConstants.get("visioncone"));
 
         // Initialize an ink projectile (but do not add it to the physics world, we only
         // do that on demand)
-        JsonValue projectileData = directory.getEntry("constants", JsonValue.class).get("ink");
+        JsonValue projectileData = directory.getEntry("constants", JsonValue.class).get("entities").get("ink");
         inkProjectile = new InkProjectile(projectileData, units);
-        inkProjectile.setAnimation(AnimationState.EXPLODE,
-            directory.getEntry("ink-explosion.animation", SpriteSheet.class));
+        SpriteSheet sheet1 = directory.getEntry("ink-explosion.animation", SpriteSheet.class);
+        inkProjectile.setAnimation(AnimationState.EXPLODE, sheet1, sheet1.getSize() / 30);
         inkProjectile.setAnimation(AnimationState.IDLE,
-            directory.getEntry("ink-idle.animation", SpriteSheet.class));
+                directory.getEntry("ink-idle.animation", SpriteSheet.class), 0);
         activate(inkProjectile);
         inkProjectile.setDrawingEnabled(false);
         inkProjectile.getObstacle().setActive(false);
@@ -346,7 +338,7 @@ public class GameLevel {
         visions.clear();
         guards.clear();
         securityCameras.clear();
-
+        objects.clear();
         sprites.clear();
         if (world != null) {
             world.dispose();
@@ -367,10 +359,6 @@ public class GameLevel {
         if (fixedStep(dt)) {
 
             updateFlipSprite(getAvatar());
-
-            if (rayHandler != null) {
-                rayHandler.setCombinedMatrix(raycamera);
-            }
 
             if (avatarCat != null) {
                 avatarCat.update(dt);
@@ -398,13 +386,15 @@ public class GameLevel {
                 vc.update(world);
             }
 
-            for (Door door : doors.keys()) {
+            for (Door door : doors) {
                 door.update(dt);
             }
 
             for (Key key : keys) {
                 key.update(dt);
             }
+
+            exit.update(dt);
 
             // checkPlayerInVisionCones();
         }
@@ -443,7 +433,8 @@ public class GameLevel {
                             avatarOctopus.getPosition()); // TODO: this line might not be needed
                     ((Guard) key).setAgroed(true);
                     ((Guard) key).setAggroTarget(avatarOctopus);
-                    // System.out.println("In guard vision cone " + ((Guard) key).getAggroTarget());
+                    // DebugPrinter.println("In guard vision cone " + ((Guard)
+                    // key).getAggroTarget());
                 } else if (key instanceof SecurityCamera) {
                     SecurityCamera camera = (SecurityCamera) key;
                     if (!camera.isDisabled()) {
@@ -480,10 +471,8 @@ public class GameLevel {
     public void draw(SpriteBatch batch, Camera camera) {
         // Draw the sprites first (will be hidden by shadows)
 
-        mapRenderer.setView((OrthographicCamera) camera);
-        mapRenderer.render();
-
         batch.begin(camera);
+        sprites.sort(ZoodiniSprite.Comparison);
         for (ZoodiniSprite obj : sprites) {
             if (obj.isDrawingEnabled()) {
                 batch.setColor(Color.WHITE);
@@ -508,38 +497,46 @@ public class GameLevel {
             }
         }
 
-
-        for(ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()){
+        for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
             if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
                 continue;
             }
             entry.value.draw(batch, camera);
         }
 
-		// d debugging on top of everything.
-		if (debug) {
-			for (ObstacleSprite obj : sprites) {
-				obj.drawDebug(batch);
-			}
-		}
+        // d debugging on top of everything.
+        if (debug) {
+            for (ObstacleSprite obj : sprites) {
+                obj.drawDebug(batch);
+            }
+        }
 
         batch.end();
-	}
+    }
 
     public boolean isInactiveAvatarInDanger() {
-        if (catActive) {
+        if (catActive && octopusPresent) {
             return isInDanger(avatarOctopus);
-        } else {
+        } else if (!catActive && catPresent) {
             return isInDanger(avatarCat);
         }
+        return false;
     }
 
     // ------------------Helpers-----------------------//
 
+    public boolean isCatPresent() {
+        return catPresent;
+    }
+
+    public boolean isOctopusPresent() {
+        return octopusPresent;
+    }
+
     public void swapActiveAvatar() {
-        // avatarLights[catActive ? 0 : 1].setActive(false);
-        catActive = !catActive;
-        // avatarLights[catActive ? 0 : 1].setActive(true);
+        if (catPresent && octopusPresent) {
+            catActive = !catActive;
+        }
     }
 
     public PooledList<Obstacle> getObjects() {
@@ -585,7 +582,12 @@ public class GameLevel {
      * @return a reference to the player avatar
      */
     public PlayableAvatar getAvatar() {
-        return catActive ? avatarCat : avatarOctopus;
+        if (catActive && catPresent) {
+            return avatarCat;
+        } else if (!catActive && octopusPresent) {
+            return avatarOctopus;
+        }
+        return catPresent ? avatarCat : avatarOctopus;
     }
 
     public Cat getCat() {
@@ -596,12 +598,21 @@ public class GameLevel {
         return avatarOctopus;
     }
 
+    public PlayableAvatar getInactiveAvatar() {
+        if (!catActive && catPresent) {
+            return avatarCat;
+        } else if (catActive && octopusPresent) {
+            return avatarOctopus;
+        }
+        return null;
+    }
+
     /**
      * Returns a reference to the doors
      *
      * @return a reference to the doors
      */
-    public ObjectMap<Door, Key> getDoors() {
+    public PooledList<Door> getDoors() {
         return doors;
     }
 
@@ -715,22 +726,24 @@ public class GameLevel {
         sprite.getObstacle().activatePhysics(world);
     }
 
-    private void initializeVisionCones() {
+    private void initializeVisionCones(JsonValue constants) {
         Color c = Color.WHITE.cpy().add(0, 0, 0, -0.5f);
         for (SecurityCamera cam : securityCameras) {
             float fov = cam.getFov();
             float dist = cam.getViewDistance();
-            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, "000000", "111110");
+            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, constants);
             float angle = cam.getAngle();
             vc.attachToBody(cam.getObstacle().getBody(), angle);
+            vc.setVisibility(true);
             visions.put(cam, vc);
         }
 
         for (Guard guard : guards) {
             float fov = guard.getFov();
             float dist = guard.getViewDistance();
-            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, "000000", "111110");
+            VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, constants);
             vc.attachToBody(guard.getObstacle().getBody(), 90.0f);
+            vc.setVisibility(debug);
             visions.put(guard, vc);
         }
     }
@@ -739,62 +752,36 @@ public class GameLevel {
      * Create and register rectangle obstacles from a tile layer.
      * The layer must consist of tiles that has an object assigned to it.
      */
-    private void createWallBodies(MapLayer layer) {
+    private void createWallBodies(MapLayer layer, JsonValue constants) {
         for (MapObject wall : layer.getObjects()) {
-            initializeObject(wall);
-//            if (wall instanceof RectangleMapObject rec) {
-//                Rectangle rectangle = rec.getRectangle(); // dimensions given in pixels
-//                Obstacle obstacle = new BoxObstacle(
-//                        (rectangle.x + rectangle.width / 2) / units,
-//                        (rectangle.y + rectangle.height / 2) / units,
-//                        rectangle.width / units,
-//                        rectangle.height / units);
-//
-//                obstacle.setPhysicsUnits(units);
-//                obstacle.setBodyType(BodyType.StaticBody);
-//
-//                Filter filter = new Filter();
-//                short collideBits = GameLevel.bitStringToShort("0001");
-//                short excludeBits = GameLevel.bitStringToComplement("0000");
-//                filter.categoryBits = collideBits;
-//                filter.maskBits = excludeBits;
-//                obstacle.setFilterData(filter);
-//
-//                objects.add(obstacle);
-//                obstacle.activatePhysics(world);
-//            } else if (wall instanceof EllipseMapObject e) {
-//                Ellipse ellipse = e.getEllipse();
-//            } else if (wall instanceof PolygonMapObject poly) {
-//                Polygon polygon = poly.getPolygon();
-//            }
+            if (wall instanceof RectangleMapObject rec) {
+                Rectangle rectangle = rec.getRectangle(); // dimensions given in pixels
+                Obstacle obstacle = new BoxObstacle(
+                        (rectangle.x + rectangle.width / 2) / units,
+                        (rectangle.y + rectangle.height / 2) / units,
+                        rectangle.width / units,
+                        rectangle.height / units);
+
+                obstacle.setPhysicsUnits(units);
+                obstacle.setBodyType(BodyType.StaticBody);
+
+                Filter filter = new Filter();
+                short collideBits = GameLevel.bitStringToShort(constants.getString("category"));
+                short excludeBits = GameLevel.bitStringToComplement(constants.getString("exclude"));
+                filter.categoryBits = collideBits;
+                filter.maskBits = excludeBits;
+                obstacle.setFilterData(filter);
+
+                objects.add(obstacle);
+                obstacle.activatePhysics(world);
+            } else if (wall instanceof EllipseMapObject e) {
+                Ellipse ellipse = e.getEllipse();
+            } else if (wall instanceof PolygonMapObject poly) {
+                Polygon polygon = poly.getPolygon();
+            }
         }
 
     }
-
-    private void initializeObject(MapObject obj) {
-        if (obj instanceof RectangleMapObject rec) {
-            Rectangle rectangle = rec.getRectangle(); // dimensions given in pixels
-            Obstacle obstacle = new BoxObstacle(
-                (rectangle.x + rectangle.width / 2) / units,
-                (rectangle.y + rectangle.height / 2) / units,
-                rectangle.width / units,
-                rectangle.height / units);
-
-            obstacle.setPhysicsUnits(units);
-            obstacle.setBodyType(BodyType.StaticBody);
-
-            Filter filter = new Filter();
-            short collideBits = GameLevel.bitStringToShort("0001");
-            short excludeBits = GameLevel.bitStringToComplement("0000");
-            filter.categoryBits = collideBits;
-            filter.maskBits = excludeBits;
-            obstacle.setFilterData(filter);
-
-            objects.add(obstacle);
-            obstacle.activatePhysics(world);
-        }
-    }
-
 
     /**
      * Fixes the physics frame rate to be in sync with the animation framerate
@@ -853,6 +840,9 @@ public class GameLevel {
         return horiz && vert;
     }
 
+    PathFactory pathFactory = new PathFactory();
+    PathExtruder pathExtruder = new PathExtruder();
+
     private void drawAbilityRange(SpriteBatch batch, Camera camera) {
         PlayableAvatar avatar = getAvatar();
         batch.setTexture(null);
@@ -860,12 +850,13 @@ public class GameLevel {
         float x = avatar.getObstacle().getX();
         float y = avatar.getObstacle().getY();
 
-        Path2 rangePath = new PathFactory().makeNgon(x, y, avatar.getAbilityRange(), 64); // radius = 1.0m. 64 vertices
-        PathExtruder rangeExtruder = new PathExtruder(rangePath);
-        rangeExtruder.calculate(0.05f); // line thickness = 0.05m
+        Path2 rangePath = pathFactory.makeNgon(x, y, avatar.getAbilityRange(), 64); // radius = 1.0m. 64 vertices
+        // TODO: ideally don't call makeNgon
+        pathExtruder.set(rangePath);
+        pathExtruder.calculate(0.05f); // line thickness = 0.05m
         affineCache.idt();
         affineCache.scale(getTileSize(), getTileSize());
-        batch.draw((TextureRegion) null, rangeExtruder.getPolygon(), affineCache);
+        batch.fill(pathExtruder.getPolygon(), affineCache);
         batch.setColor(Color.WHITE);
     }
 
@@ -882,6 +873,7 @@ public class GameLevel {
      * @param batch  the sprite batch used for rendering
      * @param camera the camera used to unproject screen coordinates to world
      *               coordinates
+     *
      */
     private void drawOctopusReticle(SpriteBatch batch, Camera camera) {
         Octopus octopus = (Octopus) getAvatar();
@@ -893,12 +885,13 @@ public class GameLevel {
         Vector2 target = octopus.getTarget();
 
         // TODO: a couple of magic numbers here need to be config values I think
-        Path2 reticlePath = new PathFactory().makeNgon(target.x + x, target.y + y, 0.25f, 64); // radius = 1.0m. 64
-                                                                                               // vertices
-        PathExtruder reticleExtruder = new PathExtruder(reticlePath);
-        reticleExtruder.calculate(0.1f); // line thickness = 0.1m
+        Path2 reticlePath = pathFactory.makeNgon(target.x + x, target.y + y, 0.25f, 64);
+        // TODO: ideally don't call makeNgon
+        pathExtruder.set(reticlePath);
+        pathExtruder.calculate(0.1f); // line thickness = 0.1m
         affineCache.idt();
         affineCache.scale(getTileSize(), getTileSize());
-        batch.draw((TextureRegion) null, reticleExtruder.getPolygon(), affineCache);
+        batch.fill(pathExtruder.getPolygon(), affineCache);
+        batch.setColor(Color.WHITE);
     }
 }

@@ -34,8 +34,8 @@ public class Key extends ZoodiniSprite {
     private AvatarType owner;
     /** Whether this key has been used to unlock a door */
     private boolean used;
-    /** Tiled MapObject for this key*/
-    MapObject mapObject;
+    /** ID of this key*/
+    private int ID;
 
     public boolean isUsed() {
         return used;
@@ -78,14 +78,12 @@ public class Key extends ZoodiniSprite {
      * @param globals   The JSON values defining global key properties
      * @param units     The physics units for this key
      */
-    public Key(AssetDirectory directory, MapObject obj, float units) {
-        mapObject = obj;
-        MapProperties properties = mapObject.getProperties();
-
+    public Key(AssetDirectory directory, MapProperties properties, JsonValue constants, float units) {
+        ID = properties.get("id", Integer.class);
         float[] pos = new float[2];
         pos[0] = properties.get("x", Float.class) / units;
         pos[1] = properties.get("y", Float.class) / units;
-        float size = properties.get("size", Float.class);
+        float size = constants.getFloat("size");
 
         obstacle = new BoxObstacle(pos[0], pos[1], size, size);
         obstacle.setName(properties.get("type", String.class));
@@ -103,8 +101,8 @@ public class Key extends ZoodiniSprite {
         obstacle.setRestitution(0.0f);
 
         // Create the collision filter
-        short collideBits = GameLevel.bitStringToShort(properties.get("category", String.class));
-        short excludeBits = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
+        short collideBits = GameLevel.bitStringToShort(constants.getString("category"));
+        short excludeBits = GameLevel.bitStringToComplement(constants.getString("exclude"));
         Filter filter = new Filter();
         filter.categoryBits = collideBits;
         filter.maskBits = excludeBits;
@@ -126,7 +124,7 @@ public class Key extends ZoodiniSprite {
     }
 
     public int getID(){
-        return mapObject.getProperties().get("id", Integer.class);
+        return ID;
     }
 
 }

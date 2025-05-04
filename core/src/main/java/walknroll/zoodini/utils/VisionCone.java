@@ -15,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
+import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ShortArray;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.math.Poly2;
@@ -33,8 +34,8 @@ public class VisionCone implements RayCastCallback{
     private float wideness;
     private Color c;
     private float units;
-    private short maskbits = (short) 0xFFFF;
-    private short categorybits = (short) 0x0001;
+    private short exclude;
+    private short category;
 
     private Poly2 cone;
     private Array<Vector2> rayEndPoints;
@@ -42,20 +43,24 @@ public class VisionCone implements RayCastCallback{
 
     private float currentFacingAngle = 0f; // Current angle in degrees
     private float targetFacingAngle = 0f;  // Target angle to rotate toward
-    private float turnSpeed = 5.0f;        // Rotation speed in radians per second
+    private float turnSpeed = 500.0f;        // Rotation speed in radians per second
 
+    private boolean isVisible = false; // Flag to control visibility
 
     public Vector2 getPosition(){
         return this.origin;
     }
-    public void setMaskbits(short m){
-        maskbits = m;
+    public void setExclude(short e){
+        exclude = e;
     }
     public void setRadius(float r){
         radius = r;
     }
     public void setWideness(float w){
         wideness = w;
+    }
+    public void setVisibility(boolean v){
+        isVisible = v;
     }
 
 
@@ -68,9 +73,8 @@ public class VisionCone implements RayCastCallback{
      * @param wideness the degree of the cone
      * @param c color
      * @param units pixels-per-meter ratio used for drawing only
-     * @param maskbits bits that the rays collide with.
      */
-    public VisionCone(int numRays, Vector2 origin, float radius, float facing, float wideness, Color c, float units, String categorybits, String maskbits) {
+    public VisionCone(int numRays, Vector2 origin, float radius, float facing, float wideness, Color c, float units, JsonValue constants) {
         this.numRays = numRays;
         this.radius = radius;
         this.facingAngle = facing;
@@ -79,8 +83,8 @@ public class VisionCone implements RayCastCallback{
         this.rayEndPoints = new Array<>();
         this.c = c;
         this.units = units;
-        this.maskbits = GameLevel.bitStringToComplement(maskbits);
-        this.categorybits = GameLevel.bitStringToShort(categorybits);
+        this.exclude = GameLevel.bitStringToComplement(constants.getString("exclude"));
+        this.category = GameLevel.bitStringToShort(constants.getString("category"));
 
         cone = createPolygon(numRays, origin, radius, facing, wideness);
     }
@@ -116,33 +120,6 @@ public class VisionCone implements RayCastCallback{
         var11.size += 3 * numRays;
 
         return poly;
-    }
-
-    public boolean contains(float x, float y){
-        return cone.contains(x,y);
-//        float x_d = this.origin.x - x;
-//        float y_d = this.origin.y - y;
-//        float dst2 = x_d * x_d + y_d * y_d;
-//        if (this.radius * this.radius <= dst2) {
-//            return false;
-//        } else {
-//            boolean oddNodes = false;
-//            float x2 = this.cone.vertices.items[this.numRays * 2] = this.origin.x;
-//            float y2 = this.cone.vertices.items[this.numRays * 2 + 1] = this.origin.y;
-//
-//            for(int i = 0; i <= this.numRays; ++i) {
-//                float x1 = this.cone.vertices.items[i];
-//                float y1 = this.cone.vertices.items[i+1];
-//                if ((y1 < y && y2 >= y || y1 >= y && y2 < y) && (y - y1) / (y2 - y1) * (x2 - x1) < x - x1) {
-//                    oddNodes = !oddNodes;
-//                }
-//
-//                x2 = x1;
-//                y2 = y1;
-//            }
-//
-//            return oddNodes;
-//        }
     }
 
     public boolean contains(Vector2 position){
@@ -202,7 +179,7 @@ public class VisionCone implements RayCastCallback{
     float closestFraction = 1.0f;
     @Override
     public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
-        boolean collide = (this.maskbits & fixture.getFilterData().categoryBits) != 0;
+        boolean collide = (this.exclude & fixture.getFilterData().categoryBits) != 0;
         if(fraction < closestFraction
             && !body.getFixtureList().contains(fixture,true)
             && collide)
@@ -249,6 +226,9 @@ public class VisionCone implements RayCastCallback{
 
     Affine2 cache = new Affine2();
     public void draw(SpriteBatch batch, Camera camera){
+        if(!isVisible){
+            return;
+        }
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         batch.setColor(c); //rgba
