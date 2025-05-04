@@ -51,6 +51,9 @@
    <polyline points="0,0 -393.667,0"/>
   </object>
   <object id="33" type="Exit" x="2050" y="402">
+   <properties>
+    <property name="creature" propertytype="ExitCreature" value="RABBIT"/>
+   </properties>
    <point/>
   </object>
   <object id="34" type="Octopus" x="840" y="1720">

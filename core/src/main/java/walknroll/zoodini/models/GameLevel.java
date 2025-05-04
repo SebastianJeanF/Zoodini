@@ -289,7 +289,14 @@ public class GameLevel {
                 keys.add(key);
                 activate(key);
             } else if ("Exit".equalsIgnoreCase(type)) {
-                exit = new Exit(directory, properties, entityConstants.get("exit"), units, ExitAnimal.PENGUIN);
+                ExitAnimal animalType = null;
+                switch (properties.get("creature", "", String.class)) {
+                    case "RABBIT" -> animalType = ExitAnimal.RABBIT;
+                    case "PENGUIN" -> animalType = ExitAnimal.PENGUIN;
+                    case "PANDA" -> animalType = ExitAnimal.PANDA;
+                    default -> animalType = ExitAnimal.PANDA;
+                }
+                exit = new Exit(directory, properties, entityConstants.get("exit"), units, animalType);
                 exit.create(directory);
                 activate(exit);
             }
