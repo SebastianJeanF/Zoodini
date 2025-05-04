@@ -77,7 +77,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
 
             for (int x = startX; x < endX; x++) {
                 for (int y = startY; y < endY; y++) {
-                    getNode(x, y).isWall = true;
+                    getNode(x, y).isObstacle = true;
                 }
             }
         }
@@ -98,7 +98,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
 
             for (int x = startX; x <= endX; x++) {
                 for (int y = startY; y <= endY; y++) {
-                    getNode(x, y).isWall = true;
+                    getNode(x, y).isObstacle= true;
                 }
             }
         }
@@ -128,7 +128,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
      */
     private void addConnection(TileNode n, int xOffset, int yOffset) {
         TileNode t = getNode(n.x + xOffset, n.y + yOffset);
-        if (!t.isWall)
+        if (!t.isObstacle)
             n.getConnections().add(new TileEdge(this, n, t));
     }
 
@@ -163,7 +163,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         cache.scale(units / density, units / density);
         for (TileNode node : nodes) {
             // TODO: Some colors are not working idk why
-            if (node.isWall) {
+            if (node.isObstacle) {
                 c = Color.BLUE;
             } else {
                 c = Color.GOLD;
@@ -303,7 +303,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
 
     public TileNode findNearestNonObstacleNode(Vector2 pos) {
         TileNode targetNode = this.worldToTile(pos);
-        if (targetNode == null || !targetNode.isWall) {
+        if (targetNode == null || !targetNode.isObstacle) {
             return targetNode;
         }
 
@@ -311,7 +311,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         TileNode nearestNode = null;
 
         for (TileNode node : nodes) {
-            if (!node.isWall) {
+            if (!node.isObstacle) {
                 float distance = tileToWorld(node).dst(pos);
                 if (distance < minDistance) {
                     minDistance = distance;
@@ -331,7 +331,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
      * @return true if the target location is a valid tile, false otherwise
      */
     public boolean isValidTile(Vector2 targetLocation) {
-        return worldToTile(targetLocation).isWall;
+        return worldToTile(targetLocation).isObstacle;
     }
 
     /**
@@ -350,7 +350,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         for (int[] coord : horizontal) {
             int newX = targetTile.x + coord[0];
             int newY = targetTile.y + coord[1];
-            if (!(getNode(newX, newY)).isWall) {
+            if (!(getNode(newX, newY)).isObstacle) {
                 return getNode(newX, newY);
             }
         }
@@ -359,7 +359,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         for (int[] coord : corners) {
             int newX = targetTile.x + coord[0];
             int newY = targetTile.y + coord[1];
-            if (!(getNode(newX, newY)).isWall) {
+            if (!(getNode(newX, newY)).isObstacle) {
                 return getNode(newX, newY);
             }
         }
