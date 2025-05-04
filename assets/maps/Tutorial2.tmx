@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="55" height="50" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="128">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="55" height="50" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="130">
  <tileset firstgid="1" source="../tilesets/path-1.tsx"/>
  <tileset firstgid="211" source="../tilesets/path-2.tsx"/>
  <tileset firstgid="421" source="../tilesets/walls-1.tsx"/>
@@ -132,6 +132,15 @@
     <property name="exclude" value="00000"/>
     <property name="size" type="float" value="1.25"/>
    </properties>
+   <point/>
+  </object>
+  <object id="128" type="Text" x="1184" y="4176">
+   <properties>
+    <property name="text" value="&quot;Meow to lure guard&quot;"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="129" x="1112" y="3640">
    <point/>
   </object>
  </objectgroup>

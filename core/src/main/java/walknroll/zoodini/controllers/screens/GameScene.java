@@ -191,7 +191,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         inCameraTransition = false;
 
         // UI Controller
-        ui = new UIController(directory, level);
+        ui = new UIController(directory, level, batch);
         ui.setPauseMenuListener(this);
 
         graph = new TileGraph<>(map, false, 1);
@@ -408,6 +408,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             }
         }
 
+        // Draw UI
         ui.draw(level);
     }
 

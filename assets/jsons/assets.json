@@ -300,6 +300,10 @@
     "display": {
       "file": "fonts/LuckiestGuy-Regular.ttf",
       "size": 64
+    },
+    "game-text": {
+      "file": "fonts/LuckiestGuy-Regular.ttf",
+      "size": 54
     }
   },
   "sounds": {

@@ -112,5 +112,9 @@
     "button.next.width": 386,
     "button.menu.height": 65,
     "button.next.height": 65
+  },
+  "gameText" : {
+    "cycleTimeSec" : 4,
+    "maxYOffsetTile" : 0.5
   }
 }

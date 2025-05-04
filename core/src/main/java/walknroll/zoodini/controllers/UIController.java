@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import edu.cornell.gdiac.assets.AssetDirectory;
+import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
@@ -85,9 +86,9 @@ public class UIController {
     private boolean isPaused = false;
     private PauseMenuListener pauseListener;
 
-    public UIController(AssetDirectory directory, GameLevel level) {
+    public UIController(AssetDirectory directory, GameLevel level, SpriteBatch batch) {
         viewport = new ScreenViewport();
-        stage = new Stage(viewport);
+        stage = new Stage(viewport, batch);
         skin = new Skin(Gdx.files.internal("uiskins/default/uiskin.json")); //TODO: use AssetDirectory to load skins.
         initializeActors(directory, level);
         setupStageLayout();
