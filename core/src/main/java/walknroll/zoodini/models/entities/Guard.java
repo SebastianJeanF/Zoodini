@@ -154,8 +154,13 @@ public class Guard extends Enemy {
         return susLevel;
     }
 
+
     public void deltaSusLevel(float delta) {
         this.susLevel = MathUtils.clamp(susLevel + delta, 0.0F, maxSusLevel);
+    }
+
+    public void setSusLevel(float susLevel) {
+        this.susLevel = MathUtils.clamp(susLevel, 0.0F, maxSusLevel);
     }
 
     public boolean isMaxSusLevel() {

@@ -741,34 +741,60 @@ public class GameLevel {
      */
     private void createWallBodies(MapLayer layer) {
         for (MapObject wall : layer.getObjects()) {
-            if (wall instanceof RectangleMapObject rec) {
-                Rectangle rectangle = rec.getRectangle(); // dimensions given in pixels
-                Obstacle obstacle = new BoxObstacle(
-                        (rectangle.x + rectangle.width / 2) / units,
-                        (rectangle.y + rectangle.height / 2) / units,
-                        rectangle.width / units,
-                        rectangle.height / units);
-
-                obstacle.setPhysicsUnits(units);
-                obstacle.setBodyType(BodyType.StaticBody);
-
-                Filter filter = new Filter();
-                short collideBits = GameLevel.bitStringToShort("0001");
-                short excludeBits = GameLevel.bitStringToComplement("0000");
-                filter.categoryBits = collideBits;
-                filter.maskBits = excludeBits;
-                obstacle.setFilterData(filter);
-
-                objects.add(obstacle);
-                obstacle.activatePhysics(world);
-            } else if (wall instanceof EllipseMapObject e) {
-                Ellipse ellipse = e.getEllipse();
-            } else if (wall instanceof PolygonMapObject poly) {
-                Polygon polygon = poly.getPolygon();
-            }
+            initializeObject(wall);
+//            if (wall instanceof RectangleMapObject rec) {
+//                Rectangle rectangle = rec.getRectangle(); // dimensions given in pixels
+//                Obstacle obstacle = new BoxObstacle(
+//                        (rectangle.x + rectangle.width / 2) / units,
+//                        (rectangle.y + rectangle.height / 2) / units,
+//                        rectangle.width / units,
+//                        rectangle.height / units);
+//
+//                obstacle.setPhysicsUnits(units);
+//                obstacle.setBodyType(BodyType.StaticBody);
+//
+//                Filter filter = new Filter();
+//                short collideBits = GameLevel.bitStringToShort("0001");
+//                short excludeBits = GameLevel.bitStringToComplement("0000");
+//                filter.categoryBits = collideBits;
+//                filter.maskBits = excludeBits;
+//                obstacle.setFilterData(filter);
+//
+//                objects.add(obstacle);
+//                obstacle.activatePhysics(world);
+//            } else if (wall instanceof EllipseMapObject e) {
+//                Ellipse ellipse = e.getEllipse();
+//            } else if (wall instanceof PolygonMapObject poly) {
+//                Polygon polygon = poly.getPolygon();
+//            }
         }
 
     }
+
+    private void initializeObject(MapObject obj) {
+        if (obj instanceof RectangleMapObject rec) {
+            Rectangle rectangle = rec.getRectangle(); // dimensions given in pixels
+            Obstacle obstacle = new BoxObstacle(
+                (rectangle.x + rectangle.width / 2) / units,
+                (rectangle.y + rectangle.height / 2) / units,
+                rectangle.width / units,
+                rectangle.height / units);
+
+            obstacle.setPhysicsUnits(units);
+            obstacle.setBodyType(BodyType.StaticBody);
+
+            Filter filter = new Filter();
+            short collideBits = GameLevel.bitStringToShort("0001");
+            short excludeBits = GameLevel.bitStringToComplement("0000");
+            filter.categoryBits = collideBits;
+            filter.maskBits = excludeBits;
+            obstacle.setFilterData(filter);
+
+            objects.add(obstacle);
+            obstacle.activatePhysics(world);
+        }
+    }
+
 
     /**
      * Fixes the physics frame rate to be in sync with the animation framerate

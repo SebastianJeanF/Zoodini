@@ -66,7 +66,7 @@ import walknroll.zoodini.utils.ZoodiniSprite;
  */
 public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener {
 
-    private boolean debug = false;
+    private boolean debug = true;
     private boolean brainrot = false;
 
 	// ASSETS
@@ -548,7 +548,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             if(!door.isLocked()){
                 key.setUsed(true);
                 Vector2 doorPos = door.getObstacle().getPosition();
-                graph.getNode((int)doorPos.x, (int)doorPos.y).isWall = false;
+                graph.getNode((int)doorPos.x, (int)doorPos.y).isObstacle = false;
             }
 
             if(!door.isUnlocking()){

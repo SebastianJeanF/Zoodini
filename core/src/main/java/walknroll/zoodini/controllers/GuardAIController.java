@@ -114,7 +114,7 @@ public class GuardAIController {
             TileNode waypointTile = tileGraph.worldToTile(waypoint);
 
             // Check if waypoint is in a wall tile
-            if (waypointTile == null || waypointTile.isWall) {
+            if (waypointTile == null || waypointTile.isObstacle) {
                 // Find the nearest non-wall tile
                 TileNode validTile = tileGraph.findNearestNonObstacleNode(waypoint);
 
@@ -243,7 +243,7 @@ public class GuardAIController {
             } else {
                 // Only decrease suspicion if not in ALERTED state
                 if (currState != GuardState.AlERTED) {
-                    guard.deltaSusLevel(-1); // Decrease suspicion
+                    guard.deltaSusLevel(-0.75f); // Decrease suspicion
                 }
             }
         } else { // Guard is chasing
@@ -365,6 +365,9 @@ public class GuardAIController {
                 // This makes sense since we don't want the guard to deagrro by being meowed
                 else if (didDistractionOccur()) {
                     currState = GuardState.DISTRACTED;
+                    if (!guard.isMeowed()) {
+                        guard.setSusLevel(guard.getSusThreshold() - 1);
+                    }
                     guard.setMeow(true);
                     Vector2 playerPosition = getActivePlayer().getPosition();
                     distractPosition.set(getValidTileCoords(playerPosition));
@@ -449,7 +452,7 @@ public class GuardAIController {
      */
     public Vector2 getValidTileCoords(Vector2 target) {
         TileNode targetTile = tileGraph.worldToTile(target);
-        if (!targetTile.isWall) {
+        if (!targetTile.isObstacle) {
             return target;
         } else {
             System.out.println("Target tile is a wall: " + targetTile.getCoords());
@@ -576,6 +579,7 @@ public class GuardAIController {
         if (this.nextTargetLocation == null) {
             return Vector2.Zero;
         } else {
+            System.out.println(this.nextTargetLocation.cpy().sub(guard.getPosition()).nor());
             return this.nextTargetLocation.cpy().sub(guard.getPosition()).nor();
         }
     }
@@ -614,11 +618,11 @@ public class GuardAIController {
             return new ArrayList<>();
         }
 
-        if (start.isWall) {
+        if (start.isObstacle) {
             start = tileGraph.findNearestNonObstacleNode(currPosWorld);
         }
 
-        if (end.isWall) {
+        if (end.isObstacle) {
             end = tileGraph.findNearestNonObstacleNode(targetPosWorld);
         }
 

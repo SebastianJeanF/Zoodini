@@ -15,16 +15,16 @@ public class TileNode{
     public final int x;
     public final int y;
     private final int mapHeight;
-    public boolean isWall;
+    public boolean isObstacle;
 
     protected Array<Connection<TileNode>> connections;
 
-    public TileNode (int x, int y, boolean isWall, Array<Connection<TileNode>> connections, int mapHeight) {
+    public TileNode (int x, int y, boolean isObstacle, Array<Connection<TileNode>> connections, int mapHeight) {
         this.x = x;
         this.y = y;
         this.connections = connections;
         this.mapHeight = mapHeight;
-        this.isWall = isWall;
+        this.isObstacle = isObstacle;
     }
 
     //TODO: is there a better way to let nodes know the height of map?
@@ -38,5 +38,9 @@ public class TileNode{
 
     public Vector2 getCoords() {
         return new Vector2(x,y);
+    }
+
+    public void setIsObstacle(boolean isObstacle) {
+        this.isObstacle = isObstacle;
     }
 }
