@@ -85,7 +85,8 @@
         "values": [
             "PANDA",
             "RABBIT",
-            "PENGUIN"
+            "PENGUIN",
+            "OCTOPUS"
         ],
         "valuesAsFlags": false
     },

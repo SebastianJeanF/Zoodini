@@ -52,7 +52,7 @@
   </object>
   <object id="87" type="Exit" x="2490.5" y="721.5">
    <properties>
-    <property name="creature" propertytype="ExitCreature" value="PANDA"/>
+    <property name="creature" propertytype="ExitCreature" value="OCTOPUS"/>
    </properties>
    <point/>
   </object>

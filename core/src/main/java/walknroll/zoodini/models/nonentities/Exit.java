@@ -114,18 +114,11 @@ public class Exit extends ZoodiniSprite {
 
     public void create(AssetDirectory directory) {
         switch (this.creature) {
-            case PANDA:
-                spriteTextures = directory.getEntry("panda-idle.animation", SpriteSheet.class);
-                break;
-            case PENGUIN:
-                spriteTextures = directory.getEntry("penguin-idle.animation", SpriteSheet.class);
-                break;
-            case RABBIT:
-                spriteTextures = directory.getEntry("rabbit-idle.animation", SpriteSheet.class);
-                break;
-            default:
-                break;
-
+            case PANDA -> spriteTextures = directory.getEntry("panda-chained-idle.animation", SpriteSheet.class);
+            case PENGUIN -> spriteTextures = directory.getEntry("penguin-chained-idle.animation", SpriteSheet.class);
+            case RABBIT -> spriteTextures = directory.getEntry("rabbit-chained-idle.animation", SpriteSheet.class);
+            case OCTOPUS -> spriteTextures = directory.getEntry("octopus-chained-idle.animation", SpriteSheet.class);
+            default -> spriteTextures = directory.getEntry("panda-chained-idle.animation", SpriteSheet.class);
         }
 
         TextureRegion[][] tmp = TextureRegion.split(spriteTextures.getTexture(), spriteTextures.getRegionWidth(),

@@ -294,6 +294,7 @@ public class GameLevel {
                     case "RABBIT" -> animalType = ExitAnimal.RABBIT;
                     case "PENGUIN" -> animalType = ExitAnimal.PENGUIN;
                     case "PANDA" -> animalType = ExitAnimal.PANDA;
+                    case "OCTOPUS" -> animalType = ExitAnimal.OCTOPUS;
                     default -> animalType = ExitAnimal.PANDA;
                 }
                 exit = new Exit(directory, properties, entityConstants.get("exit"), units, animalType);

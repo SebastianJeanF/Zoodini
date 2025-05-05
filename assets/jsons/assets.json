@@ -231,7 +231,7 @@
         }
       }
     },
-    "panda-idle": {
+    "panda-chained-idle": {
       "file": "textures/entities/static/panda-chained.png",
       "wrap": false,
       "sprites": {
@@ -242,7 +242,7 @@
         }
       }
     },
-    "rabbit-idle": {
+    "rabbit-chained-idle": {
       "file": "textures/entities/static/rabbit-chained.png",
       "wrap": false,
       "sprites": {
@@ -253,8 +253,19 @@
         }
       }
     },
-    "penguin-idle": {
+    "penguin-chained-idle": {
       "file": "textures/entities/static/penguin-chained.png",
+      "wrap": false,
+      "sprites": {
+        "animation": {
+          "size": 3,
+          "rows": 1,
+          "cols": 3
+        }
+      }
+    },
+    "octopus-chained-idle": {
+      "file": "textures/entities/static/octopus-chained.png",
       "wrap": false,
       "sprites": {
         "animation": {
