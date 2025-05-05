@@ -414,7 +414,6 @@ public class Guard extends Enemy {
      * @param targetDirection The direction the guard should face
      */
     public void updateOrientation(float dt, Vector2 targetDirection) {
-        System.out.println("Target direction is " + targetDirection);
         if (targetDirection == null || targetDirection.len2() < 0.0001f) {
             return; // No valid direction to face
         }

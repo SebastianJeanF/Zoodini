@@ -923,6 +923,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             guard.setMovement(direction.x, direction.y);
         }
 
+        if (guard.isLookingAround()){
+            // If the guard is looking around, set the movement direction to zero
+            guard.setMovement(0, 0);
+        }
+
         guard.applyForce();
     }
 

@@ -126,11 +126,11 @@ public class GuardAIController {
                 if (validTile != null) {
                     // Convert the valid tile to world coordinates (use the center of the tile)
                     validWaypoints[i] = tileGraph.tileToWorld(validTile);
-                    DebugPrinter.println("Updated waypoint " + i + " from " + waypoint +
-                            " to " + validWaypoints[i] + " (was in wall)");
+//                    DebugPrinter.println("Updated waypoint " + i + " from " + waypoint +
+//                            " to " + validWaypoints[i] + " (was in wall)");
                 } else {
                     // This should not happen if your graph has at least one non-wall tile
-                    DebugPrinter.println("Warning: Could not find a valid non-wall tile for waypoint " + i);
+//                    DebugPrinter.println("Warning: Could not find a valid non-wall tile for waypoint " + i);
                     validWaypoints[i] = waypoint; // Keep the original as fallback
                 }
             } else {
@@ -459,7 +459,6 @@ public class GuardAIController {
             currentLookTime += dt;
             currentLookChangeTime += dt;
 
-            System.out.println(currentLookChangeTime);
             // Change look direction periodically
             if (currentLookChangeTime >= lookChangeTime) {
                 lookDirection *= -1; // Flip direction
@@ -481,21 +480,9 @@ public class GuardAIController {
      */
     public void update(float dt) {
         ticks++;
-        // Only change state every 5 ticks
-        // if (!canStateTransition()) {
-        // return;
-        // }
-        // DebugPrinter.println("Before Guard state: " + currState);
-//        if (!canStateTransition()) {
-//            return;
-//        }
-
-        System.out.println("Before Guard state: " + currState);
         executeLookAround(dt);
         updateSusLevel();
         updateGuardState();
-        // DebugPrinter.println("After Guard state: " + currState);
-
         setNextTargetLocation();
 
     }
@@ -546,7 +533,7 @@ public class GuardAIController {
         if (!targetTile.isObstacle) {
             return target;
         } else {
-            DebugPrinter.println("Target tile is a wall: " + targetTile.getCoords());
+//            DebugPrinter.println("Target tile is a wall: " + targetTile.getCoords());
             // If the target tile is a wall, find the nearest non-wall tile
             TileNode newTile = tileGraph.getNearestValidTile(target);
             return tileGraph.tileToWorld(newTile);
@@ -679,7 +666,7 @@ public class GuardAIController {
         else if (this.nextTargetLocation == null) {
             return Vector2.Zero;
         } else {
-            System.out.println(this.nextTargetLocation.cpy().sub(guard.getPosition()).nor());
+//            System.out.println(this.nextTargetLocation.cpy().sub(guard.getPosition()).nor());
             return this.nextTargetLocation.cpy().sub(guard.getPosition()).nor();
         }
     }
