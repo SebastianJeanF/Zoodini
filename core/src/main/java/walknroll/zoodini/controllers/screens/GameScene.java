@@ -160,6 +160,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     private boolean catArrived = false;
 
+    private boolean followModeActive = false;
+    private final float FOLLOW_DISTANCE = 1f;
+
     /**
      * Creates a new game world
      *
@@ -223,6 +226,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         catArrived = false;
         octopusArrived = false;
+        followModeActive = false;
 
         setComplete(false);
         setFailure(false);
@@ -1046,6 +1050,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         if (avatar != level.getInactiveAvatar()) {
             moveAvatar(vertical, horizontal, avatar);
         }
+        handleFollowModeToggle(input);
+        updateFollowMode();
         if (level.isOctopusPresent()) {
             level.getOctopus().regenerateInk(dt);
         }
@@ -1087,6 +1093,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 cat.setDidFire(false);
             }
         }
+
 
         vec3tmp.setZero();
         vec2tmp.setZero();
@@ -1280,6 +1287,45 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         // Reduce the view distance and FOV angle
         guard.setTempViewDistance(reducedViewDistance); // 60% reduction
         guard.setTempFov(reducedFov); // 60% reduction
+    }
+
+    private void updateFollowMode() {
+        if (followModeActive && level.getInactiveAvatar() != null && level.getAvatar() != null) {
+            PlayableAvatar activeAvatar = level.getAvatar();
+            PlayableAvatar inactiveAvatar = level.getInactiveAvatar();
+
+            Vector2 activePos = activeAvatar.getPosition();
+            Vector2 inactivePos = inactiveAvatar.getPosition();
+
+            Vector2 direction = new Vector2(activePos).sub(inactivePos);
+            float distance = direction.len();
+
+            float FOLLOW_BUFFER = 0.1f;
+            if (distance > FOLLOW_DISTANCE + FOLLOW_BUFFER) {
+                direction.nor();
+                moveAvatar(direction.y * 0.75f, direction.x * 0.75f, inactiveAvatar);
+            }
+            else if (distance > FOLLOW_DISTANCE - FOLLOW_BUFFER) {
+                direction.nor();
+                float speedFactor = (distance - (FOLLOW_DISTANCE - FOLLOW_BUFFER)) / (2 * FOLLOW_BUFFER);
+                speedFactor = Math.max(0.1f, speedFactor) * 0.75f;
+                moveAvatar(direction.y * speedFactor, direction.x * speedFactor, inactiveAvatar);
+            }
+            else {
+                inactiveAvatar.setMovement(0, 0);
+                inactiveAvatar.applyForce();
+            }
+        } else if (!followModeActive && level.getInactiveAvatar() != null) {
+            PlayableAvatar inactiveAvatar = level.getInactiveAvatar();
+            inactiveAvatar.setMovement(0, 0);
+            inactiveAvatar.applyForce();
+        }
+    }
+
+    private void handleFollowModeToggle(InputController input) {
+        if (input.didPressFollowMode()) {
+            followModeActive = !followModeActive;
+        }
     }
 
 }
