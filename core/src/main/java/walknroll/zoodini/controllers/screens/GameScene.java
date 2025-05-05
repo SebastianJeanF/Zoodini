@@ -553,10 +553,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             for (Guard guard : guards) {
                 Obstacle enemy = guard.getObstacle();
 
-                if (Constants.INVINCIBLE) {
-                    contact.setEnabled(false);
-                }
-
                 if (((o1 == cat && o2 == enemy) || (o2 == cat && o1 == enemy)) && !level.getCat().isInvincible()) {
                     setFailure(true);
                     gameLost = true;
@@ -628,16 +624,16 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 Obstacle ventObs = vent.getObstacle();
                 if ((o1 == cat && o2 == ventObs) || (o2 == cat && o1 == ventObs)) {
                     vent.setOpen(false);
+                    vent.setContainedEntities(vent.getContainedEntities() + 1);
                     level.getCat().setInvincible(true);
                     level.getCat().setDrawingEnabled(false);
-                    cat.setSensor(true);
                 }
 
                 if ((o1 == oct && o2 == ventObs) || (o2 == oct && o1 == ventObs)) {
                     vent.setOpen(false);
+                    vent.setContainedEntities(vent.getContainedEntities() + 1);
                     level.getOctopus().setInvincible(true);
                     level.getOctopus().setDrawingEnabled(false);
-                    oct.setSensor(true);
                 }
             }
 
@@ -726,17 +722,19 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             for (Vent vent : level.getVents()) {
                 Obstacle ventObs = vent.getObstacle();
                 if ((o1 == cat && o2 == ventObs) || (o2 == cat && o1 == ventObs)) {
-                    vent.setOpen(true);
+                    vent.setContainedEntities(vent.getContainedEntities() - 1);
                     level.getCat().setInvincible(false);
                     level.getCat().setDrawingEnabled(true);
-                    cat.setSensor(false);
                 }
 
                 if ((o1 == oct && o2 == ventObs) || (o2 == oct && o1 == ventObs)) {
-                    vent.setOpen(true);
+                    vent.setContainedEntities(vent.getContainedEntities() - 1);
                     level.getOctopus().setInvincible(false);
                     level.getOctopus().setDrawingEnabled(true);
-                    oct.setSensor(false);
+                }
+
+                if (vent.getContainedEntities() == 0) {
+                    vent.setOpen(true);
                 }
             }
 
@@ -759,6 +757,44 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     /** Unused ContactListener method */
     public void preSolve(Contact contact, Manifold oldManifold) {
+        Fixture fix1 = contact.getFixtureA();
+        Fixture fix2 = contact.getFixtureB();
+
+        Body body1 = fix1.getBody();
+        Body body2 = fix2.getBody();
+
+        try {
+
+            Obstacle o1 = (Obstacle) body1.getUserData();
+            Obstacle o2 = (Obstacle) body2.getUserData();
+
+            Obstacle cat = null;
+            if (level.getCat() != null) {
+                cat = level.getCat().getObstacle();
+            }
+            Obstacle oct = null;
+            if (level.getOctopus() != null) {
+                oct = level.getOctopus().getObstacle();
+            }
+
+            for (Guard guard : level.getGuards()) {
+                Obstacle enemy = guard.getObstacle();
+
+                if (Constants.INVINCIBLE) {
+                    contact.setEnabled(false);
+                }
+
+                if (((o1 == cat && o2 == enemy) || (o2 == cat && o1 == enemy)) && level.getCat().isInvincible()) {
+                    contact.setEnabled(false);
+                }
+
+                if (((o1 == oct && o2 == enemy) || (o2 == oct && o1 == enemy)) && level.getOctopus().isInvincible()) {
+                    contact.setEnabled(false);
+                }
+            }            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -1074,7 +1110,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 door.resetTimer();
             }
         }
-
     }
 
     private void updateGuardAI() {
