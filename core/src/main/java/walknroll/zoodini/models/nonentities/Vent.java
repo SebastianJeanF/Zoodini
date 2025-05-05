@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.utils.JsonValue;
@@ -37,6 +38,8 @@ public class Vent extends ZoodiniSprite {
     private boolean open;
     private TextureRegion openTexture;
     private TextureRegion closedTexture;
+
+    private int containedEntities;
 
     /**
      * Creates a door with the given settings
@@ -73,9 +76,17 @@ public class Vent extends ZoodiniSprite {
         setTextureRegion(openTexture);
 
         float textureScale = constants.getFloat("spriteScale");
-        float w = openTexture.getRegionWidth() * textureScale;
-        float h = openTexture.getRegionHeight() * textureScale;
-        mesh = new SpriteMesh(-w / 2, -h / 2, w, h);
+        float width = openTexture.getRegionWidth() * textureScale;
+        float height = openTexture.getRegionHeight() * textureScale;
+        mesh = new SpriteMesh(-width / 2, -height / 2, width, height);
+    }
+
+    public int getContainedEntities() {
+        return containedEntities;
+    }
+
+    public void setContainedEntities(int containedEntities) {
+        this.containedEntities = containedEntities;
     }
 
     public void setOpen(boolean value) {
