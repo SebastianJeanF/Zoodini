@@ -1,13 +1,13 @@
 {
   "textures": {
     "guard-idle": {
-      "file": "textures/entities/guard/guard_walking.png",
+      "file": "textures/entities/guard/guard_idle.png",
       "wrap": false,
       "sprites": {
         "animation": {
-          "size": 4,
+          "size": 5,
           "rows": 1,
-          "cols": 4
+          "cols": 5
         }
       }
     },
