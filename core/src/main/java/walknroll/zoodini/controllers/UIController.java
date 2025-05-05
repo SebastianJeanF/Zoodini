@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
@@ -191,35 +192,33 @@ public class UIController {
         stage.addActor(topRightTable);
 
 
-        //TODO: don't hardcode positions. Use tables.
-        if (smallCatIconImage != null) {
-            smallCatIconImage.setPosition(45, 600);
-            smallCatIconImage.setVisible(false);
-            stage.addActor(smallCatIconImage);
-        }
+        Table leftTable = new Table();
+        leftTable.setFillParent(true);
+        leftTable.setDebug(debug);
+        Group dangerIcons = new Group();
+        dangerIcons.addActor(smallCatIconImage);
+        dangerIcons.addActor(smallOctopusIconImage);
+        dangerIconImage.moveBy(50,30);
+        dangerIcons.addActor(dangerIconImage);
+        leftTable.left().add(dangerIcons).width(100).height(100);
+        stage.addActor(leftTable);
 
-        if (smallOctopusIconImage != null) {
-            smallOctopusIconImage.setPosition(45, 600);
-            smallOctopusIconImage.setVisible(false); // Hide initially, we'll toggle visibility
-            stage.addActor(smallOctopusIconImage);
-        }
-
-        if (dangerIconImage != null) {
-            dangerIconImage.setPosition(105, 615);
-            dangerIconImage.setVisible(false);
-            stage.addActor(dangerIconImage);
-        }
-
-        if (pauseIconImage != null) {
-            pauseIconImage.setVisible(true);
-            pauseIconImage.addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    togglePauseMenu(true);
-                }
-            });
-            //stage.addActor(pauseIconImage);
-        }
+//        if (dangerIconImage != null) {
+//            dangerIconImage.setPosition(105, 615);
+//            dangerIconImage.setVisible(false);
+//            stage.addActor(dangerIconImage);
+//        }
+//
+//        if (pauseIconImage != null) {
+//            pauseIconImage.setVisible(true);
+//            pauseIconImage.addListener(new ClickListener() {
+//                @Override
+//                public void clicked(InputEvent event, float x, float y) {
+//                    togglePauseMenu(true);
+//                }
+//            });
+//            //stage.addActor(pauseIconImage);
+//        }
 
         if (resumeIconImage != null) {
             resumeIconImage.setVisible(false);
@@ -374,8 +373,7 @@ public class UIController {
                     smallOctopusIconImage.setVisible(false);
                 } else {
                     smallOctopusIconImage.setVisible(true);
-                    smallCatIconImage.setVisible(false);
-                }
+                    smallCatIconImage.setVisible(false);}
             } else {
                 dangerIconImage.setVisible(false);
                 smallCatIconImage.setVisible(false);
