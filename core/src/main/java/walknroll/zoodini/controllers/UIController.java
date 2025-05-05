@@ -209,16 +209,15 @@ public class UIController {
 //            stage.addActor(dangerIconImage);
 //        }
 //
-//        if (pauseIconImage != null) {
-//            pauseIconImage.setVisible(true);
-//            pauseIconImage.addListener(new ClickListener() {
-//                @Override
-//                public void clicked(InputEvent event, float x, float y) {
-//                    togglePauseMenu(true);
-//                }
-//            });
-//            //stage.addActor(pauseIconImage);
-//        }
+        if (pauseIconImage != null) {
+            pauseIconImage.setVisible(true);
+            pauseIconImage.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    togglePauseMenu(true);
+                }
+            });
+        }
 
         if (resumeIconImage != null) {
             resumeIconImage.setVisible(false);

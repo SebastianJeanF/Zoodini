@@ -78,19 +78,6 @@
         ]
     },
     {
-        "id": 9,
-        "name": "ExitCreature",
-        "storageType": "string",
-        "type": "enum",
-        "values": [
-            "PANDA",
-            "RABBIT",
-            "PENGUIN",
-            "OCTOPUS"
-        ],
-        "valuesAsFlags": false
-    },
-    {
         "color": "#ffa0a0a4",
         "drawFill": true,
         "id": 5,
@@ -156,5 +143,18 @@
             "wangset",
             "project"
         ]
+    },
+    {
+        "id": 9,
+        "name": "ExitCreature",
+        "storageType": "string",
+        "type": "enum",
+        "values": [
+            "PANDA",
+            "RABBIT",
+            "PENGUIN",
+            "OCTOPUS"
+        ],
+        "valuesAsFlags": false
     }
 ]

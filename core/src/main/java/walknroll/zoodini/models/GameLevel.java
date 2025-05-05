@@ -507,14 +507,14 @@ public class GameLevel {
         // Draw the sprites first (will be hidden by shadows)
         batch.begin(camera);
 
-
-
-
         sprites.sort(ZoodiniSprite.Comparison);
         for (ZoodiniSprite obj : sprites) {
             if (obj.isDrawingEnabled()) {
                 batch.setColor(Color.WHITE);
                 obj.draw(batch);
+            }
+            if(obj instanceof SecurityCamera cam){
+                if(!cam.isDisabled()) visions.get(obj).draw(batch, camera);
             }
         }
 
@@ -534,13 +534,13 @@ public class GameLevel {
                 }
             }
         }
-
-        for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
-            if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
-                continue;
-            }
-            entry.value.draw(batch, camera);
-        }
+//
+//        for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
+//            if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
+//                continue;
+//            }
+//            entry.value.draw(batch, camera);
+//        }
 
         // d debugging on top of everything.
         if (debug) {
@@ -833,7 +833,7 @@ public class GameLevel {
             float fov = guard.getFov();
             float dist = guard.getViewDistance();
             VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, constants);
-            vc.attachToBody(guard.getObstacle().getBody(), 90.0f);
+            vc.attachToBody(guard.getObstacle().getBody(), guard.getAngle());
             vc.setVisibility(debug);
             visions.put(guard, vc);
         }
