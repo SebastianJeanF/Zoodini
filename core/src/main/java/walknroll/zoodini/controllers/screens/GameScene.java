@@ -798,10 +798,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             Object o1 = body1.getUserData();
             Object o2 = body2.getUserData();
 
-            if(o1 instanceof Cat || o2 instanceof Cat){
-                System.out.println("CAT COLLIDES");
-            }
-
             if(Constants.INVINCIBLE){
                 contact.setEnabled(false);
             }
