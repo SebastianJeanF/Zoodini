@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="28" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="24">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="28" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="26">
  <tileset firstgid="1" source="../tilesets/walls-1.tsx"/>
  <tileset firstgid="211" source="../tilesets/path-3.tsx"/>
  <tileset firstgid="467" source="../tilesets/path-2.tsx"/>
@@ -108,6 +108,23 @@
     <property name="viewDistance" type="float" value="5"/>
    </properties>
    <point/>
+  </object>
+  <object id="24" type="Guard" x="2251.57" y="1111.11">
+   <properties>
+    <property name="category" value="00100"/>
+    <property name="exclude" value="00100"/>
+    <property name="force" type="float" value="1.5"/>
+    <property name="fov" type="float" value="60"/>
+    <property name="maxSpeed" type="float" value="10"/>
+    <property name="path" type="object" value="25"/>
+    <property name="radius" type="float" value="0.2"/>
+    <property name="spriteRadius" type="float" value="1"/>
+    <property name="viewDistance" type="float" value="5"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="25" x="2268.34" y="1094.34">
+   <polyline points="0,0 -561.845,0"/>
   </object>
  </objectgroup>
 </map>
