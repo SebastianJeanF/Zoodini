@@ -393,6 +393,10 @@ public class GameLevel {
         if (fixedStep(dt)) {
 
             updateFlipSprite(getAvatar());
+            PlayableAvatar inactiveAvatar = getInactiveAvatar();
+            if (inactiveAvatar != null) {
+                updateFlipSprite(inactiveAvatar);
+            }
 
             if (avatarCat != null) {
                 avatarCat.update(dt);
