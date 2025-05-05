@@ -51,6 +51,7 @@ import walknroll.zoodini.models.nonentities.Door;
 import walknroll.zoodini.models.nonentities.Exit;
 import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
+import walknroll.zoodini.models.nonentities.Vent;
 import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.VisionCone;
@@ -142,6 +143,8 @@ public class GameLevel {
     private Exit exit;
     private Array<Guard> guards = new Array<>();
     private Array<SecurityCamera> securityCameras = new Array<>();
+    private Array<Vent> vents = new Array<>();
+
     private ObjectMap<ZoodiniSprite, VisionCone> visions = new ObjectMap<>();
     private InkProjectile inkProjectile; // ink projectile (there should only ever be one!!!)
 
@@ -324,11 +327,13 @@ public class GameLevel {
                 exit = new Exit(directory, properties, entityConstants.get("exit"), units, animalType);
                 exit.create(directory);
                 activate(exit);
-            }
-            else if ("Text".equalsIgnoreCase(type)) {
+            } else if ("Text".equalsIgnoreCase(type)) {
                 textObjects.add(obj);
+            } else if ("Vent".equalsIgnoreCase(type)) {
+                Vent vent = new Vent(directory, properties, entityConstants.get("vent"), units);
+                vents.add(vent);
+                activate(vent);
             }
-
         }
 
         if (catPresent) {
@@ -502,14 +507,14 @@ public class GameLevel {
         // Draw the sprites first (will be hidden by shadows)
         batch.begin(camera);
 
-
-
-
         sprites.sort(ZoodiniSprite.Comparison);
         for (ZoodiniSprite obj : sprites) {
             if (obj.isDrawingEnabled()) {
                 batch.setColor(Color.WHITE);
                 obj.draw(batch);
+            }
+            if(obj instanceof SecurityCamera cam){
+                if(!cam.isDisabled()) visions.get(obj).draw(batch, camera);
             }
         }
 
@@ -529,13 +534,13 @@ public class GameLevel {
                 }
             }
         }
-
-        for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
-            if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
-                continue;
-            }
-            entry.value.draw(batch, camera);
-        }
+//
+//        for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
+//            if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
+//                continue;
+//            }
+//            entry.value.draw(batch, camera);
+//        }
 
         // d debugging on top of everything.
         if (debug) {
@@ -640,6 +645,10 @@ public class GameLevel {
      */
     public Array<Key> getKeys() {
         return keys;
+    }
+
+    public Array<Vent> getVents() {
+        return vents;
     }
 
     /**
@@ -828,7 +837,7 @@ public class GameLevel {
             float fov = guard.getFov();
             float dist = guard.getViewDistance();
             VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, constants);
-            vc.attachToBody(guard.getObstacle().getBody(), 90.0f);
+            vc.attachToBody(guard.getObstacle().getBody(), guard.getAngle());
             vc.setVisibility(debug);
             visions.put(guard, vc);
         }

@@ -50,10 +50,14 @@
     "exit" : {
       "category": "000001000",
       "exclude" : "001110110",
-      "force" : 1.0,
-      "maxSpeed" : 10.0,
       "size": 1.0,
       "spriteScale": 0.25
+    },
+    "vent" : {
+      "category": "000001000",
+      "exclude" : "001110110",
+      "spriteScale": 0.25,
+      "size": 1.0
     },
     "key" : {
       "category": "000010000",

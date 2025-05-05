@@ -60,8 +60,14 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 4,
+        "id": 8,
         "members": [
+            {
+                "name": "creature",
+                "propertyType": "ExitCreature",
+                "type": "string",
+                "value": "PANDA"
+            }
         ],
         "name": "Exit",
         "type": "class",
@@ -121,19 +127,20 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 8,
+        "id": 10,
         "members": [
-            {
-                "name": "text",
-                "type": "string",
-                "value": ""
-            }
         ],
-        "name": "Text",
+        "name": "Vent",
         "type": "class",
         "useAs": [
             "property",
+            "map",
+            "layer",
             "object",
+            "tile",
+            "tileset",
+            "wangcolor",
+            "wangset",
             "project"
         ]
     },

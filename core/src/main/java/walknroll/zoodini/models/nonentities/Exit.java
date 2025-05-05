@@ -33,13 +33,6 @@ import walknroll.zoodini.utils.enums.ExitAnimal;
  * subclass.
  */
 public class Exit extends ZoodiniSprite {
-    /** Whether this door is locked */
-    private boolean locked;
-    /** The texture to use when the door is locked */
-    private TextureRegion lockedTexture;
-    /** The texture to use when the door is unlocked */
-    private TextureRegion unlockedTexture;
-
     private ExitAnimal creature;
 
     private Animation<TextureRegion> animation;
@@ -80,32 +73,6 @@ public class Exit extends ZoodiniSprite {
         filter.categoryBits = collideBits;
         filter.maskBits = excludeBits;
         obstacle.setFilterData(filter);
-
-        unlockedTexture = new TextureRegion(directory.getEntry("exit", Texture.class));
-
-        // Set initial state (locked by default)
-        locked = true;
-        setTextureRegion(unlockedTexture);
-    }
-
-    /**
-     * Returns whether this door is locked.
-     *
-     * @return whether this door is locked
-     */
-    public boolean isLocked() {
-        return locked;
-    }
-
-    /**
-     * Sets whether this door is locked.
-     * Updates the texture accordingly.
-     *
-     * @param value whether this door is locked
-     */
-    public void setLocked(boolean value) {
-        locked = value;
-        setTextureRegion(locked ? lockedTexture : unlockedTexture);
     }
 
     public void create(AssetDirectory directory) {

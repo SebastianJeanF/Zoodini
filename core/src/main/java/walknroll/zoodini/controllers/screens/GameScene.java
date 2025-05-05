@@ -59,6 +59,7 @@ import walknroll.zoodini.models.entities.SecurityCamera;
 import walknroll.zoodini.models.nonentities.Door;
 import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
+import walknroll.zoodini.models.nonentities.Vent;
 import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.VisionCone;
@@ -551,14 +552,19 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
             for (Guard guard : guards) {
                 Obstacle enemy = guard.getObstacle();
-                if ((o1 == cat && o2 == enemy) || (o2 == cat && o1 == enemy) || (o1 == oct && o2 == enemy)
-                        || (o2 == oct && o1 == enemy)) {
-                    if (Constants.INVINCIBLE) {
-                        contact.setEnabled(false);
-                    } else {
-                        setFailure(true);
-                        gameLost = true;
-                    }
+
+                if (Constants.INVINCIBLE) {
+                    contact.setEnabled(false);
+                }
+
+                if (((o1 == cat && o2 == enemy) || (o2 == cat && o1 == enemy)) && !level.getCat().isInvincible()) {
+                    setFailure(true);
+                    gameLost = true;
+                }
+
+                if (((o1 == oct && o2 == enemy) || (o2 == oct && o1 == enemy)) && !level.getOctopus().isInvincible()) {
+                    setFailure(true);
+                    gameLost = true;
                 }
             }
 
@@ -616,6 +622,23 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                     }
                 }
 
+            }
+
+            for (Vent vent : level.getVents()) {
+                Obstacle ventObs = vent.getObstacle();
+                if ((o1 == cat && o2 == ventObs) || (o2 == cat && o1 == ventObs)) {
+                    vent.setOpen(false);
+                    level.getCat().setInvincible(true);
+                    level.getCat().setDrawingEnabled(false);
+                    cat.setSensor(true);
+                }
+
+                if ((o1 == oct && o2 == ventObs) || (o2 == oct && o1 == ventObs)) {
+                    vent.setOpen(false);
+                    level.getOctopus().setInvincible(true);
+                    level.getOctopus().setDrawingEnabled(false);
+                    oct.setSensor(true);
+                }
             }
 
             // Handle exit collision (only if door is unlocked)
@@ -678,7 +701,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             }
             Obstacle oct = null;
             if (level.getOctopus() != null) {
-                level.getOctopus().getObstacle();
+                oct = level.getOctopus().getObstacle();
             }
             Obstacle exit = level.getExit().getObstacle();
 
@@ -697,6 +720,23 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                     if (canUnlock && door.isLocked()) {
                         door.setUnlocking(false);
                     }
+                }
+            }
+
+            for (Vent vent : level.getVents()) {
+                Obstacle ventObs = vent.getObstacle();
+                if ((o1 == cat && o2 == ventObs) || (o2 == cat && o1 == ventObs)) {
+                    vent.setOpen(true);
+                    level.getCat().setInvincible(false);
+                    level.getCat().setDrawingEnabled(true);
+                    cat.setSensor(false);
+                }
+
+                if ((o1 == oct && o2 == ventObs) || (o2 == oct && o1 == ventObs)) {
+                    vent.setOpen(true);
+                    level.getOctopus().setInvincible(false);
+                    level.getOctopus().setDrawingEnabled(true);
+                    oct.setSensor(false);
                 }
             }
 
@@ -894,7 +934,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : vec2tmp3;
 
             // Check if cat is detected
-            if (level.isCatPresent() && visionCone.contains(catPos)) {
+            if (level.isCatPresent() && visionCone.contains(catPos) && !level.getCat().isInvincible()) {
                 guard.setAgroed(true);
                 guard.setAggroTarget(level.getCat());
                 guard.setTarget(level.getCat().getPosition());
@@ -905,7 +945,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             }
 
             // Check if octopus is detected
-            else if (level.isOctopusPresent() && visionCone.contains(octPos)) {
+            else if (level.isOctopusPresent() && visionCone.contains(octPos) && !level.getOctopus().isInvincible()) {
                 guard.setAgroed(true);
                 guard.setAggroTarget(level.getOctopus());
                 guard.setTarget(level.getOctopus().getPosition());
@@ -1087,8 +1127,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         float radius = ((WheelObstacle) avatar.getObstacle()).getRadius();
 
         angleCache.scl(avatar.getForce())
-            .scl(MOVEMENT_SCALE)
-            .scl((float) Math.pow( (radius/ .4f) , 2)); // Scale the force based on the radius
+                .scl(MOVEMENT_SCALE)
+                .scl((float) Math.pow((radius / .4f), 2)); // Scale the force based on the radius
 
         avatar.setMovement(angleCache.x, angleCache.y);
         avatar.applyForce();
