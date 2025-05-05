@@ -18,6 +18,7 @@ import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import java.util.Arrays;
 import walknroll.zoodini.models.entities.Enemy;
+import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.LevelPortal;
 import walknroll.zoodini.utils.animation.Animation;
 import walknroll.zoodini.utils.animation.AnimationController;

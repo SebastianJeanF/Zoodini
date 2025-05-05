@@ -94,7 +94,7 @@
    </properties>
    <point/>
   </object>
-  <object id="83" type="Guard" x="1728.67" y="3120">
+  <object id="83" type="Guard" x="1740.79" y="3435.15">
    <properties>
     <property name="category" value="00100"/>
     <property name="exclude" value="00100"/>
@@ -135,7 +135,7 @@
   </object>
   <object id="128" type="Text" x="1184" y="4176">
    <properties>
-    <property name="text" value="&quot;Meow to distract guard&quot;"/>
+    <property name="text" value="Meow to distract guard"/>
    </properties>
    <point/>
   </object>

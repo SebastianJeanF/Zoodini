@@ -458,7 +458,6 @@ public class GuardAIController {
         if (currState == GuardState.LOOKING_AROUND) {
             currentLookTime += dt;
             currentLookChangeTime += dt;
-
             // Change look direction periodically
             if (currentLookChangeTime >= lookChangeTime) {
                 lookDirection *= -1; // Flip direction
@@ -666,7 +665,6 @@ public class GuardAIController {
         else if (this.nextTargetLocation == null) {
             return Vector2.Zero;
         } else {
-//            System.out.println(this.nextTargetLocation.cpy().sub(guard.getPosition()).nor());
             return this.nextTargetLocation.cpy().sub(guard.getPosition()).nor();
         }
     }
