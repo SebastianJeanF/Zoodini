@@ -15,19 +15,14 @@
 package walknroll.zoodini.models.entities;
 
 import com.badlogic.gdx.maps.MapProperties;
-import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-import com.badlogic.gdx.utils.*;
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.utils.JsonValue;
 
-import edu.cornell.gdiac.assets.AssetDirectory;
-import edu.cornell.gdiac.assets.ParserUtils;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.graphics.SpriteSheet;
-import edu.cornell.gdiac.physics2.CapsuleObstacle;
-import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.physics2.WheelObstacle;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.utils.ZoodiniSprite;
@@ -50,14 +45,6 @@ public class Avatar extends ZoodiniSprite {
 
 	/** The current horizontal movement of the character */
 	private Vector2 movement = new Vector2();
-
-	/** How many frames until we can walk again */
-	private int walkCool;
-	/** The standard number of frames to wait until we can walk again */
-	private int walkLimit;
-
-	/** The rotational center of the filmstrip */
-	private Vector2 center;
 
 	/** Cache for internal force calculations */
 	private Vector2 forceCache = new Vector2();
@@ -262,6 +249,7 @@ public class Avatar extends ZoodiniSprite {
 					new Animation(sheet, 0, sheet.getSize() - 1, frameDelay, true));
 			case WALK_UP_BLIND -> animationController.addAnimation(AnimationState.WALK_UP_BLIND,
 					new Animation(sheet, 0, sheet.getSize() - 1, frameDelay, true));
+			default -> {}
 		}
 	}
 
