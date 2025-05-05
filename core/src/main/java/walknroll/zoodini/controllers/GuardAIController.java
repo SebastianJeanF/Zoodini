@@ -84,6 +84,11 @@ public class GuardAIController {
         this.heuristic = new ManhattanHeuristic<>();
         this.nextTargetLocation = new Vector2(0, 0);
         this.CAT_MEOW_RADIUS = level.isCatPresent() ? level.getCat().getAbilityRange() : 0;
+
+        // Otherwise, stay in PATROL state
+        if (waypoints.length <= 1) {
+            guard.setIdle(true);
+        }
     }
 
     /**
@@ -244,7 +249,7 @@ public class GuardAIController {
             }
         } else { // Guard is chasing
             // When player is under camera and guard is in CHASE state
-            if (targetPlayer.isUnderCamera()) {
+            if (targetPlayer != null && targetPlayer.isUnderCamera()) {
                 // Don't change deaggroTimer if under camera
                 guard.deltaDeAggroTimer(0);
             }
@@ -379,13 +384,19 @@ public class GuardAIController {
                     cameraAlertPosition.set(getValidTileCoords(playerPosition));
                     lastStateChangeTime = ticks;
                 }
-                // Otherwise, stay in PATROL state
+
+                guard.setIdle(waypoints.length <= 1 && guard.getPosition().dst(waypoints[0]) <= 0.5f);
+
                 break;
             default:
                 // Should never happen, but reset to PATROL if we get an invalid state
                 currState = GuardState.PATROL;
                 break;
         }
+        if (currState != GuardState.PATROL || guard.getPosition().dst(waypoints[0]) > 0.5f) {
+            guard.setIdle(false);
+        }
+
     }
 
     /**
@@ -505,7 +516,9 @@ public class GuardAIController {
         switch (currState) {
             case PATROL:
                 if (waypoints.length == 0) {
-                    DebugPrinter.println("Guard has no waypoints to patrol");
+                    return;
+                }
+                if (guard.isIdle()) {
                     return;
                 }
                 // If guard reaches waypoint, move to next waypoint
