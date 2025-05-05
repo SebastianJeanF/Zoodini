@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="41" height="31" tilewidth="128" tileheight="128" infinite="0" nextlayerid="6" nextobjectid="156">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="41" height="31" tilewidth="128" tileheight="128" infinite="0" nextlayerid="6" nextobjectid="160">
  <tileset firstgid="1" source="../tilesets/path-1.tsx"/>
  <tileset firstgid="211" source="../tilesets/path-2.tsx"/>
  <tileset firstgid="421" source="../tilesets/walls-1.tsx"/>
@@ -128,6 +128,18 @@
     <property name="creature" propertytype="ExitCreature" value="OCTOPUS"/>
     <property name="exclude" value="00000"/>
     <property name="size" type="float" value="1.25"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="156" type="Text" x="951.515" y="690.909">
+   <properties>
+    <property name="text" value="Press WASD to move"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="157" type="Text" x="3293.94" y="1806.06">
+   <properties>
+    <property name="text" value="Avoid being spotted!"/>
    </properties>
    <point/>
   </object>
