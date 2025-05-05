@@ -8,7 +8,8 @@
   "4": "maps/Tutorial4.tmx",
   "5": "maps/Tutorial5.tmx",
   "6": "maps/Tutorial6.tmx",
-  "7" : "maps/Hard-Level-2.tmx",
+  "7" : "maps/medium1.tmx",
   "8": "maps/Level8.tmx",
-  "9": "maps/debugMap.tmx"
+  "9": "maps/Hard-Level-2.tmx",
+  "10": "maps/debugMap.tmx"
 }

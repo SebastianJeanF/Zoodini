@@ -72,23 +72,15 @@
         ]
     },
     {
-        "id": 9,
-        "name": "ExitCreature",
-        "storageType": "string",
-        "type": "enum",
-        "values": [
-            "PANDA",
-            "RABBIT",
-            "PENGUIN",
-            "OCTOPUS"
-        ],
-        "valuesAsFlags": false
-    },
-    {
         "color": "#ffa0a0a4",
         "drawFill": true,
         "id": 5,
         "members": [
+            {
+                "name": "path",
+                "type": "object",
+                "value": 0
+            }
         ],
         "name": "Guard",
         "type": "class",
@@ -144,5 +136,18 @@
             "object",
             "project"
         ]
+    },
+    {
+        "id": 9,
+        "name": "ExitCreature",
+        "storageType": "string",
+        "type": "enum",
+        "values": [
+            "PANDA",
+            "RABBIT",
+            "PENGUIN",
+            "OCTOPUS"
+        ],
+        "valuesAsFlags": false
     }
 ]
