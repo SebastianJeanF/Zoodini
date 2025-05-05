@@ -45,7 +45,7 @@
       "spriteRadius": 0.6,
       "obstacleRadius" : 0.4,
       "disabledTime" : 5.0,
-      "alarmDistance" : 6.0
+      "alarmDistance" : 7.5
     },
     "exit" : {
       "category": "000001000",
