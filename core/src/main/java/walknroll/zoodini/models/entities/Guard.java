@@ -50,15 +50,15 @@ public class Guard extends Enemy {
 
     private Avatar aggroTarget;
     private boolean seesPlayer;
-    private Avatar seenPlayer;
+    private PlayableAvatar seenPlayer;
 
     /** The position that this guard should move to */
     Vector2 target = null;
     Vector2 movementDirection = null;
     Vector2 targetPosition = null;
     /** Direction guard is currently facing */
-    private Vector2 currentDirection = new Vector2(0, 1); // Default facing up
-    private Vector2 targetDirection = new Vector2(0, 1);
+    private Vector2 currentDirection = new Vector2(0, -1); // Default facing up
+    private Vector2 targetDirection = new Vector2(0, -1);
 
     private float turnSpeed = 5.0f;
     // --- Patrol Path Variables for Guard ---
@@ -88,6 +88,8 @@ public class Guard extends Enemy {
     private final float susForce;
     private final float distractedForce;
     private final float blindedForceScale;
+
+    private boolean isIdle = false;
 
 
     public float getSusForce() {
@@ -161,6 +163,7 @@ public class Guard extends Enemy {
         tempViewDistance = viewDistance;
         tempFov = fov;
 
+        obstacle.setUserData(this);
     }
 
     public void setSusMeter(SpriteSheet sheet) {
@@ -282,11 +285,11 @@ public class Guard extends Enemy {
         return seesPlayer;
     }
 
-    public void setSeenPlayer(Avatar seenPlayer) {
+    public void setSeenPlayer(PlayableAvatar seenPlayer) {
         this.seenPlayer = seenPlayer;
     }
 
-    public Avatar getSeenPlayer() {
+    public PlayableAvatar getSeenPlayer() {
         return seenPlayer;
     }
 
@@ -354,6 +357,14 @@ public class Guard extends Enemy {
      */
     public boolean isMeowed() {
         return meowed;
+    }
+
+    public void setIdle(boolean idle) {
+        isIdle = idle;
+    }
+
+    public boolean isIdle() {
+        return isIdle;
     }
 
     public Avatar getAggroTarget() {

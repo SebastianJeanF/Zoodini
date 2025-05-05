@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="50" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="8" nextobjectid="138">
+ <tileset firstgid="1" source="../tilesets/path-1.tsx"/>
+ <tileset firstgid="211" source="../tilesets/path-2.tsx"/>
+ <tileset firstgid="421" source="../tilesets/walls-1.tsx"/>
+ <tileset firstgid="631" source="../tilesets/walls-2.tsx"/>
+ <tileset firstgid="841" source="../tilesets/path-3.tsx"/>
+ <layer id="1" name="ground" width="50" height="20">
+  <data encoding="csv">
+1610613164,1610613164,1610613164,1610613164,428,429,430,431,432,428,429,430,431,432,433,428,429,430,431,432,433,428,429,430,431,432,444,444,444,445,446,447,443,444,445,437,437,437,438,439,440,433,433,433,433,433,433,433,429,430,
+1610613166,1610613166,1610613166,1610613167,429,429,429,446,447,443,444,445,446,447,448,443,444,445,446,447,448,443,444,445,446,447,207,208,209,511,512,511,511,512,512,543,543,543,543,543,543,448,448,448,448,448,448,448,444,445,
+1610613165,1610613165,1610613165,1610613166,429,429,429,844,845,528,529,617,618,619,512,512,512,512,512,512,1610613271,1610613286,1610613301,1610613316,1610613331,1610613346,57,58,59,622,889,890,891,892,527,527,512,512,512,527,527,470,471,472,473,474,475,476,477,478,
+1610613164,1610613164,1610613164,1610613165,429,429,429,860,861,543,544,601,601,601,601,601,601,601,601,601,1610613270,1610613285,1610613300,1610613315,1610613330,1610613345,72,73,74,622,905,906,907,908,527,527,527,527,527,526,527,485,486,487,488,489,490,491,492,493,
+1610613167,1610613168,1610613164,1610613164,429,429,429,530,530,530,429,429,431,428,428,428,428,428,429,430,428,429,430,431,432,433,87,88,89,526,921,922,923,924,512,305,306,307,308,309,512,500,501,502,503,504,505,506,507,508,
+1610613166,1610613168,1610613164,1610613164,443,443,443,530,530,530,446,429,431,428,428,428,428,443,444,445,443,444,445,446,447,448,1073742031,1073742032,1073742033,1610613215,1610613230,1610613245,1610613260,526,527,320,321,322,323,324,527,515,516,517,518,519,520,521,522,523,
+1610613165,1610613168,1610613166,1610613168,574,619,622,934,935,936,589,429,431,428,428,428,428,601,601,601,601,601,601,601,601,601,1073742016,1073742017,1073742018,529,529,529,529,529,529,529,529,529,529,526,527,530,531,532,533,534,535,536,537,538,
+1610613164,1610613168,1610613168,1610613168,543,544,622,950,951,952,542,429,431,428,428,428,428,527,528,601,601,601,601,601,601,601,1073742001,1073742002,1073742003,1610613213,1610613228,1610613243,1610613258,487,487,1610613165,430,428,428,428,429,428,429,430,431,432,433,551,552,553,
+1610613164,1610613168,1610613168,1610613168,558,559,542,966,967,968,556,429,431,428,429,430,431,432,433,425,425,425,425,425,425,526,1073741986,1073741987,1073741988,1610613212,1610613227,1610613242,501,501,501,445,1610613179,445,445,443,444,443,444,445,446,447,448,566,567,568,
+1610613164,1610613168,1610613167,1610613168,573,574,528,982,983,984,526,447,448,443,422,422,446,447,448,428,429,430,431,432,425,1610613339,1073741971,1073741972,1073741973,1610613211,508,512,513,514,515,516,517,527,527,527,527,487,490,491,491,491,491,491,491,491,
+1610613164,1610613167,1610613166,1610613167,588,589,571,998,999,1000,571,462,463,558,422,422,527,527,528,443,444,445,444,444,431,542,1073741956,1073741957,1073741958,430,508,527,528,529,530,531,532,527,527,527,527,484,484,487,488,489,490,491,491,491,
+1610613164,1610613166,1610613165,1610613166,603,604,543,1014,1015,1016,571,557,557,573,432,433,542,542,543,602,603,604,557,572,431,557,1073741941,1073741942,1073741943,1610613169,430,542,543,544,545,428,429,430,431,512,512,487,499,500,501,502,499,500,501,502,
+1610613164,1610613165,1610613164,1610613165,528,529,542,1030,1031,1032,556,541,526,542,428,428,557,557,558,617,618,619,573,557,431,572,1073741926,1073741927,1073741928,1610613168,430,557,558,559,588,443,444,445,446,512,512,508,73,73,73,73,73,73,73,73,
+1610613164,1610613164,1610613168,1610613164,543,544,622,1046,1047,1048,889,890,891,892,1610613166,428,428,429,430,431,432,532,532,532,428,587,1073741911,1073741912,1073741913,1610613167,430,430,573,574,588,576,577,1610613327,1610613342,1610613323,1610613338,523,73,73,73,73,73,73,73,73,
+1610613168,1610613164,1610613168,1610613165,558,526,527,1062,1063,1064,905,906,907,908,1610613165,428,428,428,429,430,431,532,532,532,433,602,1073741896,1073741897,1073741898,1610613166,430,430,588,589,588,591,592,588,588,541,542,538,73,73,73,73,73,73,73,73,
+1610613168,1610613164,1610613167,1610613164,573,541,542,1078,1079,1080,921,922,923,924,443,1610613179,443,444,445,446,447,532,532,532,448,617,1073741881,1073741882,1073741883,1610613165,430,430,603,604,588,606,607,1610613325,1610613340,556,557,553,73,73,73,73,73,73,73,73,
+1610613168,1610613164,1610613166,1610613164,588,556,910,1610613671,1610613671,1610613655,1610613671,1610613655,1610613671,1610613655,1610613671,1610613640,1610613656,1610613672,1610613688,1610613704,1610613720,1610613736,1610613752,1610613768,1610613784,1610613800,1031,178,179,622,622,622,622,619,620,588,622,1610613324,1610613339,571,572,568,73,73,73,73,73,73,73,73,
+1610613168,1610613164,1610613165,1610613164,603,571,411,1610613671,1610613671,1610613671,1610613655,1610613671,1610613655,1610613655,1610613671,1610613639,1610613655,1610613671,1610613687,1610613703,1610613719,1610613735,1610613751,1610613767,1610613783,1610613799,1610613815,178,179,622,622,622,622,1610613263,1610613278,1610613293,1610613308,1610613323,1610613338,586,587,583,73,73,73,73,73,73,73,73,
+1610613168,1610613164,1610613164,1610613164,428,428,428,428,428,428,428,428,428,428,429,430,431,432,428,428,428,428,428,428,428,428,428,428,428,428,428,428,428,428,428,428,428,428,428,428,428,428,428,428,428,428,428,428,429,430,
+1610613168,1610613164,1610613168,1610613168,443,443,443,443,443,443,443,443,443,443,444,445,446,447,443,443,443,443,443,443,443,443,444,444,444,443,443,443,443,443,443,443,443,443,443,443,443,443,443,443,443,443,443,443,444,445
+</data>
+ </layer>
+ <objectgroup id="5" name="walls">
+  <object id="64" x="0" y="0" width="512" height="2560"/>
+  <object id="65" x="512" y="2304" width="5888" height="256"/>
+  <object id="67" x="1408" y="512" width="768" height="768"/>
+  <object id="68" x="1792" y="1280" width="256" height="768"/>
+  <object id="70" x="2176" y="1024" width="1024" height="256"/>
+  <object id="71" x="2432" y="1280" width="768" height="128"/>
+  <object id="72" x="2176" y="512" width="1152" height="256"/>
+  <object id="74" x="5248" y="256" width="1152" height="384"/>
+  <object id="76" x="6016" y="640" width="384" height="896"/>
+  <object id="77" x="3712" y="896" width="2304" height="256"/>
+  <object id="78" x="5248" y="1152" width="768" height="1152"/>
+  <object id="79" x="3712" y="1152" width="256" height="896"/>
+  <object id="80" x="3968" y="1664" width="128" height="384"/>
+  <object id="81" x="4480" y="1408" width="256" height="640"/>
+  <object id="82" x="4736" y="1408" width="256" height="384"/>
+  <object id="84" x="1920" y="1664" width="768" height="384"/>
+  <object id="85" x="3072" y="1280" width="128" height="768"/>
+  <object id="87" x="384" y="0" width="2944" height="256"/>
+  <object id="88" x="2816" y="256" width="512" height="256"/>
+  <object id="90" x="5248" y="0" width="1152" height="256"/>
+  <object id="133" x="3328" y="0" width="2048" height="128"/>
+  <object id="136" x="512" y="128" width="384" height="640"/>
+  <object id="137" x="1280" y="512" width="256" height="256"/>
+ </objectgroup>
+ <objectgroup id="4" name="objects">
+  <object id="4" type="Exit" x="2208.24" y="428.121">
+   <properties>
+    <property name="category" value="10000"/>
+    <property name="exclude" value="00000"/>
+    <property name="size" type="float" value="1.25"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="5" type="Cat" x="2340" y="1556">
+   <properties>
+    <property name="abilityCooldown" type="float" value="5"/>
+    <property name="abilityRange" type="float" value="7"/>
+    <property name="category" value="00010"/>
+    <property name="exclude" value="00010"/>
+    <property name="force" type="float" value="3"/>
+    <property name="maxSpeed" type="float" value="10"/>
+    <property name="meowExpandSpeed" type="float" value="10"/>
+    <property name="radius" type="float" value="0.4"/>
+    <property name="spriteRadius" type="float" value="0.6"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="6" type="Octopus" x="4848" y="636">
+   <properties>
+    <property name="abilityRange" type="float" value="3.5"/>
+    <property name="category" value="00010"/>
+    <property name="exclude" value="00010"/>
+    <property name="force" type="float" value="1"/>
+    <property name="inkCapacity" type="float" value="100"/>
+    <property name="inkRegen" type="float" value="25"/>
+    <property name="inkUsage" type="float" value="25"/>
+    <property name="maxSpeed" type="float" value="5"/>
+    <property name="radius" type="float" value="0.4"/>
+    <property name="spriteRadius" type="float" value="0.6"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="7" type="Key" x="5128" y="1940">
+   <properties>
+    <property name="category" value="10000"/>
+    <property name="exclude" value="11101"/>
+    <property name="size" type="float" value="1"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="8" type="Guard" x="4848" y="2234">
+   <properties>
+    <property name="category" value="00100"/>
+    <property name="exclude" value="00100"/>
+    <property name="force" type="float" value="1.5"/>
+    <property name="fov" type="float" value="60"/>
+    <property name="maxSpeed" type="float" value="10"/>
+    <property name="path" type="object" value="0"/>
+    <property name="radius" type="float" value="0.2"/>
+    <property name="spriteRadius" type="float" value="1"/>
+    <property name="viewDistance" type="float" value="5"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="9" type="Camera" x="4146" y="1872">
+   <properties>
+    <property name="alarmDistance" type="float" value="5"/>
+    <property name="angle" type="float" value="0"/>
+    <property name="category" value="01000"/>
+    <property name="disabledTime" type="float" value="5"/>
+    <property name="exclude" value="00000"/>
+    <property name="fov" type="float" value="60"/>
+    <property name="radius" type="float" value="0.2"/>
+    <property name="spriteRadius" type="float" value="0.6"/>
+    <property name="viewDistance" type="float" value="5"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="10" type="Door" x="1092" y="640">
+   <properties>
+    <property name="category" value="10000"/>
+    <property name="exclude" value="00000"/>
+    <property name="excludeUnlocked" value="00110"/>
+    <property name="size" type="float" value="1.25"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="11" type="Door" x="2884.03" y="1893.75">
+   <properties>
+    <property name="category" value="10000"/>
+    <property name="exclude" value="00000"/>
+    <property name="excludeUnlocked" value="00110"/>
+    <property name="size" type="float" value="1.25"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="12" type="Key" x="2360" y="956">
+   <properties>
+    <property name="category" value="10000"/>
+    <property name="exclude" value="11101"/>
+    <property name="size" type="float" value="1"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="13" type="Guard" x="3472" y="516">
+   <properties>
+    <property name="category" value="00100"/>
+    <property name="exclude" value="00100"/>
+    <property name="force" type="float" value="1.5"/>
+    <property name="fov" type="float" value="60"/>
+    <property name="maxSpeed" type="float" value="10"/>
+    <property name="path" type="object" value="14"/>
+    <property name="radius" type="float" value="0.2"/>
+    <property name="spriteRadius" type="float" value="1"/>
+    <property name="viewDistance" type="float" value="5"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="14" x="3456" y="574.364">
+   <polyline points="0,0 0,1093.64 128,1093.64 128,-364.545 1664,-364.545 1664,0 256,0"/>
+  </object>
+  <object id="56" type="Guard" x="704" y="2036">
+   <properties>
+    <property name="category" value="00100"/>
+    <property name="exclude" value="00100"/>
+    <property name="force" type="float" value="1.5"/>
+    <property name="fov" type="float" value="60"/>
+    <property name="maxSpeed" type="float" value="10"/>
+    <property name="path" type="object" value="61"/>
+    <property name="radius" type="float" value="0.2"/>
+    <property name="spriteRadius" type="float" value="1"/>
+    <property name="viewDistance" type="float" value="5"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="61" x="706.061" y="1830.3">
+   <polyline points="0,0 -3.0303,-751.515"/>
+  </object>
+  <object id="62" type="Camera" x="1736.36" y="1345.45">
+   <properties>
+    <property name="alarmDistance" type="float" value="5"/>
+    <property name="angle" type="float" value="225"/>
+    <property name="category" value="01000"/>
+    <property name="disabledTime" type="float" value="5"/>
+    <property name="exclude" value="00000"/>
+    <property name="fov" type="float" value="60"/>
+    <property name="radius" type="float" value="0.2"/>
+    <property name="spriteRadius" type="float" value="0.6"/>
+    <property name="viewDistance" type="float" value="5"/>
+   </properties>
+   <point/>
+  </object>
+ </objectgroup>
+</map>

@@ -33,13 +33,6 @@ import walknroll.zoodini.utils.enums.ExitAnimal;
  * subclass.
  */
 public class Exit extends ZoodiniSprite {
-    /** Whether this door is locked */
-    private boolean locked;
-    /** The texture to use when the door is locked */
-    private TextureRegion lockedTexture;
-    /** The texture to use when the door is unlocked */
-    private TextureRegion unlockedTexture;
-
     private ExitAnimal creature;
 
     private Animation<TextureRegion> animation;
@@ -66,10 +59,6 @@ public class Exit extends ZoodiniSprite {
         obstacle.setSensor(true);
         obstacle.setPhysicsUnits(units);
 
-        float w = size * units;
-        float h = size * units;
-        mesh = new SpriteMesh(-w / 2, -h / 2, w, h);
-
         // Technically, we should do error checking here.
         // A JSON field might accidentally be missing
         obstacle.setBodyType(BodyType.StaticBody);
@@ -85,51 +74,24 @@ public class Exit extends ZoodiniSprite {
         filter.maskBits = excludeBits;
         obstacle.setFilterData(filter);
 
-        unlockedTexture = new TextureRegion(directory.getEntry("exit", Texture.class));
-
-        // Set initial state (locked by default)
-        locked = true;
-        setTextureRegion(unlockedTexture);
-    }
-
-    /**
-     * Returns whether this door is locked.
-     *
-     * @return whether this door is locked
-     */
-    public boolean isLocked() {
-        return locked;
-    }
-
-    /**
-     * Sets whether this door is locked.
-     * Updates the texture accordingly.
-     *
-     * @param value whether this door is locked
-     */
-    public void setLocked(boolean value) {
-        locked = value;
-        setTextureRegion(locked ? lockedTexture : unlockedTexture);
+        obstacle.setUserData(this);
     }
 
     public void create(AssetDirectory directory) {
         switch (this.creature) {
-            case PANDA:
-                spriteTextures = directory.getEntry("panda-idle.animation", SpriteSheet.class);
-                break;
-            case PENGUIN:
-                spriteTextures = directory.getEntry("penguin-idle.animation", SpriteSheet.class);
-                break;
-            case RABBIT:
-                spriteTextures = directory.getEntry("rabbit-idle.animation", SpriteSheet.class);
-                break;
-            default:
-                break;
-
+            case PANDA -> spriteTextures = directory.getEntry("panda-chained-idle.animation", SpriteSheet.class);
+            case PENGUIN -> spriteTextures = directory.getEntry("penguin-chained-idle.animation", SpriteSheet.class);
+            case RABBIT -> spriteTextures = directory.getEntry("rabbit-chained-idle.animation", SpriteSheet.class);
+            case OCTOPUS -> spriteTextures = directory.getEntry("octopus-chained-idle.animation", SpriteSheet.class);
+            default -> spriteTextures = directory.getEntry("panda-chained-idle.animation", SpriteSheet.class);
         }
 
         TextureRegion[][] tmp = TextureRegion.split(spriteTextures.getTexture(), spriteTextures.getRegionWidth(),
                 spriteTextures.getRegionHeight());
+
+        float w = spriteTextures.getRegionWidth() * textureScale;
+        float h = spriteTextures.getRegionHeight() * textureScale;
+        mesh = new SpriteMesh(-w / 2, -h / 2, w, h);
 
         TextureRegion[] frames = new TextureRegion[spriteTextures.getSize()];
         for (int i = 0; i < spriteTextures.getSize(); i++) {
@@ -154,9 +116,13 @@ public class Exit extends ZoodiniSprite {
             float u = this.obstacle.getPhysicsUnits();
             this.transform.idt();
             this.transform.preRotate((float) ((double) (a * 180.0F) / Math.PI));
+            TextureRegion frame = animation.getKeyFrame(animationTime, true);
             this.transform.preTranslate(x * u, y * u);
-            this.transform.scale(textureScale, textureScale);
-            batch.draw(animation.getKeyFrame(animationTime, true), this.transform);
+            // this.transform.scale(textureScale, textureScale);
+
+            batch.setTextureRegion(frame);
+            batch.drawMesh(this.mesh, this.transform, false);
+            // batch.draw(frame, this.transform);
             batch.setTexture((Texture) null);
         }
     }

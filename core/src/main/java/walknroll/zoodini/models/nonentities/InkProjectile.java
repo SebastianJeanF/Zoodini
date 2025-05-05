@@ -149,6 +149,8 @@ public class InkProjectile extends ZoodiniSprite {
 
         shouldDestroy = false;
         animationController = new AnimationController(AnimationState.IDLE);
+
+        obstacle.setUserData(this);
     }
 
     public void setAnimation(AnimationState state, SpriteSheet sheet, int frameDelay){
@@ -178,7 +180,7 @@ public class InkProjectile extends ZoodiniSprite {
 
         // Apply force for movement
          if (getMovement().len2() > 0f) {
-            forceCache.set(getMovement().nor().scl(50));
+            forceCache.set(getMovement().nor().scl(75));
             obstacle.getBody().applyForce(forceCache, obstacle.getPosition(), true);
         }
     }
@@ -186,7 +188,8 @@ public class InkProjectile extends ZoodiniSprite {
     private boolean soundPlayed = false;
     @Override
     public void update(float dt) {
-            if (this.getShouldDestroy()) {
+        super.update(dt);
+        if (this.getShouldDestroy()) {
                 animationController.setState(AnimationState.EXPLODE);
                 if (animationController.getCurrentFrame()
                     >= animationController.getCurrentSpriteSheet().getSize() - 1) {
@@ -216,8 +219,6 @@ public class InkProjectile extends ZoodiniSprite {
         if (sprite != null) {
             sprite.setFrame(animationController.getCurrentFrame());
         }
-
-        obstacle.update(dt);
     }
 
     @Override

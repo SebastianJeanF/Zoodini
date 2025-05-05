@@ -136,6 +136,7 @@
   <object id="187" type="Exit" x="5418.18" y="3796.97">
    <properties>
     <property name="category" value="10000"/>
+    <property name="creature" propertytype="ExitCreature" value="OCTOPUS"/>
     <property name="exclude" value="00000"/>
     <property name="size" type="float" value="1.25"/>
    </properties>

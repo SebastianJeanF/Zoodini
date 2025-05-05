@@ -15,11 +15,11 @@
     "octopus" : {
       "category": "000000001",
       "exclude" : "001000001",
-      "force" : 2.0,
+      "force" : 2.5,
       "maxSpeed" : 10.0,
       "spriteRadius": 0.6,
-      "obstacleRadius" : 0.6,
-      "abilityRange" : 5,
+      "obstacleRadius" : 0.4,
+      "abilityRange" : 7,
       "inkCapacity" : 50.0,
       "inkRegen" : 4,
       "inkUsage" : 25.0
@@ -33,11 +33,11 @@
       "obstacleRadius" : 0.4,
       "agroedForce" : 2.8,
       "alertedForce" : 3.5,
-      "susForce" : 1.55,
+      "susForce" : 2.5,
       "distractedForce" : 1,
       "blindedForceScale" : 0.65,
       "viewDistance" : 5.0,
-      "fov" : 50.0
+      "fov" : 60.0
     },
     "camera" : {
       "category": "000000100",
@@ -45,15 +45,19 @@
       "spriteRadius": 0.6,
       "obstacleRadius" : 0.4,
       "disabledTime" : 5.0,
-      "alarmDistance" : 6.0
+      "alarmDistance" : 7.5
     },
     "exit" : {
       "category": "000001000",
       "exclude" : "001110110",
-      "force" : 1.0,
-      "maxSpeed" : 10.0,
       "size": 1.0,
       "spriteScale": 0.25
+    },
+    "vent" : {
+      "category": "000001000",
+      "exclude" : "001110110",
+      "spriteScale": 0.25,
+      "size": 1.0
     },
     "key" : {
       "category": "000010000",
@@ -112,5 +116,9 @@
     "button.next.width": 386,
     "button.menu.height": 65,
     "button.next.height": 65
+  },
+  "gameText" : {
+    "cycleTimeSec" : 4,
+    "maxYOffsetTile" : 0.5
   }
 }

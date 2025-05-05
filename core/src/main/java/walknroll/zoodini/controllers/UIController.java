@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import edu.cornell.gdiac.assets.AssetDirectory;
+import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
@@ -85,9 +87,9 @@ public class UIController {
     private boolean isPaused = false;
     private PauseMenuListener pauseListener;
 
-    public UIController(AssetDirectory directory, GameLevel level) {
+    public UIController(AssetDirectory directory, GameLevel level, SpriteBatch batch) {
         viewport = new ScreenViewport();
-        stage = new Stage(viewport);
+        stage = new Stage(viewport, batch);
         skin = new Skin(Gdx.files.internal("uiskins/default/uiskin.json")); //TODO: use AssetDirectory to load skins.
         initializeActors(directory, level);
         setupStageLayout();
@@ -190,25 +192,23 @@ public class UIController {
         stage.addActor(topRightTable);
 
 
-        //TODO: don't hardcode positions. Use tables.
-        if (smallCatIconImage != null) {
-            smallCatIconImage.setPosition(45, 600);
-            smallCatIconImage.setVisible(false);
-            stage.addActor(smallCatIconImage);
-        }
+        Table leftTable = new Table();
+        leftTable.setFillParent(true);
+        leftTable.setDebug(debug);
+        Group dangerIcons = new Group();
+        dangerIcons.addActor(smallCatIconImage);
+        dangerIcons.addActor(smallOctopusIconImage);
+        dangerIconImage.moveBy(50,30);
+        dangerIcons.addActor(dangerIconImage);
+        leftTable.left().add(dangerIcons).width(100).height(100);
+        stage.addActor(leftTable);
 
-        if (smallOctopusIconImage != null) {
-            smallOctopusIconImage.setPosition(45, 600);
-            smallOctopusIconImage.setVisible(false); // Hide initially, we'll toggle visibility
-            stage.addActor(smallOctopusIconImage);
-        }
-
-        if (dangerIconImage != null) {
-            dangerIconImage.setPosition(105, 615);
-            dangerIconImage.setVisible(false);
-            stage.addActor(dangerIconImage);
-        }
-
+//        if (dangerIconImage != null) {
+//            dangerIconImage.setPosition(105, 615);
+//            dangerIconImage.setVisible(false);
+//            stage.addActor(dangerIconImage);
+//        }
+//
         if (pauseIconImage != null) {
             pauseIconImage.setVisible(true);
             pauseIconImage.addListener(new ClickListener() {
@@ -217,7 +217,6 @@ public class UIController {
                     togglePauseMenu(true);
                 }
             });
-            //stage.addActor(pauseIconImage);
         }
 
         if (resumeIconImage != null) {
@@ -373,8 +372,7 @@ public class UIController {
                     smallOctopusIconImage.setVisible(false);
                 } else {
                     smallOctopusIconImage.setVisible(true);
-                    smallCatIconImage.setVisible(false);
-                }
+                    smallCatIconImage.setVisible(false);}
             } else {
                 dangerIconImage.setVisible(false);
                 smallCatIconImage.setVisible(false);

@@ -53,7 +53,6 @@ public class Octopus extends PlayableAvatar {
         float r = constants.getFloat("spriteRadius") * OCTOPUS_IMAGE_SCALE * units;
         //TODO: we don't need OCTOPUS_IMAGE_SCALE
 
-        mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
         target = new Vector2();
         this.abilityRange = constants.getFloat("abilityRange");
         this.inkRemaining = constants.getFloat("inkCapacity");
@@ -61,6 +60,8 @@ public class Octopus extends PlayableAvatar {
         this.inkUsage = constants.getFloat("inkUsage");
         this.inkCapacity = inkRemaining;
         keys = new Array<Key>();
+
+        obstacle.setUserData(this);
     }
 
     public void assignKey(Key key) {

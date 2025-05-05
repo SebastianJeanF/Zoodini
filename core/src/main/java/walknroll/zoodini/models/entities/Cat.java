@@ -65,6 +65,8 @@ public class Cat extends PlayableAvatar{
         meowCooldownRemaining = 0;
         onCooldown = false;
         keys = new Array<Key>();
+
+        obstacle.setUserData(this);
     }
 
     public void assignKey(Key key) {
