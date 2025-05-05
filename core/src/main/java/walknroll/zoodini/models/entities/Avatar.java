@@ -220,8 +220,8 @@ public class Avatar extends ZoodiniSprite {
 		filter.maskBits = GameLevel.bitStringToComplement(constants.getString("exclude"));
 		obstacle.setFilterData(filter);
 
-		float r = constants.getFloat("spriteRadius") * units;
-		mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
+		float sr = constants.getFloat("spriteRadius") * units;
+		mesh = new SpriteMesh(-sr, -sr/2 - 20f, 2 * sr, 2 * sr);
 
 		underCamera = false;
 		underVisionCone = false;
