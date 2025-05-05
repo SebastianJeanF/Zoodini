@@ -75,7 +75,7 @@
   </object>
   <object id="27" type="Camera" x="576" y="2336">
    <properties>
-    <property name="angle" type="float" value="90"/>
+    <property name="angle" type="float" value="180"/>
     <property name="fov" type="float" value="60"/>
     <property name="viewDistance" type="float" value="5"/>
    </properties>
