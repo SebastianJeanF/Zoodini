@@ -51,6 +51,7 @@ import walknroll.zoodini.models.nonentities.Door;
 import walknroll.zoodini.models.nonentities.Exit;
 import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
+import walknroll.zoodini.models.nonentities.Vent;
 import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.VisionCone;
@@ -142,6 +143,8 @@ public class GameLevel {
     private Exit exit;
     private Array<Guard> guards = new Array<>();
     private Array<SecurityCamera> securityCameras = new Array<>();
+    private Array<Vent> vents = new Array<>();
+
     private ObjectMap<ZoodiniSprite, VisionCone> visions = new ObjectMap<>();
     private InkProjectile inkProjectile; // ink projectile (there should only ever be one!!!)
 
@@ -324,11 +327,13 @@ public class GameLevel {
                 exit = new Exit(directory, properties, entityConstants.get("exit"), units, animalType);
                 exit.create(directory);
                 activate(exit);
-            }
-            else if ("Text".equalsIgnoreCase(type)) {
+            } else if ("Text".equalsIgnoreCase(type)) {
                 textObjects.add(obj);
+            } else if ("Vent".equalsIgnoreCase(type)) {
+                Vent vent = new Vent(directory, properties, entityConstants.get("vent"), units);
+                vents.add(vent);
+                activate(vent);
             }
-
         }
 
         if (catPresent) {
@@ -636,6 +641,10 @@ public class GameLevel {
      */
     public Array<Key> getKeys() {
         return keys;
+    }
+
+    public Array<Vent> getVents() {
+        return vents;
     }
 
     /**

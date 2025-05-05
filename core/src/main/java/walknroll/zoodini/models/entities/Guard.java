@@ -50,7 +50,7 @@ public class Guard extends Enemy {
 
     private Avatar aggroTarget;
     private boolean seesPlayer;
-    private Avatar seenPlayer;
+    private PlayableAvatar seenPlayer;
 
     /** The position that this guard should move to */
     Vector2 target = null;
@@ -277,11 +277,11 @@ public class Guard extends Enemy {
         return seesPlayer;
     }
 
-    public void setSeenPlayer(Avatar seenPlayer) {
+    public void setSeenPlayer(PlayableAvatar seenPlayer) {
         this.seenPlayer = seenPlayer;
     }
 
-    public Avatar getSeenPlayer() {
+    public PlayableAvatar getSeenPlayer() {
         return seenPlayer;
     }
 
