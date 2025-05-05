@@ -116,8 +116,8 @@
    </properties>
    <point/>
   </object>
-  <object id="262" x="751.964" y="948.424">
-   <polyline points="-131.254,23.0563 392.174,17.0631"/>
+  <object id="262" x="665.675" y="943.6">
+   <polyline points="-90.9655,35.8799 271.796,26.5534"/>
   </object>
   <object id="303" type="Octopus" x="1221.21" y="169.697">
    <properties>

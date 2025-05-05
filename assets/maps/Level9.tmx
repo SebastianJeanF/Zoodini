@@ -115,8 +115,8 @@
    </properties>
    <point/>
   </object>
-  <object id="262" x="751.964" y="948.424">
-   <polyline points="-131.254,23.0563 392.174,17.0631"/>
+  <object id="262" x="669.715" y="956.118">
+   <polyline points="-49.0052,15.3621 146.423,11.3689"/>
   </object>
   <object id="303" type="Octopus" x="1221.21" y="169.697">
    <point/>
@@ -135,7 +135,7 @@
    </properties>
    <point/>
   </object>
-  <object id="321" type="Guard" x="339.394" y="966.667">
+  <object id="321" type="Guard" x="539.394" y="1004.67">
    <properties>
     <property name="category" value="00100"/>
     <property name="exclude" value="00100"/>
