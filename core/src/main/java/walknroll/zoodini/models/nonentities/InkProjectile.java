@@ -180,7 +180,7 @@ public class InkProjectile extends ZoodiniSprite {
 
         // Apply force for movement
          if (getMovement().len2() > 0f) {
-            forceCache.set(getMovement().nor().scl(50));
+            forceCache.set(getMovement().nor().scl(75));
             obstacle.getBody().applyForce(forceCache, obstacle.getPosition(), true);
         }
     }

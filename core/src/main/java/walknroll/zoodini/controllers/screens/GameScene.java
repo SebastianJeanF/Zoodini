@@ -1271,8 +1271,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         guard.setInkBlinded(true);
         guard.setInkBlindTimer(INK_EFFECT_DURATION);
 
-        final float MIN_VIEW_DISTANCE = 3f;
-        final float MIN_FOV = 50f;
+        final float MIN_VIEW_DISTANCE = 2f;
+        final float MIN_FOV = 40f;
 
         // Reduce the view distance and FOV angle with minimum thresholds
         float reducedViewDistance = Math.max(guard.getViewDistance() * 0.6f, MIN_VIEW_DISTANCE);
