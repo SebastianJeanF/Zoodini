@@ -57,8 +57,8 @@ public class Guard extends Enemy {
     Vector2 movementDirection = null;
     Vector2 targetPosition = null;
     /** Direction guard is currently facing */
-    private Vector2 currentDirection = new Vector2(0, 1); // Default facing up
-    private Vector2 targetDirection = new Vector2(0, 1);
+    private Vector2 currentDirection = new Vector2(0, -1); // Default facing up
+    private Vector2 targetDirection = new Vector2(0, -1);
 
     private float turnSpeed = 5.0f;
     // --- Patrol Path Variables for Guard ---

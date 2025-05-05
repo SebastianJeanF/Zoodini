@@ -824,7 +824,7 @@ public class GameLevel {
             float fov = guard.getFov();
             float dist = guard.getViewDistance();
             VisionCone vc = new VisionCone(60, Vector2.Zero, dist, 0.0f, fov, c, units, constants);
-            vc.attachToBody(guard.getObstacle().getBody(), 90.0f);
+            vc.attachToBody(guard.getObstacle().getBody(), 270.0f);
             vc.setVisibility(debug);
             visions.put(guard, vc);
         }

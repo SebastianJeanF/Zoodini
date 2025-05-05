@@ -505,6 +505,7 @@ public class GuardAIController {
         switch (currState) {
             case PATROL:
                 if (waypoints.length == 0) {
+                    DebugPrinter.println("Guard has no waypoints to patrol");
                     return;
                 }
                 // If guard reaches waypoint, move to next waypoint
@@ -512,12 +513,9 @@ public class GuardAIController {
                 // waypoint to return to after distracted or alerted.
                 if (hasReachedTargetLocation(waypoints[currentWaypointIndex])) {
                     currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.length;
-                    newTarget = getNextWaypointLocation(waypoints[currentWaypointIndex]);
                 }
                 // Guard hasn't reached waypoint, so continue to current target
-                else {
-                    newTarget = getNextWaypointLocation(waypoints[currentWaypointIndex]);
-                }
+                newTarget = getNextWaypointLocation(waypoints[currentWaypointIndex]);
                 break;
             case SUSPICIOUS:
                 // If guard is sus but not max sus level, slowly move towards player

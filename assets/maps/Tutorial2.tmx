@@ -92,9 +92,6 @@
    </properties>
    <point/>
   </object>
-  <object id="6" x="862" y="4548">
-   <polyline points="716.303,-1203.58 819.855,-1165.03 1014.67,-1151.27"/>
-  </object>
   <object id="83" type="Guard" x="1714.67" y="3324">
    <properties>
     <property name="category" value="00100"/>
@@ -102,7 +99,6 @@
     <property name="force" type="float" value="1.5"/>
     <property name="fov" type="float" value="60"/>
     <property name="maxSpeed" type="float" value="10"/>
-    <property name="path" type="object" value="6"/>
     <property name="radius" type="float" value="0.5"/>
     <property name="spriteRadius" type="float" value="1"/>
     <property name="viewDistance" type="float" value="5"/>
@@ -129,7 +125,7 @@
   <object id="103" type="Exit" x="6656" y="1704">
    <properties>
     <property name="category" value="10000"/>
-    <property name="creature" propertytype="ExitCreature" value="OCTOPUS"/>
+    <property name="creature" value="OCTOPUS"/>
     <property name="exclude" value="00000"/>
     <property name="size" type="float" value="1.25"/>
    </properties>
