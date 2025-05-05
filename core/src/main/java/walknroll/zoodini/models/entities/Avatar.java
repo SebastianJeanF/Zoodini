@@ -15,18 +15,14 @@
 package walknroll.zoodini.models.entities;
 
 import com.badlogic.gdx.maps.MapProperties;
-import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-import com.badlogic.gdx.utils.*;
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.utils.JsonValue;
 
-import edu.cornell.gdiac.assets.AssetDirectory;
-import edu.cornell.gdiac.assets.ParserUtils;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.graphics.SpriteSheet;
-import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.physics2.WheelObstacle;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.utils.ZoodiniSprite;
@@ -50,26 +46,19 @@ public class Avatar extends ZoodiniSprite {
 	/** The current horizontal movement of the character */
 	private Vector2 movement = new Vector2();
 
-	/** How many frames until we can walk again */
-	private int walkCool;
-	/** The standard number of frames to wait until we can walk again */
-	private int walkLimit;
-
-	/** The rotational center of the filmstrip */
-	private Vector2 center;
-
 	/** Cache for internal force calculations */
 	private Vector2 forceCache = new Vector2();
 
-    private boolean underCamera;
+	private boolean underCamera;
 
-    private boolean underVisionCone;
+	private boolean underVisionCone;
 
 	private final AvatarType avatarType;
 
-    private boolean flipped = false;
+	private boolean flipped = false;
 
-    protected final AnimationController animationController;
+	protected final AnimationController animationController;
+
 	/**
 	 * Returns the avatar type.
 	 *
@@ -82,22 +71,22 @@ public class Avatar extends ZoodiniSprite {
 		return avatarType;
 	}
 
-    /**
-     * Returns the position of this avatar.
-     *
-     * @return the position of this avatar.
-     */
-    public Vector2 getPosition() {
-        return obstacle.getPosition();
-    }
+	/**
+	 * Returns the position of this avatar.
+	 *
+	 * @return the position of this avatar.
+	 */
+	public Vector2 getPosition() {
+		return obstacle.getPosition();
+	}
 
-    public void setAngle(float angle) {
-        obstacle.setAngle(angle);
-    }
+	public void setAngle(float angle) {
+		obstacle.setAngle(angle);
+	}
 
-    public float getAngle() {
-        return obstacle.getAngle();
-    }
+	public float getAngle() {
+		return obstacle.getAngle();
+	}
 
 	/**
 	 * Returns the directional movement of this character.
@@ -184,18 +173,19 @@ public class Avatar extends ZoodiniSprite {
 		maxspeed = value;
 	}
 
-    /**
-     * Returns whether the sprite is flipped horizontally
-     */
-    public boolean isFlipped() {
-        return flipped;
-    }
-    /**
-     * flips the sprite horizontally for when user moves left
-     */
-    public void flipSprite() {
-        flipped = !flipped;
-    }
+	/**
+	 * Returns whether the sprite is flipped horizontally
+	 */
+	public boolean isFlipped() {
+		return flipped;
+	}
+
+	/**
+	 * flips the sprite horizontally for when user moves left
+	 */
+	public void flipSprite() {
+		flipped = !flipped;
+	}
 
 	/**
 	 * Creates a new avatar with from the given settings
@@ -204,55 +194,72 @@ public class Avatar extends ZoodiniSprite {
 	 * @param properties The properties of tiled map object
 	 * @param units      The physics units for this avatar
 	 */
-	public Avatar(AvatarType avatarType, MapProperties properties, float units) {
+	public Avatar(AvatarType avatarType, MapProperties properties, JsonValue constants, float units) {
 		this.avatarType = avatarType;
 
-        float[] pos = new float[2];
-        pos[0] = properties.get("x", Float.class) / units;
-        pos[1] = properties.get("y", Float.class) / units;
-		float radius = properties.get("radius",Float.class);
+		float[] pos = new float[2];
+		pos[0] = properties.get("x", Float.class) / units;
+		pos[1] = properties.get("y", Float.class) / units;
+		float radius = constants.getFloat("obstacleRadius");
 
 		obstacle = new WheelObstacle(pos[0], pos[1], radius);
 		obstacle.setName(properties.get("type", String.class));
 		obstacle.setFixedRotation(false);
-        obstacle.setBodyType(BodyType.DynamicBody);
+		obstacle.setBodyType(BodyType.DynamicBody);
 		obstacle.setDensity(1.0f);
 		obstacle.setFriction(100.0f);
 		obstacle.setRestitution(0.0f);
 		obstacle.setPhysicsUnits(units);
 
-		setForce(properties.get("force", Float.class));
+		setForce(constants.getFloat("force"));
 		setDamping(10.0f);
-		setMaxSpeed(properties.get("maxSpeed", Float.class));
+		setMaxSpeed(constants.getFloat("maxSpeed"));
 
 		Filter filter = new Filter();
-		filter.categoryBits = GameLevel.bitStringToShort(properties.get("category", String.class));
-		filter.maskBits = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
+		filter.categoryBits = GameLevel.bitStringToShort(constants.getString("category"));
+		filter.maskBits = GameLevel.bitStringToComplement(constants.getString("exclude"));
 		obstacle.setFilterData(filter);
 
-        float r = properties.get("spriteRadius", Float.class) * units;
-		mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
+		float sr = constants.getFloat("spriteRadius") * units;
+		mesh = new SpriteMesh(-sr, -sr/2 - 20f, 2 * sr, 2 * sr);
 
-        underCamera = false;
-        underVisionCone = false;
-        animationController = new AnimationController(AnimationState.IDLE);
-    }
+		underCamera = false;
+		underVisionCone = false;
+		animationController = new AnimationController(AnimationState.IDLE);
+	}
 
-    /**
-     * Adds spritesheet to animate for a given state.
-     * */
-    public void setAnimation(AnimationState state, SpriteSheet sheet){
-        switch(state){
-            //TODO: frame delays (number of frames elapsed before rendering the next sprite) is set to 16 for all states. This needs to be adjusted.
-            case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
-            case WALK -> animationController.addAnimation(AnimationState.WALK, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
-            case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
-            case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
-        }
-    }
+	/**
+	 * Adds spritesheet to animate for a given state.
+	 */
+	public void setAnimation(AnimationState state, SpriteSheet sheet, int frameDelay) {
+		switch (state) {
+			// TODO: frame delays (number of frames elapsed before rendering the next
+			// sprite) is set to 16 for all states. This needs to be adjusted.
+			case IDLE -> animationController.addAnimation(AnimationState.IDLE,
+					new Animation(sheet, 0, sheet.getSize() - 1, frameDelay, true));
+			case WALK -> animationController.addAnimation(AnimationState.WALK,
+					new Animation(sheet, 0, sheet.getSize() - 1, frameDelay, true));
+			case WALK_BLIND -> animationController.addAnimation(AnimationState.WALK_BLIND,
+					new Animation(sheet, 0, sheet.getSize() - 1, frameDelay, true));
+			case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN,
+					new Animation(sheet, 0, sheet.getSize() - 1, frameDelay, true));
+			case WALK_DOWN_BLIND -> animationController.addAnimation(AnimationState.WALK_DOWN_BLIND,
+					new Animation(sheet, 0, sheet.getSize() - 1, frameDelay, true));
+			case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP,
+					new Animation(sheet, 0, sheet.getSize() - 1, frameDelay, true));
+			case WALK_UP_BLIND -> animationController.addAnimation(AnimationState.WALK_UP_BLIND,
+					new Animation(sheet, 0, sheet.getSize() - 1, frameDelay, true));
+			default -> {}
+		}
+	}
 
+	public void resetPhysics() {
+		forceCache.setZero();
+		movement.setZero();
+		applyForce();
+	}
 
-    /**
+	/**
 	 * Applies the force to the body of this avatar
 	 *
 	 * This method should be called after the force attribute is set.
@@ -267,34 +274,46 @@ public class Avatar extends ZoodiniSprite {
 		obstacle.setAngularVelocity(0.0f);
 
 		// Apply force for movement
-        if (getMovement().len2() > 0f) {
-            forceCache.set(getMovement());
-            obstacle.getBody().applyForce(forceCache, obstacle.getPosition(), true);
+		if (getMovement().len2() > 0f) {
+			forceCache.set(getMovement());
+			obstacle.getBody().applyForce(forceCache, obstacle.getPosition(), true);
 
-            // Determine animation based on direction
-            float dx = getMovement().x;
-            float dy = getMovement().y;
+			// Determine animation based on direction
+			float dx = getMovement().x;
+			float dy = getMovement().y;
 
-            if (Math.abs(dy) > Math.abs(dx)) {
-                // Vertical movement is dominant
-                if (dy > 0) {
-                    animationController.setState(AnimationState.WALK_UP);
-                } else {
-                    animationController.setState(AnimationState.WALK_DOWN);
-                }
-            } else {
-                // Horizontal movement is dominant
-                animationController.setState(AnimationState.WALK);
-            }
-        } else {
-            animationController.setState(AnimationState.IDLE);
+			if (Math.abs(dy) > Math.abs(dx)) {
+				// Vertical movement is dominant
+				if (dy > 0) {
+					if (getAvatarType() == AvatarType.ENEMY && ((Guard) this).isInkBlinded()) {
+						animationController.setState(AnimationState.WALK_UP_BLIND);
+					} else {
+						animationController.setState(AnimationState.WALK_UP);
+					}
+				} else {
+					if (getAvatarType() == AvatarType.ENEMY && ((Guard) this).isInkBlinded()) {
+						animationController.setState(AnimationState.WALK_DOWN_BLIND);
+					} else {
+						animationController.setState(AnimationState.WALK_DOWN);
+					}
+				}
+			} else {
+				// Horizontal movement is dominant
+				if (getAvatarType() == AvatarType.ENEMY && ((Guard) this).isInkBlinded()) {
+					animationController.setState(AnimationState.WALK_BLIND);
+				} else {
+					animationController.setState(AnimationState.WALK);
+				}
+			}
+		} else {
+			animationController.setState(AnimationState.IDLE);
 		}
 	}
 
-    // Method to manually set animation state (for attacks, jumps, etc.)
-    public void setAnimationState(AnimationState state) {
-        animationController.setState(state);
-    }
+	// Method to manually set animation state (for attacks, jumps, etc.)
+	public void setAnimationState(AnimationState state) {
+		animationController.setState(state);
+	}
 
 	/**
 	 * Updates the object's physics state (NOT GAME LOGIC).
@@ -304,56 +323,56 @@ public class Avatar extends ZoodiniSprite {
 	 * @param dt number of seconds since last animation frame
 	 */
 	public void update(float dt) {
+        super.update(dt);
+
         // Update animation controller
-        animationController.update();
+		animationController.update();
 
-        // This is the key fix - update the sprite reference itself
-        SpriteSheet currentSheet = animationController.getCurrentSpriteSheet();
-        if (currentSheet != null) {
-            sprite = currentSheet;  // Switch to the current animation's spritesheet
-        }
+		// This is the key fix - update the sprite reference itself
+		SpriteSheet currentSheet = animationController.getCurrentSpriteSheet();
+		if (currentSheet != null) {
+			sprite = currentSheet; // Switch to the current animation's spritesheet
+		}
 
-        // Now setting the frame will work correctly
-        if (sprite != null) {
-            sprite.setFrame(animationController.getCurrentFrame());
-        }
-
-        obstacle.update(dt);
+		// Now setting the frame will work correctly
+		if (sprite != null) {
+			sprite.setFrame(animationController.getCurrentFrame());
+		}
 	}
 
-    @Override
-    public void draw(SpriteBatch batch) {
-        if (this.obstacle != null && this.mesh != null) {
-            float x = this.obstacle.getX();
-            float y = this.obstacle.getY();
-            float a = this.obstacle.getAngle();
-            float u = this.obstacle.getPhysicsUnits();
+	@Override
+	public void draw(SpriteBatch batch) {
+		if (this.obstacle != null && this.mesh != null) {
+			float x = this.obstacle.getX();
+			float y = this.obstacle.getY();
+			float a = this.obstacle.getAngle();
+			float u = this.obstacle.getPhysicsUnits();
 
-            this.transform.idt();
-            this.transform.preRotate((float)((double)(a * 180.0F) / Math.PI));
-            this.transform.preTranslate(x * u, y * u);
-            if (flipped) {
-                this.transform.scale(-1.0F, 1.0F);
-            }
-            batch.setTextureRegion(this.sprite);
-            batch.drawMesh(this.mesh, this.transform, false);
-            batch.setTexture(null);
-        }
-    }
+			this.transform.idt();
+			this.transform.preRotate((float) ((double) (a * 180.0F) / Math.PI));
+			this.transform.preTranslate(x * u, y * u);
+			if (flipped) {
+				this.transform.scale(-1.0F, 1.0F);
+			}
+			batch.setTextureRegion(this.sprite);
+			batch.drawMesh(this.mesh, this.transform, false);
+			batch.setTexture(null);
+		}
+	}
 
-    public void setUnderCamera(boolean underCamera) {
-        this.underCamera = underCamera;
-    }
+	public void setUnderCamera(boolean underCamera) {
+		this.underCamera = underCamera;
+	}
 
-    public void setUnderVisionCone(boolean underVisionCone) {
-        this.underVisionCone = underVisionCone;
-    }
+	public void setUnderVisionCone(boolean underVisionCone) {
+		this.underVisionCone = underVisionCone;
+	}
 
-    public boolean isUnderCamera() {
-        return underCamera;
-    }
+	public boolean isUnderCamera() {
+		return underCamera;
+	}
 
-    public boolean isInGuardVisionCone() {
-        return underVisionCone;
-    }
+	public boolean isInGuardVisionCone() {
+		return underVisionCone;
+	}
 }

@@ -7,17 +7,20 @@ import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
+import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import edu.cornell.gdiac.math.Path2;
 import edu.cornell.gdiac.math.PathExtruder;
 import edu.cornell.gdiac.math.PathFactory;
+import edu.cornell.gdiac.physics2.ObstacleData;
 import walknroll.zoodini.models.nonentities.Key;
+import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.animation.Animation;
 import walknroll.zoodini.utils.animation.AnimationState;
 import walknroll.zoodini.utils.enums.AvatarType;
 
-public class Cat extends PlayableAvatar {
+public class Cat extends PlayableAvatar{
     /// Whether or not this Gar instance has triggered the meow action
     private boolean meowed;
     private boolean justMeowed;
@@ -42,15 +45,14 @@ public class Cat extends PlayableAvatar {
     private Array<Key> keys;
 
     PathFactory pf = new PathFactory();
-
     PathExtruder pe = new PathExtruder();
 
-    public Cat(MapProperties properties, float units) {
-        super(AvatarType.CAT, properties, units);
-        this.abilityRange = properties.get("abilityRange", Float.class);
+    public Cat(MapProperties properties, JsonValue constants, float units) {
+        super(AvatarType.CAT, properties, constants, units);
+        this.abilityRange = constants.getFloat("abilityRange");
 
         // Initialize ring effect properties
-        expansionSpeed = properties.get("meowExpandSpeed", Float.class); // 1 m/s
+        expansionSpeed = constants.getFloat("meowExpansionSpeed");
         ringThickness = 0.3f;
         ringColor = new Color(211f, 211f, 211f, 0.5f); // Semi-transparent green
         currentRadius = 0f;
@@ -59,11 +61,12 @@ public class Cat extends PlayableAvatar {
         affineCache = new Affine2();
 
         // Initialize cooldown properties
-        meowCooldown = properties.get("abilityCooldown", Float.class); // 10 seconds default
+        meowCooldown = constants.getFloat("abilityCooldown"); // 10 seconds default
         meowCooldownRemaining = 0;
         onCooldown = false;
         keys = new Array<Key>();
 
+        obstacle.setUserData(this);
     }
 
     public void assignKey(Key key) {
@@ -123,24 +126,24 @@ public class Cat extends PlayableAvatar {
         return justMeowed;
     }
 
-    /**
-     * Adds spritesheet to animate for a given state.
-     */
-    @Override
-    public void setAnimation(AnimationState state, SpriteSheet sheet) {
-        switch (state) {
-            // TODO: frame delays (number of frames elapsed before rendering the next
-            // sprite) is set to 16 for all states. This needs to be adjusted.
-            case IDLE -> animationController.addAnimation(AnimationState.IDLE,
-                    new Animation(sheet, 0, sheet.getSize() - 1, 16, true));
-            case WALK -> animationController.addAnimation(AnimationState.WALK,
-                    new Animation(sheet, 0, sheet.getSize() - 1, 4, true));
-            case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN,
-                    new Animation(sheet, 0, sheet.getSize() - 1, 8, true));
-            case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP,
-                    new Animation(sheet, 0, sheet.getSize() - 1, 6, true));
-        }
-    }
+//    /**
+//     * Adds spritesheet to animate for a given state.
+//     */
+//    @Override
+//    public void setAnimation(AnimationState state, SpriteSheet sheet) {
+//        switch (state) {
+//            // TODO: frame delays (number of frames elapsed before rendering the next
+//            // sprite) is set to 16 for all states. This needs to be adjusted.
+//            case IDLE -> animationController.addAnimation(AnimationState.IDLE,
+//                    new Animation(sheet, 0, sheet.getSize() - 1, 16, true));
+//            case WALK -> animationController.addAnimation(AnimationState.WALK,
+//                    new Animation(sheet, 0, sheet.getSize() - 1, 4, true));
+//            case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN,
+//                    new Animation(sheet, 0, sheet.getSize() - 1, 8, true));
+//            case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP,
+//                    new Animation(sheet, 0, sheet.getSize() - 1, 6, true));
+//        }
+//    }
 
     @Override
     public void update(float dt) {
@@ -167,7 +170,6 @@ public class Cat extends PlayableAvatar {
         }
 
         updateJustMeowed();
-
     }
 
     @Override
@@ -228,8 +230,8 @@ public class Cat extends PlayableAvatar {
 
         // Start cooldown and activate ring when cat meows
         if (value) {
-            System.out.println("here");
-            System.out.println("ring active: " + isRingActive);
+            DebugPrinter.println("here");
+            DebugPrinter.println("ring active: " + isRingActive);
             activateRing();
             onCooldown = true;
             meowCooldownRemaining = meowCooldown;

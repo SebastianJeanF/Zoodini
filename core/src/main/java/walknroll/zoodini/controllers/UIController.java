@@ -5,7 +5,10 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
@@ -13,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import edu.cornell.gdiac.assets.AssetDirectory;
+import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
@@ -29,9 +33,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 
 
 import walknroll.zoodini.models.entities.Octopus;
+import walknroll.zoodini.models.entities.PlayableAvatar;
 import walknroll.zoodini.utils.CounterActor;
 import walknroll.zoodini.utils.InkMeterActor;
 import walknroll.zoodini.utils.MeowCooldownIndicator;
+import walknroll.zoodini.utils.MinimapActor;
 import walknroll.zoodini.utils.enums.AvatarType;
 
 public class UIController {
@@ -47,6 +53,8 @@ public class UIController {
     }
 
     protected BitmapFont displayFont;
+
+    private MinimapActor minimap;
 
     //Scene 2d components
     private Stage stage;
@@ -69,15 +77,19 @@ public class UIController {
     private Table pauseMenuTable;
     private Image resumeButtonImage;
     private Image inkTextImage;
+    private Image switch1;
+    private Image switch2;
+    private Image keyInventory;
+    private Label keyCount;
 
     private MeowCooldownIndicator meowCooldownIndicator;
 
     private boolean isPaused = false;
     private PauseMenuListener pauseListener;
 
-    public UIController(AssetDirectory directory, GameLevel level) {
+    public UIController(AssetDirectory directory, GameLevel level, SpriteBatch batch) {
         viewport = new ScreenViewport();
-        stage = new Stage(viewport);
+        stage = new Stage(viewport, batch);
         skin = new Skin(Gdx.files.internal("uiskins/default/uiskin.json")); //TODO: use AssetDirectory to load skins.
         initializeActors(directory, level);
         setupStageLayout();
@@ -88,17 +100,25 @@ public class UIController {
      * Initialize all the Actors (Images, Buttons, etc.)
      */
     private void initializeActors(AssetDirectory directory, GameLevel level){
-        setFont(directory.getEntry("display", BitmapFont.class));
+        displayFont = directory.getEntry("display", BitmapFont.class);
 
-        setCatIconImage(new TextureRegion(directory.getEntry("cat-icon", Texture.class)));
+        catIconImage = new Image(directory.getEntry("cat-icon", Texture.class));
         catIconImage.setVisible(false);
 
-        setOctopusIconImage(new TextureRegion(directory.getEntry("octopus-icon", Texture.class)));
+        octopusIconImage = new Image((directory.getEntry("octopus-icon", Texture.class)));
         octopusIconImage.setVisible(false);
+        minimap = new MinimapActor(level);
+        minimap.setPosition(20, Gdx.graphics.getHeight() - (minimap.getHeight() + 20));
+        minimap.setCatTexture((directory.getEntry("cat-walk-transition", Texture.class)));
+        minimap.setOctopusTexture((directory.getEntry("octopus", Texture.class)));
 
-        SpriteSheet inkSprites = directory.getEntry("ink-meter.animation", SpriteSheet.class);
-        Octopus o = level.getOctopus();
-        inkMeter = new InkMeterActor(inkSprites, o.getInkCapacity(), o.getInkCost() ,o.getInkRegen());
+        if (level.isOctopusPresent()) {
+            SpriteSheet inkSprites = directory.getEntry("ink-meter.animation", SpriteSheet.class);
+            Octopus o = level.getOctopus();
+            inkMeter = new InkMeterActor(inkSprites, o.getInkCapacity(), o.getInkCost(), o.getInkRegen());
+        } else {
+            inkMeter = null; // Make sure it's null when octopus is not present
+        }
 
         inkTextImage = new Image(directory.getEntry("ink-text", Texture.class));
 
@@ -111,6 +131,11 @@ public class UIController {
         pauseBannerImage = new Image(directory.getEntry("game_paused", Texture.class));
         resumeIconImage = new Image(directory.getEntry("resume_icon", Texture.class));
         resumeButtonImage = new Image(directory.getEntry("resume_button", Texture.class));
+        switch1 = new Image(directory.getEntry("switch1", Texture.class));
+        switch2 = new Image(directory.getEntry("switch2", Texture.class));
+        keyInventory = new Image(directory.getEntry("key-inventory", Texture.class));
+        LabelStyle style = new LabelStyle(displayFont, Color.BLACK);
+        keyCount = new Label("x0", style);
     }
 
 
@@ -122,6 +147,8 @@ public class UIController {
         stage = new Stage(viewport);
         rootTable = new Table();
         rootTable.setFillParent(true);
+
+        stage.addActor(minimap);
 
         Table bottomLeftTable = new Table();
         bottomLeftTable.bottom().left();
@@ -137,32 +164,52 @@ public class UIController {
         bottomLeftTable.add(inkMeter).align(Align.bottomLeft).padBottom(35);
         bottomLeftTable.add(inkTextImage);
 
+        Table topRightTable = new Table();
+        topRightTable.setFillParent(true);
+        topRightTable.setDebug(debug);
+        topRightTable.top().right();
+        topRightTable.add(keyInventory);
 
-        //TODO: don't hardcode positions. Use tables.
-        if (smallCatIconImage != null) {
-            smallCatIconImage.setPosition(45, 600);
-            smallCatIconImage.setVisible(false);
-            stage.addActor(smallCatIconImage);
-        }
+        Stack inventory = new Stack();
+        inventory.add(keyInventory);
+        Table inventoryTable = new Table();
+        inventoryTable.right();
+        inventoryTable.add(keyCount).padRight(15f);
+        inventory.add(inventoryTable);
+        topRightTable.add(inventory);
 
-        if (smallOctopusIconImage != null) {
-            smallOctopusIconImage.setPosition(45, 600);
-            smallOctopusIconImage.setVisible(false); // Hide initially, we'll toggle visibility
-            stage.addActor(smallOctopusIconImage);
-        }
+        Stack avatarSwitch = new Stack();
+        switch1.setVisible(false);
+        switch2.setVisible(false);
+        avatarSwitch.add(switch1);
+        avatarSwitch.add(switch2);
+        topRightTable.add(avatarSwitch).pad(10f);
 
-        if (dangerIconImage != null) {
-            dangerIconImage.setPosition(105, 615);
-            dangerIconImage.setVisible(false);
-            stage.addActor(dangerIconImage);
-        }
+        Stack pauseStack = new Stack();
+        pauseStack.add(pauseIconImage);
+        pauseStack.add(resumeIconImage);
+        topRightTable.add(pauseStack).height(switch1.getHeight()).width(switch1.getHeight()).pad(10f);
+        stage.addActor(topRightTable);
 
+
+        Table leftTable = new Table();
+        leftTable.setFillParent(true);
+        leftTable.setDebug(debug);
+        Group dangerIcons = new Group();
+        dangerIcons.addActor(smallCatIconImage);
+        dangerIcons.addActor(smallOctopusIconImage);
+        dangerIconImage.moveBy(50,30);
+        dangerIcons.addActor(dangerIconImage);
+        leftTable.left().add(dangerIcons).width(100).height(100);
+        stage.addActor(leftTable);
+
+//        if (dangerIconImage != null) {
+//            dangerIconImage.setPosition(105, 615);
+//            dangerIconImage.setVisible(false);
+//            stage.addActor(dangerIconImage);
+//        }
+//
         if (pauseIconImage != null) {
-            float iconSize = 40f;
-            pauseIconImage.setSize(iconSize, iconSize);
-            float xPos = Gdx.graphics.getWidth() - iconSize - 20;
-            float yPos = Gdx.graphics.getHeight() - iconSize - 20;
-            pauseIconImage.setPosition(xPos, yPos);
             pauseIconImage.setVisible(true);
             pauseIconImage.addListener(new ClickListener() {
                 @Override
@@ -170,15 +217,9 @@ public class UIController {
                     togglePauseMenu(true);
                 }
             });
-            stage.addActor(pauseIconImage);
         }
 
         if (resumeIconImage != null) {
-            float iconSize = 40f;
-            resumeIconImage.setSize(iconSize, iconSize);
-            float xPos = Gdx.graphics.getWidth() - iconSize - 20;
-            float yPos = Gdx.graphics.getHeight() - iconSize - 20;
-            resumeIconImage.setPosition(xPos, yPos);
             resumeIconImage.setVisible(false);
             resumeIconImage.addListener(new ClickListener() {
                 @Override
@@ -186,7 +227,6 @@ public class UIController {
                     togglePauseMenu(false);
                 }
             });
-            stage.addActor(resumeIconImage);
         }
 
         Drawable darkOverlay = skin.newDrawable("white", new Color(0, 0, 0, 0.7f));
@@ -288,52 +328,6 @@ public class UIController {
 
     }
 
-    public void setFont(BitmapFont f) {
-        displayFont = f;
-    }
-
-    public void setCatIconImage(TextureRegion icon) {
-        catIconImage = new Image(icon);
-    }
-    public void setOctopusIconImage(TextureRegion icon) {
-        octopusIconImage = new Image(icon);
-    }
-
-    public void setSmallCatIcon(TextureRegion icon) {
-        smallCatIconImage = new Image(icon);
-    }
-
-    public void setSmallOctopusIcon(TextureRegion icon) {
-        smallOctopusIconImage = new Image(icon);
-    }
-
-    public void setDangerIcon(TextureRegion icon) {
-        dangerIconImage = new Image(icon);
-    }
-    public void setPauseIcon (TextureRegion icon){
-        pauseIconImage = new Image(icon);
-    }
-
-    public void setRestartIcon (TextureRegion icon){
-        restartButton = new Image(icon);
-    }
-
-    public void setHomeIcon (TextureRegion icon){
-        homeButton = new Image(icon);
-    }
-
-    public void setPausedBanner (TextureRegion icon){
-        pauseBannerImage = new Image(icon);
-    }
-
-    public void setResumeIcon (TextureRegion icon){
-        resumeIconImage = new Image(icon);
-    }
-
-    public void setResumeButton (TextureRegion icon){
-        resumeButtonImage = new Image(icon);
-    }
-
     public void update(float dt){
         stage.act(dt);
     }
@@ -343,24 +337,32 @@ public class UIController {
             Gdx.input.setInputProcessor(stage);
         }
 
-        Avatar avatar = level.getAvatar();
+        PlayableAvatar avatar = level.getAvatar();
         boolean isOcto = avatar.getAvatarType() == AvatarType.OCTOPUS;
 
         // In draw method, add:
         if (avatar.getAvatarType() == AvatarType.CAT) {
             meowCooldownIndicator.setVisible(true);
             inkTextImage.setVisible(false);
+            switch1.setVisible(true);
+            switch2.setVisible(false);
             meowCooldownIndicator.update(level.getCat());
         } else {
             meowCooldownIndicator.setVisible(false);
+            switch1.setVisible(false);
+            switch2.setVisible(true);
             inkTextImage.setVisible(true);
         }
+
+        keyCount.setText("x" + avatar.getNumKeys());
 
         // Icons
         if (catIconImage != null) catIconImage.setVisible(!isOcto);
         if (octopusIconImage != null) octopusIconImage.setVisible(isOcto);
-        if (inkMeter != null) inkMeter.setVisible(isOcto);
-        inkMeter.sync(level.getOctopus().getInkRemaining());
+        if (inkMeter != null && level.isOctopusPresent()) {
+            inkMeter.setVisible(isOcto);
+            inkMeter.sync(level.getOctopus().getInkRemaining());
+        }
 
         if (dangerIconImage != null && smallCatIconImage != null && smallOctopusIconImage != null) {
             if (level.isInactiveAvatarInDanger()) {
@@ -370,8 +372,7 @@ public class UIController {
                     smallOctopusIconImage.setVisible(false);
                 } else {
                     smallOctopusIconImage.setVisible(true);
-                    smallCatIconImage.setVisible(false);
-                }
+                    smallCatIconImage.setVisible(false);}
             } else {
                 dangerIconImage.setVisible(false);
                 smallCatIconImage.setVisible(false);
@@ -401,6 +402,9 @@ public class UIController {
     }
     public void dispose(){
         stage.dispose();
+        if (minimap != null) {
+            minimap.dispose();
+        }
     }
 
     public void setPauseMenuListener(PauseMenuListener l){

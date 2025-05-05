@@ -1,11 +1,10 @@
 package walknroll.zoodini.controllers.aitools;
 
-import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.ai.pfa.DefaultConnection;
 
 public class TileEdge extends DefaultConnection<TileNode> {
 
-    static final float NON_DIAGONAL_COST = (float)Math.sqrt(2);
+    static final float NON_DIAGONAL_COST = (float) Math.sqrt(2);
 
     TileNode from;
     TileNode to;
@@ -13,7 +12,7 @@ public class TileEdge extends DefaultConnection<TileNode> {
 
     TileGraph graph;
 
-    public TileEdge(TileGraph graph, TileNode from, TileNode to){
+    public TileEdge(TileGraph graph, TileNode from, TileNode to) {
         super(from, to);
         this.from = from;
         this.to = to;
@@ -26,8 +25,9 @@ public class TileEdge extends DefaultConnection<TileNode> {
         int dx = Math.abs(to.x - from.x);
         int dy = Math.abs(to.y - from.y);
         return dx + dy;
-//        if (graph.diagonal) return 1;
-//        return getToNode().x != graph.startNode.x && getToNode().y != graph.startNode.y ? NON_DIAGONAL_COST : 1;
+        // if (graph.diagonal) return 1;
+        // return getToNode().x != graph.startNode.x && getToNode().y !=
+        // graph.startNode.y ? NON_DIAGONAL_COST : 1;
     }
 
     @Override

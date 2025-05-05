@@ -27,6 +27,8 @@ import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.physics2.*;
 import java.util.Iterator;
 import walknroll.zoodini.models.GameLevel;
+import walknroll.zoodini.models.entities.Avatar;
+import walknroll.zoodini.models.entities.PlayableAvatar;
 import walknroll.zoodini.utils.CircleTimer;
 import walknroll.zoodini.utils.ZoodiniSprite;
 
@@ -58,6 +60,8 @@ public class Door extends ZoodiniSprite {
     private short excludeBitsLocked;
     private short excludeBitsUnlocked;
     private float units;
+
+    private PlayableAvatar unlocker;
 
 
     public boolean isUnlocking() {
@@ -109,7 +113,14 @@ public class Door extends ZoodiniSprite {
         setTextureRegion(locked ? lockedTexture : unlockedTexture);
     }
 
-
+    /**
+     * Sets who is the most recent character to
+     * attempt to unlock this door.
+     * @param avatar the character that is trying to unlock this door
+     */
+    public void setUnlocker(PlayableAvatar avatar){
+        unlocker = avatar;
+    }
 
 	/**
 	 * Creates a door with the given settings
@@ -117,11 +128,9 @@ public class Door extends ZoodiniSprite {
 	 * @param directory The asset directory (for textures, etc)
 	 * @param units     The physics units for this avatar
 	 */
-	public Door(AssetDirectory directory, MapObject obj, float units) {
-        mapObject = obj;
-        MapProperties properties = mapObject.getProperties();
+	public Door(AssetDirectory directory, MapProperties properties, JsonValue constants, float units) {
 		float[] pos = {properties.get("x",Float.class) / units, properties.get("y", Float.class) / units};
-		float size = properties.get("size", Float.class);
+		float size = constants.getFloat("size");
 
 		obstacle = new BoxObstacle(pos[0], pos[1], size, size);
 		obstacle.setName(properties.get("type", String.class));
@@ -141,9 +150,9 @@ public class Door extends ZoodiniSprite {
 		obstacle.setRestitution(0.0f);
 
 		// Create the collision filter (used for light penetration)
-		this.collideBits = GameLevel.bitStringToShort(properties.get("category", String.class));
-		this.excludeBitsLocked = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
-		this.excludeBitsUnlocked = GameLevel.bitStringToComplement(properties.get("excludeUnlocked", String.class));
+		this.collideBits = GameLevel.bitStringToShort(constants.getString("category"));
+		this.excludeBitsLocked = GameLevel.bitStringToComplement(constants.getString("exclude"));
+		this.excludeBitsUnlocked = GameLevel.bitStringToComplement(constants.getString("exclude-unlocked"));
 		Filter filter = new Filter();
 		filter.categoryBits = this.collideBits;
 		filter.maskBits = this.excludeBitsLocked;
@@ -159,9 +168,7 @@ public class Door extends ZoodiniSprite {
         resetTimer(); //TODO: get this from json
         unlockTimer.setPosition(this.obstacle.getPosition());
 
-        if(!properties.get("key", MapObject.class).getProperties().get("type", String.class).equalsIgnoreCase("Key")){
-            throw new AssertionError("The associated key to this door is not of type key");
-        }
+        obstacle.setUserData(this);
     }
 
     public void update(float dt){
@@ -173,6 +180,7 @@ public class Door extends ZoodiniSprite {
         }
         if(remainingTimeToUnlock <= 0.0f){
             setLocked(false);
+            unlocker.decreaseNumKeys();
         }
         unlockTimer.setProgress(remainingTimeToUnlock / UNLOCK_DURATION);
 

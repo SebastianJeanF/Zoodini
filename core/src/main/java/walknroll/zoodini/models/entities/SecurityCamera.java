@@ -51,11 +51,11 @@ public class SecurityCamera extends ZoodiniSprite {
     PathFactory pf = new PathFactory();
     PathExtruder extruder = new PathExtruder();
 
-    public SecurityCamera(MapProperties properties, float units) {
+    public SecurityCamera(MapProperties properties, JsonValue constants, float units) {
         float[] pos = new float[2];
         pos[0] = properties.get("x", Float.class) / units;
         pos[1] = properties.get("y", Float.class) / units;
-        float radius = properties.get("radius", Float.class);
+        float radius = constants.getFloat("obstacleRadius");
         angle = properties.get("angle", Float.class);
         obstacle = new WheelObstacle(pos[0], pos[1], radius);
         obstacle.setName(properties.get("type", String.class));
@@ -67,22 +67,22 @@ public class SecurityCamera extends ZoodiniSprite {
         obstacle.setRestitution(0.0f);
         obstacle.setPhysicsUnits(units);
 
-        short collideBits = GameLevel.bitStringToShort(properties.get("category", String.class));
-        short excludeBits = GameLevel.bitStringToComplement(properties.get("exclude", String.class));
+        short collideBits = GameLevel.bitStringToShort(constants.getString("category"));
+        short excludeBits = GameLevel.bitStringToComplement(constants.getString("exclude"));
         Filter filter = new Filter();
         filter.categoryBits = collideBits;
         filter.maskBits = excludeBits;
         obstacle.setFilterData(filter);
 
-        float r = properties.get("spriteRadius", Float.class) * units;
+        float r = constants.getFloat("spriteRadius") * units;
         mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
 
 
-        maxDisabledTime = properties.get("disabledTime", Float.class);
+        maxDisabledTime = constants.getFloat("disabledTime");
         disabled = false;
 
         // Initialize ring effect properties
-        alarmDistance = properties.get("alarmDistance", Float.class);
+        alarmDistance = constants.getFloat("alarmDistance");
         expansionSpeed = 10.0f;
         ringThickness = 0.1f;
         ringColor = new Color(1, 0, 0, 0.5f); // Semi-transparent red
@@ -93,16 +93,18 @@ public class SecurityCamera extends ZoodiniSprite {
 
         animationController = new AnimationController(AnimationState.IDLE);
         timer = new CircleTimer(0.2f,Color.YELLOW, units);
+
+        obstacle.setUserData(this);
     }
 
 
     /**
      * Adds spritesheet to animate for a given state.
      * */
-    public void setAnimation(AnimationState state, SpriteSheet sheet){
+    public void setAnimation(AnimationState state, SpriteSheet sheet, int frameDelay){
         switch(state){
-            case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
-            case BLIND -> animationController.addAnimation(AnimationState.BLIND, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
+            case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, frameDelay, true));
+            case BLIND -> animationController.addAnimation(AnimationState.BLIND, new Animation(sheet, 0, sheet.getSize()-1, frameDelay, true));
         }
     }
 
@@ -123,7 +125,6 @@ public class SecurityCamera extends ZoodiniSprite {
     @Override
     public void update(float dt) {
         super.update(dt);
-
         if (disabled) {
             animationController.setState(AnimationState.BLIND);
             disabledTimeRemaining -= dt;
@@ -144,6 +145,11 @@ public class SecurityCamera extends ZoodiniSprite {
 
         if (sprite != null) {
             sprite.setFrame(animationController.getCurrentFrame());
+        }
+        if (sprite != null) {
+            if(angle < 90 || angle > 270){
+                sprite.flip(true,false);
+            }
         }
         updateRing(dt);
     }

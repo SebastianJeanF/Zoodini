@@ -5,44 +5,14 @@
         "id": 1,
         "members": [
             {
-                "name": "alarmDistance",
-                "type": "float",
-                "value": 5
-            },
-            {
                 "name": "angle",
                 "type": "float",
                 "value": 90
             },
             {
-                "name": "category",
-                "type": "string",
-                "value": "01000"
-            },
-            {
-                "name": "disabledTime",
-                "type": "float",
-                "value": 5
-            },
-            {
-                "name": "exclude",
-                "type": "string",
-                "value": "00000"
-            },
-            {
                 "name": "fov",
                 "type": "float",
                 "value": 60
-            },
-            {
-                "name": "radius",
-                "type": "float",
-                "value": 0.2
-            },
-            {
-                "name": "spriteRadius",
-                "type": "float",
-                "value": 0.6
             },
             {
                 "name": "viewDistance",
@@ -63,51 +33,6 @@
         "drawFill": true,
         "id": 2,
         "members": [
-            {
-                "name": "abilityCooldown",
-                "type": "float",
-                "value": 5
-            },
-            {
-                "name": "abilityRange",
-                "type": "float",
-                "value": 7
-            },
-            {
-                "name": "category",
-                "type": "string",
-                "value": "00010"
-            },
-            {
-                "name": "exclude",
-                "type": "string",
-                "value": "00010"
-            },
-            {
-                "name": "force",
-                "type": "float",
-                "value": 3
-            },
-            {
-                "name": "maxSpeed",
-                "type": "float",
-                "value": 10
-            },
-            {
-                "name": "meowExpandSpeed",
-                "type": "float",
-                "value": 10
-            },
-            {
-                "name": "radius",
-                "type": "float",
-                "value": 0.4
-            },
-            {
-                "name": "spriteRadius",
-                "type": "float",
-                "value": 0.6
-            }
         ],
         "name": "Cat",
         "type": "class",
@@ -122,26 +47,6 @@
         "drawFill": true,
         "id": 3,
         "members": [
-            {
-                "name": "category",
-                "type": "string",
-                "value": "10000"
-            },
-            {
-                "name": "exclude",
-                "type": "string",
-                "value": "00000"
-            },
-            {
-                "name": "excludeUnlocked",
-                "type": "string",
-                "value": "00110"
-            },
-            {
-                "name": "size",
-                "type": "float",
-                "value": 1.25
-            }
         ],
         "name": "Door",
         "type": "class",
@@ -155,22 +60,13 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 4,
+        "id": 8,
         "members": [
             {
-                "name": "category",
+                "name": "creature",
+                "propertyType": "ExitCreature",
                 "type": "string",
-                "value": "10000"
-            },
-            {
-                "name": "exclude",
-                "type": "string",
-                "value": "00000"
-            },
-            {
-                "name": "size",
-                "type": "float",
-                "value": 1.25
+                "value": "PANDA"
             }
         ],
         "name": "Exit",
@@ -187,44 +83,9 @@
         "id": 5,
         "members": [
             {
-                "name": "category",
-                "type": "string",
-                "value": "00100"
-            },
-            {
-                "name": "exclude",
-                "type": "string",
-                "value": "00100"
-            },
-            {
-                "name": "force",
-                "type": "float",
-                "value": 1.5
-            },
-            {
-                "name": "fov",
-                "type": "float",
-                "value": 60
-            },
-            {
-                "name": "maxSpeed",
-                "type": "float",
-                "value": 10
-            },
-            {
-                "name": "radius",
-                "type": "float",
-                "value": 0.2
-            },
-            {
-                "name": "spriteRadius",
-                "type": "float",
-                "value": 1
-            },
-            {
-                "name": "viewDistance",
-                "type": "float",
-                "value": 5
+                "name": "path",
+                "type": "object",
+                "value": 0
             }
         ],
         "name": "Guard",
@@ -240,21 +101,6 @@
         "drawFill": true,
         "id": 6,
         "members": [
-            {
-                "name": "category",
-                "type": "string",
-                "value": "10000"
-            },
-            {
-                "name": "exclude",
-                "type": "string",
-                "value": "11101"
-            },
-            {
-                "name": "size",
-                "type": "float",
-                "value": 1
-            }
         ],
         "name": "Key",
         "type": "class",
@@ -269,56 +115,6 @@
         "drawFill": true,
         "id": 7,
         "members": [
-            {
-                "name": "abilityRange",
-                "type": "float",
-                "value": 3.5
-            },
-            {
-                "name": "category",
-                "type": "string",
-                "value": "00010"
-            },
-            {
-                "name": "exclude",
-                "type": "string",
-                "value": "00010"
-            },
-            {
-                "name": "force",
-                "type": "float",
-                "value": 1
-            },
-            {
-                "name": "inkCapacity",
-                "type": "float",
-                "value": 100
-            },
-            {
-                "name": "inkRegen",
-                "type": "float",
-                "value": 25
-            },
-            {
-                "name": "inkUsage",
-                "type": "float",
-                "value": 25
-            },
-            {
-                "name": "maxSpeed",
-                "type": "float",
-                "value": 5
-            },
-            {
-                "name": "radius",
-                "type": "float",
-                "value": 0.4
-            },
-            {
-                "name": "spriteRadius",
-                "type": "float",
-                "value": 0.6
-            }
         ],
         "name": "Octopus",
         "type": "class",
@@ -327,5 +123,38 @@
             "object",
             "project"
         ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 10,
+        "members": [
+        ],
+        "name": "Vent",
+        "type": "class",
+        "useAs": [
+            "property",
+            "map",
+            "layer",
+            "object",
+            "tile",
+            "tileset",
+            "wangcolor",
+            "wangset",
+            "project"
+        ]
+    },
+    {
+        "id": 9,
+        "name": "ExitCreature",
+        "storageType": "string",
+        "type": "enum",
+        "values": [
+            "PANDA",
+            "RABBIT",
+            "PENGUIN",
+            "OCTOPUS"
+        ],
+        "valuesAsFlags": false
     }
 ]

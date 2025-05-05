@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="28">
+ <tileset firstgid="1" source="../tilesets/path-1.tsx"/>
+ <tileset firstgid="211" source="../tilesets/path-2.tsx"/>
+ <tileset firstgid="421" source="../tilesets/walls-1.tsx"/>
+ <layer id="1" name="ground" width="30" height="20">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,428,429,430,431,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,443,444,445,446,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,428,429,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,443,444,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="2" name="walls">
+  <object id="25" x="1408" y="1152" width="512" height="256"/>
+  <object id="26" x="1408" y="1664" width="256" height="256"/>
+ </objectgroup>
+ <objectgroup id="3" name="objects">
+  <object id="14" type="Octopus" x="716.649" y="319.656">
+   <point/>
+  </object>
+  <object id="15" type="Exit" x="1082.71" y="319.656">
+   <point/>
+  </object>
+  <object id="16" type="Guard" x="1587.97" y="314.501">
+   <point/>
+  </object>
+  <object id="17" type="Camera" x="1635.97" y="820.387">
+   <properties>
+    <property name="angle" type="float" value="90"/>
+    <property name="fov" type="float" value="60"/>
+    <property name="viewDistance" type="float" value="5"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="18" type="Guard" x="2108.7" y="309.345">
+   <properties>
+    <property name="path" type="object" value="24"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="19" type="Cat" x="299.033" y="268.099">
+   <point/>
+  </object>
+  <object id="20" type="Key" x="701.182" y="969.28">
+   <point/>
+  </object>
+  <object id="21" type="Door" x="701.182" y="1474.54">
+   <point/>
+  </object>
+  <object id="22" type="Key" x="422.771" y="922.879">
+   <point/>
+  </object>
+  <object id="23" type="Door" x="417.615" y="1474.54">
+   <point/>
+  </object>
+  <object id="24" x="2127.27" y="696.97">
+   <polyline points="0,0 509.091,6.06061 484.848,503.03 -18.1818,512.121 -6.06061,42.4242"/>
+  </object>
+  <object id="27" type="Camera" x="576" y="2336">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="fov" type="float" value="60"/>
+    <property name="viewDistance" type="float" value="5"/>
+   </properties>
+   <point/>
+  </object>
+ </objectgroup>
+</map>

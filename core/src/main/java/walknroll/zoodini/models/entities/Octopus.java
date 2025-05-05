@@ -4,6 +4,7 @@ import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
+import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.graphics.SpriteSheet;
@@ -47,17 +48,20 @@ public class Octopus extends PlayableAvatar {
     // Keys of doors
     private Array<Key> keys;
 
-    public Octopus(MapProperties properties, float units) {
-        super(AvatarType.OCTOPUS, properties, units);
-        float r = properties.get("spriteRadius", Float.class) * OCTOPUS_IMAGE_SCALE * units;
-        mesh = new SpriteMesh(-r, -r, 2 * r, 2 * r);
+    public Octopus(MapProperties properties, JsonValue constants, float units) {
+        super(AvatarType.OCTOPUS, properties, constants, units);
+        float r = constants.getFloat("spriteRadius") * OCTOPUS_IMAGE_SCALE * units;
+        //TODO: we don't need OCTOPUS_IMAGE_SCALE
+
         target = new Vector2();
-        this.abilityRange = properties.get("abilityRange", Float.class);
-        this.inkRemaining = properties.get("inkCapacity", Float.class);
-        this.inkRegen = properties.get("inkRegen", Float.class);
-        this.inkUsage = properties.get("inkUsage", Float.class);
+        this.abilityRange = constants.getFloat("abilityRange");
+        this.inkRemaining = constants.getFloat("inkCapacity");
+        this.inkRegen = constants.getFloat("inkRegen");
+        this.inkUsage = constants.getFloat("inkUsage");
         this.inkCapacity = inkRemaining;
         keys = new Array<Key>();
+
+        obstacle.setUserData(this);
     }
 
     public void assignKey(Key key) {
@@ -154,24 +158,24 @@ public class Octopus extends PlayableAvatar {
         this.inkRemaining -= inkUsage;
     }
 
-    /**
-     * Adds spritesheet to animate for a given state.
-     */
-    @Override
-    public void setAnimation(AnimationState state, SpriteSheet sheet) {
-        switch (state) {
-            // TODO: frame delays (number of frames elapsed before rendering the next
-            // sprite) is set to 16 for all states. This needs to be adjusted.
-            case IDLE -> animationController.addAnimation(AnimationState.IDLE,
-                    new Animation(sheet, 0, sheet.getSize() - 1, 7, true));
-            case WALK -> animationController.addAnimation(AnimationState.WALK,
-                    new Animation(sheet, 0, sheet.getSize() - 1, 6, true));
-            case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN,
-                    new Animation(sheet, 0, sheet.getSize() - 1, 8, true));
-            case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP,
-                    new Animation(sheet, 0, sheet.getSize() - 1, 6, true));
-        }
-    }
+//    /**
+//     * Adds spritesheet to animate for a given state.
+//     */
+//    @Override
+//    public void setAnimation(AnimationState state, SpriteSheet sheet, int frameDelay) {
+//        switch (state) {
+//            // TODO: frame delays (number of frames elapsed before rendering the next
+//            // sprite) is set to 16 for all states. This needs to be adjusted.
+//            case IDLE -> animationController.addAnimation(AnimationState.IDLE,
+//                    new Animation(sheet, 0, sheet.getSize() - 1, 7, true));
+//            case WALK -> animationController.addAnimation(AnimationState.WALK,
+//                    new Animation(sheet, 0, sheet.getSize() - 1, 6, true));
+//            case WALK_DOWN -> animationController.addAnimation(AnimationState.WALK_DOWN,
+//                    new Animation(sheet, 0, sheet.getSize() - 1, 8, true));
+//            case WALK_UP -> animationController.addAnimation(AnimationState.WALK_UP,
+//                    new Animation(sheet, 0, sheet.getSize() - 1, 6, true));
+//        }
+//    }
 
     /**
      * Regenerate one game tick's worth of ink points

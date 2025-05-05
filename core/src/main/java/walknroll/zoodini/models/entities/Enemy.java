@@ -7,7 +7,7 @@ import walknroll.zoodini.utils.enums.AvatarType;
 
 public class Enemy extends Avatar {
 
-    public Enemy(MapProperties properties, float units) {
-        super(AvatarType.ENEMY, properties, units);
+    public Enemy(MapProperties properties, JsonValue constants, float units) {
+        super(AvatarType.ENEMY, properties, constants, units);
     }
 }

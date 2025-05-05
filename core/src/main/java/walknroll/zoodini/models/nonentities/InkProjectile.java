@@ -1,21 +1,17 @@
 package walknroll.zoodini.models.nonentities;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.utils.JsonValue;
 
-import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.assets.ParserUtils;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.graphics.SpriteSheet;
-import edu.cornell.gdiac.physics2.BoxObstacle;
-import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.physics2.WheelObstacle;
+import walknroll.zoodini.controllers.SoundController;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.utils.ZoodiniSprite;
 import walknroll.zoodini.utils.animation.Animation;
@@ -139,7 +135,7 @@ public class InkProjectile extends ZoodiniSprite {
         obstacle.setRestitution(json.getFloat("restitution"));
         obstacle.setPhysicsUnits(units);
 
-        short collideBits = GameLevel.bitStringToShort(json.getString("collide"));
+        short collideBits = GameLevel.bitStringToShort(json.getString("category"));
         short excludeBits = GameLevel.bitStringToComplement(json.getString("exclude"));
         Filter filter = new Filter();
         filter.categoryBits = collideBits;
@@ -153,13 +149,14 @@ public class InkProjectile extends ZoodiniSprite {
 
         shouldDestroy = false;
         animationController = new AnimationController(AnimationState.IDLE);
+
+        obstacle.setUserData(this);
     }
 
-    public void setAnimation(AnimationState state, SpriteSheet sheet){
+    public void setAnimation(AnimationState state, SpriteSheet sheet, int frameDelay){
         switch(state){
-            //TODO: frame delays (number of frames elapsed before rendering the next sprite) is set to 16 for all states. This needs to be adjusted.
-            case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, 16, true));
-            case EXPLODE -> animationController.addAnimation(AnimationState.EXPLODE, new Animation(sheet, 0, sheet.getSize()-1, 1, true));
+            case IDLE -> animationController.addAnimation(AnimationState.IDLE, new Animation(sheet, 0, sheet.getSize()-1, frameDelay, true));
+            case EXPLODE -> animationController.addAnimation(AnimationState.EXPLODE, new Animation(sheet, 0, sheet.getSize()-1, frameDelay, true));
         }
     }
 
@@ -183,24 +180,34 @@ public class InkProjectile extends ZoodiniSprite {
 
         // Apply force for movement
          if (getMovement().len2() > 0f) {
-            forceCache.set(getMovement().nor().scl(50));
+            forceCache.set(getMovement().nor().scl(75));
             obstacle.getBody().applyForce(forceCache, obstacle.getPosition(), true);
         }
     }
 
+    private boolean soundPlayed = false;
     @Override
     public void update(float dt) {
-        if(this.getShouldDestroy()) {
-            animationController.setState(AnimationState.EXPLODE);
-            if (animationController.getCurrentFrame()
-                >= animationController.getCurrentSpriteSheet().getSize() - 1) {
-                setDrawingEnabled(false);
+        super.update(dt);
+        if (this.getShouldDestroy()) {
+                animationController.setState(AnimationState.EXPLODE);
+                if (animationController.getCurrentFrame()
+                    >= animationController.getCurrentSpriteSheet().getSize() - 1) {
+                    setDrawingEnabled(false);
+                    setShouldDestroy(false);
+                }
+                if (!soundPlayed) {
+                    SoundController sc = SoundController.getInstance();
+                    //sc.playInkFinish();
+                    soundPlayed = true;
+                }
+            } else {
+                animationController.setState(AnimationState.IDLE);
+                soundPlayed = false;
             }
-        } else {
-            animationController.setState(AnimationState.IDLE);
-        }
 
-        animationController.update();
+            animationController.update();
+
 
         // This is the key fix - update the sprite reference itself
         SpriteSheet currentSheet = animationController.getCurrentSpriteSheet();
@@ -212,8 +219,6 @@ public class InkProjectile extends ZoodiniSprite {
         if (sprite != null) {
             sprite.setFrame(animationController.getCurrentFrame());
         }
-
-        obstacle.update(dt);
     }
 
     @Override
@@ -226,12 +231,10 @@ public class InkProjectile extends ZoodiniSprite {
 
             this.transform.idt();
             if(animationController.getCurrentState() == AnimationState.EXPLODE){
-                transform.scale(10.0f,10.0f);
+                transform.scale(5.0f,5.0f); //Adjust this to scale explosion sprites
             }
             this.transform.preRotate((float)((double)(a * 180.0F) / Math.PI));
             this.transform.preTranslate(x * u, y * u);
-
-
             batch.setTextureRegion(this.sprite);
             batch.drawMesh(this.mesh, this.transform, false);
             batch.setTexture(null);
@@ -239,9 +242,11 @@ public class InkProjectile extends ZoodiniSprite {
     }
 
     public void destroy(){
-        if(!shouldDestroy){
+        if(!getShouldDestroy()){
             return;
         }
+//        setDrawingEnabled(false);
+//        setShouldDestroy(false);
         getObstacle().setActive(false);
     }
 

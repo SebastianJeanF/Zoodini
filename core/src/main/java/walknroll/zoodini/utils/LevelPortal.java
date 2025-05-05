@@ -22,21 +22,22 @@ public class LevelPortal extends BaseDrawable implements TransformDrawable {
 
     private boolean open;
     private boolean selected;
+    private boolean completed;
 
-    public LevelPortal(boolean open, boolean selected) {
+    public LevelPortal(boolean open, boolean selected, boolean completed) {
         if (LevelPortal.BASE_PORTAL == null) {
             throw new RuntimeException("Tried to create a LevelPortal before the assets have been loaded");
         }
         this.open = open;
         this.selected = selected;
+        this.completed = completed;
         setMinWidth(LevelPortal.BASE_PORTAL.getRegionWidth());
         setMinHeight(LevelPortal.BASE_PORTAL.getRegionHeight());
     }
 
     public void draw(Batch batch, float x, float y, float originX, float originY, float width, float height,
-            float scaleX,
-            float scaleY, float rotation) {
-        batch.setColor(this.selected ? Color.GRAY : Color.WHITE);
+            float scaleX, float scaleY, float rotation) {
+        tintBatch(batch);
         batch.draw(LevelPortal.BASE_PORTAL, x, y, originX, originY, width, height, scaleX, scaleY, rotation);
         if (!open) {
             batch.draw(LevelPortal.PORTAL_CELL_BARS, x, y, originX, originY, width, height, scaleX, scaleY, rotation);
@@ -44,11 +45,22 @@ public class LevelPortal extends BaseDrawable implements TransformDrawable {
     }
 
     public void draw(Batch batch, float x, float y, float width, float height) {
-        batch.setColor(this.selected ? Color.GRAY : Color.WHITE);
+        tintBatch(batch);
         batch.draw(LevelPortal.BASE_PORTAL, x, y, width, height);
         if (!open) {
             batch.draw(LevelPortal.PORTAL_CELL_BARS, x, y, width, height);
         }
     }
 
+    private void tintBatch(Batch batch) {
+        if (this.completed && this.selected) {
+            batch.setColor(Color.valueOf("8DB7BF"));
+        } else if (this.completed) {
+            batch.setColor(Color.valueOf("A5DEE8"));
+        } else if (this.selected) {
+            batch.setColor(Color.GRAY);
+        } else {
+            batch.setColor((Color.WHITE));
+        }
+    }
 }

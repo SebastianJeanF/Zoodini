@@ -1,0 +1,15 @@
+// Maps level indices to their raw tilemaps.
+// THIS MUST BE IN CONSECUTIVE ORDER, OTHERWISE THINGS WILL BREAK WITH LEVEL LOADING
+// AGAIN: THIS MUST BE IN CONSECUTIVE ORDER
+{
+  "1": "maps/Tutorial1.tmx",
+  "2": "maps/Tutorial2.tmx",
+  "3": "maps/Tutorial3.tmx",
+  "4": "maps/Tutorial4.tmx",
+  "5": "maps/Tutorial5.tmx",
+  "6": "maps/Tutorial6.tmx",
+  "7" : "maps/medium1.tmx",
+  "8": "maps/Level8.tmx",
+  "9": "maps/Hard-Level-2.tmx",
+  "10": "maps/debugMap.tmx"
+}

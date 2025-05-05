@@ -35,17 +35,10 @@ public class Guard extends Enemy {
     private static final float CLOSE_DISTANCE_FACTOR = 0.4f; //
     private static final float MEDIUM_DISTANCE_FACTOR = 0.8f; //
     // Suspicion increase amounts for each zone
-    private static final int CLOSE_ZONE_SUS_INCREASE = 3;
-    private static final int MEDIUM_ZONE_SUS_INCREASE = 2;
-    private static final int FAR_ZONE_SUS_INCREASE = 1;
+    private static final int CLOSE_ZONE_SUS_INCREASE = 5;
+    private static final int MEDIUM_ZONE_SUS_INCREASE = 5;
+    private static final int FAR_ZONE_SUS_INCREASE = 2;
 
-    public static void setSuspicionMeterCuriousTexture(Texture suspicionMeterCurious) {
-        Guard.SUSPICION_METER_CURIOUS = suspicionMeterCurious;
-    }
-
-    public static boolean isLoaded() {
-        return Guard.SUSPICION_METER_CURIOUS != null;
-    }
 
     private float fov;
     private float viewDistance;
@@ -58,15 +51,15 @@ public class Guard extends Enemy {
 
     private Avatar aggroTarget;
     private boolean seesPlayer;
-    private Avatar seenPlayer;
+    private PlayableAvatar seenPlayer;
 
     /** The position that this guard should move to */
     Vector2 target = null;
     Vector2 movementDirection = null;
     Vector2 targetPosition = null;
     /** Direction guard is currently facing */
-    private Vector2 currentDirection = new Vector2(0, 1); // Default facing up
-    private Vector2 targetDirection = new Vector2(0, 1);
+    private Vector2 currentDirection = new Vector2(0, -1); // Default facing up
+    private Vector2 targetDirection = new Vector2(0, -1);
 
     private float turnSpeed = 5.0f;
     // --- Patrol Path Variables for Guard ---
@@ -76,7 +69,7 @@ public class Guard extends Enemy {
     private final AnimationController suspsicionMeter;
     private float susLevel;
 
-    private float susThreshold;
+    private final float susThreshold;
     private float maxSusLevel;
     private final float DEAGRRO_PERIOD = 60F;
 
@@ -91,6 +84,43 @@ public class Guard extends Enemy {
 
     private float originalFov;
 
+    private final float agroedForce;
+    private final float alertedForce;
+    private final float susForce;
+    private final float distractedForce;
+    private final float blindedForceScale;
+
+    private boolean isIdle = false;
+
+
+    public float getSusForce() {
+        return susForce;
+    }
+
+    public float getAgroedForce() {
+        return agroedForce;
+    }
+
+    public float getBlindedForceScale() {
+        return blindedForceScale;
+    }
+
+    public float getAlertedForce() {
+        return alertedForce;
+    }
+
+    public float getDistractedForce() {
+        return distractedForce;
+    }
+
+    public static void setSuspicionMeterCuriousTexture(Texture suspicionMeterCurious) {
+        Guard.SUSPICION_METER_CURIOUS = suspicionMeterCurious;
+    }
+
+    public static boolean isLoaded() {
+        return Guard.SUSPICION_METER_CURIOUS != null;
+    }
+
 
     /**
      * Creates a new dude with degenerate settings
@@ -98,9 +128,9 @@ public class Guard extends Enemy {
      * The main purpose of this constructor is to set the initial capsule
      * orientation.
      */
-    public Guard(MapProperties properties, float units) {
-        super(properties, units);
-        fov = properties.get("fov", Float.class);
+    public Guard(MapProperties properties, JsonValue constants, float units) {
+        super(properties, constants, units);
+        fov = constants.getFloat("fov");
         currentPatrolIndex = 0;
         cameraAlerted = false;
         isChasing = false;
@@ -109,25 +139,34 @@ public class Guard extends Enemy {
         chaseTimer = 0;
         AnimationState state = AnimationState.SUSPICION_METER;
         suspsicionMeter = new AnimationController(state);
-        viewDistance = properties.get("viewDistance", Float.class);
-        susThreshold = 10F;
+        viewDistance = constants.getFloat("viewDistance");
+        susThreshold = 5F;
         maxSusLevel = 100F;
         seesPlayer = false;
 
+        agroedForce = constants.getFloat("agroedForce");
+        alertedForce = constants.getFloat("alertedForce");
+        susForce = constants.getFloat("susForce");
+        distractedForce = constants.getFloat("distractedForce");
+
+        blindedForceScale = constants.getFloat("blindedForceScale");
+
+
         MapObject path = properties.get("path", MapObject.class);
         if (path instanceof PolylineMapObject line) {
-            float[] vertices = line.getPolyline().getTransformedVertices();
+            float[] vertices = line.getPolyline().getTransformedVertices().clone();
             for (int i = 0; i < vertices.length; i++) {
                 vertices[i] /= units;
             }
             setPatrolPoints(vertices);
-        }
+        } else { setPatrolPoints(new Vector2[] {this.getPosition()});}
 
         originalViewDistance = viewDistance;
         originalFov = fov;
         tempViewDistance = viewDistance;
         tempFov = fov;
 
+        obstacle.setUserData(this);
     }
 
     public void setSusMeter(SpriteSheet sheet) {
@@ -145,6 +184,7 @@ public class Guard extends Enemy {
         suspsicionMeter.addAnimation(SUSPICION_METER, anim);
     }
 
+
     public void setMaxSusLevel() {
         this.susLevel = this.maxSusLevel;
     }
@@ -157,8 +197,13 @@ public class Guard extends Enemy {
         return susLevel;
     }
 
+
     public void deltaSusLevel(float delta) {
         this.susLevel = MathUtils.clamp(susLevel + delta, 0.0F, maxSusLevel);
+    }
+
+    public void setSusLevel(float susLevel) {
+        this.susLevel = MathUtils.clamp(susLevel, 0.0F, maxSusLevel);
     }
 
     public boolean isMaxSusLevel() {
@@ -243,11 +288,11 @@ public class Guard extends Enemy {
         return seesPlayer;
     }
 
-    public void setSeenPlayer(Avatar seenPlayer) {
+    public void setSeenPlayer(PlayableAvatar seenPlayer) {
         this.seenPlayer = seenPlayer;
     }
 
-    public Avatar getSeenPlayer() {
+    public PlayableAvatar getSeenPlayer() {
         return seenPlayer;
     }
 
@@ -311,7 +356,7 @@ public class Guard extends Enemy {
             baseSuspicionIncrease = FAR_ZONE_SUS_INCREASE;
         }
 
-        // System.out.println("sus increase is " + baseSuspicionIncrease);
+        // DebugPrinter.println("sus increase is " + baseSuspicionIncrease);
         return baseSuspicionIncrease;
     }
 
@@ -323,6 +368,14 @@ public class Guard extends Enemy {
      */
     public boolean isMeowed() {
         return meowed;
+    }
+
+    public void setIdle(boolean idle) {
+        isIdle = idle;
+    }
+
+    public boolean isIdle() {
+        return isIdle;
     }
 
     public Avatar getAggroTarget() {
@@ -504,6 +557,20 @@ public class Guard extends Enemy {
 
     }
 
+    public boolean isEven(int number) {
+        switch (number) {
+            case 1: return false;
+            case 2: return true;
+            case 3: return false;
+            case 4: return true;
+            case 5: return false;
+            case 6: return true;
+            case 7: return false;
+            case 8: return true;
+            default: throw new RuntimeException("passed illegal argument to isEven");
+        }
+    }
+
     /**
      * Get the X pixel offset for the suspicion meter based on the guard's state
      * and movement direction.
@@ -521,7 +588,7 @@ public class Guard extends Enemy {
             if (guardState == AnimationState.WALK_UP) {
                 return (-95f * SCALE);
             }
-            else if (guardState == AnimationState.WALK_DOWN) {
+            else if (guardState == AnimationState.WALK_DOWN || guardState == AnimationState.WALK_DOWN_BLIND) {
                 return (-90f * SCALE);
             }
             // Else if the guard is moving to the right
