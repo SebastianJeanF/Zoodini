@@ -939,7 +939,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
                     ((SecurityCamera) entry.key).activateRing();
 
-                    Avatar detectedPlayer = entry.value.contains(catPos) ? level.getCat() : level.getOctopus();
+                    PlayableAvatar detectedPlayer = entry.value.contains(catPos) ? level.getCat() : level.getOctopus();
 
                     detectedPlayer.setUnderCamera(true);
 

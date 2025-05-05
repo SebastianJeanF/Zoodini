@@ -18,6 +18,7 @@ import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Guard;
+import walknroll.zoodini.models.entities.PlayableAvatar;
 import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.enums.AvatarType;
 
@@ -30,7 +31,7 @@ public class GuardAIController {
     /** Guard identifier for this AI controller */
     private final Guard guard;
     /** Target of the guard (to chase) */
-    private Avatar targetPlayer;
+    private PlayableAvatar targetPlayer;
     /** Level of the game */
     private GameLevel level;
     /** Position of the last location of meow */
@@ -293,7 +294,7 @@ public class GuardAIController {
             case CHASE:
                 // If player deaggros the guard; CHASE -> PATROL
                 // This happens if the guard is not in line of sight and the deAggroTimer is 0
-                if (guard.checkDeAggroed()) {
+                if (guard.checkDeAggroed() || targetPlayer.isInvincible()) {
                     currState = GuardState.SUSPICIOUS;
                     // If guard was previously alerted by a camera
                     guard.setCameraAlerted(false);

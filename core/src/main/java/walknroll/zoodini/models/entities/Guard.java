@@ -49,7 +49,7 @@ public class Guard extends Enemy {
     private int chaseTimer;
     private boolean cameraAlerted;
 
-    private Avatar aggroTarget;
+    private PlayableAvatar aggroTarget;
     private boolean seesPlayer;
     private PlayableAvatar seenPlayer;
 
@@ -378,11 +378,11 @@ public class Guard extends Enemy {
         return isIdle;
     }
 
-    public Avatar getAggroTarget() {
+    public PlayableAvatar getAggroTarget() {
         return aggroTarget;
     }
 
-    public void setAggroTarget(Avatar target) {
+    public void setAggroTarget(PlayableAvatar target) {
         aggroTarget = target;
     }
 
