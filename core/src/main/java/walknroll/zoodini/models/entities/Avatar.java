@@ -323,7 +323,9 @@ public class Avatar extends ZoodiniSprite {
 	 * @param dt number of seconds since last animation frame
 	 */
 	public void update(float dt) {
-		// Update animation controller
+        super.update(dt);
+
+        // Update animation controller
 		animationController.update();
 
 		// This is the key fix - update the sprite reference itself
@@ -336,7 +338,6 @@ public class Avatar extends ZoodiniSprite {
 		if (sprite != null) {
 			sprite.setFrame(animationController.getCurrentFrame());
 		}
-		obstacle.update(dt);
 	}
 
 	@Override

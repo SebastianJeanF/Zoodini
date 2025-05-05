@@ -60,6 +60,8 @@ public class Octopus extends PlayableAvatar {
         this.inkUsage = constants.getFloat("inkUsage");
         this.inkCapacity = inkRemaining;
         keys = new Array<Key>();
+
+        obstacle.setUserData(this);
     }
 
     public void assignKey(Key key) {

@@ -112,6 +112,8 @@ public class Key extends ZoodiniSprite {
 
         collected = false;
         used = false;
+
+        obstacle.setUserData(this);
     }
     /**
      * Overrides the draw method to make the key invisible when collected

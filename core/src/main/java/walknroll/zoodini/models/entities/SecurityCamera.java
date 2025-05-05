@@ -93,6 +93,8 @@ public class SecurityCamera extends ZoodiniSprite {
 
         animationController = new AnimationController(AnimationState.IDLE);
         timer = new CircleTimer(0.2f,Color.YELLOW, units);
+
+        obstacle.setUserData(this);
     }
 
 

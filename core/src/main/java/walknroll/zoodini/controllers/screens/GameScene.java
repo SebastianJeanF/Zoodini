@@ -14,6 +14,8 @@ package walknroll.zoodini.controllers.screens;
 
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import edu.cornell.gdiac.physics2.ObstacleData;
+import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.util.PooledList;
 import java.util.HashMap;
 
@@ -52,11 +54,13 @@ import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Cat;
+import walknroll.zoodini.models.entities.Enemy;
 import walknroll.zoodini.models.entities.Guard;
 import walknroll.zoodini.models.entities.Octopus;
 import walknroll.zoodini.models.entities.PlayableAvatar;
 import walknroll.zoodini.models.entities.SecurityCamera;
 import walknroll.zoodini.models.nonentities.Door;
+import walknroll.zoodini.models.nonentities.Exit;
 import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.models.nonentities.Vent;
@@ -520,135 +524,153 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             return;
 
         try {
-            Obstacle o1 = (Obstacle) body1.getUserData();
-            Obstacle o2 = (Obstacle) body2.getUserData();
+            Object o1 = body1.getUserData();
+            Object o2 = body2.getUserData();
 
-            Obstacle cat = level.isCatPresent() ? level.getCat().getObstacle() : null;
-            Obstacle oct = level.isOctopusPresent() ? level.getOctopus().getObstacle() : null;
-            Obstacle exit = level.getExit().getObstacle();
-            Obstacle projectile = level.getProjectile().getObstacle();
+            //projectile-enemy collision
+            if(o1 instanceof InkProjectile && o2 instanceof SecurityCamera cam){
+                cam.disable();
+                contact.setEnabled(false);
+            }
 
-            Array<Guard> guards = level.getGuards();
+            if(o2 instanceof InkProjectile && o1 instanceof SecurityCamera cam){
+                cam.disable();
+                contact.setEnabled(false);
+            }
 
-            if ((o1 == projectile || o2 == projectile)) {
-                Array<SecurityCamera> secCameras = level.getSecurityCameras();
-                for (int i = 0; i < secCameras.size; i++) {
-                    SecurityCamera cam = secCameras.get(i);
-                    Obstacle camObstacle = cam.getObstacle();
-                    if (o1 == camObstacle || o2 == camObstacle) {
-                        cam.disable();
-                        contact.setEnabled(false);
-                        break;
-                    }
-                }
-                for (Guard guard : guards) {
-                    Obstacle enemy = guard.getObstacle();
-                    if (o1 == enemy || o2 == enemy) {
-                        applyInkEffect(guard);
-                    }
-                }
+            if(o1 instanceof InkProjectile && o2 instanceof Guard g){
+                applyInkEffect(g);
+            }
+
+            if(o2 instanceof InkProjectile && o1 instanceof Guard g){
+                applyInkEffect(g);
+            }
+
+            if(o1 instanceof InkProjectile || o2 instanceof InkProjectile){
                 level.getProjectile().setShouldDestroy(true);
             }
 
-            for (Guard guard : guards) {
-                Obstacle enemy = guard.getObstacle();
 
-                if (((o1 == cat && o2 == enemy) || (o2 == cat && o1 == enemy)) && !level.getCat().isInvincible()) {
-                    setFailure(true);
-                    gameLost = true;
-                }
-
-                if (((o1 == oct && o2 == enemy) || (o2 == oct && o1 == enemy)) && !level.getOctopus().isInvincible()) {
-                    setFailure(true);
-                    gameLost = true;
-                }
+            //player-guard collision
+            if((o1 instanceof Cat && o2 instanceof Guard) || (o2 instanceof Cat && o1 instanceof Guard)){
+                setFailure(true);
+                gameLost = true;
             }
 
-            // CAT
-            for (Key key : level.getKeys()) {
-                if (key.isCollected()) {
-                    continue;
-                } // skip if the key is not collected
+            if((o1 instanceof Octopus && o2 instanceof Guard) || (o2 instanceof Octopus && o1 instanceof Guard)){
+                setFailure(true);
+                gameLost = true;
+            }
 
-                Obstacle keyObs = key.getObstacle();
-                if ((o1 == cat && o2 == keyObs) || (o2 == cat && o1 == keyObs)) {
+
+            //player-key collision
+            if(o1 instanceof Key key && o2 instanceof Cat cat){
+                if(!key.isCollected()){
                     key.setCollected(true);
-                    level.getCat().increaseNumKeys();
-
-                    // TODO: Verify that the code below can be safely removed
-                    key.setOwner(AvatarType.CAT);
-                    level.getCat().assignKey(key);
+                    key.setOwner(cat.getAvatarType());
+                    cat.assignKey(key);
+                    cat.increaseNumKeys();
                 }
             }
 
-            // OCTOPUS
-            for (Key key : level.getKeys()) {
-                if (key.isCollected()) {
-                    continue;
-                } // skip if the key is not collected
-
-                Obstacle keyObs = key.getObstacle();
-                if ((o1 == oct && o2 == keyObs) || (o2 == oct && o1 == keyObs)) {
+            if(o2 instanceof Key key && o1 instanceof Cat cat){
+                if(!key.isCollected()){
                     key.setCollected(true);
-                    level.getOctopus().increaseNumKeys();
-
-                    // TODO: Verify that the code below can be safely removed
-                    key.setOwner(AvatarType.OCTOPUS);
-                    level.getOctopus().assignKey(key);
-
+                    key.setOwner(cat.getAvatarType());
+                    cat.assignKey(key);
+                    cat.increaseNumKeys();
                 }
             }
 
-            PooledList<Door> doors = level.getDoors();
-            for (Door door : doors) {
-                Obstacle doorObs = door.getObstacle();
-
-                if (o1 == doorObs || o2 == doorObs) {
-                    DebugPrinter.println("Door collision");
-                    Obstacle other = (o1 == doorObs) ? o2 : o1;
-
-                    // Check if playable character has a key
-                    boolean canUnlock = (other == cat && level.getCat().getNumKeys() > 0)
-                            || (other == oct && level.getOctopus().getNumKeys() > 0);
-
-                    if (canUnlock && door.isLocked()) {
-                        DebugPrinter.println("Unlocking door");
-                        door.setUnlocking(true);
-                        door.setUnlocker(level.getAvatar());
-                    }
-                }
-
-            }
-
-            for (Vent vent : level.getVents()) {
-                Obstacle ventObs = vent.getObstacle();
-                if ((o1 == cat && o2 == ventObs) || (o2 == cat && o1 == ventObs)) {
-                    vent.setOpen(false);
-                    vent.setContainedEntities(vent.getContainedEntities() + 1);
-                    level.getCat().setInvincible(true);
-                    level.getCat().setDrawingEnabled(false);
-                }
-
-                if ((o1 == oct && o2 == ventObs) || (o2 == oct && o1 == ventObs)) {
-                    vent.setOpen(false);
-                    vent.setContainedEntities(vent.getContainedEntities() + 1);
-                    level.getOctopus().setInvincible(true);
-                    level.getOctopus().setDrawingEnabled(false);
+            if(o1 instanceof Key key && o2 instanceof Octopus oct){
+                if(!key.isCollected()){
+                    key.setCollected(true);
+                    key.setOwner(oct.getAvatarType());
+                    oct.assignKey(key);
+                    oct.increaseNumKeys();
                 }
             }
 
-            // Handle exit collision (only if door is unlocked)
-            if ((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)) {
+            if(o2 instanceof Key key && o1 instanceof Octopus oct){
+                if(!key.isCollected()){
+                    key.setCollected(true);
+                    key.setOwner(oct.getAvatarType());
+                    oct.assignKey(key);
+                    oct.increaseNumKeys();
+                }
+            }
+
+            //avatar-door collision
+            if(o1 instanceof Door door && o2 instanceof Cat cat){
+                if(door.isLocked() && cat.getNumKeys() > 0){
+                    door.setUnlocking(true);
+                    door.setUnlocker(cat);
+                }
+            }
+
+            if(o2 instanceof Door door && o1 instanceof Cat cat){
+                if(door.isLocked() && cat.getNumKeys() > 0){
+                    door.setUnlocking(true);
+                    door.setUnlocker(cat);
+                }
+            }
+
+            if(o1 instanceof Door door && o2 instanceof Octopus oct){
+                if(door.isLocked() && oct.getNumKeys() > 0){
+                    door.setUnlocking(true);
+                    door.setUnlocker(oct);
+                }
+            }
+
+            if(o2 instanceof Door door && o1 instanceof Octopus oct){
+                if(door.isLocked() && oct.getNumKeys() > 0){
+                    door.setUnlocking(true);
+                    door.setUnlocker(oct);
+                }
+            }
+
+            //Avatar-vent collision
+            if(o1 instanceof Vent vent && o2 instanceof Cat cat){
+                vent.setOpen(false);
+                vent.setContainedEntities(vent.getContainedEntities() + 1);
+                cat.setInvincible(true);
+                cat.setDrawingEnabled(false);
+            }
+
+            if(o2 instanceof Vent vent && o1 instanceof Cat cat){
+                vent.setOpen(false);
+                vent.setContainedEntities(vent.getContainedEntities() + 1);
+                cat.setInvincible(true);
+                cat.setDrawingEnabled(false);
+            }
+
+            if(o1 instanceof Vent vent && o2 instanceof Octopus oct){
+                vent.setOpen(false);
+                vent.setContainedEntities(vent.getContainedEntities() + 1);
+                oct.setInvincible(true);
+                oct.setDrawingEnabled(false);
+            }
+
+            if(o2 instanceof Vent vent && o1 instanceof Octopus oct){
+                vent.setOpen(false);
+                vent.setContainedEntities(vent.getContainedEntities() + 1);
+                oct.setInvincible(true);
+                oct.setDrawingEnabled(false);
+            }
+
+
+            //Avatar-exit collision
+            if((o1 instanceof Cat && o2 instanceof Exit) || (o2 instanceof Cat && o1 instanceof Exit)){
                 catArrived = true;
                 checkWinCondition();
             }
 
-            if ((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)) {
+            if((o1 instanceof Octopus && o2 instanceof Exit) || (o2 instanceof Octopus && o1 instanceof Exit)){
                 octopusArrived = true;
                 checkWinCondition();
             }
 
-            if (catArrived && octopusArrived && !failed) {
+            if(catArrived && octopusArrived && !failed){
                 setComplete(true);
             }
 
@@ -688,62 +710,71 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         try {
 
-            Obstacle o1 = (Obstacle) body1.getUserData();
-            Obstacle o2 = (Obstacle) body2.getUserData();
+            Object o1 = body1.getUserData();
+            Object o2 = body2.getUserData();
 
-            Obstacle cat = null;
-            if (level.getCat() != null) {
-                cat = level.getCat().getObstacle();
-            }
-            Obstacle oct = null;
-            if (level.getOctopus() != null) {
-                oct = level.getOctopus().getObstacle();
-            }
-            Obstacle exit = level.getExit().getObstacle();
-
-            PooledList<Door> doors = level.getDoors();
-
-            for (Door door : doors) {
-                Obstacle doorObs = door.getObstacle();
-
-                // Check if there is door that should stop being unlocked
-                if (o1 == doorObs || o2 == doorObs) {
-                    Obstacle other = (o1 == doorObs) ? o2 : o1;
-
-                    boolean canUnlock = (other == cat && level.getCat().getNumKeys() > 0)
-                            || (other == oct && level.getOctopus().getNumKeys() > 0);
-
-                    if (canUnlock && door.isLocked()) {
-                        door.setUnlocking(false);
-                    }
+            if(o1 instanceof Door door && o2 instanceof Cat cat){
+                if(door.isLocked() && cat.getNumKeys() > 0){
+                    door.setUnlocking(false);
                 }
             }
 
-            for (Vent vent : level.getVents()) {
-                Obstacle ventObs = vent.getObstacle();
-                if ((o1 == cat && o2 == ventObs) || (o2 == cat && o1 == ventObs)) {
-                    vent.setContainedEntities(vent.getContainedEntities() - 1);
-                    level.getCat().setInvincible(false);
-                    level.getCat().setDrawingEnabled(true);
-                }
-
-                if ((o1 == oct && o2 == ventObs) || (o2 == oct && o1 == ventObs)) {
-                    vent.setContainedEntities(vent.getContainedEntities() - 1);
-                    level.getOctopus().setInvincible(false);
-                    level.getOctopus().setDrawingEnabled(true);
-                }
-
-                if (vent.getContainedEntities() == 0) {
-                    vent.setOpen(true);
+            if(o2 instanceof Door door && o1 instanceof Cat cat){
+                if(door.isLocked() && cat.getNumKeys() > 0){
+                    door.setUnlocking(false);
                 }
             }
 
-            if ((o1 == cat && o2 == exit) || (o2 == cat && o1 == exit)) {
+            if(o1 instanceof Door door && o2 instanceof Octopus oct){
+                if(door.isLocked() && oct.getNumKeys() > 0){
+                    door.setUnlocking(false);
+                }
+            }
+
+            if(o2 instanceof Door door && o1 instanceof Octopus oct){
+                if(door.isLocked() && oct.getNumKeys() > 0){
+                    door.setUnlocking(false);
+                }
+            }
+
+            if(o1 instanceof Vent vent && o2 instanceof Cat cat){
+                vent.setContainedEntities(vent.getContainedEntities() - 1);
+                cat.setInvincible(false);
+                cat.setDrawingEnabled(true);
+            }
+
+            if(o2 instanceof Vent vent && o1 instanceof Cat cat){
+                vent.setContainedEntities(vent.getContainedEntities() - 1);
+                cat.setInvincible(false);
+                cat.setDrawingEnabled(true);
+            }
+
+            if(o1 instanceof Vent vent && o2 instanceof Octopus oct){
+                vent.setContainedEntities(vent.getContainedEntities() - 1);
+                oct.setInvincible(false);
+                oct.setDrawingEnabled(true);
+            }
+
+            if(o2 instanceof Vent vent && o1 instanceof Octopus oct){
+                vent.setContainedEntities(vent.getContainedEntities() - 1);
+                oct.setInvincible(false);
+                oct.setDrawingEnabled(true);
+            }
+
+            if(o1 instanceof Cat && o2 instanceof Exit){
                 catArrived = false;
             }
 
-            if ((o1 == oct && o2 == exit) || (o2 == oct && o1 == exit)) {
-                octopusArrived = false;
+            if(o2 instanceof Cat && o1 instanceof Exit){
+                catArrived = false;
+            }
+
+            if(o1 instanceof Octopus && o2 instanceof Exit){
+                catArrived = false;
+            }
+
+            if(o2 instanceof Octopus && o1 instanceof Exit){
+                catArrived = false;
             }
 
         } catch (Exception e) {
@@ -764,34 +795,24 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         Body body2 = fix2.getBody();
 
         try {
+            Object o1 = body1.getUserData();
+            Object o2 = body2.getUserData();
 
-            Obstacle o1 = (Obstacle) body1.getUserData();
-            Obstacle o2 = (Obstacle) body2.getUserData();
-
-            Obstacle cat = null;
-            if (level.getCat() != null) {
-                cat = level.getCat().getObstacle();
-            }
-            Obstacle oct = null;
-            if (level.getOctopus() != null) {
-                oct = level.getOctopus().getObstacle();
+            if(o1 instanceof Cat || o2 instanceof Cat){
+                System.out.println("CAT COLLIDES");
             }
 
-            for (Guard guard : level.getGuards()) {
-                Obstacle enemy = guard.getObstacle();
+            if(Constants.INVINCIBLE){
+                contact.setEnabled(false);
+            }
 
-                if (Constants.INVINCIBLE) {
-                    contact.setEnabled(false);
-                }
+            if (((o1 instanceof Cat && o2 instanceof Guard) || (o2 instanceof Cat && o1 instanceof Guard)) && level.getCat().isInvincible()) {
+                contact.setEnabled(false);
+            }
 
-                if (((o1 == cat && o2 == enemy) || (o2 == cat && o1 == enemy)) && level.getCat().isInvincible()) {
-                    contact.setEnabled(false);
-                }
-
-                if (((o1 == oct && o2 == enemy) || (o2 == oct && o1 == enemy)) && level.getOctopus().isInvincible()) {
-                    contact.setEnabled(false);
-                }
-            }            
+            if (((o1 instanceof Octopus && o2 instanceof Guard) || (o2 instanceof Octopus && o1 instanceof Guard)) && level.getOctopus().isInvincible()) {
+                contact.setEnabled(false);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1108,6 +1129,14 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
             if (!door.isUnlocking()) {
                 door.resetTimer();
+            }
+        }
+
+        for(Vent vent : level.getVents()){
+            if(vent.getContainedEntities() <= 0){
+                vent.setOpen(true);
+            } else {
+                vent.setOpen(false);
             }
         }
     }
