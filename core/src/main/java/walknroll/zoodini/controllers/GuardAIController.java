@@ -63,6 +63,14 @@ public class GuardAIController {
 
     private Vector2 nextTargetLocation;
 
+    // Looking around behavior variables
+    private float lookAroundDuration = 3.0f;  // How long guard looks around in seconds
+    private float currentLookTime = 0.0f;     // Current time spent looking around
+    private float lookDirection = 1.0f;       // 1.0 for right, -1.0 for left
+    private float lookChangeTime = 1.0f;      // Time before changing look direction
+    private float currentLookChangeTime = 0f; // Current time spent in current look direction
+
+
     /**
      * Constructs a new GuardAIController for a specific guard.
      *
@@ -110,7 +118,7 @@ public class GuardAIController {
             TileNode waypointTile = tileGraph.worldToTile(waypoint);
 
             // Check if waypoint is in a wall tile
-            if (waypointTile == null || waypointTile.isWall) {
+            if (waypointTile == null || waypointTile.isObstacle) {
                 // Find the nearest non-wall tile
                 TileNode validTile = tileGraph.findNearestNonObstacleNode(waypoint);
 
@@ -244,7 +252,7 @@ public class GuardAIController {
             } else {
                 // Only decrease suspicion if not in ALERTED state
                 if (currState != GuardState.AlERTED) {
-                    guard.deltaSusLevel(-1); // Decrease suspicion
+                    guard.deltaSusLevel(-0.75f); // Decrease suspicion
                 }
             }
         } else { // Guard is chasing
@@ -278,6 +286,8 @@ public class GuardAIController {
             guard.startDeAggroTimer();
             return;
         }
+
+        guard.setLookingAround(currState == GuardState.LOOKING_AROUND);
 
         switch (currState) {
             case CHASE:
@@ -327,8 +337,18 @@ public class GuardAIController {
                 break;
             case DISTRACTED:
                 // If guard has reached meow location; DISTRACTED -> PATROL
+//                if (hasReachedTargetLocation(distractPosition)) {
+//                    currState = GuardState.PATROL;
+//                    guard.setMeow(false);
+//                    lastStateChangeTime = ticks;
+//                }
+                // If guard has reached meow location; DISTRACTED -> LOOKING_AROUND
                 if (hasReachedTargetLocation(distractPosition)) {
-                    currState = GuardState.PATROL;
+                    currState = GuardState.LOOKING_AROUND;
+                    // Initialize the looking around timer
+                    currentLookTime = 0.0f;
+                    currentLookChangeTime = 0f;
+                    lookDirection = 1.0f;
                     guard.setMeow(false);
                     lastStateChangeTime = ticks;
                 }
@@ -356,6 +376,36 @@ public class GuardAIController {
                     lastStateChangeTime = ticks;
                 }
                 break;
+            case LOOKING_AROUND:
+                // Check for higher priority states first (same as in DISTRACTED)
+                if (guard.isSus()) {
+                    currState = GuardState.SUSPICIOUS;
+                    guard.setMeow(false);
+                    lastStateChangeTime = ticks;
+                }
+                else if (guard.isCameraAlerted()) {
+                    currState = GuardState.AlERTED;
+                    guard.setCameraAlerted(true);
+                    guard.setMeow(false);
+                    Vector2 playerPosition = getActivePlayer().getPosition();
+                    cameraAlertPosition.set(getValidTileCoords(playerPosition));
+                    lastStateChangeTime = ticks;
+                }
+                else if (didDistractionOccur()) {
+                    // Another meow can interrupt looking around
+                    currState = GuardState.DISTRACTED;
+                    guard.setMeow(true);
+                    Vector2 playerPosition = getActivePlayer().getPosition();
+                    distractPosition.set(getValidTileCoords(playerPosition));
+                    lastStateChangeTime = ticks;
+                }
+                // After looking around time is up, go back to PATROL state
+                else if (currentLookTime >= lookAroundDuration) {
+                    currState = GuardState.PATROL;
+                    guard.setMeow(false);
+                    lastStateChangeTime = ticks;
+                }
+                break;
             case PATROL:
                 // Guard is not max sus level but is suspicious; PATROL -> SUSPICIOUS
                 if (guard.isSus()) {
@@ -368,6 +418,9 @@ public class GuardAIController {
                 // This makes sense since we don't want the guard to deagrro by being meowed
                 else if (didDistractionOccur()) {
                     currState = GuardState.DISTRACTED;
+                    if (!guard.isMeowed()) {
+                        guard.setSusLevel(guard.getSusThreshold() - 1);
+                    }
                     guard.setMeow(true);
                     Vector2 playerPosition = getActivePlayer().getPosition();
                     distractPosition.set(getValidTileCoords(playerPosition));
@@ -399,6 +452,25 @@ public class GuardAIController {
 
     }
 
+    private void executeLookAround(float dt) {
+        // Update looking around behavior if in LOOKING_AROUND state
+        if (currState == GuardState.LOOKING_AROUND) {
+            currentLookTime += dt;
+            currentLookChangeTime += dt;
+
+            System.out.println(currentLookChangeTime);
+            // Change look direction periodically
+            if (currentLookChangeTime >= lookChangeTime) {
+                lookDirection *= -1; // Flip direction
+                currentLookChangeTime = 0;
+
+                // Update the guard's direction for looking left and right
+                Vector2 lookDirectionVector = new Vector2(lookDirection, 0);
+                guard.updateOrientation(dt, lookDirectionVector);
+            }
+        }
+    }
+
     /**
      * Updates the guard's AI state and behavior.
      * This is the main function that should be called each frame to progress the
@@ -406,13 +478,19 @@ public class GuardAIController {
      * Handles suspicion level changes, state transitions, and movement target
      * updates.
      */
-    public void update() {
+    public void update(float dt) {
         ticks++;
         // Only change state every 5 ticks
         // if (!canStateTransition()) {
         // return;
         // }
         // DebugPrinter.println("Before Guard state: " + currState);
+//        if (!canStateTransition()) {
+//            return;
+//        }
+
+        System.out.println("Before Guard state: " + currState);
+        executeLookAround(dt);
         updateSusLevel();
         updateGuardState();
         // DebugPrinter.println("After Guard state: " + currState);
@@ -464,7 +542,7 @@ public class GuardAIController {
      */
     public Vector2 getValidTileCoords(Vector2 target) {
         TileNode targetTile = tileGraph.worldToTile(target);
-        if (!targetTile.isWall) {
+        if (!targetTile.isObstacle) {
             return target;
         } else {
             DebugPrinter.println("Target tile is a wall: " + targetTile.getCoords());
@@ -565,6 +643,10 @@ public class GuardAIController {
                 }
                 newTarget = getNextWaypointLocation(cameraAlertPosition);
                 break;
+            case LOOKING_AROUND:
+                // Don't move, stay in place while looking around
+                newTarget = distractPosition;
+                break;
 
             default:
                 break;
@@ -590,9 +672,13 @@ public class GuardAIController {
      * @return A normalized Vector2 representing the movement direction
      */
     public Vector2 getMovementDirection() {
-        if (this.nextTargetLocation == null) {
+        if (currState == GuardState.LOOKING_AROUND) {
+            return new Vector2(lookDirection, 0);
+        }
+        else if (this.nextTargetLocation == null) {
             return Vector2.Zero;
         } else {
+            System.out.println(this.nextTargetLocation.cpy().sub(guard.getPosition()).nor());
             return this.nextTargetLocation.cpy().sub(guard.getPosition()).nor();
         }
     }
@@ -631,11 +717,11 @@ public class GuardAIController {
             return new ArrayList<>();
         }
 
-        if (start.isWall) {
+        if (start.isObstacle) {
             start = tileGraph.findNearestNonObstacleNode(currPosWorld);
         }
 
-        if (end.isWall) {
+        if (end.isObstacle) {
             end = tileGraph.findNearestNonObstacleNode(targetPosWorld);
         }
 
@@ -663,11 +749,11 @@ public class GuardAIController {
         CHASE,
         /** Guard is distracted by meow */
         DISTRACTED,
-        /** Guard is alerted by camera */
-        AlERTED;
-
-        private GuardState() {
-        }
+        /** Guard is alerted by camera*/
+        AlERTED,
+        /** Guard is looking around after reaching meow location */
+        LOOKING_AROUND;
+        private GuardState() {}
     }
 
 }

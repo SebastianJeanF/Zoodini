@@ -357,7 +357,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         processPlayerAction(input, dt);
         level.update(dt); // collisions
         updateVisionCones(dt);
-        updateGuardAI();
+        updateGuardAI(dt);
         processNPCAction(dt);
         updateCamera(dt);
 
@@ -1131,7 +1131,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         for (Door door : level.getDoors()) {
             if (!door.isLocked()) {
                 Vector2 doorPos = door.getObstacle().getPosition();
-                graph.getNode((int) doorPos.x, (int) doorPos.y).isWall = false;
+                graph.getNode((int) doorPos.x, (int) doorPos.y).isObstacle = false;
             }
 
             if (!door.isUnlocking()) {
@@ -1148,9 +1148,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
     }
 
-    private void updateGuardAI() {
+    private void updateGuardAI(float dt) {
         guardToAIController.forEach((guard, controller) -> {
-            controller.update();
+            controller.update(dt);
             guard.think(controller.getMovementDirection(), controller.getNextTargetLocation());
         });
     }
