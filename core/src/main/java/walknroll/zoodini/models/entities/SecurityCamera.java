@@ -123,7 +123,6 @@ public class SecurityCamera extends ZoodiniSprite {
     @Override
     public void update(float dt) {
         super.update(dt);
-
         if (disabled) {
             animationController.setState(AnimationState.BLIND);
             disabledTimeRemaining -= dt;
@@ -144,6 +143,11 @@ public class SecurityCamera extends ZoodiniSprite {
 
         if (sprite != null) {
             sprite.setFrame(animationController.getCurrentFrame());
+        }
+        if (sprite != null) {
+            if(angle < 90 || angle > 270){
+                sprite.flip(true,false);
+            }
         }
         updateRing(dt);
     }

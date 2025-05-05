@@ -15,10 +15,10 @@
     "octopus" : {
       "category": "000000001",
       "exclude" : "001000001",
-      "force" : 2.0,
+      "force" : 2.5,
       "maxSpeed" : 10.0,
       "spriteRadius": 0.6,
-      "obstacleRadius" : 0.6,
+      "obstacleRadius" : 0.4,
       "abilityRange" : 7,
       "inkCapacity" : 50.0,
       "inkRegen" : 4,
