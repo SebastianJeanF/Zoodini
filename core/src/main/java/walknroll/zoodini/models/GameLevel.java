@@ -555,7 +555,11 @@ public class GameLevel {
     // INVARIANT: Caller is responsible for ending the batch
     public void drawGameText(SpriteBatch batch) {
 
-        if (textFont == null || textObjects.size == 0) return;
+        // TODO: Figure out root cause of drawing text
+        // preventing debug graph tiles from being drawn
+        if (textFont == null
+            || textObjects.size == 0
+            || Constants.DEBUG) return;
 
         for (MapObject textObj : textObjects) {
             MapProperties props = textObj.getProperties();
