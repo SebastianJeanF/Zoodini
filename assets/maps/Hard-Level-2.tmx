@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="51">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="53">
  <tileset firstgid="1" source="../tilesets/walls-1.tsx"/>
  <tileset firstgid="211" source="../tilesets/path-1.tsx"/>
  <tileset firstgid="421" source="../tilesets/walls-2.tsx"/>
@@ -171,6 +171,9 @@
   </object>
   <object id="50" x="582.64" y="2223.54">
    <polyline points="0,0 41.6171,743.163 939.358,731.272 969.084,-5.9453"/>
+  </object>
+  <object id="52" type="Vent" x="3251.52" y="845.455">
+   <point/>
   </object>
  </objectgroup>
 </map>
