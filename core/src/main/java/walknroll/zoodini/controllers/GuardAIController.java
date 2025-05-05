@@ -459,7 +459,7 @@ public class GuardAIController {
             currentLookTime += dt;
             currentLookChangeTime += dt;
 
-            System.out.println(currentLookChangeTime);
+            DebugPrinter.println(String.valueOf(currentLookChangeTime));
             // Change look direction periodically
             if (currentLookChangeTime >= lookChangeTime) {
                 lookDirection *= -1; // Flip direction
@@ -490,7 +490,7 @@ public class GuardAIController {
 //            return;
 //        }
 
-        System.out.println("Before Guard state: " + currState);
+        DebugPrinter.println("Before Guard state: " + currState);
         executeLookAround(dt);
         updateSusLevel();
         updateGuardState();
@@ -679,7 +679,7 @@ public class GuardAIController {
         else if (this.nextTargetLocation == null) {
             return Vector2.Zero;
         } else {
-            System.out.println(this.nextTargetLocation.cpy().sub(guard.getPosition()).nor());
+            DebugPrinter.println(this.nextTargetLocation.cpy().sub(guard.getPosition()).nor().toString());
             return this.nextTargetLocation.cpy().sub(guard.getPosition()).nor();
         }
     }
