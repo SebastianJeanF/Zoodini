@@ -167,6 +167,8 @@ public class Door extends ZoodiniSprite {
         setTextureRegion(lockedTexture);
         resetTimer(); //TODO: get this from json
         unlockTimer.setPosition(this.obstacle.getPosition());
+
+        obstacle.setUserData(this);
     }
 
     public void update(float dt){

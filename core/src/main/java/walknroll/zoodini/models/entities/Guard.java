@@ -163,6 +163,7 @@ public class Guard extends Enemy {
         tempViewDistance = viewDistance;
         tempFov = fov;
 
+        obstacle.setUserData(this);
     }
 
     public void setSusMeter(SpriteSheet sheet) {

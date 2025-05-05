@@ -79,6 +79,8 @@ public class Vent extends ZoodiniSprite {
         float width = openTexture.getRegionWidth() * textureScale;
         float height = openTexture.getRegionHeight() * textureScale;
         mesh = new SpriteMesh(-width / 2, -height / 2, width, height);
+
+        obstacle.setUserData(this);
     }
 
     public int getContainedEntities() {

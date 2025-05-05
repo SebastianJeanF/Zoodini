@@ -73,6 +73,8 @@ public class Exit extends ZoodiniSprite {
         filter.categoryBits = collideBits;
         filter.maskBits = excludeBits;
         obstacle.setFilterData(filter);
+
+        obstacle.setUserData(this);
     }
 
     public void create(AssetDirectory directory) {
