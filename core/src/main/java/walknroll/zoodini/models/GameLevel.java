@@ -5,26 +5,27 @@
 
 package walknroll.zoodini.models;
 
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+//import com.badlogic.gdx.maps.objects.TextMapObject;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.MapRenderer;
 import com.badlogic.gdx.maps.objects.EllipseMapObject;
 import com.badlogic.gdx.maps.objects.PolygonMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.math.Affine2;
-import com.badlogic.gdx.math.Ellipse;
-import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -51,6 +52,7 @@ import walknroll.zoodini.models.nonentities.Exit;
 import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.utils.Constants;
+import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 import walknroll.zoodini.utils.animation.AnimationState;
@@ -180,6 +182,17 @@ public class GameLevel {
     private boolean catPresent;
     private boolean octopusPresent;
 
+    // TODO: Write specification for these
+    // TODO: Make a textController lol
+    private Array<MapObject> textObjects = new Array<>();
+    private BitmapFont textFont;
+    private GlyphLayout layout = new GlyphLayout();
+    private float textMaxYOffsetTile;
+    private float textCurrYOffsetTile;
+    private float textCycleTimeSec;
+    private boolean textMovingUp;
+    private float textPhase;           // [0 .. halfCycle]
+
     /**
      * Creates a new GameLevel
      *
@@ -219,9 +232,20 @@ public class GameLevel {
         units = props.get("tilewidth", Integer.class);
         bounds = new Rectangle(0, 0, width, height);
 
+
+
         MapLayer walls = map.getLayers().get("walls");
         JsonValue entityConstants = directory.getEntry("constants", JsonValue.class).get("entities");
         createWallBodies(walls, entityConstants.get("walls"));
+
+        // Text
+        textFont = directory.getEntry("game-text", BitmapFont.class);
+        textPhase = 0f;
+        JsonValue textConstants = directory.getEntry("constants", JsonValue.class).get("gameText");
+        textCycleTimeSec = textConstants.getFloat("cycleTimeSec");
+        textMaxYOffsetTile = textConstants.getFloat("maxYOffsetTile");
+        textCurrYOffsetTile = 0f;
+        textMovingUp = true;
 
         catPresent = false;
         octopusPresent = false;
@@ -301,6 +325,9 @@ public class GameLevel {
                 exit.create(directory);
                 activate(exit);
             }
+            else if ("Text".equalsIgnoreCase(type)) {
+                textObjects.add(obj);
+            }
 
         }
 
@@ -341,6 +368,7 @@ public class GameLevel {
         securityCameras.clear();
         objects.clear();
         sprites.clear();
+        textObjects.clear();
         if (world != null) {
             world.dispose();
             world = null;
@@ -398,6 +426,7 @@ public class GameLevel {
             exit.update(dt);
 
             // checkPlayerInVisionCones();
+            updateGameTextPosition(dt);
         }
     }
 
@@ -471,8 +500,11 @@ public class GameLevel {
      */
     public void draw(SpriteBatch batch, Camera camera) {
         // Draw the sprites first (will be hidden by shadows)
-
         batch.begin(camera);
+
+
+
+
         sprites.sort(ZoodiniSprite.Comparison);
         for (ZoodiniSprite obj : sprites) {
             if (obj.isDrawingEnabled()) {
@@ -512,7 +544,56 @@ public class GameLevel {
             }
         }
 
+        drawGameText(batch);
+
         batch.end();
+    }
+
+
+    // TODO: Finish specification
+    // INVARIANT: Batch must be currently drawing
+    // INVARIANT: Caller is responsible for ending the batch
+    public void drawGameText(SpriteBatch batch) {
+
+        if (textFont == null || textObjects.size == 0) return;
+
+        for (MapObject textObj : textObjects) {
+            MapProperties props = textObj.getProperties();
+            String text = props.get("text", String.class);
+            if (text == null) continue;
+
+
+            float x = props.get("x", Float.class) / units;
+            float y = props.get("y", Float.class) / units;
+
+
+
+            // Get font scale if specified
+            float scale = props.get("scale", 1.1f, Float.class);
+
+            // Save the original font scale and color
+            float originalScaleX = textFont.getData().scaleX;
+            float originalScaleY = textFont.getData().scaleY;
+
+//            // Scale font based on tile size and custom scale
+//            float fontScale = (units / 32f) * scale; // Assuming 32 pixels is the base tile size
+            textFont.getData().setScale(1);
+
+
+            // Calculate position based on alignment
+            layout.setText(textFont, text);
+            float textX = x * units - layout.width / 2; // Centered by default
+            float textY = (y * units + layout.height) + (textCurrYOffsetTile * units); // Adjust for baseline
+
+
+
+            // Draw text
+            textFont.draw(batch, text, textX, textY);
+
+            // Restore original scale and color
+            textFont.getData().setScale(originalScaleX, originalScaleY);
+        }
+
     }
 
     public boolean isInactiveAvatarInDanger() {
@@ -826,6 +907,31 @@ public class GameLevel {
         }
     }
 
+    private void updateGameTextPosition(float dt) {
+// in your update:
+        float halfCycle = textCycleTimeSec / 2f;
+        if (textMovingUp) {
+            textPhase += dt;
+            if (textPhase >= halfCycle) {
+                textPhase = halfCycle;
+                textMovingUp = false;
+            }
+        } else {
+            textPhase -= dt;
+            if (textPhase <= 0f) {
+                textPhase = 0f;
+                textMovingUp = true;
+            }
+        }
+
+// now alpha runs [0 .. 1] exactly
+        float alpha = textPhase / halfCycle;
+
+// and if you still want that smooth “ease-in/out” curve:
+        float smoothOffset = Interpolation.smooth.apply(
+            -textMaxYOffsetTile, textMaxYOffsetTile, alpha);
+        textCurrYOffsetTile = smoothOffset;
+    }
     /**
      * Returns true if the object is in bounds.
      *

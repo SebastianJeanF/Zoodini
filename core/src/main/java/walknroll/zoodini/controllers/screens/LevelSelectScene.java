@@ -167,8 +167,8 @@ public class LevelSelectScene implements Screen {
         for (int i = 0; i < this.availableLevels.size; i++) {
             int levelKey = this.availableLevels.get(i);
             Stack portalStack = new Stack();
-            boolean levelOpen = Constants.DEBUG | highestClearance >= levelKey;
-            boolean levelCompleted = Constants.DEBUG | levelKey < highestClearance;
+            boolean levelOpen = Constants.DEBUG | Constants.UNLOCK_ALL | highestClearance >= levelKey;
+            boolean levelCompleted = Constants.DEBUG | Constants.UNLOCK_ALL | levelKey < highestClearance;
             ImageButton levelButton = new ImageButton(new LevelPortal(levelOpen, false, levelCompleted),
                     new LevelPortal(levelOpen, true && levelOpen, levelCompleted));
             if (levelOpen) {
