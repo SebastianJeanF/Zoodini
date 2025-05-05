@@ -43,6 +43,7 @@ public class Guard extends Enemy {
     private float fov;
     private float viewDistance;
     private boolean isChasing;
+    private boolean isLookingAround;
 
     private boolean meowed;
     private int chaseTimer;
@@ -120,6 +121,7 @@ public class Guard extends Enemy {
         return Guard.SUSPICION_METER_CURIOUS != null;
     }
 
+
     /**
      * Creates a new dude with degenerate settings
      * <p>
@@ -132,6 +134,7 @@ public class Guard extends Enemy {
         currentPatrolIndex = 0;
         cameraAlerted = false;
         isChasing = false;
+        isLookingAround = false;
         meowed = false;
         chaseTimer = 0;
         AnimationState state = AnimationState.SUSPICION_METER;
@@ -293,6 +296,14 @@ public class Guard extends Enemy {
         return seenPlayer;
     }
 
+    public void setLookingAround(boolean lookingAround) {
+        isLookingAround = lookingAround;
+    }
+
+    public boolean isLookingAround() {
+        return isLookingAround;
+    }
+
     /**
      * Get current movement direction of guard.
      *
@@ -403,6 +414,7 @@ public class Guard extends Enemy {
      * @param targetDirection The direction the guard should face
      */
     public void updateOrientation(float dt, Vector2 targetDirection) {
+        System.out.println("Target direction is " + targetDirection);
         if (targetDirection == null || targetDirection.len2() < 0.0001f) {
             return; // No valid direction to face
         }
