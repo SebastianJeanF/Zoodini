@@ -139,6 +139,7 @@ public class GameLevel {
      */
     private boolean catActive;
 
+
     /** Reference to the exit (for collision detection) */
     private Exit exit;
     private Array<Guard> guards = new Array<>();
@@ -196,6 +197,8 @@ public class GameLevel {
     private boolean textMovingUp;
     private float textPhase;           // [0 .. halfCycle]
 
+    private boolean followModeActive;
+
     /**
      * Creates a new GameLevel
      *
@@ -249,6 +252,7 @@ public class GameLevel {
         textMaxYOffsetTile = textConstants.getFloat("maxYOffsetTile");
         textCurrYOffsetTile = 0f;
         textMovingUp = true;
+        followModeActive = false;
 
         catPresent = false;
         octopusPresent = false;
@@ -812,6 +816,13 @@ public class GameLevel {
         return units;
     }
 
+    public void setFollowModeActive(boolean followModeActive) {
+        this.followModeActive = followModeActive;
+    }
+
+    public boolean getFollowModeActive() {
+        return followModeActive;
+    }
     /**
      * Immediately adds the object to the physics world
      *

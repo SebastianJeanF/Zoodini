@@ -289,6 +289,8 @@
     "octopus-icon": "textures/ui/gameplay/octopus-icon.png",
     "small-cat-icon": "textures/ui/gameplay/small-cat-icon.png",
     "small-octopus-icon": "textures/ui/gameplay/small-octopus-icon.png",
+    "cat-follow-icon": "textures/ui/gameplay/cat-follow-icon.png",
+    "octopus-follow-icon": "textures/ui/gameplay/octopus-follow-icon.png",
     "danger-icon": "textures/ui/gameplay/danger-icon.png",
     "pause_icon": "textures/ui/pause/pause_icon.png",
     "home-icon": "textures/ui/shared/home-icon.png",
