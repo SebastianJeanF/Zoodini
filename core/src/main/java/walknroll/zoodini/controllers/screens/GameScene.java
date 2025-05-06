@@ -12,8 +12,12 @@
  */
 package walknroll.zoodini.controllers.screens;
 
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import edu.cornell.gdiac.physics2.BoxObstacle;
@@ -71,6 +75,7 @@ import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.models.nonentities.Vent;
 import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.DebugPrinter;
+import walknroll.zoodini.utils.UIMessenger;
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 import walknroll.zoodini.utils.enums.AvatarType;
@@ -86,7 +91,8 @@ import walknroll.zoodini.utils.enums.AvatarType;
  * You will notice that asset loading is very different. It relies on the
  * singleton asset manager to manage the various assets.
  */
-public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener {
+public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener,
+    UIMessenger {
     /** How many frames after winning/losing do we continue? */
     public static final int EXIT_COUNT = 120;
     // ASSETS
@@ -150,6 +156,14 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private boolean gameLost = false;
 
     private SoundController soundController;
+
+    public void setFollowModeActive(boolean b){
+        followModeActive = b;
+    }
+
+    public boolean getFollowModeActive(){
+        return followModeActive;
+    }
 
     /** Caches */
     private Vector3 vec3tmp = new Vector3();
@@ -382,6 +396,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         updateGuardVisionCones(dt);
     }
 
+
+    Affine2 affine2 = new Affine2();
     /**
      * Draw the physics objects to the canvas
      *
@@ -398,6 +414,21 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         mapRenderer.setView(camera);
         mapRenderer.render(); // divide this into layerwise rendering if you want
+        MapLayer l =  map.getLayers().get("images");
+        if(l != null) {
+            batch.begin(camera);
+            for (MapObject obj : l.getObjects()) {
+                if (obj instanceof TextureMapObject t) {
+                    affine2.idt();
+                    batch.draw(
+                        t.getTextureRegion(),
+                        t.getX(),
+                        t.getY()
+                    );
+                }
+            }
+            batch.end();
+        }
 
         level.draw(batch, camera);
         if (Constants.DEBUG) {
@@ -421,7 +452,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             if (ic.didLeftClick()) {
                 graph.markNearestTile(camera, ic.getAiming(), level.getTileSize());
             }
-            if (playerAIController.getNextTargetLocation() != null) {
+            if (playerAIController != null && playerAIController.getNextTargetLocation() != null) {
                 graph.markPositionAsTarget(playerAIController.getNextTargetLocation());
             }
 
@@ -429,7 +460,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
 
         // Draw UI
-        ui.draw(level);
+        ui.draw(this);
     }
 
     /**
@@ -1342,11 +1373,13 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     // In your handleFollowModeToggle method
     private void handleFollowModeToggle(InputController input) {
         if (input.didPressFollowMode()) {
-            followModeActive = !followModeActive;
+            setFollowModeActive(!followModeActive);
             playerAIController.setFollowEnabled(followModeActive);
         }
     }
 
-
-
+    @Override
+    public GameLevel getLevel() {
+        return level;
+    }
 }

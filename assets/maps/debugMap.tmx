@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="33">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="7" nextobjectid="47">
  <tileset firstgid="1" source="../tilesets/path-1.tsx"/>
  <tileset firstgid="211" source="../tilesets/path-2.tsx"/>
  <tileset firstgid="421" source="../tilesets/walls-1.tsx"/>
+ <tileset firstgid="631" source="../tilesets/trees.tsx"/>
  <layer id="1" name="ground" width="30" height="20">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -27,6 +28,9 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup id="6" name="images">
+  <object id="46" gid="634" x="843.394" y="972.97" width="392" height="551"/>
+ </objectgroup>
  <objectgroup id="2" name="walls">
   <object id="25" x="1408" y="1152" width="512" height="256"/>
   <object id="26" x="1408" y="1664" width="256" height="256"/>

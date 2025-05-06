@@ -46,6 +46,7 @@ public class SettingsScene implements Screen {
 
     private boolean waitingForAbilityKey;
     private boolean waitingForSwapKey;
+    private boolean waitingForFollowKey;
 
     private GameSettings settings;
     private boolean resetState;
@@ -177,6 +178,7 @@ public class SettingsScene implements Screen {
             public void changed(ChangeEvent event, Actor actor) {
                 SettingsScene.this.waitingForAbilityKey = true;
                 SettingsScene.this.waitingForSwapKey = false;
+                SettingsScene.this.waitingForFollowKey = false;
             }
         });
         window.add(setAbilityKey).width(Value.percentWidth(0.2f, container))
@@ -190,9 +192,24 @@ public class SettingsScene implements Screen {
             public void changed(ChangeEvent event, Actor actor) {
                 SettingsScene.this.waitingForSwapKey = true;
                 SettingsScene.this.waitingForAbilityKey = false;
+                SettingsScene.this.waitingForFollowKey = false;
             }
         });
         window.add(setSwapKey).width(Value.percentWidth(0.2f, container)).height(Value.percentHeight(0.06f, container))
+                .pad(Value.percentWidth(0.01f, container));
+
+        window.row();
+        window.add(new Label("Toggle Following", skin, "title")).width(Value.percentWidth(0.25f, container))
+                .pad(Value.percentWidth(0.01f, container));
+        TextButton setFollowButton = new TextButton("Current: " + Input.Keys.toString(this.settings.getFollowKey()), skin);
+        setFollowButton.addListener(new ChangeListener() {
+            public void changed(ChangeEvent event, Actor actor) {
+                SettingsScene.this.waitingForFollowKey = true;
+                SettingsScene.this.waitingForAbilityKey = false;
+                SettingsScene.this.waitingForSwapKey = false;
+            }
+        });
+        window.add(setFollowButton).width(Value.percentWidth(0.2f, container)).height(Value.percentHeight(0.06f, container))
                 .pad(Value.percentWidth(0.01f, container));
 
         stage.addListener(new InputListener() {
@@ -209,6 +226,11 @@ public class SettingsScene implements Screen {
                     setSwapKey.setText("Current: " + Input.Keys.toString(keycode));
                     SettingsScene.this.settings.setSwapKey(keycode);
                     SettingsScene.this.waitingForSwapKey = false;
+                }
+                if (SettingsScene.this.waitingForFollowKey) {
+                    setFollowButton.setText("Current: " + Input.Keys.toString(keycode));
+                    SettingsScene.this.settings.setFollowKey(keycode);
+                    SettingsScene.this.waitingForFollowKey = false;
                 }
                 return true;
             }
@@ -229,7 +251,7 @@ public class SettingsScene implements Screen {
         table.defaults().spaceBottom(10f);
         table.top().pad(Value.percentWidth(0.01f)).padTop(Value.percentHeight(0.3f));
 
-        Value labelWidth = Value.percentWidth(0.2f, table);
+        Value labelWidth = Value.percentWidth(0.25f, table);
         Value controlWidth = Value.percentWidth(0.5f, table);
 
         table.add(new Label("Music Volume", skin, "title")).left().width(labelWidth);

@@ -127,7 +127,7 @@
    </properties>
    <point/>
   </object>
-  <object id="19" type="Exit" x="2026.11" y="3165.24">
+  <object id="19" type="Exit" x="1989.75" y="3065.24">
    <properties>
     <property name="category" value="10000"/>
     <property name="creature" propertytype="ExitCreature" value="PANDA"/>
