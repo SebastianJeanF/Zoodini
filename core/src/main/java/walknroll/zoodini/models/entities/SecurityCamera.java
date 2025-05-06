@@ -1,6 +1,7 @@
 package walknroll.zoodini.models.entities;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.maps.MapProperties;
@@ -34,7 +35,6 @@ public class SecurityCamera extends ZoodiniSprite {
     private boolean disabled;
     private float maxDisabledTime; //in seconds
     private float disabledTimeRemaining;
-    private float angle;
 
     // Ring effect properties
     private float currentRadius;
@@ -56,8 +56,8 @@ public class SecurityCamera extends ZoodiniSprite {
         pos[0] = properties.get("x", Float.class) / units;
         pos[1] = properties.get("y", Float.class) / units;
         float radius = constants.getFloat("obstacleRadius");
-        angle = properties.get("angle", Float.class);
         obstacle = new WheelObstacle(pos[0], pos[1], radius);
+        obstacle.setAngle(MathUtils.degreesToRadians * properties.get("angle", Float.class));
         obstacle.setName(properties.get("type", String.class));
         obstacle.setFixedRotation(false);
 
@@ -147,7 +147,7 @@ public class SecurityCamera extends ZoodiniSprite {
             sprite.setFrame(animationController.getCurrentFrame());
         }
         if (sprite != null) {
-            if(angle < 90 || angle > 270){
+            if(getAngle() < 90 || getAngle() > 270){
                 sprite.flip(true,false);
             }
         }
@@ -172,8 +172,6 @@ public class SecurityCamera extends ZoodiniSprite {
 
     @Override
     public void draw(SpriteBatch batch) {
-        super.draw(batch);
-
         // Draw expanding ring if active
         if (isRingActive) {
             // Save original color
@@ -202,6 +200,18 @@ public class SecurityCamera extends ZoodiniSprite {
 
             // Restore original color
             batch.setColor(originalColor);
+        }
+
+        if (this.obstacle != null && this.mesh != null) {
+            float x = this.obstacle.getX();
+            float y = this.obstacle.getY();
+            float a = this.obstacle.getAngle();
+            float u = this.obstacle.getPhysicsUnits();
+            this.transform.idt();
+            this.transform.preTranslate(x * u, y * u);
+            batch.setTextureRegion(this.sprite);
+            batch.drawMesh(this.mesh, this.transform, false);
+            batch.setTexture((Texture)null);
         }
 
         if(disabled){
@@ -241,6 +251,6 @@ public class SecurityCamera extends ZoodiniSprite {
     }
 
     public float getAngle() {
-        return angle;
+        return obstacle.getAngle();
     }
 }

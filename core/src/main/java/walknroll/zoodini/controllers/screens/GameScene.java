@@ -14,6 +14,7 @@ package walknroll.zoodini.controllers.screens;
 
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import edu.cornell.gdiac.physics2.ObstacleData;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.util.PooledList;
@@ -164,7 +165,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private boolean catArrived = false;
 
     private boolean followModeActive = false;
-    private final float FOLLOW_DISTANCE = 1f;
 
     /**
      * Creates a new game world
@@ -205,7 +205,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         ui = new UIController(directory, level, batch);
         ui.setPauseMenuListener(this);
 
-        graph = new TileGraph<>(map, false, 1);
+
+        graph = new TileGraph<>(map, true, 1);
         initializeAIControllers();
 
         setComplete(false);
@@ -394,9 +395,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         mapRenderer.render(); // divide this into layerwise rendering if you want
 
         level.draw(batch, camera);
-
-        mapRenderer.render(new int[] { 1 });
-
         if (Constants.DEBUG) {
             graph.clearMarkedNodes();
 
@@ -413,11 +411,16 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 graph.markPositionAsTarget(distractedTargetLocation);
             });
 
-            graph.draw(batch, camera, level.getTileSize());
+
             InputController ic = InputController.getInstance();
             if (ic.didLeftClick()) {
                 graph.markNearestTile(camera, ic.getAiming(), level.getTileSize());
             }
+            if (playerAIController.getNextTargetLocation() != null) {
+                graph.markPositionAsTarget(playerAIController.getNextTargetLocation());
+            }
+
+            graph.draw(batch, camera, level.getTileSize());
         }
 
         // Draw UI
@@ -440,7 +443,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             guardToAIController.put(g, aiController);
         }
         if (level.isCatPresent() && level.isOctopusPresent()) {
-            playerAIController = new PlayerAIController(level.getOctopus(), level.getCat(), level, graph);
+            playerAIController = new PlayerAIController(level.getOctopus(), level.getCat(), level, graph, followModeActive);
         }
 
     }
@@ -1001,9 +1004,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             visionCone.setRadius(guard.getViewDistance());
             visionCone.setWideness(guard.getFov());
 
-            Vector2 movementDir = guard.isIdle() ? new Vector2(0, -1) : guard.getMovementDirection();
-            visionCone.updateFacingDirection(dt, movementDir);
-
             Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : vec2tmp2;
             Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : vec2tmp3;
 
@@ -1064,7 +1064,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             moveAvatar(vertical, horizontal, avatar);
         }
         handleFollowModeToggle(input);
-        updateFollowMode(dt);
+        updatePlayerAI(dt);
         if (level.isOctopusPresent()) {
             level.getOctopus().regenerateInk(dt);
         }
@@ -1205,9 +1205,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 angleCache.nor();
             }
 
-            float angle = angleCache.angleDeg();
-            // Convert to radians with up as 0
-            angle = (float) Math.PI * (angle - 90.0f) / 180.0f;
+            float angle = angleCache.angleRad();
             avatar.getObstacle().setAngle(angle);
         }
         float radius = ((WheelObstacle) avatar.getObstacle()).getRadius();
@@ -1337,11 +1335,12 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 //        }
 //    }
 
-    private void updateFollowMode(float dt) {
+    private void updatePlayerAI(float dt) {
         if (followModeActive && level.getInactiveAvatar() != null && level.getAvatar() != null) {
             playerAIController.update(dt);
             float verticalForce = playerAIController.getVerticalMovement();
             float horizontalForce = playerAIController.getHorizontalMovement();
+
             moveAvatar(verticalForce, horizontalForce, level.getInactiveAvatar());
         } else if (!followModeActive && level.getInactiveAvatar() != null) {
             // Stop the inactive avatar when follow mode is disabled

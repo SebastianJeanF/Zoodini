@@ -35,7 +35,7 @@ public class PlayerAIController {
     private final Vector2 movementDirection;
 
     /** How close the follower needs to be to the target to stop following */
-    private static final float FOLLOW_DISTANCE = 2.0f;
+    private static final float FOLLOW_DISTANCE = 0.5f;
 
     /** How close the follower needs to be to a waypoint to consider it reached */
     private static final float ARRIVAL_DISTANCE = 1f;
@@ -43,14 +43,17 @@ public class PlayerAIController {
     /** Movement dampening factor to make following look more natural */
     private static final float FOLLOW_SPEED_FACTOR = 0.75f;
 
+    float FOLLOW_BUFFER = 0.1f;
 
-    public PlayerAIController(PlayableAvatar follower, PlayableAvatar target, GameLevel level, TileGraph tileGraph) {
+
+    public PlayerAIController(PlayableAvatar follower, PlayableAvatar target, GameLevel level, TileGraph tileGraph, boolean followEnabled) {
         this.follower = follower;
         this.target = target;
-        this.followEnabled = false;
+        this.followEnabled = followEnabled;
         this.tileGraph = tileGraph;
         this.currState = PlayerAIState.IDLE;
         this.movementDirection = new Vector2();
+        this.pathFinder = new IndexedAStarPathFinder<>(tileGraph);
     }
 
     /**
@@ -152,7 +155,9 @@ public class PlayerAIController {
 
     public void update(float dt) {
         updatePlayerAIState();
-        calculateMovementDirection();
+        System.out.println("Current State: " + currState);
+        setNextTargetLocation();
+        setMovementDirection();
     }
 
 
@@ -176,7 +181,7 @@ public class PlayerAIController {
 
         int pathIdx = 0;
         Vector2 nextStep = tileGraph.tileToWorld(path.get(pathIdx));
-        final float MIN_STEP_DISTANCE = 0.5F;
+        final float MIN_STEP_DISTANCE = 1F;
 
         // Skip steps that are too close to the guard to prevent jittering
         while (nextStep.dst(follower.getPosition().cpy()) < MIN_STEP_DISTANCE && pathIdx < path.size() - 1) {
@@ -224,7 +229,7 @@ public class PlayerAIController {
     /**
      * Calculate the direction for the follower to move
      */
-    private void calculateMovementDirection() {
+    private void setMovementDirection() {
         // Don't move if in IDLE state or if there's no target
         if (currState == PlayerAIState.IDLE || nextTargetLocation == null) {
             movementDirection.setZero();
@@ -233,16 +238,20 @@ public class PlayerAIController {
 
         // Calculate direction to the next waypoint
         Vector2 followerPos = follower.getPosition();
-        movementDirection.set(nextTargetLocation).sub(followerPos).nor();
 
-        // Scale the movement for following behavior
-        movementDirection.scl(FOLLOW_SPEED_FACTOR);
+        Vector2 direction = nextTargetLocation.cpy().sub(followerPos).nor();
+        float distance = direction.len();
 
-        // Check if we need to flip the sprite based on movement direction
-        if (movementDirection.x < 0 && !follower.isFlipped()) {
-            follower.flipSprite();
-        } else if (movementDirection.x > 0 && follower.isFlipped()) {
-            follower.flipSprite();
+
+        if (distance > FOLLOW_DISTANCE + FOLLOW_BUFFER) {
+            movementDirection.x = direction.x * 0.75f;
+            movementDirection.y = direction.y * 0.75f;
+        }
+        else if (distance > FOLLOW_DISTANCE - FOLLOW_BUFFER) {
+            float speedFactor = (distance - (FOLLOW_DISTANCE - FOLLOW_BUFFER)) / (2 * FOLLOW_BUFFER);
+            speedFactor = Math.max(0.1f, speedFactor) * 0.75f;
+            movementDirection.x = direction.x * speedFactor;
+            movementDirection.y = direction.y * speedFactor;
         }
     }
 
@@ -274,11 +283,6 @@ public class PlayerAIController {
     public boolean isActivelyFollowing() {
         return followEnabled && currState == PlayerAIState.FOLLOWING;
     }
-
-
-
-
-
 
     /**
      * Enum representing the possible states of the Player Controller AI state machine.

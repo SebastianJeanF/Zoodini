@@ -209,17 +209,6 @@
         }
       }
     },
-    "ink-idle": {
-      "file": "textures/entities/octopus/ink_projectile.png",
-      "wrap": false,
-      "sprites": {
-        "animation": {
-          "size": 1,
-          "rows": 1,
-          "cols": 1
-        }
-      }
-    },
     "storyboard": {
       "file": "textures/ui/storyboard/panelsheet.png",
       "wrap": false,
@@ -275,6 +264,17 @@
         }
       }
     },
+    "ink-projectile": {
+      "file": "textures/entities/octopus/ink-projectile.png",
+      "wrap": false,
+      "sprites": {
+        "animation": {
+          "size": 4,
+          "rows": 1,
+          "cols": 4
+        }
+      }
+    },
     "vent-open": "textures/entities/static/vent-open.png",
     "vent-closed": "textures/entities/static/vent-closed.png",
     "game-over-splash": "textures/ui/game-lose/game-over-splash.png",
@@ -289,6 +289,8 @@
     "octopus-icon": "textures/ui/gameplay/octopus-icon.png",
     "small-cat-icon": "textures/ui/gameplay/small-cat-icon.png",
     "small-octopus-icon": "textures/ui/gameplay/small-octopus-icon.png",
+    "cat-follow-icon": "textures/ui/gameplay/cat-follow-icon.png",
+    "octopus-follow-icon": "textures/ui/gameplay/octopus-follow-icon.png",
     "danger-icon": "textures/ui/gameplay/danger-icon.png",
     "pause_icon": "textures/ui/pause/pause_icon.png",
     "home-icon": "textures/ui/shared/home-icon.png",

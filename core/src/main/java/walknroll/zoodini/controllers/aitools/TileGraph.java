@@ -135,6 +135,67 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
     }
 
     /**
+     * Creates connections between nodes in the graph
+     * Handles both cardinal and diagonal directions based on the diagonal flag
+     */
+    private void createConnections() {
+        for (int x = 0; x < WIDTH; x++) {
+            for (int y = 0; y < HEIGHT; y++) {
+                TileNode n = getNode(x, y);
+
+                // Cardinal connections (up, down, left, right)
+                if (x > 0)
+                    addConnection(n, -1, 0);  // Left
+                if (y > 0)
+                    addConnection(n, 0, -1);  // Down
+                if (x < WIDTH - 1)
+                    addConnection(n, 1, 0);   // Right
+                if (y < HEIGHT - 1)
+                    addConnection(n, 0, 1);   // Up
+
+                // Add diagonal connections if enabled
+                if (diagonal) {
+                    if (x > 0 && y > 0)
+                        addDiagonalConnection(n, -1, -1);  // Bottom-left
+                    if (x < WIDTH - 1 && y > 0)
+                        addDiagonalConnection(n, 1, -1);   // Bottom-right
+                    if (x > 0 && y < HEIGHT - 1)
+                        addDiagonalConnection(n, -1, 1);   // Top-left
+                    if (x < WIDTH - 1 && y < HEIGHT - 1)
+                        addDiagonalConnection(n, 1, 1);    // Top-right
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper method for adding diagonal edges to a node.
+     * Ensures that diagonal movement is only allowed if there are no obstacles
+     * in the adjacent cardinal directions to prevent corner-cutting.
+     *
+     * @param n       a node
+     * @param xOffset x offset of neighbor node
+     * @param yOffset y offset of neighbor node
+     */
+    private void addDiagonalConnection(TileNode n, int xOffset, int yOffset) {
+        TileNode targetNode = getNode(n.x + xOffset, n.y + yOffset);
+
+        // Don't connect to obstacle nodes
+        if (targetNode.isObstacle) {
+            return;
+        }
+
+        // Check if the path is blocked by adjacent obstacles (prevents corner-cutting)
+        TileNode horizNeighbor = getNode(n.x + xOffset, n.y);
+        TileNode vertNeighbor = getNode(n.x, n.y + yOffset);
+
+        // We can only move diagonally if at least one of the adjacent cardinal nodes is not an obstacle
+        if (!horizNeighbor.isObstacle || !vertNeighbor.isObstacle) {
+            n.getConnections().add(new TileEdge(this, n, targetNode));
+        }
+    }
+
+    /**
      * Helper method for adding edges to a node. Modifies TileNode n's connections.
      *
      * @param n       a node

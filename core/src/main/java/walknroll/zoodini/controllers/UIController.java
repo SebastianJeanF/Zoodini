@@ -67,6 +67,8 @@ public class UIController {
     private InkMeterActor inkMeter;
     private Image smallCatIconImage;
     private Image smallOctopusIconImage;
+    private Image catFollowIconImage;
+    private Image octopusFollowIconImage;
     private Image dangerIconImage;
     private Image pauseIconImage;
     private Image restartButton;
@@ -124,6 +126,8 @@ public class UIController {
 
         smallCatIconImage = new Image(directory.getEntry("small-cat-icon", Texture.class));
         smallOctopusIconImage = new Image(directory.getEntry("small-octopus-icon", Texture.class));
+        catFollowIconImage = new Image(directory.getEntry("cat-follow-icon", Texture.class));
+        octopusFollowIconImage = new Image(directory.getEntry("octopus-follow-icon", Texture.class));
         dangerIconImage = new Image(directory.getEntry("danger-icon", Texture.class));
         pauseIconImage = new Image(directory.getEntry("pause_icon", Texture.class));
         restartButton = new Image(directory.getEntry("restart_icon", Texture.class));
@@ -136,6 +140,24 @@ public class UIController {
         keyInventory = new Image(directory.getEntry("key-inventory", Texture.class));
         LabelStyle style = new LabelStyle(displayFont, Color.BLACK);
         keyCount = new Label("x0", style);
+
+        final float followIconScale = 0.4f;
+        catFollowIconImage.setSize(
+            catFollowIconImage.getWidth() * followIconScale,
+            catFollowIconImage.getHeight() * followIconScale
+        );
+        octopusFollowIconImage.setSize(
+            octopusFollowIconImage.getWidth() * followIconScale,
+            octopusFollowIconImage.getHeight() * followIconScale
+        );
+
+        final float inkTextScale = 0.4f;
+        inkTextImage.setSize(
+            inkTextImage.getWidth() * inkTextScale,
+            inkTextImage.getHeight() * inkTextScale
+        );
+
+
     }
 
 
@@ -156,13 +178,26 @@ public class UIController {
         bottomLeftTable.setDebug(debug);
         stage.addActor(bottomLeftTable);
 
-        //Put icons at the top of each other.
-        Stack stack = new Stack();
-        stack.add(catIconImage);
-        stack.add(octopusIconImage);
-        bottomLeftTable.add(stack).pad(30);
-        bottomLeftTable.add(inkMeter).align(Align.bottomLeft).padBottom(35);
-        bottomLeftTable.add(inkTextImage);
+        Group avatarGroup = new Group();
+        avatarGroup.addActor(catIconImage);
+        avatarGroup.addActor(octopusIconImage);
+
+//
+        catFollowIconImage.setPosition(catIconImage.getWidth() * 0.85f, catIconImage.getHeight() * 0.85f);
+        octopusFollowIconImage.setPosition(catIconImage.getWidth() * 0.85f, catIconImage.getHeight() * 0.85f);
+        avatarGroup.addActor(catFollowIconImage);
+        avatarGroup.addActor(octopusFollowIconImage);
+
+        if (inkMeter != null) {
+            inkMeter.setPosition(catIconImage.getWidth() * 1.4f, 0);
+            avatarGroup.addActor(inkMeter);
+            inkTextImage.setPosition(catIconImage.getWidth() * 1.4f, catIconImage.getHeight() * 0.35f);
+            avatarGroup.addActor(inkTextImage);
+        }
+//        inkMeter.setPosition(catIconImage.getWidth() * 1.4f, 0);
+
+        bottomLeftTable.add(avatarGroup).pad(30);
+
 
         Table topRightTable = new Table();
         topRightTable.setFillParent(true);
@@ -348,12 +383,23 @@ public class UIController {
             switch2.setVisible(false);
             meowCooldownIndicator.update(level.getCat());
         } else {
+            // Octopus
             meowCooldownIndicator.setVisible(false);
             switch1.setVisible(false);
             switch2.setVisible(true);
             inkTextImage.setVisible(true);
         }
 
+        if (level.getFollowModeActive()) {
+            catFollowIconImage.setVisible(isOcto);
+            octopusFollowIconImage.setVisible(!isOcto);
+        }
+        else {
+            catFollowIconImage.setVisible(false);
+            octopusFollowIconImage.setVisible(false);
+        }
+
+        // Update the minimap
         keyCount.setText("x" + avatar.getNumKeys());
 
         // Icons
