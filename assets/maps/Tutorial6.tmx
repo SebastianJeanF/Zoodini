@@ -100,7 +100,7 @@
    </properties>
    <point/>
   </object>
-  <object id="20" type="Camera" x="2257.42" y="2442.79" rotation="90">
+  <object id="20" type="Camera" x="2257.42" y="2442.79">
    <properties>
     <property name="alarmDistance" type="float" value="5"/>
     <property name="angle" type="float" value="160"/>
