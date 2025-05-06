@@ -75,6 +75,7 @@ import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.models.nonentities.Vent;
 import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.DebugPrinter;
+import walknroll.zoodini.utils.UIMessenger;
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 import walknroll.zoodini.utils.enums.AvatarType;
@@ -90,7 +91,8 @@ import walknroll.zoodini.utils.enums.AvatarType;
  * You will notice that asset loading is very different. It relies on the
  * singleton asset manager to manage the various assets.
  */
-public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener {
+public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener,
+    UIMessenger {
     /** How many frames after winning/losing do we continue? */
     public static final int EXIT_COUNT = 120;
     // ASSETS
@@ -154,6 +156,14 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private boolean gameLost = false;
 
     private SoundController soundController;
+
+    public void setFollowModeActive(boolean b){
+        followModeActive = b;
+    }
+
+    public boolean getFollowModeActive(){
+        return followModeActive;
+    }
 
     /** Caches */
     private Vector3 vec3tmp = new Vector3();
@@ -450,7 +460,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
 
         // Draw UI
-        ui.draw(level);
+        ui.draw(this);
     }
 
     /**
@@ -1363,11 +1373,13 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     // In your handleFollowModeToggle method
     private void handleFollowModeToggle(InputController input) {
         if (input.didPressFollowMode()) {
-            followModeActive = !followModeActive;
+            setFollowModeActive(!followModeActive);
             playerAIController.setFollowEnabled(followModeActive);
         }
     }
 
-
-
+    @Override
+    public GameLevel getLevel() {
+        return level;
+    }
 }

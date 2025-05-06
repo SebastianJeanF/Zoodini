@@ -183,7 +183,6 @@ public class Door extends ZoodiniSprite {
             unlocker.decreaseNumKeys();
         }
         unlockTimer.setProgress(remainingTimeToUnlock / UNLOCK_DURATION);
-
     }
 
 

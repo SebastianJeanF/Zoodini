@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
+import walknroll.zoodini.controllers.screens.GameScene;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
 
@@ -38,6 +39,7 @@ import walknroll.zoodini.utils.CounterActor;
 import walknroll.zoodini.utils.InkMeterActor;
 import walknroll.zoodini.utils.MeowCooldownIndicator;
 import walknroll.zoodini.utils.MinimapActor;
+import walknroll.zoodini.utils.UIMessenger;
 import walknroll.zoodini.utils.enums.AvatarType;
 
 public class UIController {
@@ -367,7 +369,8 @@ public class UIController {
         stage.act(dt);
     }
 
-    public void draw (GameLevel level){
+    public void draw (UIMessenger messenger){
+        GameLevel level = messenger.getLevel();
         if (Gdx.input.getInputProcessor() != stage) {
             Gdx.input.setInputProcessor(stage);
         }
@@ -390,7 +393,7 @@ public class UIController {
             inkTextImage.setVisible(true);
         }
 
-        if (level.getFollowModeActive()) {
+        if (messenger.getFollowModeActive()) {
             catFollowIconImage.setVisible(isOcto);
             octopusFollowIconImage.setVisible(!isOcto);
         }
