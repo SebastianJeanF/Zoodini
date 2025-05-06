@@ -174,7 +174,6 @@ public class Cat extends PlayableAvatar{
 
     @Override
     public void draw(SpriteBatch batch) {
-        setAngle(0);
         super.draw(batch);
 
         // Draw expanding ring if active
