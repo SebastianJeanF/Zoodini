@@ -1324,6 +1324,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private void handleFollowModeToggle(InputController input) {
         if (input.didPressFollowMode()) {
             followModeActive = !followModeActive;
+            level.setFollowModeActive(followModeActive);
         }
     }
 
