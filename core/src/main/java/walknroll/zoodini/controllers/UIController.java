@@ -191,11 +191,15 @@ public class UIController {
         avatarGroup.addActor(catFollowIconImage);
         avatarGroup.addActor(octopusFollowIconImage);
 
-        inkMeter.setPosition(catIconImage.getWidth() * 1.4f, 0);
-        avatarGroup.addActor(inkMeter);
+        if (inkMeter != null) {
+            inkMeter.setPosition(catIconImage.getWidth() * 1.4f, 0);
+            avatarGroup.addActor(inkMeter);
+            inkTextImage.setPosition(catIconImage.getWidth() * 1.4f, catIconImage.getHeight() * 0.35f);
+            avatarGroup.addActor(inkTextImage);
+        }
+//        inkMeter.setPosition(catIconImage.getWidth() * 1.4f, 0);
 
-        inkTextImage.setPosition(catIconImage.getWidth() * 1.4f, catIconImage.getHeight() * 0.35f);
-        avatarGroup.addActor(inkTextImage);
+
 
         bottomLeftTable.add(avatarGroup).pad(30);
 
