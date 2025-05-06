@@ -490,9 +490,9 @@ public class GuardAIController {
         ticks++;
         executeLookAround(dt);
         updateSusLevel();
-        System.out.println("Guard state before: " + currState);
+//        System.out.println("Guard state before: " + currState);
         updateGuardState();
-        System.out.println("Guard state after: " + currState);
+//        System.out.println("Guard state after: " + currState);
         setNextTargetLocation();
 
     }
