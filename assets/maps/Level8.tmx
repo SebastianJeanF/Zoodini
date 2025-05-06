@@ -76,7 +76,7 @@
  <objectgroup id="3" name="objects">
   <object id="215" type="Guard" x="2344" y="1376">
    <properties>
-    <property name="angle" type="float" value="0"/>
+    <property name="angle" type="float" value="270"/>
     <property name="category" value="00100"/>
     <property name="exclude" value="00100"/>
     <property name="force" type="float" value="1.5"/>
@@ -97,7 +97,7 @@
   </object>
   <object id="242" type="Guard" x="3200.85" y="1599.15">
    <properties>
-    <property name="angle" type="float" value="0"/>
+    <property name="angle" type="float" value="270"/>
     <property name="category" value="00100"/>
     <property name="exclude" value="00100"/>
     <property name="force" type="float" value="1.5"/>
@@ -149,7 +149,7 @@
   </object>
   <object id="321" type="Guard" x="339.394" y="966.667">
    <properties>
-    <property name="angle" type="float" value="0"/>
+    <property name="angle" type="float" value="270"/>
     <property name="category" value="00100"/>
     <property name="exclude" value="00100"/>
     <property name="force" type="float" value="1.5"/>
