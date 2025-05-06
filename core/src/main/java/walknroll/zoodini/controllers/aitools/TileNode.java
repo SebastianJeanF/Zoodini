@@ -3,6 +3,7 @@ package walknroll.zoodini.controllers.aitools;
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import edu.cornell.gdiac.physics2.ObstacleData;
 
 public class TileNode {
     public static final int TILE_EMPTY = 0;
@@ -13,7 +14,6 @@ public class TileNode {
     public final int y;
     private final int mapHeight;
     public boolean isObstacle;
-
     protected Array<Connection<TileNode>> connections;
 
     public TileNode(int x, int y, boolean isObstacle, Array<Connection<TileNode>> connections, int mapHeight) {

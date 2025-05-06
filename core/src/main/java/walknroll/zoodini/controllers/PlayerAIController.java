@@ -43,7 +43,7 @@ public class PlayerAIController {
     private final Vector2 movementDirection;
 
     /** How close the follower needs to be to the target to stop following */
-    private static final float FOLLOW_DISTANCE = 0.5f;
+    private static final float FOLLOW_DISTANCE = 0.65f;
 
     /** How close the follower needs to be to a waypoint to consider it reached */
     private static final float ARRIVAL_DISTANCE = 1f;
@@ -175,16 +175,20 @@ public class PlayerAIController {
             if (ticks >= STATE_CHANGE_THRESHOLD) {
                 currState = potentialState;
                 ticks = 0; // Reset counter on state change
+
                 // Reset targeting when changing state
                 previousTargetLocation = null;
                 targetStabilityCounter = 0;
+
             }
         }
     }
 
     public void update(float dt) {
         ticks++;
+
         targetStabilityCounter++;
+
         updatePlayerAIState();
         if (previousFollowerPosition == null) {
             previousFollowerPosition = follower.getPosition().cpy();

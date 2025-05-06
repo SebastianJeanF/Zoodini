@@ -378,10 +378,10 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
         InputController input = InputController.getInstance();
         processPlayerAction(input, dt);
+        processNPCAction(dt);
         level.update(dt); // collisions
         updateVisionCones(dt);
         updateGuardAI(dt);
-        processNPCAction(dt);
         updateCamera(dt);
 
         ui.update(dt);
@@ -1179,21 +1179,23 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         Array<Guard> guards = level.getGuards();
         updateGuards(guards);
 
-        // TODO: Might need to comment out again
         for (Door door : level.getDoors()) {
             if (!door.isLocked()) {
-                Vector2 doorPos = door.getObstacle().getPosition().sub(0.5f,0.5f);//offset lol
                 BoxObstacle box = (BoxObstacle) door.getObstacle();
-                int startX = (int) (doorPos.x);
-                int startY = (int) (doorPos.y);
-                int endX = (int) ((doorPos.x + box.getWidth()));
-                int endY = (int) ((doorPos.y + box.getHeight()));
+                float doorX = door.getObstacle().getX() - box.getWidth() / 2f;
+                float doorY = door.getObstacle().getY() - box.getHeight() / 2f;
+                int startX = (int)Math.floor(doorX);
+                int startY = (int)Math.floor(doorY);
+                int endX = (int)Math.ceil(doorX + box.getWidth());
+                int endY = (int)Math.ceil(doorY + box.getHeight());
 
                 for (int x = startX; x < endX; x++) {
                     for (int y = startY; y < endY; y++) {
                         graph.getNode(x,y).isObstacle = false;
                     }
                 }
+                graph.addConnections(); //f**k
+                door.getObstacle().setSensor(true);
             }
 
             if (!door.isUnlocking()) {

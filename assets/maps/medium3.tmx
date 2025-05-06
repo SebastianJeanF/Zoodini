@@ -147,13 +147,13 @@
   <object id="36" x="3139.39" y="1224.24">
    <polyline points="0,0 -1164.2,-6.06061 -1166.67,509.091 0,503.03"/>
   </object>
-  <object id="37" type="Octopus" x="3075.76" y="778.788">
+  <object id="37" type="Octopus" x="3169.7" y="612.121">
    <point/>
   </object>
-  <object id="38" type="Key" x="2439.39" y="769.697">
+  <object id="38" type="Key" x="2387.88" y="863.636">
    <point/>
   </object>
-  <object id="43" type="Cat" x="1145.45" y="1154.55">
+  <object id="43" type="Cat" x="1145.45" y="1215.15">
    <point/>
   </object>
   <object id="47" type="Camera" x="1993.94" y="1109.09">
