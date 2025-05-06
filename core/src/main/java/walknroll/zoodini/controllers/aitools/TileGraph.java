@@ -99,14 +99,28 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
 
             Rectangle rect = ((RectangleMapObject) obj).getRectangle();
 
-            int startX = (int) (rect.x / tileWidth);
-            int startY = (int) (rect.y / tileHeight);
-            int endX = (int) ((rect.x + rect.width) / tileWidth);
-            int endY = (int) ((rect.y + rect.height) / tileHeight);
+            if(type.equalsIgnoreCase("Door")){
+                int startX = (int) (rect.x / tileWidth);
+                int startY = (int) (rect.y / tileHeight);
+                int endX = (int) ((rect.x + rect.width) / tileWidth);
+                int endY = (int) ((rect.y + rect.height) / tileHeight);
 
-            for (int x = startX; x <= endX; x++) {
-                for (int y = startY; y <= endY; y++) {
-                    getNode(x, y).isObstacle= true;
+                for (int x = startX; x < endX; x++) {
+                    for (int y = startY; y < endY; y++) {
+                        getNode(x, y).isObstacle = true;
+                    }
+                }
+            } else {
+
+                int startX = (int) (rect.x / tileWidth);
+                int startY = (int) (rect.y / tileHeight);
+                int endX = (int) ((rect.x + rect.width) / tileWidth);
+                int endY = (int) ((rect.y + rect.height) / tileHeight);
+
+                for (int x = startX; x <= endX; x++) {
+                    for (int y = startY; y <= endY; y++) {
+                        getNode(x, y).isObstacle = true;
+                    }
                 }
             }
         }
