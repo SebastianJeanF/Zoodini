@@ -1302,12 +1302,12 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             float FOLLOW_BUFFER = 0.1f;
             if (distance > FOLLOW_DISTANCE + FOLLOW_BUFFER) {
                 direction.nor();
-                moveAvatar(direction.y * 0.75f, direction.x * 0.75f, inactiveAvatar);
+                moveAvatar(direction.y, direction.x, inactiveAvatar);
             }
             else if (distance > FOLLOW_DISTANCE - FOLLOW_BUFFER) {
                 direction.nor();
                 float speedFactor = (distance - (FOLLOW_DISTANCE - FOLLOW_BUFFER)) / (2 * FOLLOW_BUFFER);
-                speedFactor = Math.max(0.1f, speedFactor) * 0.75f;
+                speedFactor = Math.max(0.1f, speedFactor);
                 moveAvatar(direction.y * speedFactor, direction.x * speedFactor, inactiveAvatar);
             }
             else {

@@ -178,13 +178,10 @@ public class UIController {
         bottomLeftTable.setDebug(debug);
         stage.addActor(bottomLeftTable);
 
-        //Put icons at the top of each other.
-        Stack avatarStack = new Stack();
-        avatarStack.add(catIconImage);
-        avatarStack.add(octopusIconImage);
-
         Group avatarGroup = new Group();
-        avatarGroup.addActor(avatarStack);
+        avatarGroup.addActor(catIconImage);
+        avatarGroup.addActor(octopusIconImage);
+
 //
         catFollowIconImage.setPosition(catIconImage.getWidth() * 0.85f, catIconImage.getHeight() * 0.85f);
         octopusFollowIconImage.setPosition(catIconImage.getWidth() * 0.85f, catIconImage.getHeight() * 0.85f);
@@ -198,8 +195,6 @@ public class UIController {
             avatarGroup.addActor(inkTextImage);
         }
 //        inkMeter.setPosition(catIconImage.getWidth() * 1.4f, 0);
-
-
 
         bottomLeftTable.add(avatarGroup).pad(30);
 
