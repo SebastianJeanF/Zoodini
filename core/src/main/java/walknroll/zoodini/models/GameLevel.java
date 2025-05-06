@@ -297,8 +297,7 @@ public class GameLevel {
                 g.setAnimation(AnimationState.WALK_UP_BLIND,
                         directory.getEntry("guard-walk-up-inked.animation", SpriteSheet.class), 16);
                 g.setSusMeter(directory.getEntry("suspicion-meter.animation", SpriteSheet.class)); // TODO: There must
-                                                                                                   // be a better way to
-                                                                                                   // do this
+                                                                                                   // be a better way t// do this
                 guards.add(g);
                 activate(g);
             } else if ("Camera".equalsIgnoreCase(type)) {
