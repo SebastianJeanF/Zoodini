@@ -290,6 +290,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	private void applyGameSettings() {
 		InputController.getInstance().setAbilityKey(this.gameSettings.getAbilityKey());
 		InputController.getInstance().setSwapKey(this.gameSettings.getSwapKey());
+		InputController.getInstance().setFollowModeKey(this.gameSettings.getFollowKey());
 		switch (this.gameSettings.getResolution().toLowerCase()) {
 			case "1280x720" -> Gdx.graphics.setWindowedMode(1280, 720);
 			case "1920x1080" -> Gdx.graphics.setWindowedMode(1920, 1080);
