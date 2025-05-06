@@ -62,10 +62,10 @@ import walknroll.zoodini.utils.enums.ExitAnimal;
 
 /**
  * Represents a single level in our game
- *
+ * <p>
  * Note that the constructor does very little. The true initialization happens
  * by reading the JSON value. To reset a level, dispose it and reread the JSON.
- *
+ * <p>
  * The level contains its own Box2d World, as the World settings are defined by
  * the JSON file. There is generally no controller code in this class, except
  * for the update method for moving ahead one timestep. All of the other methods
@@ -73,21 +73,24 @@ import walknroll.zoodini.utils.enums.ExitAnimal;
  * level elements.
  */
 public class GameLevel {
-    /** Number of velocity iterations for the constrain solvers */
+    /**
+     * Number of velocity iterations for the constrain solvers
+     */
     public static final int WORLD_VELOC = 6;
 
-    /** Number of position iterations for the constrain solvers */
+    /**
+     * Number of position iterations for the constrain solvers
+     */
     public static final int WORLD_POSIT = 2;
 
     /**
      * Returns a string equivalent to the sequence of bits in s
-     *
+     * <p>
      * This function assumes that s is a string of 0s and 1s of length < 16.
      * This function allows the JSON file to specify bit arrays in a readable
      * format.
      *
      * @param s the string representation of the bit array
-     *
      * @return a string equivalent to the sequence of bits in s
      */
     public static short bitStringToShort(String s) {
@@ -104,13 +107,12 @@ public class GameLevel {
 
     /**
      * Returns a string equivalent to the COMPLEMENT of bits in s
-     *
+     * <p>
      * This function assumes that s is a string of 0s and 1s of length < 16.
      * This function allows the JSON file to specify exclusion bit arrays (for
      * masking) in a readable format.
      *
      * @param s the string representation of the bit array
-     *
      * @return a string equivalent to the COMPLEMENT of bits in s
      */
     public static short bitStringToComplement(String s) {
@@ -125,13 +127,19 @@ public class GameLevel {
         return value;
     }
 
-    /** Whether or not the level is in debug more (showing off physics) */
+    /**
+     * Whether or not the level is in debug more (showing off physics)
+     */
     private boolean debug;
     // Physics objects for the game
-    /** Reference to the cat avatar */
+    /**
+     * Reference to the cat avatar
+     */
     private Cat avatarCat;
 
-    /** Reference to the octopus avatar */
+    /**
+     * Reference to the octopus avatar
+     */
     private Octopus avatarOctopus;
 
     /**
@@ -139,7 +147,9 @@ public class GameLevel {
      */
     private boolean catActive;
 
-    /** Reference to the exit (for collision detection) */
+    /**
+     * Reference to the exit (for collision detection)
+     */
     private Exit exit;
     private Array<Guard> guards = new Array<>();
     private Array<SecurityCamera> securityCameras = new Array<>();
@@ -152,32 +162,54 @@ public class GameLevel {
 
     private PooledList<Door> doors = new PooledList<>();
 
-    /** All the object sprites in the world. */
+    /**
+     * All the object sprites in the world.
+     */
     protected PooledList<ZoodiniSprite> sprites = new PooledList<ZoodiniSprite>();
-    /** All the objects in the world. */
+    /**
+     * All the objects in the world.
+     */
     protected PooledList<Obstacle> objects = new PooledList<>();
-    /** The Box2D world */
+    /**
+     * The Box2D world
+     */
     protected World world;
 
-    /** The boundary of the world */
+    /**
+     * The boundary of the world
+     */
     protected Rectangle bounds;
 
-    /** Size of one tile. This serves as scaling factor for all drawings */
+    /**
+     * Size of one tile. This serves as scaling factor for all drawings
+     */
     private float units;
     // TO FIX THE TIMESTEP
-    /** The maximum frames per second setting for this level */
+    /**
+     * The maximum frames per second setting for this level
+     */
     protected int maxFPS;
-    /** The minimum frames per second setting for this level */
+    /**
+     * The minimum frames per second setting for this level
+     */
     protected int minFPS;
-    /** The amount of time in to cover a single animation frame */
+    /**
+     * The amount of time in to cover a single animation frame
+     */
     protected float timeStep;
-    /** The maximum number of steps allowed before moving physics forward */
+    /**
+     * The maximum number of steps allowed before moving physics forward
+     */
     protected float maxSteps;
 
-    /** The maximum amount of time allowed in a frame */
+    /**
+     * The maximum amount of time allowed in a frame
+     */
     protected float maxTimePerFrame;
 
-    /** The amount of time that has passed without updating the frame */
+    /**
+     * The amount of time that has passed without updating the frame
+     */
     protected float physicsTimeLeft;
 
     Affine2 affineCache = new Affine2();
@@ -198,7 +230,7 @@ public class GameLevel {
 
     /**
      * Creates a new GameLevel
-     *
+     * <p>
      * The level is empty and there is no active physics world. You must read
      * the JSON file to initialize the level
      */
@@ -220,7 +252,7 @@ public class GameLevel {
      */
     public void populate(AssetDirectory directory, TiledMap map) {
         // Compute the FPS
-        int[] fps = { 20, 60 };
+        int[] fps = {20, 60};
         maxFPS = fps[1];
         minFPS = fps[0];
         timeStep = 1.0f / maxFPS;
@@ -234,7 +266,6 @@ public class GameLevel {
         int height = props.get("height", Integer.class);
         units = props.get("tilewidth", Integer.class);
         bounds = new Rectangle(0, 0, width, height);
-
 
 
         MapLayer walls = map.getLayers().get("walls");
@@ -261,25 +292,25 @@ public class GameLevel {
             if ("Cat".equalsIgnoreCase(type)) {
                 avatarCat = new Cat(properties, entityConstants.get("cat"), units);
                 avatarCat.setAnimation(AnimationState.IDLE,
-                        directory.getEntry("cat-idle.animation", SpriteSheet.class), 16);
+                    directory.getEntry("cat-idle.animation", SpriteSheet.class), 16);
                 avatarCat.setAnimation(AnimationState.WALK,
-                        directory.getEntry("cat-walk.animation", SpriteSheet.class), 4);
+                    directory.getEntry("cat-walk.animation", SpriteSheet.class), 4);
                 avatarCat.setAnimation(AnimationState.WALK_DOWN,
-                        directory.getEntry("cat-walk-down.animation", SpriteSheet.class), 8);
+                    directory.getEntry("cat-walk-down.animation", SpriteSheet.class), 8);
                 avatarCat.setAnimation(AnimationState.WALK_UP,
-                        directory.getEntry("cat-walk-up.animation", SpriteSheet.class), 6);
+                    directory.getEntry("cat-walk-up.animation", SpriteSheet.class), 6);
                 activate(avatarCat);
                 catPresent = true;
             } else if ("Octopus".equalsIgnoreCase(type)) {
                 avatarOctopus = new Octopus(properties, entityConstants.get("octopus"), units);
                 avatarOctopus.setAnimation(AnimationState.IDLE,
-                        directory.getEntry("octopus-idle.animation", SpriteSheet.class), 7);
+                    directory.getEntry("octopus-idle.animation", SpriteSheet.class), 7);
                 avatarOctopus.setAnimation(AnimationState.WALK,
-                        directory.getEntry("octopus-walk.animation", SpriteSheet.class), 6);
+                    directory.getEntry("octopus-walk.animation", SpriteSheet.class), 6);
                 avatarOctopus.setAnimation(AnimationState.WALK_DOWN,
-                        directory.getEntry("octopus-walk-down.animation", SpriteSheet.class), 8);
+                    directory.getEntry("octopus-walk-down.animation", SpriteSheet.class), 8);
                 avatarOctopus.setAnimation(AnimationState.WALK_UP,
-                        directory.getEntry("octopus-walk-up.animation", SpriteSheet.class), 6);
+                    directory.getEntry("octopus-walk-up.animation", SpriteSheet.class), 6);
                 activate(avatarOctopus);
                 octopusPresent = true;
             } else if ("Guard".equalsIgnoreCase(type)) {
@@ -287,24 +318,24 @@ public class GameLevel {
                 g.setAnimation(AnimationState.IDLE, directory.getEntry("guard-idle.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK, directory.getEntry("guard-walk.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK_DOWN,
-                        directory.getEntry("guard-walk-down.animation", SpriteSheet.class), 16);
+                    directory.getEntry("guard-walk-down.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK_UP,
-                        directory.getEntry("guard-walk-up.animation", SpriteSheet.class), 16);
+                    directory.getEntry("guard-walk-up.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK_DOWN_BLIND,
-                        directory.getEntry("guard-walk-down-inked.animation", SpriteSheet.class), 16);
+                    directory.getEntry("guard-walk-down-inked.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK_BLIND,
-                        directory.getEntry("guard-walk-inked.animation", SpriteSheet.class), 16);
+                    directory.getEntry("guard-walk-inked.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK_UP_BLIND,
-                        directory.getEntry("guard-walk-up-inked.animation", SpriteSheet.class), 16);
+                    directory.getEntry("guard-walk-up-inked.animation", SpriteSheet.class), 16);
                 g.setSusMeter(directory.getEntry("suspicion-meter.animation", SpriteSheet.class)); // TODO: There must
-                                                                                                   // be a better way to
-                                                                                                   // do this
+                // be a better way to
+                // do this
                 guards.add(g);
                 activate(g);
             } else if ("Camera".equalsIgnoreCase(type)) {
                 SecurityCamera cam = new SecurityCamera(properties, entityConstants.get("camera"), units);
                 cam.setAnimation(AnimationState.IDLE, directory.getEntry("camera-idle.animation", SpriteSheet.class),
-                        16);
+                    16);
                 securityCameras.add(cam);
                 activate(cam);
             } else if ("Door".equalsIgnoreCase(type)) {
@@ -358,7 +389,7 @@ public class GameLevel {
 
     /**
      * Disposes of all resources for this model.
-     *
+     * <p>
      * Because of all the heavy weight physics stuff, this method is absolutely
      * necessary whenever we reset a level.
      */
@@ -450,7 +481,7 @@ public class GameLevel {
             if (v.contains(avatarCat.getPosition())) {
                 if (key instanceof Guard) {
                     ((Guard) key).setTarget(
-                            avatarCat.getPosition()); // TODO: this line might not be needed
+                        avatarCat.getPosition()); // TODO: this line might not be needed
                     ((Guard) key).setAgroed(true);
                     ((Guard) key).setAggroTarget(avatarCat);
                 } else if (key instanceof SecurityCamera) {
@@ -468,7 +499,7 @@ public class GameLevel {
             } else if (v.contains(avatarOctopus.getPosition())) {
                 if (key instanceof Guard) {
                     ((Guard) key).setTarget(
-                            avatarOctopus.getPosition()); // TODO: this line might not be needed
+                        avatarOctopus.getPosition()); // TODO: this line might not be needed
                     ((Guard) key).setAgroed(true);
                     ((Guard) key).setAggroTarget(avatarOctopus);
                     // DebugPrinter.println("In guard vision cone " + ((Guard)
@@ -499,7 +530,7 @@ public class GameLevel {
 
     /**
      * Draws the level to the given game canvas
-     *
+     * <p>
      * If debug mode is true, it will outline all physics bodies as wireframes.
      * Otherwise it will only draw the sprite representations.
      *
@@ -516,8 +547,8 @@ public class GameLevel {
                 batch.setColor(Color.WHITE);
                 obj.draw(batch);
             }
-            if(obj instanceof SecurityCamera cam){
-                if(!cam.isDisabled()) visions.get(obj).draw(batch, camera);
+            if (obj instanceof SecurityCamera cam) {
+                if (!cam.isDisabled()) visions.get(obj).draw(batch, camera);
             }
         }
 
@@ -539,8 +570,8 @@ public class GameLevel {
         }
 //
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
-            if (entry.key instanceof Guard){
-                entry.value.draw(batch,camera);
+            if (entry.key instanceof Guard) {
+                entry.value.draw(batch, camera);
             }
         }
 
@@ -578,7 +609,6 @@ public class GameLevel {
             float y = props.get("y", Float.class) / units;
 
 
-
             // Get font scale if specified
             float scale = props.get("scale", 1.1f, Float.class);
 
@@ -595,7 +625,6 @@ public class GameLevel {
             layout.setText(textFont, text);
             float textX = x * units - layout.width / 2; // Centered by default
             float textY = (y * units + layout.height) + (textCurrYOffsetTile * units); // Adjust for baseline
-
 
 
             // Draw text
@@ -655,7 +684,7 @@ public class GameLevel {
 
     /**
      * Returns the bounding rectangle for the physics world
-     *
+     * <p>
      * The size of the rectangle is in physics, coordinates, not screen coordinates
      *
      * @return the bounding rectangle for the physics world
@@ -741,7 +770,7 @@ public class GameLevel {
 
     /**
      * Returns whether this level is currently in debug node
-     *
+     * <p>
      * If the level is in debug mode, then the physics bodies will all be drawn
      * as wireframes onscreen
      *
@@ -753,7 +782,7 @@ public class GameLevel {
 
     /**
      * Sets whether this level is currently in debug node
-     *
+     * <p>
      * If the level is in debug mode, then the physics bodies will all be drawn
      * as wireframes onscreen
      *
@@ -765,7 +794,7 @@ public class GameLevel {
 
     /**
      * Returns the maximum FPS supported by this level
-     *
+     * <p>
      * This value is used by the rayhandler to fix the physics timestep.
      *
      * @return the maximum FPS supported by this level
@@ -776,7 +805,7 @@ public class GameLevel {
 
     /**
      * Sets the maximum FPS supported by this level
-     *
+     * <p>
      * This value is used by the rayhandler to fix the physics timestep.
      *
      * @param value the maximum FPS supported by this level
@@ -787,7 +816,7 @@ public class GameLevel {
 
     /**
      * Returns the minimum FPS supported by this level
-     *
+     * <p>
      * This value is used by the rayhandler to fix the physics timestep.
      *
      * @return the minimum FPS supported by this level
@@ -798,7 +827,7 @@ public class GameLevel {
 
     /**
      * Sets the minimum FPS supported by this level
-     *
+     * <p>
      * This value is used by the rayhandler to fix the physics timestep.
      *
      * @param value the minimum FPS supported by this level
@@ -854,10 +883,10 @@ public class GameLevel {
             if (wall instanceof RectangleMapObject rec) {
                 Rectangle rectangle = rec.getRectangle(); // dimensions given in pixels
                 Obstacle obstacle = new BoxObstacle(
-                        (rectangle.x + rectangle.width / 2) / units,
-                        (rectangle.y + rectangle.height / 2) / units,
-                        rectangle.width / units,
-                        rectangle.height / units);
+                    (rectangle.x + rectangle.width / 2) / units,
+                    (rectangle.y + rectangle.height / 2) / units,
+                    rectangle.width / units,
+                    rectangle.height / units);
 
                 obstacle.setPhysicsUnits(units);
                 obstacle.setBodyType(BodyType.StaticBody);
@@ -882,7 +911,7 @@ public class GameLevel {
 
     /**
      * Fixes the physics frame rate to be in sync with the animation framerate
-     *
+     * <p>
      * http://gafferongames.com/game-physics/fix-your-timestep/
      *
      * @param dt the time passed since the last frame
@@ -905,7 +934,8 @@ public class GameLevel {
         return stepped;
     }
 
-    private boolean isInDanger(Avatar avatar) {
+    private boolean isInDanger(PlayableAvatar avatar) {
+        if (avatar.isInvincible()) return false;
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
             if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
                 continue;
@@ -920,7 +950,7 @@ public class GameLevel {
     private void updateFlipSprite(Avatar avatar) {
         // flips the sprite if the avatar is moving left
         if (!avatar.isFlipped() && avatar.getMovement().x < 0.0f
-                || avatar.isFlipped() && avatar.getMovement().x > 0.0f) {
+            || avatar.isFlipped() && avatar.getMovement().x > 0.0f) {
             avatar.flipSprite();
         }
     }
@@ -950,13 +980,13 @@ public class GameLevel {
             -textMaxYOffsetTile, textMaxYOffsetTile, alpha);
         textCurrYOffsetTile = smoothOffset;
     }
+
     /**
      * Returns true if the object is in bounds.
-     *
+     * <p>
      * This assertion is useful for debugging the physics.
      *
      * @param obj The object to check.
-     *
      * @return true if the object is in bounds.
      */
     private boolean inBounds(Obstacle obj) {
@@ -998,7 +1028,6 @@ public class GameLevel {
      * @param batch  the sprite batch used for rendering
      * @param camera the camera used to unproject screen coordinates to world
      *               coordinates
-     *
      */
     private void drawOctopusReticle(SpriteBatch batch, Camera camera) {
         Octopus octopus = (Octopus) getAvatar();
