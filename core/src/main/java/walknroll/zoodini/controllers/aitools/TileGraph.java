@@ -1,6 +1,12 @@
 package walknroll.zoodini.controllers.aitools;
 
+import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
+import com.badlogic.gdx.ai.pfa.GraphPath;
+import com.badlogic.gdx.ai.pfa.Heuristic;
+import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.badlogic.gdx.ai.pfa.Connection;
@@ -37,6 +43,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
     public int tileWidth;
     public int tileHeight;
     private int density;
+    private Heuristic heuristic = new ManhattanHeuristic<>();
 
     boolean diagonal;
 
@@ -138,6 +145,67 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
                 if (y < HEIGHT - 1)
                     addConnection(n, 0, 1);
             }
+        }
+    }
+
+    /**
+     * Creates connections between nodes in the graph
+     * Handles both cardinal and diagonal directions based on the diagonal flag
+     */
+    private void createConnections() {
+        for (int x = 0; x < WIDTH; x++) {
+            for (int y = 0; y < HEIGHT; y++) {
+                TileNode n = getNode(x, y);
+
+                // Cardinal connections (up, down, left, right)
+                if (x > 0)
+                    addConnection(n, -1, 0);  // Left
+                if (y > 0)
+                    addConnection(n, 0, -1);  // Down
+                if (x < WIDTH - 1)
+                    addConnection(n, 1, 0);   // Right
+                if (y < HEIGHT - 1)
+                    addConnection(n, 0, 1);   // Up
+
+                // Add diagonal connections if enabled
+                if (diagonal) {
+                    if (x > 0 && y > 0)
+                        addDiagonalConnection(n, -1, -1);  // Bottom-left
+                    if (x < WIDTH - 1 && y > 0)
+                        addDiagonalConnection(n, 1, -1);   // Bottom-right
+                    if (x > 0 && y < HEIGHT - 1)
+                        addDiagonalConnection(n, -1, 1);   // Top-left
+                    if (x < WIDTH - 1 && y < HEIGHT - 1)
+                        addDiagonalConnection(n, 1, 1);    // Top-right
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper method for adding diagonal edges to a node.
+     * Ensures that diagonal movement is only allowed if there are no obstacles
+     * in the adjacent cardinal directions to prevent corner-cutting.
+     *
+     * @param n       a node
+     * @param xOffset x offset of neighbor node
+     * @param yOffset y offset of neighbor node
+     */
+    private void addDiagonalConnection(TileNode n, int xOffset, int yOffset) {
+        TileNode targetNode = getNode(n.x + xOffset, n.y + yOffset);
+
+        // Don't connect to obstacle nodes
+        if (targetNode.isObstacle) {
+            return;
+        }
+
+        // Check if the path is blocked by adjacent obstacles (prevents corner-cutting)
+        TileNode horizNeighbor = getNode(n.x + xOffset, n.y);
+        TileNode vertNeighbor = getNode(n.x, n.y + yOffset);
+
+        // We can only move diagonally if at least one of the adjacent cardinal nodes is not an obstacle
+        if (!horizNeighbor.isObstacle || !vertNeighbor.isObstacle) {
+            n.getConnections().add(new TileEdge(this, n, targetNode));
         }
     }
 
@@ -389,8 +457,71 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         return targetTile;
     }
 
+    /**
+     * Finds the shortest path between two positions in the world using A*.
+     *
+     * @INVARIANT this.heuristic must be initialized
+     * @param currPosWorld   The starting position in world coordinates
+     * @param targetPosWorld The target position in world coordinates
+     * @return A list of nodes representing the path from start to target, excluding
+     *         the start node
+     */
+    public List<TileNode> getPath(Vector2 currPosWorld, Vector2 targetPosWorld, IndexedAStarPathFinder pathFinder) {
+        GraphPath<TileNode> graphPath = new DefaultGraphPath<>();
+        TileNode start = worldToTile(currPosWorld);
+        TileNode end = worldToTile(targetPosWorld);
+
+        // DebugPrinter.println("Current guard Position: " + currPosWorld);
+        // DebugPrinter.println("Graph's target: "+ end.getWorldPosition());
+        // Check if start or end node is null
+        if (start == null || end == null) {
+            // System.err.println("Error: Start or end node is null.");
+            return new ArrayList<>();
+        }
+
+        if (start.isObstacle) {
+            start = findNearestNonObstacleNode(currPosWorld);
+        }
+
+        if (end.isObstacle) {
+            end = findNearestNonObstacleNode(targetPosWorld);
+        }
+
+        pathFinder.searchNodePath(start, end, heuristic, graphPath);
+
+        // Only add nodes to the path if they are not the start node
+        List<TileNode> path = new ArrayList<>();
+        for (TileNode node : graphPath) {
+            if (!node.equals(start)) {
+                path.add(node);
+            }
+        }
+        return path;
+    }
+
     public int getTileWidth() {
         return tileWidth;
+    }
+
+    /**
+     * Helper function that checks if the target position is not a wall.
+     * If the target position is a wall, it returns the world coords of the nearest
+     * non-wall tile.
+     * If the target position is not a wall, it returns the original target
+     * position.
+     *
+     * @param target The target position to check
+     * @return A valid Vector2 position that is not a wall
+     */
+    public Vector2 getValidTileCoords(Vector2 target) {
+        TileNode targetTile = worldToTile(target);
+        if (!targetTile.isObstacle) {
+            return target;
+        } else {
+            // If the target tile is a wall, find the nearest non-wall tile
+            TileNode newTile = getNearestValidTile(target);
+            return tileToWorld(newTile);
+        }
     }
 
 }
