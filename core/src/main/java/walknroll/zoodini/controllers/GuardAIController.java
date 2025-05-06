@@ -55,12 +55,11 @@ public class GuardAIController {
 
     private float CAT_MEOW_RADIUS;
 
+    private final float ARRIVAL_DISTANCE = 1f;
+
     /** Graph representation of the game */
     private TileGraph tileGraph;
-
     private IndexedAStarPathFinder<TileNode> pathFinder;
-
-    private Heuristic heuristic;
 
     private Vector2 nextTargetLocation;
 
@@ -90,7 +89,6 @@ public class GuardAIController {
         this.distractPosition = new Vector2(0, 0);
         this.cameraAlertPosition = new Vector2(0, 0);
         this.pathFinder = new IndexedAStarPathFinder<>(tileGraph);
-        this.heuristic = new ManhattanHeuristic<>();
         this.nextTargetLocation = new Vector2(0, 0);
         this.CAT_MEOW_RADIUS = level.isCatPresent() ? level.getCat().getAbilityRange() : 0;
 
@@ -210,7 +208,6 @@ public class GuardAIController {
      */
     private boolean hasReachedTargetLocation(Vector2 target) {
         // Use world coordinates and a reasonable threshold
-        float arrivalDistance = 1f;
         float distance = guard.getPosition().dst(target);
 
         // Optional debugging
@@ -218,7 +215,7 @@ public class GuardAIController {
         // DebugPrinter.println("Distance to target: " + distance);
         // }
 
-        return distance < arrivalDistance;
+        return distance < this.ARRIVAL_DISTANCE;
         // if (!tileGraph.isValidTile(target)) {
         // target = tileGraph.getNearestValidTile(target).getCoords();
         // }
@@ -364,7 +361,7 @@ public class GuardAIController {
                     guard.setCameraAlerted(true);
                     guard.setMeow(false);
                     Vector2 playerPosition = getActivePlayer().getPosition();
-                    cameraAlertPosition.set(getValidTileCoords(playerPosition));
+                    cameraAlertPosition.set(tileGraph.getValidTileCoords(playerPosition));
                     lastStateChangeTime = ticks;
                 }
                 // Gar meows again -> should update distractPosition
@@ -373,7 +370,7 @@ public class GuardAIController {
                     currState = GuardState.DISTRACTED;
                     guard.setMeow(true);
                     Vector2 playerPosition = getActivePlayer().getPosition();
-                    distractPosition.set(getValidTileCoords(playerPosition));
+                    distractPosition.set(tileGraph.getValidTileCoords(playerPosition));
                     lastStateChangeTime = ticks;
                 }
                 break;
@@ -389,7 +386,7 @@ public class GuardAIController {
                     guard.setCameraAlerted(true);
                     guard.setMeow(false);
                     Vector2 playerPosition = getActivePlayer().getPosition();
-                    cameraAlertPosition.set(getValidTileCoords(playerPosition));
+                    cameraAlertPosition.set(tileGraph.getValidTileCoords(playerPosition));
                     lastStateChangeTime = ticks;
                 }
                 else if (didDistractionOccur()) {
@@ -397,7 +394,7 @@ public class GuardAIController {
                     currState = GuardState.DISTRACTED;
                     guard.setMeow(true);
                     Vector2 playerPosition = getActivePlayer().getPosition();
-                    distractPosition.set(getValidTileCoords(playerPosition));
+                    distractPosition.set(tileGraph.getValidTileCoords(playerPosition));
                     lastStateChangeTime = ticks;
                 }
                 // After looking around time is up, go back to PATROL state
@@ -424,7 +421,7 @@ public class GuardAIController {
                     }
                     guard.setMeow(true);
                     Vector2 playerPosition = getActivePlayer().getPosition();
-                    distractPosition.set(getValidTileCoords(playerPosition));
+                    distractPosition.set(tileGraph.getValidTileCoords(playerPosition));
                     lastStateChangeTime = ticks;
                 }
                 // Guard is not sus, not meowed, but player under camera; PATROL -> ALERTED
@@ -435,7 +432,7 @@ public class GuardAIController {
                     currState = GuardState.AlERTED;
                     guard.setCameraAlerted(true);
                     Vector2 playerPosition = getActivePlayer().getPosition();
-                    cameraAlertPosition.set(getValidTileCoords(playerPosition));
+                    cameraAlertPosition.set(tileGraph.getValidTileCoords(playerPosition));
                     lastStateChangeTime = ticks;
                 }
 
@@ -517,27 +514,6 @@ public class GuardAIController {
         return currState;
     }
 
-    /**
-     * Helper function that checks if the target position is not a wall.
-     * If the target position is a wall, it returns the world coords of the nearest
-     * non-wall tile.
-     * If the target position is not a wall, it returns the original target
-     * position.
-     *
-     * @param target The target position to check
-     * @return A valid Vector2 position that is not a wall
-     */
-    public Vector2 getValidTileCoords(Vector2 target) {
-        TileNode targetTile = tileGraph.worldToTile(target);
-        if (!targetTile.isObstacle) {
-            return target;
-        } else {
-//            DebugPrinter.println("Target tile is a wall: " + targetTile.getCoords());
-            // If the target tile is a wall, find the nearest non-wall tile
-            TileNode newTile = tileGraph.getNearestValidTile(target);
-            return tileGraph.tileToWorld(newTile);
-        }
-    }
 
     /**
      * Helper function that determines the next waypoint location based on
@@ -549,7 +525,7 @@ public class GuardAIController {
      * @return The next position the guard should move towards
      */
     private Vector2 getNextWaypointLocation(Vector2 targetLocation) {
-        List<TileNode> path = getPath(guard.getPosition().cpy(), targetLocation.cpy());
+        List<TileNode> path = tileGraph.getPath(guard.getPosition().cpy(), targetLocation.cpy(), pathFinder);
         if (path.isEmpty()) {
             if (currState == GuardState.CHASE) {
                 return targetPlayer.getPosition().cpy();
@@ -639,7 +615,7 @@ public class GuardAIController {
                 break;
         }
 
-        nextTargetLocation = getValidTileCoords(newTarget);
+        nextTargetLocation = tileGraph.getValidTileCoords(newTarget);
         // nextTargetLocation = newTarget;
 
     }
@@ -679,48 +655,6 @@ public class GuardAIController {
     public void drawGraphDebug(SpriteBatch batch, OrthographicCamera camera, Texture texture) {
         tileGraph.draw(batch, camera, 1.0f);
         // gameGraph.drawGraphDebug(batch, camera, nextTargetLocation, texture);
-    }
-
-    /**
-     * Finds the shortest path between two positions in the world using A*.
-     *
-     * @INVARIANT this.heuristic must be initialized
-     * @param currPosWorld   The starting position in world coordinates
-     * @param targetPosWorld The target position in world coordinates
-     * @return A list of nodes representing the path from start to target, excluding
-     *         the start node
-     */
-    public List<TileNode> getPath(Vector2 currPosWorld, Vector2 targetPosWorld) {
-        GraphPath<TileNode> graphPath = new DefaultGraphPath<>();
-        TileNode start = tileGraph.worldToTile(currPosWorld);
-        TileNode end = tileGraph.worldToTile(targetPosWorld);
-
-        // DebugPrinter.println("Current guard Position: " + currPosWorld);
-        // DebugPrinter.println("Graph's target: "+ end.getWorldPosition());
-        // Check if start or end node is null
-        if (start == null || end == null) {
-            // System.err.println("Error: Start or end node is null.");
-            return new ArrayList<>();
-        }
-
-        if (start.isObstacle) {
-            start = tileGraph.findNearestNonObstacleNode(currPosWorld);
-        }
-
-        if (end.isObstacle) {
-            end = tileGraph.findNearestNonObstacleNode(targetPosWorld);
-        }
-
-        pathFinder.searchNodePath(start, end, heuristic, graphPath);
-
-        // Only add nodes to the path if they are not the start node
-        List<TileNode> path = new ArrayList<>();
-        for (TileNode node : graphPath) {
-            if (!node.equals(start)) {
-                path.add(node);
-            }
-        }
-        return path;
     }
 
     /**

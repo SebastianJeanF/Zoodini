@@ -47,6 +47,7 @@ import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.GDXRoot;
 import walknroll.zoodini.controllers.GuardAIController;
 import walknroll.zoodini.controllers.InputController;
+import walknroll.zoodini.controllers.PlayerAIController;
 import walknroll.zoodini.controllers.SoundController;
 import walknroll.zoodini.controllers.UIController;
 import walknroll.zoodini.controllers.aitools.TileGraph;
@@ -106,6 +107,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     protected ObjectSet<Fixture> sensorFixtures;
     /** The current level */
     private final HashMap<Guard, GuardAIController> guardToAIController = new HashMap<>();
+
+    private PlayerAIController playerAIController;
 
     /** TiledMap read from TMX */
     private TiledMap map;
@@ -304,7 +307,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
 
         // Toggle debug
-        if (input.didDebug()) {
+            if (input.didDebug()) {
             level.setDebug(!level.getDebug());
         }
 
@@ -436,6 +439,10 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             GuardAIController aiController = new GuardAIController(g, level, graph);
             guardToAIController.put(g, aiController);
         }
+        if (level.isCatPresent() && level.isOctopusPresent()) {
+            playerAIController = new PlayerAIController(level.getOctopus(), level.getCat(), level, graph);
+        }
+
     }
 
     // -----------------Helper Methods--------------------//
@@ -1057,7 +1064,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             moveAvatar(vertical, horizontal, avatar);
         }
         handleFollowModeToggle(input);
-        updateFollowMode();
+        updateFollowMode(dt);
         if (level.isOctopusPresent()) {
             level.getOctopus().regenerateInk(dt);
         }
@@ -1179,6 +1186,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             // Start camera transition
             cameraTransitionTimer = 0;
             inCameraTransition = true;
+
+            playerAIController.swapAvatars();
         }
     }
 
@@ -1295,42 +1304,56 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         guard.setTempFov(reducedFov); // 60% reduction
     }
 
-    private void updateFollowMode() {
+//    private void updateFollowMode() {
+//        if (followModeActive && level.getInactiveAvatar() != null && level.getAvatar() != null) {
+//            PlayableAvatar activeAvatar = level.getAvatar();
+//            PlayableAvatar inactiveAvatar = level.getInactiveAvatar();
+//
+//            Vector2 activePos = activeAvatar.getPosition();
+//            Vector2 inactivePos = inactiveAvatar.getPosition();
+//
+//            Vector2 direction = new Vector2(activePos).sub(inactivePos);
+//            float distance = direction.len();
+//
+//            float FOLLOW_BUFFER = 0.1f;
+//            if (distance > FOLLOW_DISTANCE + FOLLOW_BUFFER) {
+//                direction.nor();
+//                moveAvatar(direction.y * 0.75f, direction.x * 0.75f, inactiveAvatar);
+//            }
+//            else if (distance > FOLLOW_DISTANCE - FOLLOW_BUFFER) {
+//                direction.nor();
+//                float speedFactor = (distance - (FOLLOW_DISTANCE - FOLLOW_BUFFER)) / (2 * FOLLOW_BUFFER);
+//                speedFactor = Math.max(0.1f, speedFactor) * 0.75f;
+//                moveAvatar(direction.y * speedFactor, direction.x * speedFactor, inactiveAvatar);
+//            }
+//            else {
+//                inactiveAvatar.setMovement(0, 0);
+//                inactiveAvatar.applyForce();
+//            }
+//        } else if (!followModeActive && level.getInactiveAvatar() != null) {
+//            PlayableAvatar inactiveAvatar = level.getInactiveAvatar();
+//            inactiveAvatar.setMovement(0, 0);
+//            inactiveAvatar.applyForce();
+//        }
+//    }
+
+    private void updateFollowMode(float dt) {
         if (followModeActive && level.getInactiveAvatar() != null && level.getAvatar() != null) {
-            PlayableAvatar activeAvatar = level.getAvatar();
-            PlayableAvatar inactiveAvatar = level.getInactiveAvatar();
-
-            Vector2 activePos = activeAvatar.getPosition();
-            Vector2 inactivePos = inactiveAvatar.getPosition();
-
-            Vector2 direction = new Vector2(activePos).sub(inactivePos);
-            float distance = direction.len();
-
-            float FOLLOW_BUFFER = 0.1f;
-            if (distance > FOLLOW_DISTANCE + FOLLOW_BUFFER) {
-                direction.nor();
-                moveAvatar(direction.y * 0.75f, direction.x * 0.75f, inactiveAvatar);
-            }
-            else if (distance > FOLLOW_DISTANCE - FOLLOW_BUFFER) {
-                direction.nor();
-                float speedFactor = (distance - (FOLLOW_DISTANCE - FOLLOW_BUFFER)) / (2 * FOLLOW_BUFFER);
-                speedFactor = Math.max(0.1f, speedFactor) * 0.75f;
-                moveAvatar(direction.y * speedFactor, direction.x * speedFactor, inactiveAvatar);
-            }
-            else {
-                inactiveAvatar.setMovement(0, 0);
-                inactiveAvatar.applyForce();
-            }
+            playerAIController.update(dt);
+            float verticalForce = playerAIController.getVerticalMovement();
+            float horizontalForce = playerAIController.getHorizontalMovement();
+            moveAvatar(verticalForce, horizontalForce, level.getInactiveAvatar());
         } else if (!followModeActive && level.getInactiveAvatar() != null) {
-            PlayableAvatar inactiveAvatar = level.getInactiveAvatar();
-            inactiveAvatar.setMovement(0, 0);
-            inactiveAvatar.applyForce();
+            // Stop the inactive avatar when follow mode is disabled
+            moveAvatar(0, 0, level.getInactiveAvatar());
         }
     }
 
+    // In your handleFollowModeToggle method
     private void handleFollowModeToggle(InputController input) {
         if (input.didPressFollowMode()) {
             followModeActive = !followModeActive;
+            playerAIController.setFollowEnabled(followModeActive);
         }
     }
 
