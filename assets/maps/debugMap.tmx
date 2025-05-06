@@ -39,6 +39,10 @@
    <point/>
   </object>
   <object id="16" type="Guard" x="1587.97" y="314.501">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="path" type="object" value="0"/>
+   </properties>
    <point/>
   </object>
   <object id="17" type="Camera" x="1635.97" y="820.387">
@@ -51,6 +55,7 @@
   </object>
   <object id="18" type="Guard" x="2108.7" y="309.345">
    <properties>
+    <property name="angle" type="float" value="0"/>
     <property name="path" type="object" value="24"/>
    </properties>
    <point/>
@@ -72,14 +77,6 @@
   </object>
   <object id="24" x="2127.27" y="696.97">
    <polyline points="0,0 509.091,6.06061 484.848,503.03 -18.1818,512.121 -6.06061,42.4242"/>
-  </object>
-  <object id="27" type="Camera" x="576" y="2336">
-   <properties>
-    <property name="angle" type="float" value="180"/>
-    <property name="fov" type="float" value="60"/>
-    <property name="viewDistance" type="float" value="5"/>
-   </properties>
-   <point/>
   </object>
  </objectgroup>
 </map>

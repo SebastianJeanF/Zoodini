@@ -465,7 +465,7 @@ public class GuardAIController {
 
                 // Update the guard's direction for looking left and right
                 Vector2 lookDirectionVector = new Vector2(lookDirection, 0);
-                guard.updateOrientation(dt, lookDirectionVector);
+                guard.setAngle(lookDirectionVector.angleRad());
             }
         }
     }
