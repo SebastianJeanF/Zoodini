@@ -60,7 +60,7 @@ configure(subprojects) {
 }
 subprojects {
   version = '$projectVersion'
-  ext.appName = 'Lighting'
+  ext.appName = 'Zoodini'
   repositories {
     mavenCentral()
     maven { url 'https://s01.oss.sonatype.org' }
