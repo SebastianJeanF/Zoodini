@@ -80,13 +80,13 @@
   <object id="45" x="2654.55" y="712.121">
    <polyline points="0,0 0,815.152 409.091,-403.03 633.333,763.636 866.667,-403.03 900,803.03"/>
   </object>
-  <object id="50" type="Text" x="1304" y="1836">
+  <object id="50" type="Text" x="1362" y="2034">
    <properties>
-    <property name="text" value="Press E and Left-Click to Shoot Ink"/>
+    <property name="text" value="Press ${abilityKey} and Left-Click to Shoot Ink"/>
    </properties>
    <point/>
   </object>
-  <object id="51" type="Text" x="2024" y="1500">
+  <object id="51" type="Text" x="1156" y="1516">
    <properties>
     <property name="text" value="Use ink to limit the guard's sight and movement!"/>
    </properties>

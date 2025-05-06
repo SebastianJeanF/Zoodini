@@ -76,7 +76,7 @@
   <object id="8" type="Octopus" x="3071.54" y="631.817">
    <point/>
   </object>
-  <object id="35" type="Text" x="2380" y="1316">
+  <object id="35" type="Text" x="2486.57" y="1479.66">
    <properties>
     <property name="text" value="You can hide from guards in vents!"/>
    </properties>

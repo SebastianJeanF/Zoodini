@@ -113,7 +113,7 @@
   <object id="103" x="2007" y="2951.46">
    <polyline points="0,0 336.686,-4.37254"/>
   </object>
-  <object id="104" type="Text" x="2175.76" y="2227.27">
+  <object id="104" type="Text" x="2187.88" y="2590.91">
    <properties>
     <property name="text" value="Collect the key to unlock the door"/>
    </properties>

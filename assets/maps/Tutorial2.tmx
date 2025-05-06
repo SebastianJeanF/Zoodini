@@ -196,7 +196,7 @@
   </object>
   <object id="128" type="Text" x="1124" y="4280">
    <properties>
-    <property name="text" value="Hold E and release to meow"/>
+    <property name="text" value="Hold ${abilityKey} and release to meow"/>
    </properties>
    <point/>
   </object>
