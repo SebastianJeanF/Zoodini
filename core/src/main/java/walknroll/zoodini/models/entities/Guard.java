@@ -92,6 +92,7 @@ public class Guard extends Enemy {
     private final float blindedForceScale;
 
     private boolean isIdle = false;
+    private float idleAngle;
 
 
     public float getSusForce() {
@@ -122,6 +123,9 @@ public class Guard extends Enemy {
         return Guard.SUSPICION_METER_CURIOUS != null;
     }
 
+    public float getIdleAngle(){
+        return idleAngle;
+    }
 
     /**
      * Creates a new dude with degenerate settings
@@ -132,6 +136,7 @@ public class Guard extends Enemy {
     public Guard(MapProperties properties, JsonValue constants, float units) {
         super(properties, constants, units);
         fov = constants.getFloat("fov");
+        idleAngle = properties.get("angle", Float.class);
         currentPatrolIndex = 0;
         cameraAlerted = false;
         isChasing = false;
@@ -407,50 +412,13 @@ public class Guard extends Enemy {
         return tempViewDistance;
     }
 
-    /**
-     * Updates the guard's orientation to smoothly turn towards the target
-     * direction.
-     *
-     * @param dt              The time delta since the last update
-     * @param targetDirection The direction the guard should face
-     */
-    public void updateOrientation(float dt, Vector2 targetDirection) {
-        if (targetDirection == null || targetDirection.len2() < 0.0001f) {
-            return; // No valid direction to face
-        }
-
-        // Save the target direction
-        this.targetDirection.set(targetDirection).nor();
-
-        // Calculate the current angle in radians
-        float currentAngle = currentDirection.angleRad();
-        // Calculate the target angle in radians
-        float targetAngle = this.targetDirection.angleRad();
-
-        // Determine the shortest turning direction
-        float angleDiff = targetAngle - currentAngle;
-        // Normalize to [-PI, PI]
-        while (angleDiff > Math.PI)
-            angleDiff -= 2 * Math.PI;
-        while (angleDiff < -Math.PI)
-            angleDiff += 2 * Math.PI;
-
-        // Calculate how much to turn this frame
-        float turnAmount = Math.min(Math.abs(angleDiff), turnSpeed * dt);
-        // Apply the turn in the correct direction
-        float newAngle = currentAngle + Math.signum(angleDiff) * turnAmount;
-
-        // Update the current direction
-        currentDirection.set(MathUtils.cos(newAngle), MathUtils.sin(newAngle)).nor();
-
-        // Set the guard's sprite angle (offset by -90 degrees since up is 0)
-        setAngle(newAngle - (float) Math.PI / 2);
-    }
-
     public void update(float dt) {
         // If we have a movement direction, update orientation
+        if(movementDirection == null || movementDirection.len() < 0.0001f){
+            setAngle(MathUtils.degreesToRadians * idleAngle);
+        }
         if (movementDirection != null && movementDirection.len2() > 0.0001f) {
-            updateOrientation(dt, movementDirection);
+            setAngle(movementDirection.angleRad());
         }
         if (tempViewDistance < originalViewDistance && !inkBlinded) {
             tempViewDistance += dt;
@@ -471,7 +439,6 @@ public class Guard extends Enemy {
     }
 
     public void draw(SpriteBatch batch) {
-        setAngle(0);
         super.draw(batch);
         drawSuspicionMeter(batch);
     }

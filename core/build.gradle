@@ -8,6 +8,7 @@ dependencies {
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
   api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
   implementation fileTree(dir: '../dependencies', include: '*.jar')
+  implementation "org.apache.commons:commons-text:1.13.0"
 
   if(enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"

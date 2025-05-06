@@ -14,6 +14,7 @@ package walknroll.zoodini.controllers.screens;
 
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import edu.cornell.gdiac.physics2.ObstacleData;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.util.PooledList;
@@ -391,9 +392,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         mapRenderer.render(); // divide this into layerwise rendering if you want
 
         level.draw(batch, camera);
-
-        mapRenderer.render(new int[] { 1 });
-
         if (Constants.DEBUG) {
             graph.clearMarkedNodes();
 
@@ -994,9 +992,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             visionCone.setRadius(guard.getViewDistance());
             visionCone.setWideness(guard.getFov());
 
-            Vector2 movementDir = guard.isIdle() ? new Vector2(0, -1) : guard.getMovementDirection();
-            visionCone.updateFacingDirection(dt, movementDir);
-
             Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : vec2tmp2;
             Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : vec2tmp3;
 
@@ -1196,9 +1191,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 angleCache.nor();
             }
 
-            float angle = angleCache.angleDeg();
-            // Convert to radians with up as 0
-            angle = (float) Math.PI * (angle - 90.0f) / 180.0f;
+            float angle = angleCache.angleRad();
             avatar.getObstacle().setAngle(angle);
         }
         float radius = ((WheelObstacle) avatar.getObstacle()).getRadius();
@@ -1309,12 +1302,12 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             float FOLLOW_BUFFER = 0.1f;
             if (distance > FOLLOW_DISTANCE + FOLLOW_BUFFER) {
                 direction.nor();
-                moveAvatar(direction.y * 0.75f, direction.x * 0.75f, inactiveAvatar);
+                moveAvatar(direction.y, direction.x, inactiveAvatar);
             }
             else if (distance > FOLLOW_DISTANCE - FOLLOW_BUFFER) {
                 direction.nor();
                 float speedFactor = (distance - (FOLLOW_DISTANCE - FOLLOW_BUFFER)) / (2 * FOLLOW_BUFFER);
-                speedFactor = Math.max(0.1f, speedFactor) * 0.75f;
+                speedFactor = Math.max(0.1f, speedFactor);
                 moveAvatar(direction.y * speedFactor, direction.x * speedFactor, inactiveAvatar);
             }
             else {
@@ -1331,6 +1324,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private void handleFollowModeToggle(InputController input) {
         if (input.didPressFollowMode()) {
             followModeActive = !followModeActive;
+            level.setFollowModeActive(followModeActive);
         }
     }
 

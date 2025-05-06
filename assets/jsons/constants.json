@@ -119,6 +119,6 @@
   },
   "gameText" : {
     "cycleTimeSec" : 4,
-    "maxYOffsetTile" : 0.5
+    "maxYOffsetTile" : 0.1
   }
 }
