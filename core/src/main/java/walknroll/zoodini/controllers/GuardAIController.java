@@ -57,6 +57,9 @@ public class GuardAIController {
 
     private final float ARRIVAL_DISTANCE = 1f;
 
+    /** Minimum time to stay in a state before changing */
+    private static final int STATE_CHANGE_THRESHOLD = 20;
+
     /** Graph representation of the game */
     private TileGraph tileGraph;
     private IndexedAStarPathFinder<TileNode> pathFinder;
@@ -286,13 +289,13 @@ public class GuardAIController {
         }
 
         guard.setLookingAround(currState == GuardState.LOOKING_AROUND);
-
+        GuardState potentialState = currState;
         switch (currState) {
             case CHASE:
                 // If player deaggros the guard; CHASE -> PATROL
                 // This happens if the guard is not in line of sight and the deAggroTimer is 0
                 if (guard.checkDeAggroed() || targetPlayer.isInvincible()) {
-                    currState = GuardState.SUSPICIOUS;
+                    potentialState = GuardState.SUSPICIOUS;
                     // If guard was previously alerted by a camera
                     guard.setCameraAlerted(false);
                     lastStateChangeTime = ticks;
@@ -305,12 +308,12 @@ public class GuardAIController {
                 if (!guard.isSus()) {
                     // if (guard.getSusLevel() == 0) {
 
-                    currState = GuardState.PATROL;
+                    potentialState = GuardState.PATROL;
                     lastStateChangeTime = ticks;
                 }
                 // Player under camera; SUSPICIOUS -> ALERTED
                 else if (guard.isCameraAlerted()) {
-                    currState = GuardState.AlERTED;
+                    potentialState = GuardState.AlERTED;
                     guard.startDeAggroTimer();
                     guard.setMaxSusLevel();
                     cameraAlertPosition.set(getActivePlayer().getPosition());
@@ -320,14 +323,14 @@ public class GuardAIController {
             case AlERTED:
                 // If guard has reached camera location; ALERTED -> PATROL
                 if (hasReachedTargetLocation(cameraAlertPosition)) {
-                    currState = GuardState.PATROL;
+                    potentialState = GuardState.PATROL;
                     guard.setCameraAlerted(false);
                     lastStateChangeTime = ticks;
                 }
                 // Guard has not reached camera location, sus level is above threshold; ALERTED
                 // -> SUSPICIOUS
                 else if (guard.isSus()) {
-                    currState = GuardState.SUSPICIOUS;
+                    potentialState = GuardState.SUSPICIOUS;
                     guard.setCameraAlerted(true); // TODO: Make this false (if we want guard to lose momentum after
                                                   // spotting)
                     lastStateChangeTime = ticks;
@@ -342,7 +345,7 @@ public class GuardAIController {
 //                }
                 // If guard has reached meow location; DISTRACTED -> LOOKING_AROUND
                 if (hasReachedTargetLocation(distractPosition)) {
-                    currState = GuardState.LOOKING_AROUND;
+                    potentialState = GuardState.LOOKING_AROUND;
                     // Initialize the looking around timer
                     currentLookTime = 0.0f;
                     currentLookChangeTime = 0f;
@@ -353,11 +356,11 @@ public class GuardAIController {
                 // Guard has not reached meow location, sus level is above threshold; DISTRACTED
                 // -> SUSPICIOUS
                 else if (guard.isSus()) {
-                    currState = GuardState.SUSPICIOUS;
+                    potentialState = GuardState.SUSPICIOUS;
                     guard.setMeow(false);
                     lastStateChangeTime = ticks;
                 } else if (guard.isCameraAlerted()) {
-                    currState = GuardState.AlERTED;
+                    potentialState = GuardState.AlERTED;
                     guard.setCameraAlerted(true);
                     guard.setMeow(false);
                     Vector2 playerPosition = getActivePlayer().getPosition();
@@ -367,7 +370,7 @@ public class GuardAIController {
                 // Gar meows again -> should update distractPosition
                 else if (didDistractionOccur()) {
                     DebugPrinter.println("here");
-                    currState = GuardState.DISTRACTED;
+                    potentialState = GuardState.DISTRACTED;
                     guard.setMeow(true);
                     Vector2 playerPosition = getActivePlayer().getPosition();
                     distractPosition.set(tileGraph.getValidTileCoords(playerPosition));
@@ -377,12 +380,12 @@ public class GuardAIController {
             case LOOKING_AROUND:
                 // Check for higher priority states first (same as in DISTRACTED)
                 if (guard.isSus()) {
-                    currState = GuardState.SUSPICIOUS;
+                    potentialState = GuardState.SUSPICIOUS;
                     guard.setMeow(false);
                     lastStateChangeTime = ticks;
                 }
                 else if (guard.isCameraAlerted()) {
-                    currState = GuardState.AlERTED;
+                    potentialState = GuardState.AlERTED;
                     guard.setCameraAlerted(true);
                     guard.setMeow(false);
                     Vector2 playerPosition = getActivePlayer().getPosition();
@@ -391,7 +394,7 @@ public class GuardAIController {
                 }
                 else if (didDistractionOccur()) {
                     // Another meow can interrupt looking around
-                    currState = GuardState.DISTRACTED;
+                    potentialState = GuardState.DISTRACTED;
                     guard.setMeow(true);
                     Vector2 playerPosition = getActivePlayer().getPosition();
                     distractPosition.set(tileGraph.getValidTileCoords(playerPosition));
@@ -399,7 +402,7 @@ public class GuardAIController {
                 }
                 // After looking around time is up, go back to PATROL state
                 else if (currentLookTime >= lookAroundDuration) {
-                    currState = GuardState.PATROL;
+                    potentialState = GuardState.PATROL;
                     guard.setMeow(false);
                     lastStateChangeTime = ticks;
                 }
@@ -407,7 +410,7 @@ public class GuardAIController {
             case PATROL:
                 // Guard is not max sus level but is suspicious; PATROL -> SUSPICIOUS
                 if (guard.isSus()) {
-                    currState = GuardState.SUSPICIOUS;
+                    potentialState = GuardState.SUSPICIOUS;
                     lastStateChangeTime = ticks;
                 }
                 // Guard is not sus and is meowed; PATROL -> DISTRACTED
@@ -415,7 +418,7 @@ public class GuardAIController {
                 // suspicious
                 // This makes sense since we don't want the guard to deagrro by being meowed
                 else if (didDistractionOccur()) {
-                    currState = GuardState.DISTRACTED;
+                    potentialState = GuardState.DISTRACTED;
                     if (!guard.isMeowed()) {
                         guard.setSusLevel(guard.getSusThreshold() - 1);
                     }
@@ -429,7 +432,7 @@ public class GuardAIController {
                 // suspicious
                 // Guard shouldn't deaggro if other player touches camera
                 else if (guard.isCameraAlerted()) {
-                    currState = GuardState.AlERTED;
+                    potentialState = GuardState.AlERTED;
                     guard.setCameraAlerted(true);
                     Vector2 playerPosition = getActivePlayer().getPosition();
                     cameraAlertPosition.set(tileGraph.getValidTileCoords(playerPosition));
@@ -446,6 +449,15 @@ public class GuardAIController {
         }
         if (currState != GuardState.PATROL || guard.getPosition().dst(waypoints[0]) > 0.5f) {
             guard.setIdle(false);
+        }
+
+        // Only change state if we've been in the current state long enough
+        // or if we're forced to change by disabling/enabling follow
+        if (potentialState != currState) {
+            if (ticks >= STATE_CHANGE_THRESHOLD) {
+                currState = potentialState;
+                ticks = 0; // Reset counter on state change
+            }
         }
 
     }
@@ -478,7 +490,9 @@ public class GuardAIController {
         ticks++;
         executeLookAround(dt);
         updateSusLevel();
+        System.out.println("Guard state before: " + currState);
         updateGuardState();
+        System.out.println("Guard state after: " + currState);
         setNextTargetLocation();
 
     }
