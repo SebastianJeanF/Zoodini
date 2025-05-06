@@ -906,8 +906,11 @@ public class GameLevel {
     }
 
     private boolean isInDanger(Avatar avatar) {
-        for (VisionCone cone : visions.values()) {
-            if (cone.contains(avatar.getPosition())) {
+        for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
+            if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
+                continue;
+            }
+            if (entry.value.contains(avatar.getPosition())) {
                 return true;
             }
         }
