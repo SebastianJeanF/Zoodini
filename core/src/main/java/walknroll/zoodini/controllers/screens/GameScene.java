@@ -1239,6 +1239,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             inCameraTransition = true;
 
             playerAIController.swapAvatars();
+            setFollowModeActive(false);
+
         }
     }
 
@@ -1366,21 +1368,16 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
     }
 
-    // 2. Initialize in your constructor or initialization method
-    public void initializePathfinding() {
-        // Create a path smoother with your existing graph
-        pathSmoother = new PathSmoother(graph);
-
-        // Create a path follower for the inactive avatar
-        // You can customize arrival distance and speed factor
-    }
-
-    // In your handleFollowModeToggle method
     private void handleFollowModeToggle(InputController input) {
         if (input.didPressFollowMode()) {
             setFollowModeActive(!followModeActive);
             playerAIController.setFollowEnabled(followModeActive);
         }
+    }
+
+    private void setFollowMode(boolean newVal) {
+        setFollowModeActive(newVal);
+        playerAIController.setFollowEnabled(followModeActive);
     }
 
     @Override
