@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.glutils.PixmapTextureData;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -81,7 +82,7 @@ public class MinimapActor extends Actor implements Disposable {
             Pixmap.Format.RGBA8888);
 
         // Create a texture from the pixmap
-        minimapTexture = new Texture(pixmap);
+        minimapTexture = new Texture(new PixmapTextureData(pixmap, null, false, false));
     }
 
     private void createDotTexture() {
@@ -102,6 +103,9 @@ public class MinimapActor extends Actor implements Disposable {
         // Clear the pixmap
         pixmap.setColor(BORDER_COLOR);
         pixmap.fill();
+        pixmap.setColor(BACKGROUND_COLOR);
+        pixmap.fillRectangle((int)BORDER_SIZE, (int)BORDER_SIZE,
+            (int)MINIMAP_SIZE, (int)MINIMAP_SIZE);
 
         // Draw the background
         pixmap.setColor(BACKGROUND_COLOR);
@@ -138,17 +142,16 @@ public class MinimapActor extends Actor implements Disposable {
         drawExitDirect();
 
         // Update the minimap texture
-        minimapTexture.dispose();
-        minimapTexture = new Texture(pixmap);
-
+        minimapTexture.draw(pixmap, 0, 0);
         needsRedraw = false;
     }
 
+    Color c = new Color(0.3f, 0.3f, 0.3f, 0.5f);
     /**
      * Draws a simple grid on the minimap for reference
      */
     private void drawGrid() {
-        pixmap.setColor(new Color(0.3f, 0.3f, 0.3f, 0.5f));
+        pixmap.setColor(c);
 
         int gridSize = 5; // Grid cells in world units
 
@@ -198,6 +201,8 @@ public class MinimapActor extends Actor implements Disposable {
         );
     }
 
+
+    Vector2 vec2 = new Vector2();
     /**
      * Draw any obstacle on the minimap (walls, etc.)
      */
@@ -217,8 +222,8 @@ public class MinimapActor extends Actor implements Disposable {
             width = 1.0f;
             height = 1.0f;
         }
-
-       drawMapEntity(new Vector2(x, y), width, height, WALL_COLOR);
+        vec2.set(x,y);
+       drawMapEntity(vec2, width, height, WALL_COLOR);
     }
 
     /**
@@ -278,13 +283,14 @@ public class MinimapActor extends Actor implements Disposable {
     }
 
     /**
-     * Converts a world position to minimap coordinates
+     * Modifies vec2 cache that contains map coordinate converted from world coordinate.
      */
     private Vector2 worldToMinimap(float worldX, float worldY) {
         // Adjust for level bounds offset and scale to minimap size
         float minimapX = (worldX - level.getBounds().x) * scaleFactorX + BORDER_SIZE;
         float minimapY = (worldY - level.getBounds().y) * scaleFactorY + BORDER_SIZE;
-        return new Vector2(minimapX, minimapY);
+        vec2.set(minimapX, minimapY);
+        return vec2;
     }
 
     @Override
