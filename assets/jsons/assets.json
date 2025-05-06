@@ -209,17 +209,6 @@
         }
       }
     },
-    "ink-idle": {
-      "file": "textures/entities/octopus/ink_projectile.png",
-      "wrap": false,
-      "sprites": {
-        "animation": {
-          "size": 1,
-          "rows": 1,
-          "cols": 1
-        }
-      }
-    },
     "storyboard": {
       "file": "textures/ui/storyboard/panelsheet.png",
       "wrap": false,
@@ -272,6 +261,17 @@
           "size": 3,
           "rows": 1,
           "cols": 3
+        }
+      }
+    },
+    "ink-projectile": {
+      "file": "textures/entities/octopus/ink-projectile.png",
+      "wrap": false,
+      "sprites": {
+        "animation": {
+          "size": 4,
+          "rows": 1,
+          "cols": 4
         }
       }
     },
