@@ -274,22 +274,18 @@ public class PlayerAIController {
         int pathIndex = 0;
         Vector2 nextStep = worldPath.get(pathIndex);
 
-        // Skip waypoints that are too close to prevent jittering
-        final float MIN_STEP_DISTANCE = 1.0f;
-        while (nextStep.dst(follower.getPosition()) < MIN_STEP_DISTANCE && pathIndex < worldPath.size() - 1) {
-            pathIndex++;
-            nextStep = worldPath.get(pathIndex);
-        }
+//        // Skip waypoints that are too close to prevent jittering
+//        final float MIN_STEP_DISTANCE = 1.0f;
+//        while (nextStep.dst(follower.getPosition()) < MIN_STEP_DISTANCE && pathIndex < worldPath.size() - 1) {
+//            pathIndex++;
+//            nextStep = worldPath.get(pathIndex);
+//        }
 
-        // Now look ahead for the furthest visible waypoint
-        // This is the key to reducing zigzag movement
+        // Furthest visible waypoint
         int furthestVisibleIndex = pathIndex;
 
         // Try to find a waypoint further along the path that we can move to directly
         for (int i = pathIndex + 1; i < worldPath.size(); i++) {
-            // Check if we have a clear line of sight to this waypoint
-
-
             if (tileGraph.hasEnhancedLineOfSight(follower.getPosition(), worldPath.get(i))) {
 //            if (level.getLOSController().hasLineOfSight(follower.getPosition(), worldPath.get(i))) {
                 furthestVisibleIndex = i;
@@ -299,7 +295,6 @@ public class PlayerAIController {
             }
         }
 
-        // Return the furthest waypoint that has a clear line of sight
         return worldPath.get(furthestVisibleIndex);
     }
 

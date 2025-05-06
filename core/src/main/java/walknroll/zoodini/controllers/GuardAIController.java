@@ -547,16 +547,36 @@ public class GuardAIController {
             return guard.getPosition().cpy();
         }
 
-        int pathIdx = 0;
-        Vector2 nextStep = tileGraph.tileToWorld(path.get(pathIdx));
-        final float MIN_STEP_DISTANCE = 0.5F;
-
-        // Skip steps that are too close to the guard to prevent jittering
-        while (nextStep.dst(guard.getPosition().cpy()) < MIN_STEP_DISTANCE && pathIdx < path.size() - 1) {
-            pathIdx++;
-            nextStep = tileGraph.tileToWorld(path.get(pathIdx));
+        // Convert path to world coordinates
+        List<Vector2> worldPath = new ArrayList<>();
+        for (TileNode node : path) {
+            worldPath.add(tileGraph.tileToWorld(node));
         }
-        return nextStep;
+
+        int pathIndex = 0;
+        Vector2 nextStep = tileGraph.tileToWorld(path.get(pathIndex));
+//        final float MIN_STEP_DISTANCE = 0.5F;
+//
+//        // Skip steps that are too close to the guard to prevent jittering
+//        while (nextStep.dst(guard.getPosition().cpy()) < MIN_STEP_DISTANCE && pathIndex < path.size() - 1) {
+//            pathIndex++;
+//            nextStep = tileGraph.tileToWorld(path.get(pathIndex));
+//        }
+
+        // Furthest visible waypoint
+        int furthestVisibleIndex = pathIndex;
+
+        // Try to find a waypoint further along the path that we can move to directly
+        for (int i = pathIndex + 1; i < worldPath.size(); i++) {
+            if (tileGraph.hasEnhancedLineOfSight(guard.getPosition(), worldPath.get(i))) {
+                furthestVisibleIndex = i;
+            } else {
+                // Stop at the first waypoint we can't see directly
+                break;
+            }
+        }
+
+        return worldPath.get(furthestVisibleIndex);
     }
 
     /**
