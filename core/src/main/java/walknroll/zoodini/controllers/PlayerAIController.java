@@ -2,6 +2,7 @@ package walknroll.zoodini.controllers;
 
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.math.Vector2;
+import java.util.ArrayList;
 import java.util.List;
 import walknroll.zoodini.controllers.aitools.TileGraph;
 import walknroll.zoodini.controllers.aitools.TileNode;
@@ -170,8 +171,41 @@ public class PlayerAIController {
      * @param targetLocation The destination the guard is trying to reach
      * @return The next position the guard should move towards
      */
+//    private Vector2 getNextWaypointLocation(Vector2 targetLocation) {
+//        List<TileNode> path = tileGraph.getPath(follower.getPosition().cpy(), targetLocation.cpy(), pathFinder);
+//        if (path.isEmpty()) {
+//            if (currState == PlayerAIState.FOLLOWING) {
+//                return target.getPosition().cpy();
+//            }
+//            return follower.getPosition().cpy();
+//        }
+//
+//        int pathIdx = 0;
+//        Vector2 nextStep = tileGraph.tileToWorld(path.get(pathIdx));
+//        final float MIN_STEP_DISTANCE = 1F;
+//
+//        // Skip steps that are too close to the guard to prevent jittering
+//        while (nextStep.dst(follower.getPosition().cpy()) < MIN_STEP_DISTANCE && pathIdx < path.size() - 1) {
+//            pathIdx++;
+//            nextStep = tileGraph.tileToWorld(path.get(pathIdx));
+//        }
+//        return nextStep;
+//    }
+
+    /**
+     * Helper function that determines the next waypoint location based on
+     * pathfinding with path smoothing to prevent zigzag movement.
+     * Uses the game graph to find a path from the follower's current position to the
+     * target location, then intelligently picks the furthest visible waypoint.
+     *
+     * @param targetLocation The destination the follower is trying to reach
+     * @return The next position the follower should move towards
+     */
     private Vector2 getNextWaypointLocation(Vector2 targetLocation) {
+        // Get the raw path from A* pathfinding
         List<TileNode> path = tileGraph.getPath(follower.getPosition().cpy(), targetLocation.cpy(), pathFinder);
+
+        // Handle empty path case
         if (path.isEmpty()) {
             if (currState == PlayerAIState.FOLLOWING) {
                 return target.getPosition().cpy();
@@ -179,16 +213,40 @@ public class PlayerAIController {
             return follower.getPosition().cpy();
         }
 
-        int pathIdx = 0;
-        Vector2 nextStep = tileGraph.tileToWorld(path.get(pathIdx));
-        final float MIN_STEP_DISTANCE = 1F;
-
-        // Skip steps that are too close to the guard to prevent jittering
-        while (nextStep.dst(follower.getPosition().cpy()) < MIN_STEP_DISTANCE && pathIdx < path.size() - 1) {
-            pathIdx++;
-            nextStep = tileGraph.tileToWorld(path.get(pathIdx));
+        // Convert path to world coordinates
+        List<Vector2> worldPath = new ArrayList<>();
+        for (TileNode node : path) {
+            worldPath.add(tileGraph.tileToWorld(node));
         }
-        return nextStep;
+
+        // Start with the first waypoint as our target
+        int pathIndex = 0;
+        Vector2 nextStep = worldPath.get(pathIndex);
+
+        // Skip waypoints that are too close to prevent jittering
+        final float MIN_STEP_DISTANCE = 1.0f;
+        while (nextStep.dst(follower.getPosition()) < MIN_STEP_DISTANCE && pathIndex < worldPath.size() - 1) {
+            pathIndex++;
+            nextStep = worldPath.get(pathIndex);
+        }
+
+        // Now look ahead for the furthest visible waypoint
+        // This is the key to reducing zigzag movement
+        int furthestVisibleIndex = pathIndex;
+
+        // Try to find a waypoint further along the path that we can move to directly
+        for (int i = pathIndex + 1; i < worldPath.size(); i++) {
+            // Check if we have a clear line of sight to this waypoint
+            if (tileGraph.hasLineOfSight(follower.getPosition(), worldPath.get(i))) {
+                furthestVisibleIndex = i;
+            } else {
+                // Stop at the first waypoint we can't see directly
+                break;
+            }
+        }
+
+        // Return the furthest waypoint that has a clear line of sight
+        return worldPath.get(furthestVisibleIndex);
     }
 
     /**
