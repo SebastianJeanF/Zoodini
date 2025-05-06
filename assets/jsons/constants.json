@@ -94,7 +94,7 @@
     },
     "visioncone" : {
       "category": "100000000",
-      "exclude" : "101111111"
+      "exclude" : "101011111"
     }
   },
   "gameOverScreen": {
