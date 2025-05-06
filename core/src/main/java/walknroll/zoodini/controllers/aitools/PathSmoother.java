@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implements path smoothing for A* generated paths.
+ * Generic path smoothing utility for AI movement.
  * Uses line-of-sight checks to remove unnecessary waypoints.
  */
 public class PathSmoother {
@@ -122,4 +122,6 @@ public class PathSmoother {
 
         return true;
     }
+
+
 }

@@ -51,6 +51,7 @@ import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.controllers.PlayerAIController;
 import walknroll.zoodini.controllers.SoundController;
 import walknroll.zoodini.controllers.UIController;
+import walknroll.zoodini.controllers.aitools.PathSmoother;
 import walknroll.zoodini.controllers.aitools.TileGraph;
 import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
@@ -127,6 +128,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private boolean failed;
     /** Countdown active for winning or losing */
     private int countdown;
+
+    private PathSmoother pathSmoother;
 
     /** Constant scale used for player movement */
     private final float MOVEMENT_SCALE = 32f;
@@ -1302,39 +1305,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         guard.setTempFov(reducedFov); // 60% reduction
     }
 
-//    private void updateFollowMode() {
-//        if (followModeActive && level.getInactiveAvatar() != null && level.getAvatar() != null) {
-//            PlayableAvatar activeAvatar = level.getAvatar();
-//            PlayableAvatar inactiveAvatar = level.getInactiveAvatar();
-//
-//            Vector2 activePos = activeAvatar.getPosition();
-//            Vector2 inactivePos = inactiveAvatar.getPosition();
-//
-//            Vector2 direction = new Vector2(activePos).sub(inactivePos);
-//            float distance = direction.len();
-//
-//            float FOLLOW_BUFFER = 0.1f;
-//            if (distance > FOLLOW_DISTANCE + FOLLOW_BUFFER) {
-//                direction.nor();
-//                moveAvatar(direction.y * 0.75f, direction.x * 0.75f, inactiveAvatar);
-//            }
-//            else if (distance > FOLLOW_DISTANCE - FOLLOW_BUFFER) {
-//                direction.nor();
-//                float speedFactor = (distance - (FOLLOW_DISTANCE - FOLLOW_BUFFER)) / (2 * FOLLOW_BUFFER);
-//                speedFactor = Math.max(0.1f, speedFactor) * 0.75f;
-//                moveAvatar(direction.y * speedFactor, direction.x * speedFactor, inactiveAvatar);
-//            }
-//            else {
-//                inactiveAvatar.setMovement(0, 0);
-//                inactiveAvatar.applyForce();
-//            }
-//        } else if (!followModeActive && level.getInactiveAvatar() != null) {
-//            PlayableAvatar inactiveAvatar = level.getInactiveAvatar();
-//            inactiveAvatar.setMovement(0, 0);
-//            inactiveAvatar.applyForce();
-//        }
-//    }
-
     private void updatePlayerAI(float dt) {
         if (followModeActive && level.getInactiveAvatar() != null && level.getAvatar() != null) {
             playerAIController.update(dt);
@@ -1348,6 +1318,15 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
     }
 
+    // 2. Initialize in your constructor or initialization method
+    public void initializePathfinding() {
+        // Create a path smoother with your existing graph
+        pathSmoother = new PathSmoother(graph);
+
+        // Create a path follower for the inactive avatar
+        // You can customize arrival distance and speed factor
+    }
+
     // In your handleFollowModeToggle method
     private void handleFollowModeToggle(InputController input) {
         if (input.didPressFollowMode()) {
@@ -1355,5 +1334,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             playerAIController.setFollowEnabled(followModeActive);
         }
     }
+
+
 
 }
