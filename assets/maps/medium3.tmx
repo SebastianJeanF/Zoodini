@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="128" tileheight="128" infinite="0" nextlayerid="5" nextobjectid="69">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="128" tileheight="128" infinite="0" nextlayerid="6" nextobjectid="89">
  <tileset firstgid="1" source="../tilesets/decorations-2.tsx"/>
  <tileset firstgid="121" source="../tilesets/fence.tsx"/>
  <tileset firstgid="151" source="../tilesets/path-1.tsx"/>
@@ -7,6 +7,7 @@
  <tileset firstgid="571" source="../tilesets/path-3.tsx"/>
  <tileset firstgid="827" source="../tilesets/walls-1.tsx"/>
  <tileset firstgid="1037" source="../tilesets/walls-2.tsx"/>
+ <tileset firstgid="1247" source="../tilesets/trees.tsx"/>
  <layer id="1" name="ground" width="30" height="30">
   <data encoding="csv">
 934,935,947,948,949,950,951,932,933,934,932,933,934,935,936,937,938,939,940,941,956,954,955,956,941,939,940,941,949,950,
@@ -75,6 +76,27 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup id="5" name="images">
+  <object id="69" gid="1250" x="3388" y="2580" width="392" height="551"/>
+  <object id="70" gid="1250" x="3412" y="1796" width="392" height="551"/>
+  <object id="71" gid="1250" x="3332" y="1284" width="392" height="551"/>
+  <object id="72" gid="1250" x="3572" y="1108" width="392" height="551"/>
+  <object id="73" gid="1250" x="3300" y="1620" width="392" height="551"/>
+  <object id="74" gid="1250" x="3572" y="1884" width="392" height="551"/>
+  <object id="76" gid="1250" x="3252.48" y="2209.33" width="392" height="551"/>
+  <object id="77" gid="1250" x="3434.3" y="2303.27" width="392" height="551"/>
+  <object id="78" gid="1250" x="3288.85" y="2715.39" width="392" height="551"/>
+  <object id="79" gid="1248" x="3277.67" y="2017.67" width="379" height="501"/>
+  <object id="80" gid="1248" x="3532.21" y="2163.12" width="379" height="501"/>
+  <object id="81" gid="1248" x="3307.97" y="2966.15" width="379" height="501"/>
+  <object id="82" gid="1248" x="3595.85" y="3266.15" width="379" height="501"/>
+  <object id="83" gid="1248" x="3517.06" y="2796.45" width="379" height="501"/>
+  <object id="84" gid="1248" x="3229.18" y="3451" width="379" height="501"/>
+  <object id="85" gid="1248" x="3462.52" y="3851" width="379" height="501"/>
+  <object id="86" gid="1247" x="3245.52" y="3268.3" width="412" height="475"/>
+  <object id="87" gid="1247" x="3424.3" y="3092.55" width="412" height="475"/>
+  <object id="88" gid="1247" x="3348.55" y="3544.06" width="412" height="475"/>
+ </objectgroup>
  <objectgroup id="3" name="walls">
   <object id="1" x="3328" y="0" width="512" height="3840"/>
   <object id="2" x="0" y="0" width="3328" height="512"/>
