@@ -141,7 +141,7 @@
    <point/>
   </object>
   <object id="50" x="1631.58" y="642.105">
-   <polyline points="0,0 852.632,0 857.895,673.684 10.5263,652.632"/>
+   <polyline points="0,0 852.632,0 857.895,289.261 10.5263,280.222"/>
   </object>
   <object id="51" type="Guard" x="384.211" y="1600">
    <properties>
