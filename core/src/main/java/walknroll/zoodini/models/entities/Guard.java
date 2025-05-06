@@ -18,6 +18,7 @@ import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import java.util.Arrays;
 import walknroll.zoodini.models.entities.Enemy;
+import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.LevelPortal;
 import walknroll.zoodini.utils.animation.Animation;
 import walknroll.zoodini.utils.animation.AnimationController;
@@ -49,7 +50,7 @@ public class Guard extends Enemy {
     private int chaseTimer;
     private boolean cameraAlerted;
 
-    private Avatar aggroTarget;
+    private PlayableAvatar aggroTarget;
     private boolean seesPlayer;
     private PlayableAvatar seenPlayer;
 
@@ -378,11 +379,11 @@ public class Guard extends Enemy {
         return isIdle;
     }
 
-    public Avatar getAggroTarget() {
+    public PlayableAvatar getAggroTarget() {
         return aggroTarget;
     }
 
-    public void setAggroTarget(Avatar target) {
+    public void setAggroTarget(PlayableAvatar target) {
         aggroTarget = target;
     }
 
@@ -414,7 +415,6 @@ public class Guard extends Enemy {
      * @param targetDirection The direction the guard should face
      */
     public void updateOrientation(float dt, Vector2 targetDirection) {
-        System.out.println("Target direction is " + targetDirection);
         if (targetDirection == null || targetDirection.len2() < 0.0001f) {
             return; // No valid direction to face
         }

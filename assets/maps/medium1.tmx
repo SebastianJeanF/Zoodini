@@ -58,6 +58,7 @@
   <object id="4" type="Exit" x="2208.24" y="428.121">
    <properties>
     <property name="category" value="10000"/>
+    <property name="creature" propertytype="ExitCreature" value="PANDA"/>
     <property name="exclude" value="00000"/>
     <property name="size" type="float" value="1.25"/>
    </properties>
@@ -188,7 +189,7 @@
   <object id="61" x="706.061" y="1830.3">
    <polyline points="0,0 -3.0303,-751.515"/>
   </object>
-  <object id="62" type="Camera" x="1736.36" y="1345.45">
+  <object id="62" type="Camera" x="1464.36" y="1397.45">
    <properties>
     <property name="alarmDistance" type="float" value="5"/>
     <property name="angle" type="float" value="225"/>

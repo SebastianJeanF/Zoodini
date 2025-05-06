@@ -320,7 +320,6 @@ public class GameLevel {
                 switch (properties.get("creature", "", String.class)) {
                     case "RABBIT" -> animalType = ExitAnimal.RABBIT;
                     case "PENGUIN" -> animalType = ExitAnimal.PENGUIN;
-                    case "PANDA" -> animalType = ExitAnimal.PANDA;
                     case "OCTOPUS" -> animalType = ExitAnimal.OCTOPUS;
                     default -> animalType = ExitAnimal.PANDA;
                 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="55" height="50" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="140">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="55" height="50" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="142">
  <tileset firstgid="1" source="../tilesets/path-1.tsx"/>
  <tileset firstgid="211" source="../tilesets/path-2.tsx"/>
  <tileset firstgid="421" source="../tilesets/walls-1.tsx"/>
@@ -57,7 +57,7 @@
 185,186,187,188,189,189,189,189,189,572,606,607,608,609,610,611,612,611,612,607,608,609,610,611,612,612,613,557,557,557,601,586,526,527,528,601,602,2147484177,2147484177,2147484177,2147484177,2147484177,2147484177,2147484162,2147484162,2147484162,512,512,512,526,527,528,528,526,556
 </data>
  </layer>
- <objectgroup id="2" name="walls" visible="0">
+ <objectgroup id="2" name="walls">
   <object id="19" x="2944" y="5376" width="512" height="1024"/>
   <object id="20" x="1280" y="6016" width="1664" height="384"/>
   <object id="21" x="1280" y="4352" width="256" height="1664"/>
@@ -70,7 +70,6 @@
   <object id="116" x="1280" y="1152" width="5760" height="384"/>
   <object id="118" x="1280" y="1536" width="256" height="1536"/>
   <object id="120" x="1920" y="1792" width="896" height="384"/>
-  <object id="125" x="1920" y="2176" width="256" height="2264"/>
   <object id="132" x="3072" y="1792" width="896" height="256"/>
   <object id="133" x="4224" y="1792" width="2816" height="256"/>
   <object id="134" x="5888" y="2048" width="1152" height="128"/>
@@ -78,6 +77,7 @@
   <object id="136" x="2560" y="2176" width="256" height="128"/>
   <object id="137" x="2560" y="2304" width="3328" height="384"/>
   <object id="138" x="5632" y="2176" width="256" height="128"/>
+  <object id="140" x="1920" y="2048" width="256" height="2560"/>
  </objectgroup>
  <objectgroup id="3" name="objects">
   <object id="2" type="Cat" x="2756" y="5828">
@@ -94,13 +94,14 @@
    </properties>
    <point/>
   </object>
-  <object id="83" type="Guard" x="1728.67" y="3120">
+  <object id="83" type="Guard" x="1740.79" y="3435.15">
    <properties>
     <property name="category" value="00100"/>
     <property name="exclude" value="00100"/>
     <property name="force" type="float" value="1.5"/>
     <property name="fov" type="float" value="60"/>
     <property name="maxSpeed" type="float" value="10"/>
+    <property name="path" type="object" value="0"/>
     <property name="radius" type="float" value="0.5"/>
     <property name="spriteRadius" type="float" value="1"/>
     <property name="viewDistance" type="float" value="5"/>
@@ -133,13 +134,16 @@
    </properties>
    <point/>
   </object>
-  <object id="128" type="Text" x="1184" y="4176">
+  <object id="128" type="Text" x="1124" y="4280">
    <properties>
-    <property name="text" value="&quot;Meow to distract guard&quot;"/>
+    <property name="text" value="Hold E and release to meow"/>
    </properties>
    <point/>
   </object>
-  <object id="129" x="1112" y="3640">
+  <object id="141" type="Text" x="1193.94" y="3772.73">
+   <properties>
+    <property name="text" value="Meow to lure the guard!"/>
+   </properties>
    <point/>
   </object>
  </objectgroup>

@@ -172,7 +172,7 @@
   <object id="50" x="582.64" y="2223.54">
    <polyline points="0,0 41.6171,743.163 939.358,731.272 969.084,-5.9453"/>
   </object>
-  <object id="52" type="Vent" x="3251.52" y="845.455">
+  <object id="52" type="Vent" x="1550.96" y="1442.83">
    <point/>
   </object>
  </objectgroup>

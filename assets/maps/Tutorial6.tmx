@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="28" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="26">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="28" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="28">
  <tileset firstgid="1" source="../tilesets/walls-1.tsx"/>
  <tileset firstgid="211" source="../tilesets/path-3.tsx"/>
  <tileset firstgid="467" source="../tilesets/path-2.tsx"/>
@@ -68,6 +68,7 @@
     <property name="force" type="float" value="1.5"/>
     <property name="fov" type="float" value="60"/>
     <property name="maxSpeed" type="float" value="10"/>
+    <property name="path" type="object" value="0"/>
     <property name="radius" type="float" value="0.2"/>
     <property name="spriteRadius" type="float" value="1"/>
     <property name="viewDistance" type="float" value="5"/>
@@ -81,6 +82,7 @@
     <property name="force" type="float" value="1.5"/>
     <property name="fov" type="float" value="60"/>
     <property name="maxSpeed" type="float" value="10"/>
+    <property name="path" type="object" value="0"/>
     <property name="radius" type="float" value="0.2"/>
     <property name="spriteRadius" type="float" value="1"/>
     <property name="viewDistance" type="float" value="5"/>
@@ -90,6 +92,7 @@
   <object id="19" type="Exit" x="2026.11" y="3165.24">
    <properties>
     <property name="category" value="10000"/>
+    <property name="creature" propertytype="ExitCreature" value="PANDA"/>
     <property name="exclude" value="00000"/>
     <property name="size" type="float" value="1.25"/>
    </properties>
@@ -125,6 +128,18 @@
   </object>
   <object id="25" x="2268.34" y="1094.34">
    <polyline points="0,0 -561.845,0"/>
+  </object>
+  <object id="26" type="Text" x="2000" y="1995.81">
+   <properties>
+    <property name="text" value="Cameras alert nearby guards"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="27" type="Text" x="2004.19" y="2264.15">
+   <properties>
+    <property name="text" value="Use ink to temporarily disable the camera!"/>
+   </properties>
+   <point/>
   </object>
  </objectgroup>
 </map>

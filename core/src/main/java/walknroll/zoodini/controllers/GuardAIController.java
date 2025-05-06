@@ -18,6 +18,7 @@ import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Guard;
+import walknroll.zoodini.models.entities.PlayableAvatar;
 import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.enums.AvatarType;
 
@@ -30,7 +31,7 @@ public class GuardAIController {
     /** Guard identifier for this AI controller */
     private final Guard guard;
     /** Target of the guard (to chase) */
-    private Avatar targetPlayer;
+    private PlayableAvatar targetPlayer;
     /** Level of the game */
     private GameLevel level;
     /** Position of the last location of meow */
@@ -125,11 +126,11 @@ public class GuardAIController {
                 if (validTile != null) {
                     // Convert the valid tile to world coordinates (use the center of the tile)
                     validWaypoints[i] = tileGraph.tileToWorld(validTile);
-                    DebugPrinter.println("Updated waypoint " + i + " from " + waypoint +
-                            " to " + validWaypoints[i] + " (was in wall)");
+//                    DebugPrinter.println("Updated waypoint " + i + " from " + waypoint +
+//                            " to " + validWaypoints[i] + " (was in wall)");
                 } else {
                     // This should not happen if your graph has at least one non-wall tile
-                    DebugPrinter.println("Warning: Could not find a valid non-wall tile for waypoint " + i);
+//                    DebugPrinter.println("Warning: Could not find a valid non-wall tile for waypoint " + i);
                     validWaypoints[i] = waypoint; // Keep the original as fallback
                 }
             } else {
@@ -293,7 +294,7 @@ public class GuardAIController {
             case CHASE:
                 // If player deaggros the guard; CHASE -> PATROL
                 // This happens if the guard is not in line of sight and the deAggroTimer is 0
-                if (guard.checkDeAggroed()) {
+                if (guard.checkDeAggroed() || targetPlayer.isInvincible()) {
                     currState = GuardState.SUSPICIOUS;
                     // If guard was previously alerted by a camera
                     guard.setCameraAlerted(false);
@@ -457,8 +458,6 @@ public class GuardAIController {
         if (currState == GuardState.LOOKING_AROUND) {
             currentLookTime += dt;
             currentLookChangeTime += dt;
-
-            System.out.println(currentLookChangeTime);
             // Change look direction periodically
             if (currentLookChangeTime >= lookChangeTime) {
                 lookDirection *= -1; // Flip direction
@@ -480,21 +479,9 @@ public class GuardAIController {
      */
     public void update(float dt) {
         ticks++;
-        // Only change state every 5 ticks
-        // if (!canStateTransition()) {
-        // return;
-        // }
-        // DebugPrinter.println("Before Guard state: " + currState);
-//        if (!canStateTransition()) {
-//            return;
-//        }
-
-        System.out.println("Before Guard state: " + currState);
         executeLookAround(dt);
         updateSusLevel();
         updateGuardState();
-        // DebugPrinter.println("After Guard state: " + currState);
-
         setNextTargetLocation();
 
     }
@@ -545,7 +532,7 @@ public class GuardAIController {
         if (!targetTile.isObstacle) {
             return target;
         } else {
-            DebugPrinter.println("Target tile is a wall: " + targetTile.getCoords());
+//            DebugPrinter.println("Target tile is a wall: " + targetTile.getCoords());
             // If the target tile is a wall, find the nearest non-wall tile
             TileNode newTile = tileGraph.getNearestValidTile(target);
             return tileGraph.tileToWorld(newTile);
@@ -678,7 +665,6 @@ public class GuardAIController {
         else if (this.nextTargetLocation == null) {
             return Vector2.Zero;
         } else {
-            System.out.println(this.nextTargetLocation.cpy().sub(guard.getPosition()).nor());
             return this.nextTargetLocation.cpy().sub(guard.getPosition()).nor();
         }
     }
