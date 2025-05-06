@@ -235,9 +235,6 @@ public class GameLevel {
     private float textCycleTimeSec;
     private boolean textMovingUp;
     private float textPhase;           // [0 .. halfCycle]
-
-    private boolean followModeActive;
-
     private StringSubstitutor substitutor;
 
     /**
@@ -299,7 +296,6 @@ public class GameLevel {
         textMaxYOffsetTile = textConstants.getFloat("maxYOffsetTile");
         textCurrYOffsetTile = 0f;
         textMovingUp = true;
-        followModeActive = false;
 
         catPresent = false;
         octopusPresent = false;
@@ -860,14 +856,6 @@ public class GameLevel {
 
     public float getTileSize() {
         return units;
-    }
-
-    public void setFollowModeActive(boolean followModeActive) {
-        this.followModeActive = followModeActive;
-    }
-
-    public boolean getFollowModeActive() {
-        return followModeActive;
     }
     /**
      * Immediately adds the object to the physics world
