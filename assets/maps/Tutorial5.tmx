@@ -43,6 +43,7 @@
  <objectgroup id="4" name="objects">
   <object id="25" type="Guard" x="1939.33" y="1198.66">
    <properties>
+    <property name="angle" type="float" value="0"/>
     <property name="path" type="object" value="26"/>
    </properties>
    <point/>
@@ -61,6 +62,7 @@
   </object>
   <object id="37" type="Guard" x="209.091" y="257.576">
    <properties>
+    <property name="angle" type="float" value="0"/>
     <property name="path" type="object" value="38"/>
    </properties>
    <point/>
@@ -70,6 +72,7 @@
   </object>
   <object id="44" type="Guard" x="2681.82" y="572.727">
    <properties>
+    <property name="angle" type="float" value="0"/>
     <property name="path" type="object" value="45"/>
    </properties>
    <point/>

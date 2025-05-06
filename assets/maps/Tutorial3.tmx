@@ -104,6 +104,7 @@
   </object>
   <object id="152" type="Guard" x="4432" y="3384">
    <properties>
+    <property name="angle" type="float" value="0"/>
     <property name="category" value="00100"/>
     <property name="exclude" value="00100"/>
     <property name="force" type="float" value="1.5"/>
@@ -121,6 +122,7 @@
   </object>
   <object id="186" type="Guard" x="4988" y="3772">
    <properties>
+    <property name="angle" type="float" value="0"/>
     <property name="category" value="00100"/>
     <property name="exclude" value="00100"/>
     <property name="force" type="float" value="1.5"/>
