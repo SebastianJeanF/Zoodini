@@ -486,7 +486,7 @@ public class Guard extends Enemy {
         float BASELINE_PX = 32;
         if (suspsicionMeter == null
             || suspsicionMeter.getCurrentSpriteSheet() == null
-            || !Guard.isLoaded()) {
+            || !Guard.isLoaded() || (susLevel == 0 && !isMeowed())) {
             return;
         }
 
@@ -496,7 +496,7 @@ public class Guard extends Enemy {
 
         float SCALE = 0.2f * (PIXEL_PER_WORLD_UNIT / BASELINE_PX);
         float X_PIXEL_OFFSET = (-80f * SCALE);
-        float Y_PIXEL_OFFSET = 100f * SCALE;
+        float Y_PIXEL_OFFSET = 140f * SCALE;
 
 
 
