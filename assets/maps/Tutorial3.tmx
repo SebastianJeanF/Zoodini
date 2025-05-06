@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="55" height="50" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="206">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="55" height="50" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="207">
  <tileset firstgid="1" source="../tilesets/path-1.tsx"/>
  <tileset firstgid="211" source="../tilesets/path-2.tsx"/>
  <tileset firstgid="421" source="../tilesets/walls-1.tsx"/>
@@ -104,7 +104,7 @@
   </object>
   <object id="152" type="Guard" x="4432" y="3384">
    <properties>
-    <property name="angle" type="float" value="0"/>
+    <property name="angle" type="float" value="270"/>
     <property name="category" value="00100"/>
     <property name="exclude" value="00100"/>
     <property name="force" type="float" value="1.5"/>
@@ -122,7 +122,7 @@
   </object>
   <object id="186" type="Guard" x="4988" y="3772">
    <properties>
-    <property name="angle" type="float" value="0"/>
+    <property name="angle" type="float" value="270"/>
     <property name="category" value="00100"/>
     <property name="exclude" value="00100"/>
     <property name="force" type="float" value="1.5"/>
