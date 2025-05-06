@@ -350,7 +350,7 @@ public class GameLevel {
         SpriteSheet sheet1 = directory.getEntry("ink-explosion.animation", SpriteSheet.class);
         inkProjectile.setAnimation(AnimationState.EXPLODE, sheet1, sheet1.getSize() / 30);
         inkProjectile.setAnimation(AnimationState.IDLE,
-                directory.getEntry("ink-idle.animation", SpriteSheet.class), 0);
+                directory.getEntry("ink-projectile.animation", SpriteSheet.class), 5);
         activate(inkProjectile);
         inkProjectile.setDrawingEnabled(false);
         inkProjectile.getObstacle().setActive(false);
