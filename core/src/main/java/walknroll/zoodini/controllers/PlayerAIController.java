@@ -4,6 +4,7 @@ import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.List;
+import walknroll.zoodini.controllers.aitools.LOSController;
 import walknroll.zoodini.controllers.aitools.TileGraph;
 import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
@@ -52,6 +53,12 @@ public class PlayerAIController {
 
     float FOLLOW_BUFFER = 0.1f;
 
+    private Vector2 previousTargetLocation;
+    private Vector2 previousFollowerPosition;
+    private static final int TARGET_STABILITY_TICKS = 30;
+    private int targetStabilityCounter = 0;
+
+
 
     public PlayerAIController(PlayableAvatar follower, PlayableAvatar target, GameLevel level, TileGraph tileGraph, boolean followEnabled) {
         this.follower = follower;
@@ -61,6 +68,9 @@ public class PlayerAIController {
         this.currState = PlayerAIState.IDLE;
         this.movementDirection = new Vector2();
         this.pathFinder = new IndexedAStarPathFinder<>(tileGraph);
+        this.previousTargetLocation = null;
+        this.previousFollowerPosition = null;
+        this.level = level;
     }
 
     /**
@@ -165,16 +175,24 @@ public class PlayerAIController {
             if (ticks >= STATE_CHANGE_THRESHOLD) {
                 currState = potentialState;
                 ticks = 0; // Reset counter on state change
+                // Reset targeting when changing state
+                previousTargetLocation = null;
+                targetStabilityCounter = 0;
             }
         }
     }
 
     public void update(float dt) {
         ticks++;
+        targetStabilityCounter++;
         updatePlayerAIState();
+        if (previousFollowerPosition == null) {
+            previousFollowerPosition = follower.getPosition().cpy();
+        }
         System.out.println("Current State: " + currState);
         setNextTargetLocation();
         setMovementDirection();
+        previousFollowerPosition = follower.getPosition().cpy();
     }
 
 
@@ -218,6 +236,23 @@ public class PlayerAIController {
      * @return The next position the follower should move towards
      */
     private Vector2 getNextWaypointLocation(Vector2 targetLocation) {
+        // Check if we should stick with previous target to prevent flickering
+        if (previousTargetLocation != null && targetStabilityCounter < TARGET_STABILITY_TICKS) {
+            // Check if we're making progress toward the previous target
+            float previousDistance = 0;
+            if (previousFollowerPosition != null) {
+                previousDistance = previousFollowerPosition.dst(previousTargetLocation);
+            }
+            float currentDistance = follower.getPosition().dst(previousTargetLocation);
+
+            // If we're making progress (getting closer to target), stick with it
+            if (currentDistance < previousDistance) {
+                return previousTargetLocation;
+            }
+        }
+
+        // Reset stability counter when choosing a new target
+        targetStabilityCounter = 0;
         // Get the raw path from A* pathfinding
         List<TileNode> path = tileGraph.getPath(follower.getPosition().cpy(), targetLocation.cpy(), pathFinder);
 
@@ -253,7 +288,10 @@ public class PlayerAIController {
         // Try to find a waypoint further along the path that we can move to directly
         for (int i = pathIndex + 1; i < worldPath.size(); i++) {
             // Check if we have a clear line of sight to this waypoint
-            if (tileGraph.hasLineOfSight(follower.getPosition(), worldPath.get(i))) {
+
+
+            if (tileGraph.hasEnhancedLineOfSight(follower.getPosition(), worldPath.get(i))) {
+//            if (level.getLOSController().hasLineOfSight(follower.getPosition(), worldPath.get(i))) {
                 furthestVisibleIndex = i;
             } else {
                 // Stop at the first waypoint we can't see directly

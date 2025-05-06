@@ -1100,7 +1100,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         if (avatar != level.getInactiveAvatar()) {
             moveAvatar(vertical, horizontal, avatar);
         }
-        if (level.isCatPresent() && level.isOctopusPresent()) {
+        if (playerAIController != null) {
             handleFollowModeToggle(input);
             updatePlayerAI(dt);
         }
