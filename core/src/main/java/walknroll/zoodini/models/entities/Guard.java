@@ -471,7 +471,6 @@ public class Guard extends Enemy {
     }
 
     public void draw(SpriteBatch batch) {
-        setAngle(0);
         super.draw(batch);
         drawSuspicionMeter(batch);
     }
