@@ -69,7 +69,8 @@
     "door" : {
       "category": "000100000",
       "exclude" : "000011100",
-      "exclude-unlocked" : "001101111",
+      "category-unlocked" : "000000000",
+      "exclude-unlocked" : "111111111",
       "force" : 1.0,
       "maxSpeed" : 10.0,
       "size" : 3.0

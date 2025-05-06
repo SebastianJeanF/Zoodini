@@ -131,7 +131,10 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
                 }
             }
         }
+        addConnections();
+    }
 
+    public void addConnections(){
         for (int x = 0; x < WIDTH; x++) {
             int idx = x * HEIGHT;
             for (int y = 0; y < HEIGHT; y++) {
