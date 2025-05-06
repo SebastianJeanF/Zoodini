@@ -6,6 +6,13 @@
 package walknroll.zoodini.models;
 
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.text.StringSubstitutor;
+
+import com.badlogic.gdx.Input;
 //import com.badlogic.gdx.maps.objects.TextMapObject;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
@@ -41,6 +48,7 @@ import edu.cornell.gdiac.physics2.BoxObstacle;
 import edu.cornell.gdiac.physics2.Obstacle;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.util.PooledList;
+import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Cat;
 import walknroll.zoodini.models.entities.Guard;
@@ -230,6 +238,8 @@ public class GameLevel {
 
     private boolean followModeActive;
 
+    private StringSubstitutor substitutor;
+
     /**
      * Creates a new GameLevel
      * <p>
@@ -241,6 +251,13 @@ public class GameLevel {
         bounds = new Rectangle(0, 0, 1, 1);
         debug = Constants.DEBUG;
         catActive = true;
+
+        InputController ic = InputController.getInstance();
+        Map<String, String> valuesMap = new HashMap<>();
+        valuesMap.put("swapKey", Input.Keys.toString(ic.getSwapKey()));
+        valuesMap.put("abilityKey", Input.Keys.toString(ic.getAbilityKey()));
+        valuesMap.put("followKey", Input.Keys.toString(ic.getFollowModeKey()));
+        substitutor = new StringSubstitutor(valuesMap);
     }
 
     public ObjectMap<ZoodiniSprite, VisionCone> getVisionConeMap() {
@@ -603,7 +620,7 @@ public class GameLevel {
 
         for (MapObject textObj : textObjects) {
             MapProperties props = textObj.getProperties();
-            String text = props.get("text", String.class);
+            String text = substitutor.replace(props.get("text", String.class));
             if (text == null) continue;
 
 
