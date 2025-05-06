@@ -145,7 +145,7 @@
   </object>
   <object id="104" type="Text" x="2172.73" y="2324.24">
    <properties>
-    <property name="text" value="Collect the key to unlock the door"/>
+    <property name="text" value="Collect the key"/>
    </properties>
    <point/>
   </object>
@@ -165,7 +165,7 @@
   </object>
   <object id="121" type="Text" x="2494" y="1366">
    <properties>
-    <property name="text" value="Stand next to the door until it opens"/>
+    <property name="text" value="Bring character with key"/>
    </properties>
    <point/>
   </object>
