@@ -471,9 +471,6 @@ public class GameLevel {
 
             for (Door door : doors) {
                 door.update(dt);
-                if(!door.isLocked()){
-                    door.getObstacle().deactivatePhysics(world);
-                }
             }
 
             for (Key key : keys) {

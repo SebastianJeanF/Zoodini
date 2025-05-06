@@ -378,10 +378,10 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
         InputController input = InputController.getInstance();
         processPlayerAction(input, dt);
+        processNPCAction(dt);
         level.update(dt); // collisions
         updateVisionCones(dt);
         updateGuardAI(dt);
-        processNPCAction(dt);
         updateCamera(dt);
 
         ui.update(dt);
@@ -1176,7 +1176,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         Array<Guard> guards = level.getGuards();
         updateGuards(guards);
 
-        // TODO: Might need to comment out again
         for (Door door : level.getDoors()) {
             if (!door.isLocked()) {
                 Vector2 doorPos = door.getObstacle().getPosition().sub(0.5f,0.5f);//offset lol
@@ -1191,6 +1190,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                         graph.getNode(x,y).isObstacle = false;
                     }
                 }
+                graph.addConnections(); //f**k
+                door.getObstacle().setSensor(true);
             }
 
             if (!door.isUnlocking()) {
