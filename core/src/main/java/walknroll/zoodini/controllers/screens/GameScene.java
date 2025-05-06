@@ -421,7 +421,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             if (ic.didLeftClick()) {
                 graph.markNearestTile(camera, ic.getAiming(), level.getTileSize());
             }
-            if (playerAIController.getNextTargetLocation() != null) {
+            if (playerAIController != null && playerAIController.getNextTargetLocation() != null) {
                 graph.markPositionAsTarget(playerAIController.getNextTargetLocation());
             }
 
