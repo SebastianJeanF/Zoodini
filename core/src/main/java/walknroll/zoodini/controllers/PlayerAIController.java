@@ -27,6 +27,12 @@ public class PlayerAIController {
     /** Level of the game */
     private GameLevel level;
 
+    /** Counter to track time in current state */
+    private long ticks = 0;
+
+    /** Minimum time to stay in a state before changing */
+    private static final int STATE_CHANGE_THRESHOLD = 30;
+
     /** Pathfinder for A* algorithm */
     private IndexedAStarPathFinder<TileNode> pathFinder;
 
@@ -135,26 +141,36 @@ public class PlayerAIController {
             currState = PlayerAIState.IDLE;
             return;
         }
-        // initializeState();
+        PlayerAIState potentialState = currState;
         switch (currState) {
             case IDLE:
                 // Player is outside of follow distance to target; IDLE -> FOLLOWING
                 if (!withinFollowDistance()) {
-                    currState = PlayerAIState.FOLLOWING;
+                    potentialState = PlayerAIState.FOLLOWING;
                 }
                 break;
             case FOLLOWING:
                 if (withinFollowDistance()) {
-                    currState = PlayerAIState.IDLE;
+                    potentialState = PlayerAIState.IDLE;
                 }
                 break;
             default:
                 // Do nothing (should not happen)
                 break;
         }
+
+        // Only change state if we've been in the current state long enough
+        // or if we're forced to change by disabling/enabling follow
+        if (potentialState != currState) {
+            if (ticks >= STATE_CHANGE_THRESHOLD) {
+                currState = potentialState;
+                ticks = 0; // Reset counter on state change
+            }
+        }
     }
 
     public void update(float dt) {
+        ticks++;
         updatePlayerAIState();
         System.out.println("Current State: " + currState);
         setNextTargetLocation();
