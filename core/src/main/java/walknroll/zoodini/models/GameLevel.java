@@ -49,6 +49,7 @@ import edu.cornell.gdiac.physics2.Obstacle;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.util.PooledList;
 import walknroll.zoodini.controllers.InputController;
+import walknroll.zoodini.controllers.aitools.LOSController;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Cat;
 import walknroll.zoodini.models.entities.Guard;
@@ -90,6 +91,7 @@ public class GameLevel {
      * Number of position iterations for the constrain solvers
      */
     public static final int WORLD_POSIT = 2;
+//    private LOSController losController;
 
     /**
      * Returns a string equivalent to the sequence of bits in s
@@ -306,6 +308,7 @@ public class GameLevel {
             String type = properties.get("type", String.class);
 
             if ("Cat".equalsIgnoreCase(type)) {
+                System.out.println("Creating cat");
                 avatarCat = new Cat(properties, entityConstants.get("cat"), units);
                 avatarCat.setAnimation(AnimationState.IDLE,
                     directory.getEntry("cat-idle.animation", SpriteSheet.class), 16);
@@ -318,6 +321,7 @@ public class GameLevel {
                 activate(avatarCat);
                 catPresent = true;
             } else if ("Octopus".equalsIgnoreCase(type)) {
+                System.out.println("Creating octopus");
                 avatarOctopus = new Octopus(properties, entityConstants.get("octopus"), units);
                 avatarOctopus.setAnimation(AnimationState.IDLE,
                     directory.getEntry("octopus-idle.animation", SpriteSheet.class), 7);
@@ -388,6 +392,7 @@ public class GameLevel {
         }
 
         initializeVisionCones(entityConstants.get("visioncone"));
+//        initializeLOSController(entityConstants.get("walls"));
 
         // Initialize an ink projectile (but do not add it to the physics world, we only
         // do that on demand)
@@ -886,6 +891,15 @@ public class GameLevel {
             visions.put(guard, vc);
         }
     }
+
+//    private void initializeLOSController(JsonValue constants) {
+//        short exclude = GameLevel.bitStringToComplement(constants.getString("exclude"));
+//        this.losController = new LOSController(world, exclude);
+//    }
+//
+//    public LOSController getLOSController() {
+//        return losController;
+//    }
 
     /**
      * Create and register rectangle obstacles from a tile layer.

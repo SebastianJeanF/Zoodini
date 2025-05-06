@@ -47,6 +47,13 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
 
     boolean diagonal;
 
+    /** Temporary vectors for calculations */
+    private final Vector2 tmpVec1 = new Vector2();
+    private final Vector2 tmpVec2 = new Vector2();
+    private final Vector2 tmpVec3 = new Vector2();
+
+    private static final float SAFETY_MARGIN = 0.25f;
+
     /**
      * Constructs a TileGraph from a TileMapTileLayer
      *
@@ -557,7 +564,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
      * @return true if there's a clear line of sight, false otherwise
      */
     public boolean hasLineOfSight(Vector2 start, Vector2 end) {
-        // We'll use Bresenham's line algorithm to check for obstacles
+
         int x0 = (int)start.x;
         int y0 = (int)start.y;
         int x1 = (int)end.x;
@@ -585,6 +592,44 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
             if (e2 < dx) {
                 err += dx;
                 y0 += sy;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Enhanced line of sight check that detects corners and obstacles
+     */
+    public boolean hasEnhancedLineOfSight(Vector2 start, Vector2 end) {
+        // Basic line of sight check using TileGraph
+        if (!hasLineOfSight(start, end)) {
+            return false;
+        }
+
+        // Additional check: Ensure the path doesn't go too close to obstacles
+        Vector2 dir = tmpVec1.set(end).sub(start).nor();
+        Vector2 perpendicular = tmpVec2.set(-dir.y, dir.x).nor().scl(SAFETY_MARGIN);
+
+        float distance = start.dst(end);
+        float step = 0.5f; // Check every half unit
+
+        // Sample points along the path
+        for (float dist = 0; dist < distance; dist += step) {
+            // Position on the direct line
+            Vector2 pos = tmpVec3.set(start).add(dir.x * dist, dir.y * dist);
+
+            // Check points to the left and right of the line
+            Vector2 leftPos = new Vector2(pos).add(perpendicular);
+            Vector2 rightPos = new Vector2(pos).sub(perpendicular);
+
+            // Check if any of these positions would hit an obstacle
+            TileNode leftNode = worldToTile(leftPos);
+            TileNode rightNode = worldToTile(rightPos);
+
+            if ((leftNode != null && leftNode.isObstacle) ||
+                (rightNode != null && rightNode.isObstacle)) {
+                return false; // Too close to an obstacle
             }
         }
 

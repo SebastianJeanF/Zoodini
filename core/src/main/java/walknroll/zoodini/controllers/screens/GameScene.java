@@ -479,6 +479,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             guardToAIController.put(g, aiController);
         }
         if (level.isCatPresent() && level.isOctopusPresent()) {
+            System.out.println("here");
             playerAIController = new PlayerAIController(level.getOctopus(), level.getCat(), level, graph, followModeActive);
         }
 
@@ -1099,8 +1100,10 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         if (avatar != level.getInactiveAvatar()) {
             moveAvatar(vertical, horizontal, avatar);
         }
-        handleFollowModeToggle(input);
-        updatePlayerAI(dt);
+        if (playerAIController != null) {
+            handleFollowModeToggle(input);
+            updatePlayerAI(dt);
+        }
         if (level.isOctopusPresent()) {
             level.getOctopus().regenerateInk(dt);
         }
