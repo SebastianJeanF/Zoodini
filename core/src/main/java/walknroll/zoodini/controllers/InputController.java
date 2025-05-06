@@ -12,10 +12,13 @@
  */
 package walknroll.zoodini.controllers;
 
-import com.badlogic.gdx.*;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Buttons;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+
 import edu.cornell.gdiac.util.Controllers;
 import edu.cornell.gdiac.util.XBoxController;
 
@@ -81,9 +84,9 @@ public class InputController extends InputAdapter {
 	private int abilityKey;
 	private int swapKey;
 
-    private boolean followModePrevious;
-    private boolean followModePressed;
-    private static int followModeKey = Input.Keys.F;
+	private boolean followModePrevious;
+	private boolean followModePressed;
+	private int followModeKey;
 
 	/** An X-Box controller (if it is connected) */
 	XBoxController xbox;
@@ -105,6 +108,11 @@ public class InputController extends InputAdapter {
 		aiming = new Vector2();
 		abilityKey = Input.Keys.E;
 		swapKey = Input.Keys.SPACE;
+		followModeKey = Input.Keys.F;
+	}
+
+	public void setFollowModeKey(int followModeKey) {
+		this.followModeKey = followModeKey;
 	}
 
 	public int getAbilityKey() {
@@ -115,13 +123,13 @@ public class InputController extends InputAdapter {
 		return swapKey;
 	}
 
-    public int getFollowModeKey(){
-        return followModeKey;
-    }
+	public int getFollowModeKey() {
+		return followModeKey;
+	}
 
-    public boolean didPressFollowMode(){
-        return followModePressed && !followModePrevious;
-    }
+	public boolean didPressFollowMode() {
+		return followModePressed && !followModePrevious;
+	}
 
 	/**
 	 * Returns the amount of sideways movement.
@@ -247,7 +255,7 @@ public class InputController extends InputAdapter {
 		swapPrevious = swapPressed;
 		abilityPrevious = abilityPressed;
 		leftPrevious = leftClicked;
-        followModePrevious = followModePressed;
+		followModePrevious = followModePressed;
 
 		// Check to see if a GamePad is connected
 		if (xbox != null && xbox.isConnected()) {
@@ -275,7 +283,7 @@ public class InputController extends InputAdapter {
 		prevPressed = xbox.getLBumper();
 		debugPressed = xbox.getY();
 		swapPressed = xbox.getA();
-        followModePressed = xbox.getB();
+		followModePressed = xbox.getB();
 
 		// Increase animation frame, but only if trying to move
 		horizontal = xbox.getLeftX();
@@ -301,7 +309,7 @@ public class InputController extends InputAdapter {
 		swapPressed = (secondary && swapPressed) || (Gdx.input.isKeyPressed(this.swapKey));
 		abilityPressed = (secondary && abilityPressed) || (Gdx.input.isKeyPressed(this.abilityKey));
 		leftClicked = (secondary && leftClicked) || (Gdx.input.isButtonPressed(Buttons.LEFT));
-        followModePressed = (secondary && followModePressed) || (Gdx.input.isKeyPressed(followModeKey));
+		followModePressed = (secondary && followModePressed) || (Gdx.input.isKeyPressed(followModeKey));
 
 		// Directional controls
 		horizontal = (secondary ? horizontal : 0.0f);

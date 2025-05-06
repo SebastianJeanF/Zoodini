@@ -6,19 +6,22 @@ import com.badlogic.gdx.Preferences;
 public class GameSettings {
     private int abilityKey;
     private int swapKey;
+    private int followKey;
 
     private String resolution;
+
     private float musicVolume;
 
     private float soundVolume;
-
     public GameSettings() {
-        this(Input.Keys.E, Input.Keys.SPACE, "1280x720", 100f, 100f);
+        this(Input.Keys.E, Input.Keys.SPACE, Input.Keys.F, "1280x720", 100f, 100f);
     }
 
-    public GameSettings(int abilityKey, int swapKey, String resolution, float musicVolume, float soundVolume) {
+    public GameSettings(int abilityKey, int swapKey, int followKey, String resolution, float musicVolume,
+            float soundVolume) {
         this.abilityKey = abilityKey;
         this.swapKey = swapKey;
+        this.followKey = followKey;
         this.resolution = resolution;
         this.musicVolume = musicVolume;
         this.soundVolume = soundVolume;
@@ -28,9 +31,18 @@ public class GameSettings {
         GameSettings defaults = new GameSettings();
         this.abilityKey = prefs.getInteger("abilityKey", defaults.getAbilityKey());
         this.swapKey = prefs.getInteger("swapKey", defaults.getSwapKey());
+        this.followKey = prefs.getInteger("followKey", defaults.getFollowKey());
         this.resolution = prefs.getString("resolution", defaults.getResolution());
         this.musicVolume = prefs.getFloat("musicVolume", defaults.getMusicVolume());
         this.soundVolume = prefs.getFloat("soundVolume", defaults.getSoundVolume());
+    }
+
+    public int getFollowKey() {
+        return followKey;
+    }
+
+    public void setFollowKey(int followKey) {
+        this.followKey = followKey;
     }
 
     public void setAbilityKey(int abilityKey) {
@@ -78,6 +90,7 @@ public class GameSettings {
         prefs.putFloat("soundVolume", this.soundVolume);
         prefs.putInteger("abilityKey", this.abilityKey);
         prefs.putInteger("swapKey", this.swapKey);
+        prefs.putInteger("followKey", this.followKey);
         prefs.putString("resolution", this.resolution);
     }
 }
