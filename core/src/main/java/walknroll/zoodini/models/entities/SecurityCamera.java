@@ -147,7 +147,8 @@ public class SecurityCamera extends ZoodiniSprite {
             sprite.setFrame(animationController.getCurrentFrame());
         }
         if (sprite != null) {
-            if(getAngle() < 90 || getAngle() > 270){
+            float degrees = MathUtils.radiansToDegrees * obstacle.getAngle();
+            if(degrees < 90 || degrees > 270){
                 sprite.flip(true,false);
             }
         }

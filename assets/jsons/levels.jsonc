@@ -2,6 +2,7 @@
 // THIS MUST BE IN CONSECUTIVE ORDER, OTHERWISE THINGS WILL BREAK WITH LEVEL LOADING
 // AGAIN: THIS MUST BE IN CONSECUTIVE ORDER
 {
+  "0": "maps/debugMap.tmx",
   "1": "maps/Tutorial1.tmx",
   "2": "maps/Tutorial2.tmx",
   "3": "maps/Tutorial3.tmx",
@@ -12,5 +13,6 @@
   "8" : "maps/medium1.tmx",
   "9": "maps/Level8.tmx",
   "10": "maps/Hard-Level-2.tmx",
-  "11": "maps/debugMap.tmx",
+  "11": "maps/medium2.tmx",
+  "12": "maps/medium3.tmx"
 }
