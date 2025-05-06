@@ -130,16 +130,16 @@ public class Door extends ZoodiniSprite {
 	 */
 	public Door(AssetDirectory directory, MapProperties properties, JsonValue constants, float units) {
 		float[] pos = {properties.get("x",Float.class) / units, properties.get("y", Float.class) / units};
-		float size = constants.getFloat("size");
-
-		obstacle = new BoxObstacle(pos[0], pos[1], size, size);
+        float w = properties.get("width", Float.class) / units;
+        float h = properties.get("height", Float.class) / units;
+		obstacle = new BoxObstacle(pos[0] + w/2, pos[1] + h/2, w, h);
 		obstacle.setName(properties.get("type", String.class));
 		obstacle.setSensor(false);
 		obstacle.setPhysicsUnits(units);
         this.units = units;
 
-		float w = size * units;
-		float h = size * units;
+        w = w * units;
+        h = h * units;
 		mesh = new SpriteMesh(-w / 2, -h / 2, w, h);
 
 		// Technically, we should do error checking here.

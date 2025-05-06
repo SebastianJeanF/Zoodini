@@ -6,6 +6,7 @@
  <tileset firstgid="677" source="../tilesets/walls-1.tsx"/>
  <tileset firstgid="887" source="../tilesets/walls-2.tsx"/>
  <tileset firstgid="1097" source="../tilesets/decorations.tsx"/>
+ <tileset firstgid="1217" source="../tilesets/trees.tsx"/>
  <layer id="1" name="ground" width="30" height="20">
   <data encoding="csv">
 895,895,896,897,898,899,897,898,899,728,729,730,731,726,727,728,729,730,726,727,728,729,730,730,731,732,733,732,733,734,

@@ -15,6 +15,8 @@ package walknroll.zoodini.controllers.screens;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
+import edu.cornell.gdiac.physics2.BoxObstacle;
 import edu.cornell.gdiac.physics2.ObstacleData;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.util.PooledList;
@@ -1146,8 +1148,18 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         // TODO: Might need to comment out again
         for (Door door : level.getDoors()) {
             if (!door.isLocked()) {
-                Vector2 doorPos = door.getObstacle().getPosition();
-                graph.getNode((int) doorPos.x, (int) doorPos.y).isObstacle = false;
+                Vector2 doorPos = door.getObstacle().getPosition().sub(0.5f,0.5f);//offset lol
+                BoxObstacle box = (BoxObstacle) door.getObstacle();
+                int startX = (int) (doorPos.x);
+                int startY = (int) (doorPos.y);
+                int endX = (int) ((doorPos.x + box.getWidth()));
+                int endY = (int) ((doorPos.y + box.getHeight()));
+
+                for (int x = startX; x < endX; x++) {
+                    for (int y = startY; y < endY; y++) {
+                        graph.getNode(x,y).isObstacle = false;
+                    }
+                }
             }
 
             if (!door.isUnlocking()) {
