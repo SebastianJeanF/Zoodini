@@ -51,6 +51,7 @@
   </object>
   <object id="2" type="Guard" x="1354.55" y="1273.46">
    <properties>
+    <property name="angle" type="float" value="0"/>
     <property name="path" type="object" value="3"/>
    </properties>
    <point/>

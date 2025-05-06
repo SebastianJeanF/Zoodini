@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="10" height="15" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="7">
+ <tileset firstgid="1" source="../tilesets/walls-1.tsx"/>
+ <layer id="1" name="ground" width="10" height="15">
+  <data encoding="csv">
+91,91,91,91,91,91,9,9,91,91,
+106,106,106,106,106,106,9,9,91,92,
+121,121,10,10,121,91,9,9,92,92,
+92,92,10,10,92,92,9,9,107,107,
+91,91,10,10,92,107,24,24,122,122,
+106,106,10,10,91,91,91,91,91,91,
+121,121,10,10,106,106,106,106,106,106,
+136,136,10,10,121,121,10,10,121,121,
+92,151,10,10,10,10,10,10,136,136,
+91,91,10,10,23,23,10,10,91,91,
+106,106,10,10,106,106,10,10,106,106,
+121,121,23,23,121,121,23,23,121,121,
+136,136,136,136,136,136,136,136,136,136,
+151,151,151,151,151,151,151,151,151,151,
+166,166,166,166,166,166,166,166,166,166
+</data>
+ </layer>
+ <objectgroup id="2" name="walls"/>
+ <objectgroup id="3" name="objects">
+  <object id="1" type="Octopus" x="1154.67" y="121.333">
+   <point/>
+  </object>
+  <object id="2" type="Cat" x="641.333" y="906.667">
+   <point/>
+  </object>
+  <object id="3" type="Guard" x="1205.33" y="770.667">
+   <properties>
+    <property name="angle" type="float" value="90"/>
+    <property name="path" type="object" value="0"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="4" type="Guard" x="640" y="1406.67">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="path" type="object" value="0"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="5" type="Camera" x="321.333" y="1552">
+   <properties>
+    <property name="angle" type="float" value="270"/>
+    <property name="fov" type="float" value="60"/>
+    <property name="viewDistance" type="float" value="5"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="6" type="Exit" x="641.333" y="1728">
+   <point/>
+  </object>
+ </objectgroup>
+</map>
