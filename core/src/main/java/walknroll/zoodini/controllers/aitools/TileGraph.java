@@ -504,6 +504,27 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
     }
 
     /**
+     * Determines if three points form a corner by measuring the change in direction.
+     *
+     * @param prev The previous point
+     * @param current The current point
+     * @param next The next point
+     * @return true if the points form a significant corner
+     */
+    private boolean isCorner(Vector2 prev, Vector2 current, Vector2 next) {
+        // Calculate directions
+        Vector2 dir1 = new Vector2(current).sub(prev).nor();
+        Vector2 dir2 = new Vector2(next).sub(current).nor();
+
+        // Calculate dot product to measure angle change
+        float dotProduct = dir1.dot(dir2);
+
+        // Consider it a corner if the direction changes significantly
+        // (dot product < 0.7 is approximately > 45 degrees change)
+        return dotProduct < 0.7f;
+    }
+
+    /**
      * Helper function that checks if the target position is not a wall.
      * If the target position is a wall, it returns the world coords of the nearest
      * non-wall tile.
@@ -522,6 +543,49 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
             TileNode newTile = getNearestValidTile(target);
             return tileToWorld(newTile);
         }
+    }
+
+    /**
+     * Checks if there's a clear line of sight between two points.
+     * Uses Bresenham's line algorithm to check for obstacles.
+     *
+     * @param start The starting point
+     * @param end The ending point
+     * @return true if there's a clear line of sight, false otherwise
+     */
+    public boolean hasLineOfSight(Vector2 start, Vector2 end) {
+        // We'll use Bresenham's line algorithm to check for obstacles
+        int x0 = (int)start.x;
+        int y0 = (int)start.y;
+        int x1 = (int)end.x;
+        int y1 = (int)end.y;
+
+        int dx = Math.abs(x1 - x0);
+        int dy = Math.abs(y1 - y0);
+        int sx = x0 < x1 ? 1 : -1;
+        int sy = y0 < y1 ? 1 : -1;
+        int err = dx - dy;
+
+        while (x0 != x1 || y0 != y1) {
+            TileNode node = worldToTile(new Vector2(x0, y0));
+
+            // Check if this tile is an obstacle
+            if (node != null && node.isObstacle) {
+                return false;
+            }
+
+            int e2 = 2 * err;
+            if (e2 > -dy) {
+                err -= dy;
+                x0 += sx;
+            }
+            if (e2 < dx) {
+                err += dx;
+                y0 += sy;
+            }
+        }
+
+        return true;
     }
 
 }
