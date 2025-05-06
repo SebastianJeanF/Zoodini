@@ -9,7 +9,7 @@
       "spriteRadius": 0.6,
       "obstacleRadius" : 0.4,
       "abilityCooldown": 5.0,
-      "abilityRange" : 7.0,
+      "abilityRange" : 7.25,
       "meowExpansionSpeed" : 10.0
     },
     "octopus" : {
