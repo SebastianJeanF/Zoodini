@@ -1,8 +1,9 @@
 package walknroll.zoodini.models.entities;
 
 import com.badlogic.gdx.maps.MapProperties;
-
 import com.badlogic.gdx.utils.JsonValue;
+
+import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.enums.AvatarType;
 
 public abstract class PlayableAvatar extends Avatar {
@@ -17,7 +18,7 @@ public abstract class PlayableAvatar extends Avatar {
     }
 
     public boolean isInvincible() {
-        return invincible;
+        return Constants.INVINCIBLE || invincible;
     }
 
     public void setInvincible(boolean invincible) {
