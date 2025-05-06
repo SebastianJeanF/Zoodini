@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="53">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="54">
  <tileset firstgid="1" source="../tilesets/walls-1.tsx"/>
  <tileset firstgid="211" source="../tilesets/path-1.tsx"/>
  <tileset firstgid="421" source="../tilesets/walls-2.tsx"/>
@@ -119,16 +119,6 @@
    </properties>
    <point/>
   </object>
-  <object id="30" type="Door" x="2876.52" y="2640.97">
-   <properties>
-    <property name="category" value="10000"/>
-    <property name="exclude" value="00000"/>
-    <property name="excludeUnlocked" value="00110"/>
-    <property name="key" type="object" value="29"/>
-    <property name="size" type="float" value="1.25"/>
-   </properties>
-   <point/>
-  </object>
   <object id="31" type="Guard" x="2883.65" y="2298.36">
    <properties>
     <property name="angle" type="float" value="270"/>
@@ -178,5 +168,6 @@
   <object id="52" type="Vent" x="1550.96" y="1442.83">
    <point/>
   </object>
+  <object id="53" x="2688" y="2432" width="384" height="384"/>
  </objectgroup>
 </map>
