@@ -11,6 +11,17 @@
         }
       }
     },
+    "guard-idle-inked": {
+      "file": "textures/entities/guard/guard_idle_inked.png",
+      "wrap": false,
+      "sprites": {
+        "animation": {
+          "size": 5,
+          "rows": 1,
+          "cols": 5
+        }
+      }
+    },
     "guard-walk": {
       "file": "textures/entities/guard/guard_walking.png",
       "wrap": false,

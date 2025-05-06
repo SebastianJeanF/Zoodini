@@ -80,7 +80,7 @@ public class Avatar extends ZoodiniSprite {
 		return obstacle.getPosition();
 	}
 
-    /** Sets angle in radians */
+	/** Sets angle in radians */
 	public void setAngle(float angle) {
 		obstacle.setAngle(angle);
 	}
@@ -222,7 +222,7 @@ public class Avatar extends ZoodiniSprite {
 		obstacle.setFilterData(filter);
 
 		float sr = constants.getFloat("spriteRadius") * units;
-		mesh = new SpriteMesh(-sr, -sr/2 - 20f, 2 * sr, 2 * sr);
+		mesh = new SpriteMesh(-sr, -sr / 2 - 20f, 2 * sr, 2 * sr);
 
 		underCamera = false;
 		underVisionCone = false;
@@ -238,6 +238,8 @@ public class Avatar extends ZoodiniSprite {
 			// sprite) is set to 16 for all states. This needs to be adjusted.
 			case IDLE -> animationController.addAnimation(AnimationState.IDLE,
 					new Animation(sheet, 0, sheet.getSize() - 1, frameDelay, true));
+			case IDLE_BLIND -> animationController.addAnimation(AnimationState.IDLE_BLIND,
+					new Animation(sheet, 0, sheet.getSize() - 1, frameDelay, true));
 			case WALK -> animationController.addAnimation(AnimationState.WALK,
 					new Animation(sheet, 0, sheet.getSize() - 1, frameDelay, true));
 			case WALK_BLIND -> animationController.addAnimation(AnimationState.WALK_BLIND,
@@ -250,7 +252,8 @@ public class Avatar extends ZoodiniSprite {
 					new Animation(sheet, 0, sheet.getSize() - 1, frameDelay, true));
 			case WALK_UP_BLIND -> animationController.addAnimation(AnimationState.WALK_UP_BLIND,
 					new Animation(sheet, 0, sheet.getSize() - 1, frameDelay, true));
-			default -> {}
+			default -> {
+			}
 		}
 	}
 
@@ -307,7 +310,11 @@ public class Avatar extends ZoodiniSprite {
 				}
 			}
 		} else {
-			animationController.setState(AnimationState.IDLE);
+			if (getAvatarType() == AvatarType.ENEMY && ((Guard) this).isInkBlinded()) {
+				animationController.setState(AnimationState.IDLE_BLIND);
+			} else {
+				animationController.setState(AnimationState.IDLE);
+			}
 		}
 	}
 
@@ -324,9 +331,9 @@ public class Avatar extends ZoodiniSprite {
 	 * @param dt number of seconds since last animation frame
 	 */
 	public void update(float dt) {
-        super.update(dt);
+		super.update(dt);
 
-        // Update animation controller
+		// Update animation controller
 		animationController.update();
 
 		// This is the key fix - update the sprite reference itself

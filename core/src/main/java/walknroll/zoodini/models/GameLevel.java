@@ -91,7 +91,7 @@ public class GameLevel {
      * Number of position iterations for the constrain solvers
      */
     public static final int WORLD_POSIT = 2;
-//    private LOSController losController;
+    // private LOSController losController;
 
     /**
      * Returns a string equivalent to the sequence of bits in s
@@ -236,7 +236,7 @@ public class GameLevel {
     private float textCurrYOffsetTile;
     private float textCycleTimeSec;
     private boolean textMovingUp;
-    private float textPhase;           // [0 .. halfCycle]
+    private float textPhase; // [0 .. halfCycle]
     private StringSubstitutor substitutor;
 
     /**
@@ -270,7 +270,7 @@ public class GameLevel {
      */
     public void populate(AssetDirectory directory, TiledMap map) {
         // Compute the FPS
-        int[] fps = {20, 60};
+        int[] fps = { 20, 60 };
         maxFPS = fps[1];
         minFPS = fps[0];
         timeStep = 1.0f / maxFPS;
@@ -284,7 +284,6 @@ public class GameLevel {
         int height = props.get("height", Integer.class);
         units = props.get("tilewidth", Integer.class);
         bounds = new Rectangle(0, 0, width, height);
-
 
         MapLayer walls = map.getLayers().get("walls");
         JsonValue entityConstants = directory.getEntry("constants", JsonValue.class).get("entities");
@@ -311,26 +310,26 @@ public class GameLevel {
                 System.out.println("Creating cat");
                 avatarCat = new Cat(properties, entityConstants.get("cat"), units);
                 avatarCat.setAnimation(AnimationState.IDLE,
-                    directory.getEntry("cat-idle.animation", SpriteSheet.class), 16);
+                        directory.getEntry("cat-idle.animation", SpriteSheet.class), 16);
                 avatarCat.setAnimation(AnimationState.WALK,
-                    directory.getEntry("cat-walk.animation", SpriteSheet.class), 4);
+                        directory.getEntry("cat-walk.animation", SpriteSheet.class), 4);
                 avatarCat.setAnimation(AnimationState.WALK_DOWN,
-                    directory.getEntry("cat-walk-down.animation", SpriteSheet.class), 8);
+                        directory.getEntry("cat-walk-down.animation", SpriteSheet.class), 8);
                 avatarCat.setAnimation(AnimationState.WALK_UP,
-                    directory.getEntry("cat-walk-up.animation", SpriteSheet.class), 6);
+                        directory.getEntry("cat-walk-up.animation", SpriteSheet.class), 6);
                 activate(avatarCat);
                 catPresent = true;
             } else if ("Octopus".equalsIgnoreCase(type)) {
                 System.out.println("Creating octopus");
                 avatarOctopus = new Octopus(properties, entityConstants.get("octopus"), units);
                 avatarOctopus.setAnimation(AnimationState.IDLE,
-                    directory.getEntry("octopus-idle.animation", SpriteSheet.class), 7);
+                        directory.getEntry("octopus-idle.animation", SpriteSheet.class), 7);
                 avatarOctopus.setAnimation(AnimationState.WALK,
-                    directory.getEntry("octopus-walk.animation", SpriteSheet.class), 6);
+                        directory.getEntry("octopus-walk.animation", SpriteSheet.class), 6);
                 avatarOctopus.setAnimation(AnimationState.WALK_DOWN,
-                    directory.getEntry("octopus-walk-down.animation", SpriteSheet.class), 8);
+                        directory.getEntry("octopus-walk-down.animation", SpriteSheet.class), 8);
                 avatarOctopus.setAnimation(AnimationState.WALK_UP,
-                    directory.getEntry("octopus-walk-up.animation", SpriteSheet.class), 6);
+                        directory.getEntry("octopus-walk-up.animation", SpriteSheet.class), 6);
                 activate(avatarOctopus);
                 octopusPresent = true;
             } else if ("Guard".equalsIgnoreCase(type)) {
@@ -338,23 +337,26 @@ public class GameLevel {
                 g.setAnimation(AnimationState.IDLE, directory.getEntry("guard-idle.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK, directory.getEntry("guard-walk.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK_DOWN,
-                    directory.getEntry("guard-walk-down.animation", SpriteSheet.class), 16);
+                        directory.getEntry("guard-walk-down.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK_UP,
-                    directory.getEntry("guard-walk-up.animation", SpriteSheet.class), 16);
+                        directory.getEntry("guard-walk-up.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK_DOWN_BLIND,
-                    directory.getEntry("guard-walk-down-inked.animation", SpriteSheet.class), 16);
+                        directory.getEntry("guard-walk-down-inked.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK_BLIND,
-                    directory.getEntry("guard-walk-inked.animation", SpriteSheet.class), 16);
+                        directory.getEntry("guard-walk-inked.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK_UP_BLIND,
-                    directory.getEntry("guard-walk-up-inked.animation", SpriteSheet.class), 16);
+                        directory.getEntry("guard-walk-up-inked.animation", SpriteSheet.class), 16);
+                g.setAnimation(AnimationState.IDLE_BLIND,
+                        directory.getEntry("guard-idle-inked.animation", SpriteSheet.class), 16);
                 g.setSusMeter(directory.getEntry("suspicion-meter.animation", SpriteSheet.class)); // TODO: There must
-                                                                                                   // be a better way t// do this
+                                                                                                   // be a better way
+                                                                                                   // t// do this
                 guards.add(g);
                 activate(g);
             } else if ("Camera".equalsIgnoreCase(type)) {
                 SecurityCamera cam = new SecurityCamera(properties, entityConstants.get("camera"), units);
                 cam.setAnimation(AnimationState.IDLE, directory.getEntry("camera-idle.animation", SpriteSheet.class),
-                    16);
+                        16);
                 securityCameras.add(cam);
                 activate(cam);
             } else if ("Door".equalsIgnoreCase(type)) {
@@ -392,7 +394,7 @@ public class GameLevel {
         }
 
         initializeVisionCones(entityConstants.get("visioncone"));
-//        initializeLOSController(entityConstants.get("walls"));
+        // initializeLOSController(entityConstants.get("walls"));
 
         // Initialize an ink projectile (but do not add it to the physics world, we only
         // do that on demand)
@@ -501,7 +503,7 @@ public class GameLevel {
             if (v.contains(avatarCat.getPosition())) {
                 if (key instanceof Guard) {
                     ((Guard) key).setTarget(
-                        avatarCat.getPosition()); // TODO: this line might not be needed
+                            avatarCat.getPosition()); // TODO: this line might not be needed
                     ((Guard) key).setAgroed(true);
                     ((Guard) key).setAggroTarget(avatarCat);
                 } else if (key instanceof SecurityCamera) {
@@ -519,7 +521,7 @@ public class GameLevel {
             } else if (v.contains(avatarOctopus.getPosition())) {
                 if (key instanceof Guard) {
                     ((Guard) key).setTarget(
-                        avatarOctopus.getPosition()); // TODO: this line might not be needed
+                            avatarOctopus.getPosition()); // TODO: this line might not be needed
                     ((Guard) key).setAgroed(true);
                     ((Guard) key).setAggroTarget(avatarOctopus);
                     // DebugPrinter.println("In guard vision cone " + ((Guard)
@@ -568,7 +570,8 @@ public class GameLevel {
                 obj.draw(batch);
             }
             if (obj instanceof SecurityCamera cam) {
-                if (!cam.isDisabled()) visions.get(obj).draw(batch, camera);
+                if (!cam.isDisabled())
+                    visions.get(obj).draw(batch, camera);
             }
         }
 
@@ -588,7 +591,7 @@ public class GameLevel {
                 }
             }
         }
-//
+        //
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
             if (entry.key instanceof Guard) {
                 entry.value.draw(batch, camera);
@@ -607,7 +610,6 @@ public class GameLevel {
         batch.end();
     }
 
-
     // TODO: Finish specification
     // INVARIANT: Batch must be currently drawing
     // INVARIANT: Caller is responsible for ending the batch
@@ -616,18 +618,18 @@ public class GameLevel {
         // TODO: Figure out root cause of drawing text
         // preventing debug graph tiles from being drawn
         if (textFont == null
-            || textObjects.size == 0
-            || Constants.DEBUG) return;
+                || textObjects.size == 0
+                || Constants.DEBUG)
+            return;
 
         for (MapObject textObj : textObjects) {
             MapProperties props = textObj.getProperties();
             String text = substitutor.replace(props.get("text", String.class));
-            if (text == null) continue;
-
+            if (text == null)
+                continue;
 
             float x = props.get("x", Float.class) / units;
             float y = props.get("y", Float.class) / units;
-
 
             // Get font scale if specified
             float scale = props.get("scale", 1.1f, Float.class);
@@ -636,16 +638,15 @@ public class GameLevel {
             float originalScaleX = textFont.getData().scaleX;
             float originalScaleY = textFont.getData().scaleY;
 
-//            // Scale font based on tile size and custom scale
-//            float fontScale = (units / 32f) * scale; // Assuming 32 pixels is the base tile size
+            // // Scale font based on tile size and custom scale
+            // float fontScale = (units / 32f) * scale; // Assuming 32 pixels is the base
+            // tile size
             textFont.getData().setScale(1);
-
 
             // Calculate position based on alignment
             layout.setText(textFont, text);
             float textX = x * units - layout.width / 2; // Centered by default
             float textY = (y * units + layout.height) + (textCurrYOffsetTile * units); // Adjust for baseline
-
 
             // Draw text
             textFont.draw(batch, text, textX, textY);
@@ -859,6 +860,7 @@ public class GameLevel {
     public float getTileSize() {
         return units;
     }
+
     /**
      * Immediately adds the object to the physics world
      *
@@ -892,14 +894,15 @@ public class GameLevel {
         }
     }
 
-//    private void initializeLOSController(JsonValue constants) {
-//        short exclude = GameLevel.bitStringToComplement(constants.getString("exclude"));
-//        this.losController = new LOSController(world, exclude);
-//    }
-//
-//    public LOSController getLOSController() {
-//        return losController;
-//    }
+    // private void initializeLOSController(JsonValue constants) {
+    // short exclude =
+    // GameLevel.bitStringToComplement(constants.getString("exclude"));
+    // this.losController = new LOSController(world, exclude);
+    // }
+    //
+    // public LOSController getLOSController() {
+    // return losController;
+    // }
 
     /**
      * Create and register rectangle obstacles from a tile layer.
@@ -910,10 +913,10 @@ public class GameLevel {
             if (wall instanceof RectangleMapObject rec) {
                 Rectangle rectangle = rec.getRectangle(); // dimensions given in pixels
                 Obstacle obstacle = new BoxObstacle(
-                    (rectangle.x + rectangle.width / 2) / units,
-                    (rectangle.y + rectangle.height / 2) / units,
-                    rectangle.width / units,
-                    rectangle.height / units);
+                        (rectangle.x + rectangle.width / 2) / units,
+                        (rectangle.y + rectangle.height / 2) / units,
+                        rectangle.width / units,
+                        rectangle.height / units);
 
                 obstacle.setPhysicsUnits(units);
                 obstacle.setBodyType(BodyType.StaticBody);
@@ -962,7 +965,8 @@ public class GameLevel {
     }
 
     private boolean isInDanger(PlayableAvatar avatar) {
-        if (avatar.isInvincible()) return false;
+        if (avatar.isInvincible())
+            return false;
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
             if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
                 continue;
@@ -977,13 +981,13 @@ public class GameLevel {
     private void updateFlipSprite(Avatar avatar) {
         // flips the sprite if the avatar is moving left
         if (!avatar.isFlipped() && avatar.getMovement().x < 0.0f
-            || avatar.isFlipped() && avatar.getMovement().x > 0.0f) {
+                || avatar.isFlipped() && avatar.getMovement().x > 0.0f) {
             avatar.flipSprite();
         }
     }
 
     private void updateGameTextPosition(float dt) {
-// in your update:
+        // in your update:
         float halfCycle = textCycleTimeSec / 2f;
         if (textMovingUp) {
             textPhase += dt;
@@ -999,12 +1003,12 @@ public class GameLevel {
             }
         }
 
-// now alpha runs [0 .. 1] exactly
+        // now alpha runs [0 .. 1] exactly
         float alpha = textPhase / halfCycle;
 
-// and if you still want that smooth “ease-in/out” curve:
+        // and if you still want that smooth “ease-in/out” curve:
         float smoothOffset = Interpolation.smooth.apply(
-            -textMaxYOffsetTile, textMaxYOffsetTile, alpha);
+                -textMaxYOffsetTile, textMaxYOffsetTile, alpha);
         textCurrYOffsetTile = smoothOffset;
     }
 
