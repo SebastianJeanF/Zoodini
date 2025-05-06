@@ -12,8 +12,12 @@
  */
 package walknroll.zoodini.controllers.screens;
 
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import edu.cornell.gdiac.physics2.BoxObstacle;
@@ -376,6 +380,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         updateGuardVisionCones(dt);
     }
 
+
+    Affine2 affine2 = new Affine2();
     /**
      * Draw the physics objects to the canvas
      *
@@ -392,6 +398,19 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         mapRenderer.setView(camera);
         mapRenderer.render(); // divide this into layerwise rendering if you want
+        float units = level.getTileSize();
+        batch.begin(camera);
+        for(MapObject obj : map.getLayers().get("images").getObjects()){
+            if(obj instanceof TextureMapObject t){
+                affine2.idt();
+                batch.draw(
+                    t.getTextureRegion(),
+                    t.getX(),
+                    t.getY()
+                );
+            }
+        }
+        batch.end();
 
         level.draw(batch, camera);
         if (Constants.DEBUG) {
