@@ -162,13 +162,5 @@
   <object id="55" type="Vent" x="3432.21" y="1688.48">
    <point/>
   </object>
-  <object id="56" type="Camera" x="3903.33" y="1144.59">
-   <properties>
-    <property name="angle" type="float" value="270"/>
-    <property name="fov" type="float" value="60"/>
-    <property name="viewDistance" type="float" value="5"/>
-   </properties>
-   <point/>
-  </object>
  </objectgroup>
 </map>
