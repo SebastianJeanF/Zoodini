@@ -82,6 +82,8 @@ public class GDXRoot extends Game implements ScreenListener {
 	private Preferences statePrefs;
 	private GameState gameState;
 
+	private Array<Integer> levelKeys;
+
 	/**
 	 * Creates a new game from the configuration settings.
 	 */
@@ -182,6 +184,12 @@ public class GDXRoot extends Game implements ScreenListener {
 			if (!StoryboardScene.isLoaded()) {
 				StoryboardScene.setSpriteSheet(directory.getEntry("storyboard.animation", SpriteSheet.class));
 			}
+
+			JsonValue levels = directory.getEntry("levels", JsonValue.class);
+			this.levelKeys = new Array<>();
+			for (JsonValue value : levels) {
+				levelKeys.add(Integer.parseInt(value.name()));
+			}
 		} else if (screen == settings) {
 			// extract settings info from settings screen here
 			gameSettings = settings.getSettings();
@@ -230,11 +238,6 @@ public class GDXRoot extends Game implements ScreenListener {
 				if (directory == null) {
 					throw new RuntimeException("Asset directory was somehow not loaded after initial boot");
 				}
-				JsonValue levels = directory.getEntry("levels", JsonValue.class);
-				Array<Integer> levelKeys = new Array<>();
-				for (JsonValue value : levels) {
-					levelKeys.add(Integer.parseInt(value.name()));
-				}
 
 				levelSelect = new LevelSelectScene(batch, directory, levelKeys, gameState.getHighestClearance());
 				levelSelect.create();
@@ -260,7 +263,7 @@ public class GDXRoot extends Game implements ScreenListener {
 				break;
 			case GDXRoot.EXIT_WIN:
 				// TODO: in the future, each level will have a point to the next level
-				gameWin = new GameWinScene(directory, batch, selectedLevel + 1);
+				gameWin = new GameWinScene(directory, batch, selectedLevel + 1, levelKeys.get(levelKeys.size - 1));
 				gameWin.setScreenListener(this);
 				setScreen(gameWin);
 				disposeExcept(gameWin);

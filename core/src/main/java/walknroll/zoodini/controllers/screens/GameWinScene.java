@@ -65,6 +65,7 @@ public class GameWinScene implements Screen, InputProcessor {
     private int height;
 
     private int nextLevel;
+    private boolean onLastLevel;
 
     /** The constants for arranging images on the screen */
     JsonValue constants;
@@ -90,10 +91,11 @@ public class GameWinScene implements Screen, InputProcessor {
      * @param canvas The game canvas to draw to
      * @param millis The loading budget in milliseconds
      */
-    public GameWinScene(AssetDirectory assets, SpriteBatch batch, int nextLevel) {
+    public GameWinScene(AssetDirectory assets, SpriteBatch batch, int nextLevel, int maxLevel) {
         this.batch = batch;
         this.assets = assets;
         this.nextLevel = nextLevel;
+        this.onLastLevel = nextLevel > maxLevel;
 
         constants = assets.getEntry("constants", JsonValue.class).get("gameWinScreen");
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -102,11 +104,14 @@ public class GameWinScene implements Screen, InputProcessor {
         Gdx.input.setInputProcessor(this);
 
         float buttonY = constants.getFloat("button.y");
-        buttons = Array.with(
-                new MenuButton(constants.getFloat("button.next.x"), buttonY, constants.getFloat("button.next.width"),
-                        constants.getFloat("button.next.height"), "game-win-next-level", GDXRoot.EXIT_PLAY),
-                new MenuButton(constants.getFloat("button.menu.x"), buttonY, constants.getFloat("button.menu.width"),
-                        constants.getFloat("button.menu.height"), "home-icon", GDXRoot.EXIT_MENU));
+        buttons = Array.with(new MenuButton(constants.getFloat("button.menu.x"), buttonY,
+                constants.getFloat("button.menu.width"), constants.getFloat("button.menu.height"), "home-icon",
+                GDXRoot.EXIT_MENU));
+        if (!this.onLastLevel) {
+            buttons.add(new MenuButton(constants.getFloat("button.next.x"), buttonY,
+                    constants.getFloat("button.next.width"), constants.getFloat("button.next.height"),
+                    "game-win-next-level", GDXRoot.EXIT_PLAY));
+        }
     }
 
     /**
@@ -403,7 +408,8 @@ public class GameWinScene implements Screen, InputProcessor {
         batch.setColor(Color.WHITE);
 
         // Height lock the logo
-        Texture texture = assets.getEntry("game-win-splash", Texture.class);
+        Texture texture = this.onLastLevel ? assets.getEntry("game-win-final-splash", Texture.class)
+                : assets.getEntry("game-win-splash", Texture.class);
         float ratio = (float) width / (float) texture.getWidth();
         batch.draw(texture, 0, height - (ratio * texture.getHeight()), width, ratio * texture.getHeight());
 

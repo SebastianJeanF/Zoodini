@@ -292,6 +292,7 @@
     "game-over-menu-button": "textures/ui/game-lose/game-over-menu-button.png",
     "game-over-restart-button": "textures/ui/game-lose/game-over-restart-button.png",
     "game-win-splash": "textures/ui/game-win/game-win-splash.png",
+    "game-win-final-splash": "textures/ui/game-win/game-win-final-splash.png",
     "game-win-next-level": "textures/ui/game-win/game-win-next-level.png",
     "key": "textures/entities/static/key-sprite.png",
     "locked_door": "textures/entities/static/locked_door.png",
