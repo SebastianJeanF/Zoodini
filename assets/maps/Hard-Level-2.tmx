@@ -72,7 +72,7 @@
    </properties>
    <point/>
   </object>
-  <object id="26" type="Octopus" x="2725.96" y="1780.32">
+  <object id="26" type="Octopus" x="3316.39" y="1494.43">
    <properties>
     <property name="abilityRange" type="float" value="3.5"/>
     <property name="category" value="00010"/>
