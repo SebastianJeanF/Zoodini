@@ -18,11 +18,7 @@ import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Affine2;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import edu.cornell.gdiac.physics2.BoxObstacle;
-import edu.cornell.gdiac.physics2.ObstacleData;
-import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.util.PooledList;
 import java.util.HashMap;
 
@@ -63,7 +59,6 @@ import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Cat;
-import walknroll.zoodini.models.entities.Enemy;
 import walknroll.zoodini.models.entities.Guard;
 import walknroll.zoodini.models.entities.Octopus;
 import walknroll.zoodini.models.entities.PlayableAvatar;
@@ -75,7 +70,6 @@ import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.models.nonentities.Vent;
 import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.DebugPrinter;
-import walknroll.zoodini.utils.UIMessenger;
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 import walknroll.zoodini.utils.enums.AvatarType;
@@ -91,8 +85,7 @@ import walknroll.zoodini.utils.enums.AvatarType;
  * You will notice that asset loading is very different. It relies on the
  * singleton asset manager to manage the various assets.
  */
-public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener,
-    UIMessenger {
+public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener{
     /** How many frames after winning/losing do we continue? */
     public static final int EXIT_COUNT = 120;
     // ASSETS
@@ -1381,8 +1374,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         playerAIController.setFollowEnabled(followModeActive);
     }
 
-    @Override
-    public GameLevel getLevel() {
-        return level;
+    public GameLevel getLevel(){
+        return this.level;
     }
 }
