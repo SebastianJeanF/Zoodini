@@ -64,7 +64,7 @@
       "exclude" : "001111110",
       "force" : 1.0,
       "maxSpeed" : 10.0,
-      "size" : 1.0
+      "size" : 0.6
     },
     "door" : {
       "category": "000100000",

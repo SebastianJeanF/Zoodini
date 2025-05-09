@@ -709,5 +709,4 @@ public class GuardAIController {
         LOOKING_AROUND;
         private GuardState() {}
     }
-
 }
