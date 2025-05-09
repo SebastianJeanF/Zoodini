@@ -35,6 +35,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.ScreenListener;
@@ -60,7 +62,9 @@ public class MenuScene implements Screen, InputProcessor {
 	private AssetDirectory assets;
 	/** The drawing camera for this scene */
 	private OrthographicCamera camera;
-	/** Reference to sprite batch created by the root */
+    /** Viewport */
+    private Viewport viewport;
+    /** Reference to sprite batch created by the root */
 	private SpriteBatch batch;
 	/** Listener that will update the player mode when we are done */
 	private ScreenListener listener;
@@ -127,7 +131,8 @@ public class MenuScene implements Screen, InputProcessor {
 		internal.finishLoading();
 
 		constants = internal.getEntry("constants", JsonValue.class);
-		resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
 		// No progress so far.
 		progress = assets.getProgress();
@@ -253,12 +258,8 @@ public class MenuScene implements Screen, InputProcessor {
 		scale = ((float) height) / constants.getFloat("height");
 		this.width = width;
 		this.height = height;
-		if (camera == null) {
-			camera = new OrthographicCamera(width, height);
-		} else {
-			camera.setToOrtho(false, width, height);
-		}
-	}
+        viewport.update(width, height, true);
+    }
 
 	/**
 	 * Called when the Screen is paused.
@@ -287,6 +288,7 @@ public class MenuScene implements Screen, InputProcessor {
 	public void show() {
 		// Useless if called in outside animation loop
 		active = true;
+        viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
 	}
 
 	/**
@@ -499,18 +501,13 @@ public class MenuScene implements Screen, InputProcessor {
 	 * prefer this in lecture.
 	 */
 	private void draw() {
-		// Cornell colors
-		ScreenUtils.clear(0.702f, 0.1255f, 0.145f, 1.0f);
-
-		batch.begin(camera);
-		batch.setColor(Color.WHITE);
-
-		// Height lock the logo
-		float scaleX = (float) width / (float) background.getWidth();
+        batch.begin(viewport.getCamera());
+        batch.setColor(Color.WHITE);
+        float scaleX = (float) width / (float) background.getWidth();
         float scaleY = (float) height / (float) background.getHeight();
         cache.idt();
         cache.scale(scaleX, scaleY);
-		batch.draw(background, cache);
+        batch.draw(background, cache);
 
 		batch.draw(logo, (width / 2f) - (logo.getWidth() / 2f), height - (logo.getHeight() + 50),
 				logo.getWidth(),
