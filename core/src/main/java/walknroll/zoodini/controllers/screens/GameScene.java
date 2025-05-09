@@ -1367,7 +1367,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     // 2. Initialize in your constructor or initialization method
     public void initializePathfinding() {
         // Create a path smoother with your existing graph
-        pathSmoother = new PathSmoother(graph);
+        // pathSmoother = new PathSmoother(graph);
 
         // Create a path follower for the inactive avatar
         // You can customize arrival distance and speed factor
