@@ -99,6 +99,7 @@ public class GDXRoot extends Game implements ScreenListener {
 		directory = new AssetDirectory("jsons/assets.json");
 		settingsPrefs = Gdx.app.getPreferences(SETTINGS_PREFERENCES_FILENAME);
 		gameSettings = new GameSettings(settingsPrefs);
+		applyGameSettings();
 
 		statePrefs = Gdx.app.getPreferences(STATE_PREFERENCES_FILENAME);
 		gameState = new GameState(statePrefs);
@@ -107,7 +108,6 @@ public class GDXRoot extends Game implements ScreenListener {
 
 		loading.setScreenListener(this);
 		setScreen(loading);
-		applyGameSettings();
 	}
 
 	/**
@@ -292,14 +292,8 @@ public class GDXRoot extends Game implements ScreenListener {
 		InputController.getInstance().setSwapKey(this.gameSettings.getSwapKey());
 		InputController.getInstance().setFollowModeKey(this.gameSettings.getFollowKey());
 		switch (this.gameSettings.getResolution().toLowerCase()) {
-			case "1280x720" -> {
-				Gdx.graphics.setWindowedMode(1280, 720);
-				this.getScreen().resize(1280, 720);
-			}
-			case "1920x1080" -> {
-				Gdx.graphics.setWindowedMode(1920, 1080);
-				this.getScreen().resize(1920, 1080);
-			}
+			case "1280x720" -> Gdx.graphics.setWindowedMode(1280, 720);
+			case "1920x1080" -> Gdx.graphics.setWindowedMode(1920, 1080);
 			case "fullscreen" -> Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
 		}
 		SoundController.getInstance().setMusicVolume(this.gameSettings.getMusicVolume() / 100f);
