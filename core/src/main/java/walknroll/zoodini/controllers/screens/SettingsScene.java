@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -31,8 +32,6 @@ import walknroll.zoodini.utils.GameSettings;
 public class SettingsScene implements Screen {
     private ScreenListener listener;
 
-    private AssetDirectory assets;
-
     /** The drawing camera for this scene */
     private OrthographicCamera camera;
     /** Reference to sprite batch created by the root */
@@ -52,14 +51,23 @@ public class SettingsScene implements Screen {
     private GameSettings stagedSettings;
     private boolean resetState;
 
+    /** Background image */
+    private Texture background;
+    /** logo */
+    private Texture logo;
+
+    Affine2 cache = new Affine2();
+
     public SettingsScene(SpriteBatch batch, AssetDirectory assets, GameSettings currentSettings) {
         this.batch = batch;
-        this.assets = assets;
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         this.resetState = false;
         this.settings = currentSettings;
         this.stagedSettings = new GameSettings(currentSettings);
+
+        this.background = assets.getEntry("splash", Texture.class);
+        this.logo = assets.getEntry("logo", Texture.class);
     }
 
     public boolean shouldResetState() {
@@ -103,14 +111,15 @@ public class SettingsScene implements Screen {
 
         batch.begin(camera);
         batch.setColor(Color.WHITE);
-        Texture texture = assets.getEntry("splash", Texture.class);
-        float ratio = (float) width / (float) texture.getWidth();
-        batch.draw(texture, 0, 0, width, ratio * texture.getHeight());
+        float scaleX = (float) width / (float) background.getWidth();
+        float scaleY = (float) height / (float) background.getHeight();
+        cache.idt();
+        cache.scale(scaleX, scaleY);
+        batch.draw(background, cache);
 
-        texture = assets.getEntry("logo", Texture.class);
-        batch.draw(texture, (width / 2f) - (texture.getWidth() / 2f), height - (texture.getHeight() + 50),
-                texture.getWidth(),
-                texture.getHeight());
+        batch.draw(logo, (width / 2f) - (logo.getWidth() / 2f), height - (logo.getHeight() + 50),
+                logo.getWidth(),
+                logo.getHeight());
         batch.end();
 
         stage.draw();

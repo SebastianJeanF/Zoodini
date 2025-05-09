@@ -5,6 +5,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -32,8 +33,6 @@ public class LevelSelectScene implements Screen {
 
     private ScreenListener listener;
 
-    private AssetDirectory assets;
-
     /** The drawing camera for this scene */
     private OrthographicCamera camera;
     /** Reference to sprite batch created by the root */
@@ -50,13 +49,18 @@ public class LevelSelectScene implements Screen {
     private int selectedLevel;
     private int highestClearance;
 
+    /** Background image */
+    private Texture background;
+    Affine2 cache = new Affine2();
+
     public LevelSelectScene(SpriteBatch batch, AssetDirectory assets, Array<Integer> availableLevels,
             int highestClearance) {
         this.batch = batch;
-        this.assets = assets;
         this.availableLevels = availableLevels;
         this.highestClearance = highestClearance;
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        this.background = assets.getEntry("splash", Texture.class);
     }
 
     public void create() {
@@ -104,9 +108,11 @@ public class LevelSelectScene implements Screen {
 
         batch.begin(camera);
         batch.setColor(Color.WHITE);
-        Texture texture = assets.getEntry("splash", Texture.class);
-        float ratio = (float) width / (float) texture.getWidth();
-        batch.draw(texture, 0, 0, width, ratio * texture.getHeight());
+        float scaleX = (float) width / (float) background.getWidth();
+        float scaleY = (float) height / (float) background.getHeight();
+        cache.idt();
+        cache.scale(scaleX, scaleY);
+        batch.draw(background, cache);
         batch.end();
 
         stage.draw();
