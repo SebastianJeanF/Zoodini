@@ -500,7 +500,7 @@ public class GameLevel {
             VisionCone v = entry.value;
             ZoodiniSprite key = entry.key;
             v.update(world);
-            if (v.contains(avatarCat.getPosition())) {
+            if (v.contains(avatarCat.getObstacle())) {
                 if (key instanceof Guard) {
                     ((Guard) key).setTarget(
                             avatarCat.getPosition()); // TODO: this line might not be needed
@@ -518,7 +518,7 @@ public class GameLevel {
                         }
                     }
                 }
-            } else if (v.contains(avatarOctopus.getPosition())) {
+            } else if (v.contains(avatarOctopus.getObstacle())) {
                 if (key instanceof Guard) {
                     ((Guard) key).setTarget(
                             avatarOctopus.getPosition()); // TODO: this line might not be needed
@@ -538,11 +538,11 @@ public class GameLevel {
                         }
                     }
                 }
-            } else if (!v.contains(avatarCat.getPosition())) {
+            } else if (!v.contains(avatarCat.getObstacle())) {
                 if (key instanceof Guard) {
                     ((Guard) key).setAgroed(false);
                 }
-            } else if (!v.contains(avatarOctopus.getPosition())) {
+            } else if (!v.contains(avatarOctopus.getObstacle())) {
                 if (key instanceof Guard) {
                     ((Guard) key).setAgroed(false);
                 }
@@ -971,7 +971,7 @@ public class GameLevel {
             if (entry.key instanceof SecurityCamera && ((SecurityCamera) entry.key).isDisabled()) {
                 continue;
             }
-            if (entry.value.contains(avatar.getPosition())) {
+            if (entry.value.contains(avatar.getObstacle())) {
                 return true;
             }
         }

@@ -30,6 +30,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -78,6 +79,11 @@ public class MenuScene implements Screen, InputProcessor {
 	/** The current state of the play button */
 	private Integer pressState;
 
+    /** Background image */
+    private Texture background;
+    /** logo */
+    private Texture logo;
+
 	/**
 	 * The amount of time to devote to loading assets (as opposed to on screen
 	 * hints, etc.)
@@ -109,7 +115,6 @@ public class MenuScene implements Screen, InputProcessor {
 	 * do something else. This is how game companies animate their loading screens.
 	 *
 	 * @param assets The asset directory to load from
-	 * @param canvas The game canvas to draw to
 	 * @param millis The loading budget in milliseconds
 	 */
 	public MenuScene(AssetDirectory assets, SpriteBatch batch, int millis) {
@@ -147,6 +152,9 @@ public class MenuScene implements Screen, InputProcessor {
 						GDXRoot.EXIT_CREDITS),
 				new MenuButton(buttonX, constants.getFloat("button.quit.y"), buttonWidth, buttonHeight, "quit",
 						GDXRoot.EXIT_QUIT));
+
+        background = internal.getEntry("splash", Texture.class);
+        logo = internal.getEntry("logo", Texture.class);
 	}
 
 	/**
@@ -243,7 +251,6 @@ public class MenuScene implements Screen, InputProcessor {
 	public void resize(int width, int height) {
 		// Compute the drawing scale
 		scale = ((float) height) / constants.getFloat("height");
-
 		this.width = width;
 		this.height = height;
 		if (camera == null) {
@@ -372,7 +379,7 @@ public class MenuScene implements Screen, InputProcessor {
 
 	/**
 	 * Called when a key is pressed
-	 * 
+	 *
 	 * Used to process quitting the game with the ESC key
 	 *
 	 * @param keycode the key pressed
@@ -388,7 +395,6 @@ public class MenuScene implements Screen, InputProcessor {
 	/**
 	 * Called when a key is typed (UNSUPPORTED)
 	 *
-	 * @param keycode the key typed
 	 * @return whether to hand the event to other listeners.
 	 */
 	public boolean keyTyped(char character) {
@@ -481,6 +487,8 @@ public class MenuScene implements Screen, InputProcessor {
 		}
 	}
 
+
+    Affine2 cache = new Affine2();
 	/**
 	 * Draw the status of this player mode.
 	 *
@@ -498,21 +506,22 @@ public class MenuScene implements Screen, InputProcessor {
 		batch.setColor(Color.WHITE);
 
 		// Height lock the logo
-		Texture texture = internal.getEntry("splash", Texture.class);
-		float ratio = (float) width / (float) texture.getWidth();
-		batch.draw(texture, 0, 0, width, ratio * texture.getHeight());
+		float scaleX = (float) width / (float) background.getWidth();
+        float scaleY = (float) height / (float) background.getHeight();
+        cache.idt();
+        cache.scale(scaleX, scaleY);
+		batch.draw(background, cache);
 
-		texture = internal.getEntry("logo", Texture.class);
-		batch.draw(texture, (width / 2f) - (texture.getWidth() / 2f), height - (texture.getHeight() + 50),
-				texture.getWidth(),
-				texture.getHeight());
+		batch.draw(logo, (width / 2f) - (logo.getWidth() / 2f), height - (logo.getHeight() + 50),
+				logo.getWidth(),
+				logo.getHeight());
 
 		if (progress < 1.0f) {
 			drawProgress();
 		} else {
 			for (MenuButton menuButton : buttons) {
 				Color tint = menuButton.isPressed() ? Color.GRAY : Color.WHITE;
-				texture = internal.getEntry(menuButton.getAssetName(), Texture.class);
+				Texture texture = internal.getEntry(menuButton.getAssetName(), Texture.class);
 
 				batch.setColor(tint);
 				batch.draw(texture, menuButton.x, menuButton.y, menuButton.width, menuButton.height);
