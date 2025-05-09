@@ -984,14 +984,15 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
             if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
-                Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : vec2tmp2;
-                Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : vec2tmp3;
-                if ((level.isCatPresent() && entry.value.contains(catPos))
-                        || (level.isOctopusPresent() && entry.value.contains(octPos))) {
+                Obstacle catObs = level.isCatPresent() ? level.getCat().getObstacle() : null;
+                Obstacle octObs = level.isOctopusPresent() ? level.getOctopus().getObstacle() : null;
+
+                if ((level.isCatPresent() && entry.value.contains(catObs))
+                        || (level.isOctopusPresent() && entry.value.contains(octObs))) {
 
                     ((SecurityCamera) entry.key).activateRing();
 
-                    PlayableAvatar detectedPlayer = entry.value.contains(catPos) ? level.getCat() : level.getOctopus();
+                    PlayableAvatar detectedPlayer = entry.value.contains(catObs) ? level.getCat() : level.getOctopus();
 
                     detectedPlayer.setUnderCamera(true);
 
@@ -1041,11 +1042,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             visionCone.setRadius(guard.getViewDistance());
             visionCone.setWideness(guard.getFov());
 
-            Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : vec2tmp2;
-            Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : vec2tmp3;
+            Obstacle catObs = level.isCatPresent() ? level.getCat().getObstacle() : null;
+            Obstacle octObs = level.isOctopusPresent() ? level.getOctopus().getObstacle() : null;
 
             // Check if cat is detected
-            if (level.isCatPresent() && visionCone.contains(catPos) && !level.getCat().isInvincible()) {
+            if (level.isCatPresent() && visionCone.contains(catObs) && !level.getCat().isInvincible()) {
                 guard.setAgroed(true);
                 guard.setAggroTarget(level.getCat());
                 guard.setTarget(level.getCat().getPosition());
@@ -1056,7 +1057,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             }
 
             // Check if octopus is detected
-            else if (level.isOctopusPresent() && visionCone.contains(octPos) && !level.getOctopus().isInvincible()) {
+            else if (level.isOctopusPresent() && visionCone.contains(octObs) && !level.getOctopus().isInvincible()) {
                 guard.setAgroed(true);
                 guard.setAggroTarget(level.getOctopus());
                 guard.setTarget(level.getOctopus().getPosition());
