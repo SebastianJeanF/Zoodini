@@ -51,6 +51,8 @@ public class SoundController implements Disposable {
     private void loadSounds() {
         // Load cat sounds
         soundEffects.put("cat-meow", Gdx.audio.newSound(Gdx.files.internal("sounds/cat-meow.mp3")));
+        soundEffects.put("octopus-shoot", Gdx.audio.newSound(Gdx.files.internal("sounds/octopus-shoot.mp3")));
+        soundEffects.put("ink-finish", Gdx.audio.newSound(Gdx.files.internal("sounds/ink-finish.mp3")));
     }
 
     /**
@@ -59,7 +61,6 @@ public class SoundController implements Disposable {
     private void loadMusic() {
         // Load background music
         music.put("game-music", Gdx.audio.newMusic(Gdx.files.internal("music/game-music.mp3")));
-        soundEffects.put("ink-finish", Gdx.audio.newSound(Gdx.files.internal("sounds/explosion.mp3")));
     }
 
     /**

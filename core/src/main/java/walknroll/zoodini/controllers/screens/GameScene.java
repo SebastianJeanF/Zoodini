@@ -1127,6 +1127,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 octopus.setDidFire(true);
                 octopus.setCurrentlyAiming(false);
                 octopus.consumeInk();
+                soundController.playSound("octopus-shoot");
             } else {
                 octopus.setDidFire(false);
             }
@@ -1165,6 +1166,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         // Projectiles
         // TODO: not sure about the order of if statements here.
         if (inkProjectile.getShouldDestroy()) {
+            soundController.playSound("ink-finish");
             inkProjectile.destroy();
         }
 
@@ -1172,7 +1174,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             activateInkProjectile(inkProjectile, octopus.getPosition(), octopus.getTarget());
         }
 
-        if (level.isOctopusPresent()
+        if (!inkProjectile.getShouldDestroy() && level.isOctopusPresent()
                 && inkProjectile.getPosition().dst(inkProjectile.getStartPosition()) > octopus.getAbilityRange()) {
             inkProjectile.setShouldDestroy(true);
         }
