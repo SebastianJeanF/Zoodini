@@ -16,7 +16,8 @@ gradle-app.setting
 /shared/build/
 /out/
 /core/resources/
-/.idea/misc.xml
+.idea/misc.xml
+
 
 ## Java:
 *.class
