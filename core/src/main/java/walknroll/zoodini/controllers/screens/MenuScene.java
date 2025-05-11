@@ -421,9 +421,17 @@ public class MenuScene implements Screen, InputProcessor {
 	 * @param screenY the y-coordinate of the mouse on the screen
 	 * @return whether to hand the event to other listeners.
 	 */
-	public boolean mouseMoved(int screenX, int screenY) {
-		return true;
-	}
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        // flip Y to match your draw coordinates
+        screenY = height - screenY;
+
+        for (MenuButton btn : buttons) {
+            // contains(...) already checks x,y vs btn.x,btn.y,btn.width,btn.height
+            btn.setHovered(btn.contains(screenX, screenY));
+        }
+        return false;
+    }
 
 	// UNSUPPORTED METHODS FROM InputProcessor
 
@@ -516,13 +524,22 @@ public class MenuScene implements Screen, InputProcessor {
 		if (progress < 1.0f) {
 			drawProgress();
 		} else {
-			for (MenuButton menuButton : buttons) {
-				Color tint = menuButton.isPressed() ? Color.GRAY : Color.WHITE;
-				Texture texture = internal.getEntry(menuButton.getAssetName(), Texture.class);
+            for (MenuButton menuButton : buttons) {
+                // pick a tint based on state
+                Color tint = Color.WHITE;
+                if (menuButton.isPressed()) {
+                    tint = Color.GRAY;              // already had this
+                } else if (menuButton.isHovered()) {
+                    tint = new Color(0.8f,0.8f,0.8f,1f);  // a slightly darker white
+                }
 
-				batch.setColor(tint);
-				batch.draw(texture, menuButton.x, menuButton.y, menuButton.width, menuButton.height);
-			}
+                batch.setColor(tint);
+                Texture tex = internal.getEntry(menuButton.getAssetName(), Texture.class);
+                batch.draw(tex, menuButton.x, menuButton.y, menuButton.width, menuButton.height);
+            }
+
+            // reset color so nothing else is tinted
+            batch.setColor(Color.WHITE);
 		}
 		batch.end();
 	}
