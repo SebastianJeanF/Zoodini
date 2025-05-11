@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import org.apache.commons.text.StringSubstitutor;
 
 import com.badlogic.gdx.Input;
@@ -240,6 +242,11 @@ public class GameLevel {
     private StringSubstitutor substitutor;
 
     /**
+     * The map renderer for this level
+     */
+    private OrthogonalTiledMapRenderer mapRenderer;
+
+    /**
      * Creates a new GameLevel
      * <p>
      * The level is empty and there is no active physics world. You must read
@@ -268,7 +275,7 @@ public class GameLevel {
      *
      * @param directory the asset manager
      */
-    public void populate(AssetDirectory directory, TiledMap map) {
+    public void populate(AssetDirectory directory, TiledMap map, SpriteBatch batch) {
         // Compute the FPS
         int[] fps = { 20, 60 };
         maxFPS = fps[1];
@@ -279,6 +286,7 @@ public class GameLevel {
 
         world = new World(Vector2.Zero, false);
 
+        mapRenderer = new OrthogonalTiledMapRenderer(map, batch);
         MapProperties props = map.getProperties();
         int width = props.get("width", Integer.class);
         int height = props.get("height", Integer.class);
@@ -288,6 +296,8 @@ public class GameLevel {
         MapLayer walls = map.getLayers().get("walls");
         JsonValue entityConstants = directory.getEntry("constants", JsonValue.class).get("entities");
         createWallBodies(walls, entityConstants.get("walls"));
+
+
 
         // Text
         textFont = directory.getEntry("game-text", BitmapFont.class);
@@ -569,6 +579,12 @@ public class GameLevel {
     public void draw(SpriteBatch batch, Camera camera) {
         // Draw the sprites first (will be hidden by shadows)
         batch.begin(camera);
+        mapRenderer.setView((OrthographicCamera) camera);
+
+        // Get ground layer and render it
+        MapLayer groundLayer = mapRenderer.getMap().getLayers().get("ground");
+        mapRenderer.renderTileLayer((TiledMapTileLayer) groundLayer);
+
 
         sprites.sort(ZoodiniSprite.Comparison);
         for (ZoodiniSprite obj : sprites) {
@@ -598,12 +614,17 @@ public class GameLevel {
                 }
             }
         }
-        //
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
             if (entry.key instanceof Guard) {
                 entry.value.draw(batch, camera);
             }
         }
+
+        // Get wall layer and render it
+        MapLayer wallLayer = mapRenderer.getMap().getLayers().get("wall-tiles");
+        if (wallLayer != null)
+            mapRenderer.renderTileLayer((TiledMapTileLayer) wallLayer);
+
 
         // d debugging on top of everything.
         if (debug) {

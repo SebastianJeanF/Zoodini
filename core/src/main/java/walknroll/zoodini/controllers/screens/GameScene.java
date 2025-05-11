@@ -190,9 +190,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         this.currentLevel = currentLevel;
         level = new GameLevel();
         map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString("" + this.currentLevel));
-        level.populate(directory, map);
+        level.populate(directory, map, batch);
         level.getWorld().setContactListener(this);
-        mapRenderer = new OrthogonalTiledMapRenderer(map);
+        mapRenderer = new OrthogonalTiledMapRenderer(map, batch);
 
         complete = false;
         failed = false;
@@ -251,7 +251,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         // map = new TmxMapLoader().load(directory.getEntry("levels",
         // JsonValue.class).getString("" + this.currentLevel));
         // Reload the json each time
-        level.populate(directory, map);
+        level.populate(directory, map, batch);
         level.getWorld().setContactListener(this);
         initializeAIControllers();
     }
@@ -400,28 +400,32 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * The method draws all objects in the order that they were added.
      */
     public void draw() {
+
+        // TODO: Set the cp;pr
         ScreenUtils.clear(0.39f, 0.58f, 0.93f, 1.0f);
 
         // Set the camera's updated view
         batch.setProjectionMatrix(camera.combined);
 
-        mapRenderer.setView(camera);
-        mapRenderer.render(); // divide this into layerwise rendering if you want
-        MapLayer l =  map.getLayers().get("images");
-        if(l != null) {
-            batch.begin(camera);
-            for (MapObject obj : l.getObjects()) {
-                if (obj instanceof TextureMapObject t) {
-                    affine2.idt();
-                    batch.draw(
-                        t.getTextureRegion(),
-                        t.getX(),
-                        t.getY()
-                    );
-                }
-            }
-            batch.end();
-        }
+//        mapRenderer.setView(camera);
+//        mapRenderer.render(); // divide this into layerwise rendering if you want
+
+
+//        MapLayer l =  map.getLayers().get("images");
+//        if(l != null) {
+//            batch.begin(camera);
+//            for (MapObject obj : l.getObjects()) {
+//                if (obj instanceof TextureMapObject t) {
+//                    affine2.idt();
+//                    batch.draw(
+//                        t.getTextureRegion(),
+//                        t.getX(),
+//                        t.getY()
+//                    );
+//                }
+//            }
+//            batch.end();
+//        }
 
         level.draw(batch, camera);
         if (Constants.DEBUG) {
