@@ -1,6 +1,14 @@
 package walknroll.zoodini.utils.animation;
 
 public enum AnimationState {
+    IDLE_NORTH,
+    IDLE_SOUTH,
+    IDLE_LEFT,
+    IDLE_RIGHT,
+    IDLE_NORTH_BLIND,
+    IDLE_SOUTH_BLIND,
+    IDLE_LEFT_BLIND,
+    IDLE_RIGHT_BLIND,
     IDLE,
     IDLE_BLIND,
     WALK,

@@ -990,7 +990,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                         detectedPlayer = (entry.value.contains(octObs)) ? level.getOctopus() : level.getCat();
                     } else {
                         detectedPlayer = (entry.value.contains(catObs)) ? level.getCat() : level.getOctopus();
-
                     }
                     assert detectedPlayer != null;
 

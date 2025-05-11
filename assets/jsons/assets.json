@@ -1,5 +1,16 @@
 {
   "textures": {
+    "guard-idle-all": {
+      "file": "textures/entities/guard/idle-all.png",
+      "wrap": false,
+      "sprites": {
+        "animation": {
+          "size": 18,
+          "rows": 1,
+          "cols": 18
+        }
+      }
+    },
     "guard-idle": {
       "file": "textures/entities/guard/guard_idle.png",
       "wrap": false,
