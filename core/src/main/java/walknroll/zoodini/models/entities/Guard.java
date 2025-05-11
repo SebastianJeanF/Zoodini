@@ -440,7 +440,9 @@ public class Guard extends Enemy {
 
     public void draw(SpriteBatch batch) {
         super.draw(batch);
-        drawSuspicionMeter(batch);
+        if (getSusLevel() > 0) {
+            drawSuspicionMeter(batch);
+        }
     }
 
 //    // class‐scope constants

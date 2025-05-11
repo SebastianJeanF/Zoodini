@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import org.apache.commons.text.StringSubstitutor;
 
 import com.badlogic.gdx.Input;
@@ -61,10 +63,7 @@ import walknroll.zoodini.models.nonentities.Exit;
 import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.models.nonentities.Vent;
-import walknroll.zoodini.utils.Constants;
-import walknroll.zoodini.utils.DebugPrinter;
-import walknroll.zoodini.utils.VisionCone;
-import walknroll.zoodini.utils.ZoodiniSprite;
+import walknroll.zoodini.utils.*;
 import walknroll.zoodini.utils.animation.AnimationState;
 import walknroll.zoodini.utils.enums.AvatarType;
 import walknroll.zoodini.utils.enums.ExitAnimal;
@@ -559,12 +558,62 @@ public class GameLevel {
      * @param batch  the sprite batch to draw to
      * @param camera the drawing camera
      */
-    public void draw(SpriteBatch batch, Camera camera) {
+    public void draw(SpriteBatch batch, Camera camera, TiledMapTileLayer layer, TiledMapRenderer mapRenderer) {
         // Draw the sprites first (will be hidden by shadows)
         batch.begin(camera);
+        batch.setTexture(null);
+
+        // Only drawn in debug mode
+        for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
+            if (entry.key instanceof Guard) {
+                entry.value.draw(batch, camera);
+            }
+        }
+
+        // Draw octopus reticle
+        Avatar avatar = getAvatar();
+        if (avatar != null
+            && avatar.getAvatarType() == AvatarType.OCTOPUS) {
+            Octopus octopus = (Octopus) avatar;
+            if (octopus.isCurrentlyAiming() && octopus.canUseAbility()) {
+                drawOctopusReticle(batch, camera);
+            }
+        }
+        sprites.sort(ZoodiniSprite.Comparison);
+        int i = 0;
+        int numSprites = sprites.size();
+
+        int numRows = layer.getHeight();
+        while (numRows >= 0) {
+            while (i < numSprites) {
+                ZoodiniSprite obj = sprites.get(i);
+                if (obj.getObstacle().getPosition().y + 2 > numRows) {
+                    obj.draw(batch);
+                    i++;
+                } else {
+                    break;
+                }
+            }
+            ( (ZoodiniTileMapRenderer) mapRenderer).renderTileLayerRow(layer, numRows);
+            numRows--;
+        }
+
+
+        for (int y = numRows - 1; y >= 0; y--) {
+            for (int x = 0; x < layer.getWidth(); x++) {
+                TiledMapTileLayer.Cell cell = layer.getCell(x, y);
+                if (cell != null) {
+                    TextureRegion region = cell.getTile().getTextureRegion();
+                    batch.draw(region, x * units, y * units, units, units);
+                }
+            }
+        }
 
         sprites.sort(ZoodiniSprite.Comparison);
         for (ZoodiniSprite obj : sprites) {
+            // Print y coordinate of obj
+            float y = obj.getObstacle().getPosition().y;
+            DebugPrinter.println("y coordinate of obj: " + y);
             if (obj.isDrawingEnabled()) {
                 batch.setColor(Color.WHITE);
                 obj.draw(batch);
@@ -574,13 +623,13 @@ public class GameLevel {
                     visions.get(obj).draw(batch, camera);
             }
         }
+        DebugPrinter.println("Done drawing Zoodini sprites \n\n\n");
 
-        Avatar avatar = getAvatar();
+        // Draw ability ranges
         if (avatar != null) {
             if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
                 Octopus octopus = (Octopus) avatar;
                 if (octopus.isCurrentlyAiming() && octopus.canUseAbility()) {
-                    drawOctopusReticle(batch, camera);
                     drawAbilityRange(batch, camera);
                 }
             }
@@ -591,12 +640,7 @@ public class GameLevel {
                 }
             }
         }
-        //
-        for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
-            if (entry.key instanceof Guard) {
-                entry.value.draw(batch, camera);
-            }
-        }
+
 
         // d debugging on top of everything.
         if (debug) {

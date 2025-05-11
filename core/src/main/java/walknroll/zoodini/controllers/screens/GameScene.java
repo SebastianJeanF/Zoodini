@@ -16,6 +16,7 @@ import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Affine2;
 import edu.cornell.gdiac.physics2.BoxObstacle;
@@ -68,10 +69,7 @@ import walknroll.zoodini.models.nonentities.Exit;
 import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.models.nonentities.Vent;
-import walknroll.zoodini.utils.Constants;
-import walknroll.zoodini.utils.DebugPrinter;
-import walknroll.zoodini.utils.VisionCone;
-import walknroll.zoodini.utils.ZoodiniSprite;
+import walknroll.zoodini.utils.*;
 import walknroll.zoodini.utils.enums.AvatarType;
 
 /**
@@ -192,7 +190,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString("" + this.currentLevel));
         level.populate(directory, map);
         level.getWorld().setContactListener(this);
-        mapRenderer = new OrthogonalTiledMapRenderer(map);
+        mapRenderer = new ZoodiniTileMapRenderer(map, batch);
 
         complete = false;
         failed = false;
@@ -406,7 +404,16 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         batch.setProjectionMatrix(camera.combined);
 
         mapRenderer.setView(camera);
-        mapRenderer.render(); // divide this into layerwise rendering if you want
+        TiledMapTileLayer l1 = (TiledMapTileLayer) map.getLayers().get("wall-tiles");
+        TiledMapTileLayer l2 = (TiledMapTileLayer) map.getLayers().get("ground");
+
+        batch.begin();
+        mapRenderer.renderTileLayer(l2);
+        batch.end();
+
+//        mapRenderer.render(); // divide this into layerwise rendering if you want
+        DebugPrinter.println("DONE RENDERING MAP\n\n\n\n");
+
         MapLayer l =  map.getLayers().get("images");
         if(l != null) {
             batch.begin(camera);
@@ -423,7 +430,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             batch.end();
         }
 
-        level.draw(batch, camera);
+        level.draw(batch, camera, l1, mapRenderer);
+        batch.begin();
+        mapRenderer.renderTileLayer(l1);
+        batch.end();
+
         if (Constants.DEBUG) {
             graph.clearMarkedNodes();
 
