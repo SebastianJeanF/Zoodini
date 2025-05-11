@@ -7,6 +7,8 @@ package walknroll.zoodini.models;
 
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 
+import com.badlogic.gdx.maps.MapObjects;
+import com.badlogic.gdx.maps.objects.TextureMapObject;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -246,6 +248,9 @@ public class GameLevel {
      */
     private OrthogonalTiledMapRenderer mapRenderer;
 
+    /** Array that contains image objects */
+    private Array<TextureMapObject> imagesCache;
+
     /**
      * Creates a new GameLevel
      * <p>
@@ -287,6 +292,16 @@ public class GameLevel {
         world = new World(Vector2.Zero, false);
 
         mapRenderer = new OrthogonalTiledMapRenderer(map, batch);
+        MapLayer l =  map.getLayers().get("images");
+        if(l != null){
+            MapObjects objs =l.getObjects();
+            imagesCache = new Array<>(objs.getCount());
+            for(MapObject obj : objs){
+                imagesCache.add((TextureMapObject) obj);
+            }
+            imagesCache.sort((a,b) -> Float.compare(b.getY(), a.getY())); //descending order
+        }
+
         MapProperties props = map.getProperties();
         int width = props.get("width", Integer.class);
         int height = props.get("height", Integer.class);
@@ -584,7 +599,6 @@ public class GameLevel {
         MapLayer groundLayer = mapRenderer.getMap().getLayers().get("ground");
         mapRenderer.renderTileLayer((TiledMapTileLayer) groundLayer);
 
-
         sprites.sort(ZoodiniSprite.Comparison);
         for (ZoodiniSprite obj : sprites) {
             if (obj.isDrawingEnabled()) {
@@ -616,6 +630,12 @@ public class GameLevel {
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
             if (entry.key instanceof Guard) {
                 entry.value.draw(batch, camera);
+            }
+        }
+
+        if(imagesCache != null) {
+            for (TextureMapObject t : imagesCache) {
+                batch.draw(t.getTextureRegion(), t.getX(), t.getY());
             }
         }
 

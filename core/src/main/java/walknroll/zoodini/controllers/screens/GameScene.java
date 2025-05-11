@@ -118,8 +118,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private TiledMap map;
     /** Graph representing the map */
     private TileGraph<TileNode> graph;
-    /** Tiled renderer */
-    private TiledMapRenderer mapRenderer;
 
     // Win/lose related fields
     /** Whether or not this is an active controller */
@@ -193,7 +191,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString("" + this.currentLevel));
         level.populate(directory, map, batch);
         level.getWorld().setContactListener(this);
-        mapRenderer = new OrthogonalTiledMapRenderer(map, batch);
 
         complete = false;
         failed = false;
@@ -226,17 +223,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         setFailure(false);
 
         soundController = SoundController.getInstance();
-
-        MapLayer l =  map.getLayers().get("images");
-        if(l != null){
-            MapObjects objs =l.getObjects();
-            imagesCache = new Array<>(objs.getCount());
-            for(MapObject obj : objs){
-                imagesCache.add((TextureMapObject) obj);
-            }
-            System.out.println("here");
-            imagesCache.sort((a,b) -> Float.compare(b.getY(), a.getY())); //descending order
-        }
     }
 
     public int getCurrentLevel() {
@@ -403,7 +389,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
 
     Affine2 affine2 = new Affine2();
-    Array<TextureMapObject> imagesCache;
     /**
      * Draw the physics objects to the canvas
      *
@@ -419,16 +404,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         // Set the camera's updated view
         batch.setProjectionMatrix(camera.combined);
 
-        mapRenderer.setView(camera);
-        mapRenderer.render(); // divide this into layerwise rendering if you want
-        if(imagesCache != null) {
-            batch.begin(camera);
-            for (TextureMapObject t : imagesCache) {
-                affine2.idt();
-                batch.draw(t.getTextureRegion(), t.getX(), t.getY());
-            }
-            batch.end();
-        }
+//        mapRenderer.setView(camera);
+//        mapRenderer.render(); // divide this into layerwise rendering if you want
+
 
         level.draw(batch, camera);
         if (Constants.DEBUG) {
