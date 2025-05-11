@@ -40,4 +40,16 @@ public class MenuButton {
     public boolean isPressed() {
         return this.pressed;
     }
+
+    /** True when the mouse is currently over this button */
+    private boolean hovered = false;
+
+    public void setHovered(boolean isOver) {
+        hovered = isOver;
+    }
+
+    public boolean isHovered() {
+        return hovered;
+    }
+
 }
