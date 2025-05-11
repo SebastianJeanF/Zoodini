@@ -334,7 +334,16 @@ public class GameLevel {
                 octopusPresent = true;
             } else if ("Guard".equalsIgnoreCase(type)) {
                 Guard g = new Guard(properties, entityConstants.get("guard"), units);
-                g.setAnimation(AnimationState.IDLE, directory.getEntry("guard-idle.animation", SpriteSheet.class), 16);
+                SpriteSheet idle = directory.getEntry("guard-idle-all.animation", SpriteSheet.class);
+                g.setAnimation(AnimationState.IDLE_NORTH, idle, 16 ,16 , 16);
+                g.setAnimation(AnimationState.IDLE_LEFT, idle, 13 ,14 , 16);
+                g.setAnimation(AnimationState.IDLE_SOUTH, idle, 9 ,13 , 16);
+                g.setAnimation(AnimationState.IDLE_RIGHT, idle, 17, 17, 16);
+                g.setAnimation(AnimationState.IDLE_SOUTH_BLIND, idle, 1, 3, 16);
+                g.setAnimation(AnimationState.IDLE_LEFT_BLIND, idle, 5, 5, 16);
+                g.setAnimation(AnimationState.IDLE_NORTH_BLIND, idle, 6, 6, 16);
+                g.setAnimation(AnimationState.IDLE_RIGHT_BLIND, idle, 7, 8, 16);
+
                 g.setAnimation(AnimationState.WALK, directory.getEntry("guard-walk.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK_DOWN,
                         directory.getEntry("guard-walk-down.animation", SpriteSheet.class), 16);
@@ -346,8 +355,6 @@ public class GameLevel {
                         directory.getEntry("guard-walk-inked.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK_UP_BLIND,
                         directory.getEntry("guard-walk-up-inked.animation", SpriteSheet.class), 16);
-                g.setAnimation(AnimationState.IDLE_BLIND,
-                        directory.getEntry("guard-idle-inked.animation", SpriteSheet.class), 16);
                 g.setSusMeter(directory.getEntry("suspicion-meter.animation", SpriteSheet.class)); // TODO: There must
                                                                                                    // be a better way
                                                                                                    // t// do this

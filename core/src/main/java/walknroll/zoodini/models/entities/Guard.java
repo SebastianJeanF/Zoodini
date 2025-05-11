@@ -427,6 +427,38 @@ public class Guard extends Enemy {
             tempFov += dt;
         }
         applyForce();
+
+        if(isIdle) {
+            float angle = (MathUtils.radiansToDegrees * getAngle()) % 360;
+            if (angle < 0) angle += 360;
+
+            if (angle >= 315 || angle < 45) {
+                if(inkBlinded){
+                    animationController.setState(AnimationState.IDLE_RIGHT_BLIND);
+                } else {
+                    animationController.setState(AnimationState.IDLE_RIGHT);
+                }
+            } else if (angle >= 45 && angle < 135) {
+                if(inkBlinded){
+                    animationController.setState(AnimationState.IDLE_NORTH_BLIND);
+                } else {
+                    animationController.setState(AnimationState.IDLE_NORTH);
+                }
+            } else if (angle >= 135 && angle < 225) {
+                if(inkBlinded){
+                    animationController.setState(AnimationState.IDLE_LEFT_BLIND);
+                } else {
+                    animationController.setState(AnimationState.IDLE_LEFT);
+                }
+            } else { // 225 <= angle < 315
+                if(inkBlinded){
+                    animationController.setState(AnimationState.IDLE_SOUTH_BLIND);
+                } else {
+                    animationController.setState(AnimationState.IDLE_SOUTH);
+                }
+            }
+        }
+
         super.update(dt);
     }
 
@@ -443,44 +475,6 @@ public class Guard extends Enemy {
         drawSuspicionMeter(batch);
     }
 
-//    // class‐scope constants
-//    private static final float BASELINE_PX    = 32f;
-//    private static final float SCALE_FACTOR   = 0.2f;
-//    private static final Vector2  OFFSET_UNSCALED = new Vector2(-80f, 100f);
-//
-//    public void drawSuspicionMeter(SpriteBatch batch) {
-//        // early-exit if we can’t draw
-//        if (suspsicionMeter == null
-//            || suspsicionMeter.getCurrentSpriteSheet() == null
-//            || !Guard.isLoaded()) {
-//            return;
-//        }
-//
-//        // pick the right sprite
-//        TextureRegion region = isMeowed()
-//            ? Guard.SUSPICION_METER_CURIOUS
-//            : suspsicionMeter.getCurrentSpriteSheet();
-//
-//        // only update animation when using the dynamic meter
-//        if (!isMeowed()) {
-//            updateSuspicionAnimation();
-//        }
-//
-//        // compute scale & screen‐space position
-//        float physToPx = getObstacle().getPhysicsUnits();
-//        float scale    = SCALE_FACTOR * (physToPx / BASELINE_PX);
-//        float xPx      = getPosition().x * physToPx + OFFSET_UNSCALED.x * scale;
-//        float yPx      = getPosition().y * physToPx + OFFSET_UNSCALED.y * scale;
-//
-//        // single draw call
-//        batch.draw(
-//            region,
-//            xPx, yPx,
-//            region.getRegionWidth()  * scale,
-//            region.getRegionHeight() * scale
-//        );
-//    }
-//
 
     public void drawSuspicionMeter(SpriteBatch batch) {
         float BASELINE_PX = 32;
