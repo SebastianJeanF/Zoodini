@@ -14,6 +14,7 @@ package walknroll.zoodini.controllers.screens;
 
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -225,6 +226,16 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         setFailure(false);
 
         soundController = SoundController.getInstance();
+
+        MapLayer l =  map.getLayers().get("images");
+        if(l != null){
+            MapObjects objs =l.getObjects();
+            imagesCache = new Array<>(objs.getCount());
+            for(MapObject obj : objs){
+                imagesCache.add((TextureMapObject) obj);
+            }
+            imagesCache.sort((a,b) -> Float.compare(b.getY(), a.getY())); //descending order
+        }
     }
 
     public int getCurrentLevel() {
@@ -391,6 +402,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
 
     Affine2 affine2 = new Affine2();
+    Array<TextureMapObject> imagesCache;
     /**
      * Draw the physics objects to the canvas
      *
@@ -406,25 +418,16 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         // Set the camera's updated view
         batch.setProjectionMatrix(camera.combined);
 
-//        mapRenderer.setView(camera);
-//        mapRenderer.render(); // divide this into layerwise rendering if you want
-
-
-//        MapLayer l =  map.getLayers().get("images");
-//        if(l != null) {
-//            batch.begin(camera);
-//            for (MapObject obj : l.getObjects()) {
-//                if (obj instanceof TextureMapObject t) {
-//                    affine2.idt();
-//                    batch.draw(
-//                        t.getTextureRegion(),
-//                        t.getX(),
-//                        t.getY()
-//                    );
-//                }
-//            }
-//            batch.end();
-//        }
+        mapRenderer.setView(camera);
+        mapRenderer.render(); // divide this into layerwise rendering if you want
+        if(imagesCache != null) {
+            batch.begin(camera);
+            for (TextureMapObject t : imagesCache) {
+                affine2.idt();
+                batch.draw(t.getTextureRegion(), t.getX(), t.getY());
+            }
+            batch.end();
+        }
 
         level.draw(batch, camera);
         if (Constants.DEBUG) {

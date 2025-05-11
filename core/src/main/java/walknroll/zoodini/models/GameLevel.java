@@ -351,7 +351,7 @@ public class GameLevel {
                 g.setAnimation(AnimationState.IDLE_SOUTH, idle, 9 ,13 , 16);
                 g.setAnimation(AnimationState.IDLE_RIGHT, idle, 17, 17, 16);
                 g.setAnimation(AnimationState.IDLE_SOUTH_BLIND, idle, 1, 3, 16);
-                g.setAnimation(AnimationState.IDLE_LEFT_BLIND, idle, 5, 5, 16);
+                g.setAnimation( AnimationState.IDLE_LEFT_BLIND, idle, 5, 5, 16);
                 g.setAnimation(AnimationState.IDLE_NORTH_BLIND, idle, 6, 6, 16);
                 g.setAnimation(AnimationState.IDLE_RIGHT_BLIND, idle, 7, 8, 16);
 
