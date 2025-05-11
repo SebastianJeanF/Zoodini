@@ -24,6 +24,7 @@ import walknroll.zoodini.utils.animation.Animation;
 import walknroll.zoodini.utils.animation.AnimationController;
 import walknroll.zoodini.utils.animation.AnimationState;
 
+import static walknroll.zoodini.utils.animation.AnimationState.IDLE_NORTH;
 import static walknroll.zoodini.utils.animation.AnimationState.SUSPICION_METER;
 
 public class Guard extends Enemy {
@@ -137,6 +138,8 @@ public class Guard extends Enemy {
         super(properties, constants, units);
         fov = constants.getFloat("fov");
         idleAngle = properties.get("angle", Float.class);
+        setAngle(MathUtils.degreesToRadians * idleAngle);
+        animationController.setState(IDLE_NORTH);
         currentPatrolIndex = 0;
         cameraAlerted = false;
         isChasing = false;
@@ -413,6 +416,8 @@ public class Guard extends Enemy {
     }
 
     public void update(float dt) {
+        super.update(dt);
+
         // If we have a movement direction, update orientation
         if(movementDirection == null || movementDirection.len() < 0.0001f){
             setAngle(MathUtils.degreesToRadians * idleAngle);
@@ -429,7 +434,7 @@ public class Guard extends Enemy {
         applyForce();
 
         if(isIdle) {
-            float angle = (MathUtils.radiansToDegrees * getAngle()) % 360;
+            float angle = idleAngle % 360;
             if (angle < 0) angle += 360;
 
             if (angle >= 315 || angle < 45) {
@@ -449,6 +454,7 @@ public class Guard extends Enemy {
                     animationController.setState(AnimationState.IDLE_LEFT_BLIND);
                 } else {
                     animationController.setState(AnimationState.IDLE_LEFT);
+                    System.out.println("Here");
                 }
             } else { // 225 <= angle < 315
                 if(inkBlinded){
@@ -458,8 +464,6 @@ public class Guard extends Enemy {
                 }
             }
         }
-
-        super.update(dt);
     }
 
     /** The value of target is only valid if guard is agroed or is "meowed" */
