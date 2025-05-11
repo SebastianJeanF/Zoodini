@@ -454,7 +454,6 @@ public class Guard extends Enemy {
                     animationController.setState(AnimationState.IDLE_LEFT_BLIND);
                 } else {
                     animationController.setState(AnimationState.IDLE_LEFT);
-                    System.out.println("Here");
                 }
             } else { // 225 <= angle < 315
                 if(inkBlinded){

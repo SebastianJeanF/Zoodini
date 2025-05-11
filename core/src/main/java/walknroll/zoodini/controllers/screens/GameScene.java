@@ -234,6 +234,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             for(MapObject obj : objs){
                 imagesCache.add((TextureMapObject) obj);
             }
+            System.out.println("here");
             imagesCache.sort((a,b) -> Float.compare(b.getY(), a.getY())); //descending order
         }
     }
@@ -478,7 +479,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             guardToAIController.put(g, aiController);
         }
         if (level.isCatPresent() && level.isOctopusPresent()) {
-            System.out.println("here");
             playerAIController = new PlayerAIController(level.getOctopus(), level.getCat(), level, graph, followModeActive);
         }
 
