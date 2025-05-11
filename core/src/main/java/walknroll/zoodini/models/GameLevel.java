@@ -335,8 +335,9 @@ public class GameLevel {
             } else if ("Guard".equalsIgnoreCase(type)) {
                 Guard g = new Guard(properties, entityConstants.get("guard"), units);
                 SpriteSheet idle = directory.getEntry("guard-idle-all.animation", SpriteSheet.class);
+                idle = new SpriteSheet(idle);
                 g.setAnimation(AnimationState.IDLE_NORTH, idle, 16 ,16 , 16);
-                g.setAnimation(AnimationState.IDLE_LEFT, idle, 13 ,14 , 16);
+                g.setAnimation(AnimationState.IDLE_LEFT, idle, 14 ,14 , 16);
                 g.setAnimation(AnimationState.IDLE_SOUTH, idle, 9 ,13 , 16);
                 g.setAnimation(AnimationState.IDLE_RIGHT, idle, 17, 17, 16);
                 g.setAnimation(AnimationState.IDLE_SOUTH_BLIND, idle, 1, 3, 16);
@@ -355,9 +356,7 @@ public class GameLevel {
                         directory.getEntry("guard-walk-inked.animation", SpriteSheet.class), 16);
                 g.setAnimation(AnimationState.WALK_UP_BLIND,
                         directory.getEntry("guard-walk-up-inked.animation", SpriteSheet.class), 16);
-                g.setSusMeter(directory.getEntry("suspicion-meter.animation", SpriteSheet.class)); // TODO: There must
-                                                                                                   // be a better way
-                                                                                                   // t// do this
+                g.setSusMeter(directory.getEntry("suspicion-meter.animation", SpriteSheet.class));
                 guards.add(g);
                 activate(g);
             } else if ("Camera".equalsIgnoreCase(type)) {
