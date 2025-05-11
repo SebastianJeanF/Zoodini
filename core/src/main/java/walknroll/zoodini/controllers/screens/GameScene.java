@@ -401,9 +401,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      */
     public void draw() {
 
-        // TODO: Set the cp;pr
-        ScreenUtils.clear(0.39f, 0.58f, 0.93f, 1.0f);
-
+        // Color is based on green background of tileset: RBGA(22,89,98,255)
+        ScreenUtils.clear(0.0863f, 0.349f, 0.3843f, 1.0f);
         // Set the camera's updated view
         batch.setProjectionMatrix(camera.combined);
 
