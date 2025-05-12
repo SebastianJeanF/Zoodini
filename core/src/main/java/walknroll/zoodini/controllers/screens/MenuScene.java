@@ -99,7 +99,10 @@ public class MenuScene implements Screen, InputProcessor {
 
 	private Array<MenuButton> buttons;
 
-	/**
+    /** Scale factor for buttons/logo in screen. Equals 1 when resolution is 1280x720 */
+    private float resScale;
+
+    /**
 	 * Creates a LoadingMode with the default budget, size and position.
 	 *
 	 * @param assets The asset directory to load from
@@ -145,17 +148,22 @@ public class MenuScene implements Screen, InputProcessor {
 		this.assets.loadAssets();
 		active = true;
 
-		float buttonX = constants.getFloat("button.x");
-		float buttonWidth = constants.getFloat("button.width");
-		float buttonHeight = constants.getFloat("button.height");
+        float resScaleX = Gdx.graphics.getWidth() / (float) constants.getFloat("screenWidth");
+        float resScaleY = Gdx.graphics.getHeight() / (float) constants.getFloat("screenHeight");
+        resScale = Math.min(resScaleX, resScaleY);
+
+		float buttonX = constants.getFloat("button.x") * resScale;
+		float buttonWidth = constants.getFloat("button.width") * resScale;
+		float buttonHeight = constants.getFloat("button.height") * resScale;
+
 		buttons = Array.with(
-				new MenuButton(buttonX, constants.getFloat("button.start.y"), buttonWidth, buttonHeight, "play",
+				new MenuButton(buttonX, constants.getFloat("button.start.y") * resScale, buttonWidth, buttonHeight, "play",
 						GDXRoot.EXIT_LEVEL_SELECT),
-				new MenuButton(buttonX, constants.getFloat("button.settings.y"), buttonWidth, buttonHeight, "settings",
+				new MenuButton(buttonX, constants.getFloat("button.settings.y") * resScale, buttonWidth, buttonHeight, "settings",
 						GDXRoot.EXIT_SETTINGS),
-				new MenuButton(buttonX, constants.getFloat("button.credits.y"), buttonWidth, buttonHeight, "credits",
+				new MenuButton(buttonX, constants.getFloat("button.credits.y") * resScale, buttonWidth, buttonHeight, "credits",
 						GDXRoot.EXIT_CREDITS),
-				new MenuButton(buttonX, constants.getFloat("button.quit.y"), buttonWidth, buttonHeight, "quit",
+				new MenuButton(buttonX, constants.getFloat("button.quit.y") * resScale, buttonWidth, buttonHeight, "quit",
 						GDXRoot.EXIT_QUIT));
 
         background = internal.getEntry("splash", Texture.class);
@@ -517,9 +525,12 @@ public class MenuScene implements Screen, InputProcessor {
         cache.scale(scaleX, scaleY);
         batch.draw(background, cache);
 
-		batch.draw(logo, (width / 2f) - (logo.getWidth() / 2f), height - (logo.getHeight() + 50),
-				logo.getWidth(),
-				logo.getHeight());
+		batch.draw(logo,
+            ((width / 2f) - (logo.getWidth() / 2f) * resScale),
+            (height - (logo.getHeight() + 50) * resScale) ,
+				logo.getWidth() * resScale,
+            logo.getHeight()  * resScale
+        );
 
 		if (progress < 1.0f) {
 			drawProgress();

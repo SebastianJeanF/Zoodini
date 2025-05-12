@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="5" nextobjectid="52">
- <tileset firstgid="1" source="../tilesets/path-2.tsx"/>
- <tileset firstgid="211" source="../tilesets/walls-1.tsx"/>
- <tileset firstgid="421" source="../tilesets/path-1.tsx"/>
- <tileset firstgid="631" source="../tilesets/walls-2.tsx"/>
+ <tileset firstgid="1" source="../../tilesets/path-2.tsx"/>
+ <tileset firstgid="211" source="../../tilesets/walls-1.tsx"/>
+ <tileset firstgid="421" source="../../tilesets/path-1.tsx"/>
+ <tileset firstgid="631" source="../../tilesets/walls-2.tsx"/>
  <layer id="1" name="ground" width="30" height="20" opacity="0.9">
   <data encoding="csv">
 320,320,334,335,319,320,2147483961,2147483960,2147483959,223,220,221,222,223,220,221,222,223,218,219,220,219,219,219,219,219,219,219,220,221,

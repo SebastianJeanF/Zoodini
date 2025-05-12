@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="28" tilewidth="128" tileheight="128" infinite="0" nextlayerid="5" nextobjectid="29">
- <tileset firstgid="1" source="../tilesets/walls-1.tsx"/>
- <tileset firstgid="211" source="../tilesets/path-3.tsx"/>
- <tileset firstgid="467" source="../tilesets/path-2.tsx"/>
- <tileset firstgid="677" source="../tilesets/path-1.tsx"/>
- <tileset firstgid="887" source="../tilesets/walls-2.tsx"/>
- <tileset firstgid="1097" source="../tilesets/decorations-2.tsx"/>
- <tileset firstgid="1217" source="../tilesets/fence.tsx"/>
+ <tileset firstgid="1" source="../../tilesets/walls-1.tsx"/>
+ <tileset firstgid="211" source="../../tilesets/path-3.tsx"/>
+ <tileset firstgid="467" source="../../tilesets/path-2.tsx"/>
+ <tileset firstgid="677" source="../../tilesets/path-1.tsx"/>
+ <tileset firstgid="887" source="../../tilesets/walls-2.tsx"/>
+ <tileset firstgid="1097" source="../../tilesets/decorations-2.tsx"/>
+ <tileset firstgid="1217" source="../../tilesets/fence.tsx"/>
  <layer id="1" name="ground" width="30" height="28">
   <data encoding="csv">
 121,122,123,91,92,93,94,95,96,131,53,54,58,993,994,995,993,994,2147483706,57,58,125,126,91,92,93,94,95,96,97,

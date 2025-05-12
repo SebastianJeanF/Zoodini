@@ -53,7 +53,9 @@
         "button.credits.y": 110,
         "button.quit.y": 50,
         "button.width": 293,
-        "button.height": 49
+        "button.height": 49,
+        "screenWidth": 1280,
+        "screenHeight": 720
       }
     }
 }
