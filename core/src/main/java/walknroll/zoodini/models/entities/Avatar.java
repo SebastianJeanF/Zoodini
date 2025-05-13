@@ -236,12 +236,28 @@ public class Avatar extends ZoodiniSprite {
 		animationController.addAnimation(state, new Animation(sheet, start, end, frameDelay, true));
 	}
 
+
+    /**
+     * Adds spritesheet to animate for a given state, with start frame and end frame specified, and whether to cycle
+     */
+    public void setAnimation(AnimationState state, SpriteSheet sheet, int start, int end, int frameDelay, boolean cycle) {
+        animationController.addAnimation(state, new Animation(sheet, start, end, frameDelay, true, cycle));
+    }
+
+
     /**
      * Adds spritesheet to animate for a given state.
      * Start and end frames are set to the start and end of the spritesheet.
      */
     public void setAnimation(AnimationState state, SpriteSheet sheet, int frameDelay) {
         animationController.addAnimation(state, new Animation(sheet, 0, sheet.getSize()-1, frameDelay, true));
+    }
+
+    /**
+     * Get the animationState of the current avatar
+     */
+    public AnimationState getAnimationState() {
+        return animationController.getCurrentState();
     }
 
 	public void resetPhysics() {

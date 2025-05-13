@@ -433,6 +433,14 @@ public class Guard extends Enemy {
         }
         applyForce();
 
+        if (isLookingAround){
+            if (inkBlinded) {
+                animationController.setState(AnimationState.IDLE_SOUTH_BLIND);
+            } else {
+                animationController.setState(AnimationState.IDLE_SOUTH);
+            }
+        }
+
         if(isIdle) {
             float angle = idleAngle % 360;
             if (angle < 0) angle += 360;

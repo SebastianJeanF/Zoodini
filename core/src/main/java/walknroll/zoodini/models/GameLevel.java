@@ -335,7 +335,7 @@ public class GameLevel {
                 System.out.println("Creating cat");
                 avatarCat = new Cat(properties, entityConstants.get("cat"), units);
                 avatarCat.setAnimation(AnimationState.IDLE,
-                        directory.getEntry("cat-idle.animation", SpriteSheet.class), 16);
+                        directory.getEntry("cat-idle.animation", SpriteSheet.class), 15);
                 avatarCat.setAnimation(AnimationState.WALK,
                         directory.getEntry("cat-walk.animation", SpriteSheet.class), 4);
                 avatarCat.setAnimation(AnimationState.WALK_DOWN,
@@ -361,34 +361,37 @@ public class GameLevel {
                 Guard g = new Guard(properties, entityConstants.get("guard"), units);
                 SpriteSheet idle = directory.getEntry("guard-idle-all.animation", SpriteSheet.class);
                 idle = new SpriteSheet(idle);
-                g.setAnimation(AnimationState.IDLE_NORTH, idle, 16 ,16 , 16);
-                g.setAnimation(AnimationState.IDLE_LEFT, idle, 14 ,14 , 16);
-                g.setAnimation(AnimationState.IDLE_SOUTH, idle, 9 ,13 , 16);
-                g.setAnimation(AnimationState.IDLE_RIGHT, idle, 17, 17, 16);
-                g.setAnimation(AnimationState.IDLE_SOUTH_BLIND, idle, 1, 3, 16);
-                g.setAnimation( AnimationState.IDLE_LEFT_BLIND, idle, 5, 5, 16);
-                g.setAnimation(AnimationState.IDLE_NORTH_BLIND, idle, 6, 6, 16);
-                g.setAnimation(AnimationState.IDLE_RIGHT_BLIND, idle, 7, 8, 16);
+
+                g.setAnimation(AnimationState.IDLE_NORTH, idle, 16 ,16 , 15);
+                g.setAnimation(AnimationState.IDLE_LEFT, idle, 14 ,14 , 15);
+                g.setAnimation(AnimationState.IDLE_SOUTH, idle, 9 ,13 , 20, true);
+                g.setAnimation(AnimationState.IDLE_RIGHT, idle, 17, 17, 15);
+
+                g.setAnimation(AnimationState.IDLE_NORTH_BLIND, idle, 6, 6, 15);
+                g.setAnimation( AnimationState.IDLE_LEFT_BLIND, idle, 5, 5, 15);
+                g.setAnimation(AnimationState.IDLE_SOUTH_BLIND, idle, 1, 3, 20, true);
+                g.setAnimation(AnimationState.IDLE_RIGHT_BLIND, idle, 7, 8, 15);
+
 
                 g.setAnimation(AnimationState.WALK,
-                    new SpriteSheet(directory.getEntry("guard-walk.animation", SpriteSheet.class)), 16);
+                    new SpriteSheet(directory.getEntry("guard-walk.animation", SpriteSheet.class)), 8);
                 g.setAnimation(AnimationState.WALK_DOWN,
-                    new SpriteSheet(directory.getEntry("guard-walk-down.animation", SpriteSheet.class)), 16);
+                    new SpriteSheet(directory.getEntry("guard-walk-down.animation", SpriteSheet.class)), 8);
                 g.setAnimation(AnimationState.WALK_UP,
-                    new SpriteSheet(directory.getEntry("guard-walk-up.animation", SpriteSheet.class)), 16);
+                    new SpriteSheet(directory.getEntry("guard-walk-up.animation", SpriteSheet.class)), 8);
                 g.setAnimation(AnimationState.WALK_DOWN_BLIND,
-                    new SpriteSheet(directory.getEntry("guard-walk-down-inked.animation", SpriteSheet.class)), 16);
+                    new SpriteSheet(directory.getEntry("guard-walk-down-inked.animation", SpriteSheet.class)), 8);
                 g.setAnimation(AnimationState.WALK_BLIND,
-                    new SpriteSheet(directory.getEntry("guard-walk-inked.animation", SpriteSheet.class)), 16);
+                    new SpriteSheet(directory.getEntry("guard-walk-inked.animation", SpriteSheet.class)), 8);
                 g.setAnimation(AnimationState.WALK_UP_BLIND,
-                    new SpriteSheet(directory.getEntry("guard-walk-up-inked.animation", SpriteSheet.class)), 16);
+                    new SpriteSheet(directory.getEntry("guard-walk-up-inked.animation", SpriteSheet.class)), 8);
                 g.setSusMeter(new SpriteSheet(directory.getEntry("suspicion-meter.animation", SpriteSheet.class)));
                 guards.add(g);
                 activate(g);
             } else if ("Camera".equalsIgnoreCase(type)) {
                 SecurityCamera cam = new SecurityCamera(properties, entityConstants.get("camera"), units);
                 cam.setAnimation(AnimationState.IDLE, directory.getEntry("camera-idle.animation", SpriteSheet.class),
-                        16);
+                        15);
                 securityCameras.add(cam);
                 activate(cam);
             } else if ("Door".equalsIgnoreCase(type)) {
