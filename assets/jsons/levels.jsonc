@@ -11,9 +11,10 @@
   "6": "maps/tutorial/SwappingIntro.tmx",
   "7": "maps/tutorial/KeyDoorIntro.tmx",
   "8": "maps/tutorial/VentTutorial.tmx",
-  "9" : "maps/medium3.tmx",
+  "9": "maps/medium3.tmx",
   "10": "maps/medium5.tmx",
   "11": "maps/Hard-Level-2.tmx",
   "12": "maps/hard3.tmx",
-  "13": "maps/medium4.tmx"
+  "13": "maps/medium4.tmx",
+  "14": "maps/in-progress/medium7.tmx"
 }

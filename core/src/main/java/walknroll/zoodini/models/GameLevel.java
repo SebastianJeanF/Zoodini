@@ -370,18 +370,19 @@ public class GameLevel {
                 g.setAnimation(AnimationState.IDLE_NORTH_BLIND, idle, 6, 6, 16);
                 g.setAnimation(AnimationState.IDLE_RIGHT_BLIND, idle, 7, 8, 16);
 
-                g.setAnimation(AnimationState.WALK, directory.getEntry("guard-walk.animation", SpriteSheet.class), 16);
+                g.setAnimation(AnimationState.WALK,
+                    new SpriteSheet(directory.getEntry("guard-walk.animation", SpriteSheet.class)), 16);
                 g.setAnimation(AnimationState.WALK_DOWN,
-                        directory.getEntry("guard-walk-down.animation", SpriteSheet.class), 16);
+                    new SpriteSheet(directory.getEntry("guard-walk-down.animation", SpriteSheet.class)), 16);
                 g.setAnimation(AnimationState.WALK_UP,
-                        directory.getEntry("guard-walk-up.animation", SpriteSheet.class), 16);
+                    new SpriteSheet(directory.getEntry("guard-walk-up.animation", SpriteSheet.class)), 16);
                 g.setAnimation(AnimationState.WALK_DOWN_BLIND,
-                        directory.getEntry("guard-walk-down-inked.animation", SpriteSheet.class), 16);
+                    new SpriteSheet(directory.getEntry("guard-walk-down-inked.animation", SpriteSheet.class)), 16);
                 g.setAnimation(AnimationState.WALK_BLIND,
-                        directory.getEntry("guard-walk-inked.animation", SpriteSheet.class), 16);
+                    new SpriteSheet(directory.getEntry("guard-walk-inked.animation", SpriteSheet.class)), 16);
                 g.setAnimation(AnimationState.WALK_UP_BLIND,
-                        directory.getEntry("guard-walk-up-inked.animation", SpriteSheet.class), 16);
-                g.setSusMeter(directory.getEntry("suspicion-meter.animation", SpriteSheet.class));
+                    new SpriteSheet(directory.getEntry("guard-walk-up-inked.animation", SpriteSheet.class)), 16);
+                g.setSusMeter(new SpriteSheet(directory.getEntry("suspicion-meter.animation", SpriteSheet.class)));
                 guards.add(g);
                 activate(g);
             } else if ("Camera".equalsIgnoreCase(type)) {
