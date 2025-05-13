@@ -2,19 +2,18 @@
 // THIS MUST BE IN CONSECUTIVE ORDER, OTHERWISE THINGS WILL BREAK WITH LEVEL LOADING
 // AGAIN: THIS MUST BE IN CONSECUTIVE ORDER
 {
-  "0": "maps/debugMap.tmx",
+//  "0": "maps/debugMap.tmx",
   "1": "maps/Tutorial1.tmx",
-  "2": "maps/Tutorial2.tmx",
-  "3": "maps/Tutorial3.tmx",
-  "4": "maps/Tutorial4.tmx",
-  "5": "maps/Tutorial5.tmx",
-  "6": "maps/Tutorial6.tmx",
-  "7": "maps/VentTutorial.tmx",
-  "8" : "maps/medium1.tmx",
-  "9": "maps/Level8.tmx",
-  "10": "maps/Hard-Level-2.tmx",
-  "11": "maps/medium2.tmx",
-  "12": "maps/medium3.tmx",
-  "13": "maps/hard3.tmx",
-  "14": "maps/medium6.tmx"
+  "2": "maps/GarMeowIntro.tmx",
+  "3": "maps/GarMultiMeowIntro.tmx",
+  "4": "maps/OttoGuardIntro.tmx",
+  "5": "maps/OttoCameraIntro.tmx",
+  "6": "maps/SwappingIntro.tmx",
+  "7": "maps/KeyDoorIntro.tmx",
+  "8": "maps/VentTutorial.tmx",
+  "9" : "maps/medium3.tmx",
+  "10": "maps/medium5.tmx",
+  "11": "maps/Hard-Level-2.tmx",
+  "12": "maps/hard3.tmx",
+  "13": "maps/medium6.tmx"
 }

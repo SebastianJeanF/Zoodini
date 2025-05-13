@@ -13,6 +13,7 @@ public class GameSettings {
     private float musicVolume;
 
     private float soundVolume;
+
     public GameSettings() {
         this(Input.Keys.E, Input.Keys.SPACE, Input.Keys.F, "1280x720", 100f, 100f);
     }
@@ -25,6 +26,11 @@ public class GameSettings {
         this.resolution = resolution;
         this.musicVolume = musicVolume;
         this.soundVolume = soundVolume;
+    }
+
+    public GameSettings(GameSettings other) {
+        this(other.abilityKey, other.swapKey, other.followKey, other.resolution, other.musicVolume,
+                other.soundVolume);
     }
 
     public GameSettings(Preferences prefs) {

@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -31,8 +32,6 @@ import walknroll.zoodini.utils.GameSettings;
 public class SettingsScene implements Screen {
     private ScreenListener listener;
 
-    private AssetDirectory assets;
-
     /** The drawing camera for this scene */
     private OrthographicCamera camera;
     /** Reference to sprite batch created by the root */
@@ -49,15 +48,26 @@ public class SettingsScene implements Screen {
     private boolean waitingForFollowKey;
 
     private GameSettings settings;
+    private GameSettings stagedSettings;
     private boolean resetState;
+
+    /** Background image */
+    private Texture background;
+    /** logo */
+    private Texture logo;
+
+    Affine2 cache = new Affine2();
 
     public SettingsScene(SpriteBatch batch, AssetDirectory assets, GameSettings currentSettings) {
         this.batch = batch;
-        this.assets = assets;
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         this.resetState = false;
         this.settings = currentSettings;
+        this.stagedSettings = new GameSettings(currentSettings);
+
+        this.background = assets.getEntry("splash", Texture.class);
+        this.logo = assets.getEntry("logo", Texture.class);
     }
 
     public boolean shouldResetState() {
@@ -101,14 +111,15 @@ public class SettingsScene implements Screen {
 
         batch.begin(camera);
         batch.setColor(Color.WHITE);
-        Texture texture = assets.getEntry("splash", Texture.class);
-        float ratio = (float) width / (float) texture.getWidth();
-        batch.draw(texture, 0, 0, width, ratio * texture.getHeight());
+        float scaleX = (float) width / (float) background.getWidth();
+        float scaleY = (float) height / (float) background.getHeight();
+        cache.idt();
+        cache.scale(scaleX, scaleY);
+        batch.draw(background, cache);
 
-        texture = assets.getEntry("logo", Texture.class);
-        batch.draw(texture, (width / 2f) - (texture.getWidth() / 2f), height - (texture.getHeight() + 50),
-                texture.getWidth(),
-                texture.getHeight());
+        batch.draw(logo, (width / 2f) - (logo.getWidth() / 2f), height - (logo.getHeight() + 50),
+                logo.getWidth(),
+                logo.getHeight());
         batch.end();
 
         stage.draw();
@@ -172,7 +183,8 @@ public class SettingsScene implements Screen {
 
         window.add(new Label("Use Ability", skin, "title")).width(Value.percentWidth(0.25f, container))
                 .pad(Value.percentWidth(0.01f, container));
-        TextButton setAbilityKey = new TextButton("Current: " + Input.Keys.toString(this.settings.getAbilityKey()),
+        TextButton setAbilityKey = new TextButton(
+                "Current: " + Input.Keys.toString(this.stagedSettings.getAbilityKey()),
                 skin);
         setAbilityKey.addListener(new ChangeListener() {
             public void changed(ChangeEvent event, Actor actor) {
@@ -187,7 +199,8 @@ public class SettingsScene implements Screen {
         window.row();
         window.add(new Label("Swap Character", skin, "title")).width(Value.percentWidth(0.25f, container))
                 .pad(Value.percentWidth(0.01f, container));
-        TextButton setSwapKey = new TextButton("Current: " + Input.Keys.toString(this.settings.getSwapKey()), skin);
+        TextButton setSwapKey = new TextButton("Current: " + Input.Keys.toString(this.stagedSettings.getSwapKey()),
+                skin);
         setSwapKey.addListener(new ChangeListener() {
             public void changed(ChangeEvent event, Actor actor) {
                 SettingsScene.this.waitingForSwapKey = true;
@@ -201,7 +214,8 @@ public class SettingsScene implements Screen {
         window.row();
         window.add(new Label("Toggle Following", skin, "title")).width(Value.percentWidth(0.25f, container))
                 .pad(Value.percentWidth(0.01f, container));
-        TextButton setFollowButton = new TextButton("Current: " + Input.Keys.toString(this.settings.getFollowKey()), skin);
+        TextButton setFollowButton = new TextButton(
+                "Current: " + Input.Keys.toString(this.stagedSettings.getFollowKey()), skin);
         setFollowButton.addListener(new ChangeListener() {
             public void changed(ChangeEvent event, Actor actor) {
                 SettingsScene.this.waitingForFollowKey = true;
@@ -209,7 +223,8 @@ public class SettingsScene implements Screen {
                 SettingsScene.this.waitingForSwapKey = false;
             }
         });
-        window.add(setFollowButton).width(Value.percentWidth(0.2f, container)).height(Value.percentHeight(0.06f, container))
+        window.add(setFollowButton).width(Value.percentWidth(0.2f, container))
+                .height(Value.percentHeight(0.06f, container))
                 .pad(Value.percentWidth(0.01f, container));
 
         stage.addListener(new InputListener() {
@@ -219,17 +234,17 @@ public class SettingsScene implements Screen {
                 }
                 if (SettingsScene.this.waitingForAbilityKey) {
                     setAbilityKey.setText("Current: " + Input.Keys.toString(keycode));
-                    SettingsScene.this.settings.setAbilityKey(keycode);
+                    SettingsScene.this.stagedSettings.setAbilityKey(keycode);
                     SettingsScene.this.waitingForAbilityKey = false;
                 }
                 if (SettingsScene.this.waitingForSwapKey) {
                     setSwapKey.setText("Current: " + Input.Keys.toString(keycode));
-                    SettingsScene.this.settings.setSwapKey(keycode);
+                    SettingsScene.this.stagedSettings.setSwapKey(keycode);
                     SettingsScene.this.waitingForSwapKey = false;
                 }
                 if (SettingsScene.this.waitingForFollowKey) {
                     setFollowButton.setText("Current: " + Input.Keys.toString(keycode));
-                    SettingsScene.this.settings.setFollowKey(keycode);
+                    SettingsScene.this.stagedSettings.setFollowKey(keycode);
                     SettingsScene.this.waitingForFollowKey = false;
                 }
                 return true;
@@ -256,11 +271,11 @@ public class SettingsScene implements Screen {
 
         table.add(new Label("Music Volume", skin, "title")).left().width(labelWidth);
         Slider musicVolumeSlider = new Slider(0f, 100f, 1f, false, skin);
-        musicVolumeSlider.setValue(settings.getMusicVolume());
+        musicVolumeSlider.setValue(stagedSettings.getMusicVolume());
         musicVolumeSlider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                SettingsScene.this.settings.setMusicVolume(musicVolumeSlider.getValue());
+                SettingsScene.this.stagedSettings.setMusicVolume(musicVolumeSlider.getValue());
             }
         });
         table.add(musicVolumeSlider).left().width(controlWidth).expandX();
@@ -268,11 +283,11 @@ public class SettingsScene implements Screen {
         table.row();
         table.add(new Label("Sound Effect Volume", skin, "title")).left().width(labelWidth);
         Slider soundVolumeSlider = new Slider(0f, 100f, 1f, false, skin);
-        soundVolumeSlider.setValue(settings.getSoundVolume());
+        soundVolumeSlider.setValue(stagedSettings.getSoundVolume());
         soundVolumeSlider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                SettingsScene.this.settings.setSoundVolume(soundVolumeSlider.getValue());
+                SettingsScene.this.stagedSettings.setSoundVolume(soundVolumeSlider.getValue());
             }
         });
         table.add(soundVolumeSlider).left().width(controlWidth);
@@ -281,10 +296,10 @@ public class SettingsScene implements Screen {
         table.add(new Label("Resolution", skin, "title")).left().width(labelWidth);
         SelectBox<String> resolutionSelect = new SelectBox<>(skin);
         resolutionSelect.setItems("1280x720", "1920x1080", "Fullscreen");
-        resolutionSelect.setSelected(this.settings.getResolution());
+        resolutionSelect.setSelected(this.stagedSettings.getResolution());
         resolutionSelect.addListener(new ChangeListener() {
             public void changed(ChangeEvent event, Actor actor) {
-                SettingsScene.this.settings.setResolution(resolutionSelect.getSelected());
+                SettingsScene.this.stagedSettings.setResolution(resolutionSelect.getSelected());
             }
         });
         table.add(resolutionSelect).left().width(controlWidth);
@@ -310,13 +325,22 @@ public class SettingsScene implements Screen {
         table.add(resetGameState).left().width(controlWidth);
 
         table.row();
-        TextButton menuReturn = new TextButton("Back to Menu", skin);
+        TextButton menuSaveReturn = new TextButton("Save & Exit to Menu", skin);
+        menuSaveReturn.addListener(new ChangeListener() {
+            public void changed(ChangeEvent event, Actor actor) {
+                SettingsScene.this.settings = SettingsScene.this.stagedSettings;
+                listener.exitScreen(SettingsScene.this, GDXRoot.EXIT_MENU);
+            }
+        });
+        table.add(menuSaveReturn).left().width(labelWidth).expandY().bottom().spaceRight(10f);
+
+        TextButton menuReturn = new TextButton("Discard & Exit to Menu", skin);
         menuReturn.addListener(new ChangeListener() {
             public void changed(ChangeEvent event, Actor actor) {
                 listener.exitScreen(SettingsScene.this, GDXRoot.EXIT_MENU);
             }
         });
-        table.add(menuReturn).left().width(labelWidth).expandY().bottom();
+        table.add(menuReturn).left().width(labelWidth).bottom();
         return table;
     }
 }

@@ -378,10 +378,10 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
         InputController input = InputController.getInstance();
         processPlayerAction(input, dt);
+        processNPCAction(dt);
         level.update(dt); // collisions
         updateVisionCones(dt);
         updateGuardAI(dt);
-        processNPCAction(dt);
         updateCamera(dt);
 
         ui.update(dt);
@@ -984,14 +984,15 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
             if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
-                Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : vec2tmp2;
-                Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : vec2tmp3;
-                if ((level.isCatPresent() && entry.value.contains(catPos))
-                        || (level.isOctopusPresent() && entry.value.contains(octPos))) {
+                Obstacle catObs = level.isCatPresent() ? level.getCat().getObstacle() : null;
+                Obstacle octObs = level.isOctopusPresent() ? level.getOctopus().getObstacle() : null;
+
+                if ((level.isCatPresent() && entry.value.contains(catObs))
+                        || (level.isOctopusPresent() && entry.value.contains(octObs))) {
 
                     ((SecurityCamera) entry.key).activateRing();
 
-                    PlayableAvatar detectedPlayer = entry.value.contains(catPos) ? level.getCat() : level.getOctopus();
+                    PlayableAvatar detectedPlayer = entry.value.contains(catObs) ? level.getCat() : level.getOctopus();
 
                     detectedPlayer.setUnderCamera(true);
 
@@ -1041,11 +1042,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             visionCone.setRadius(guard.getViewDistance());
             visionCone.setWideness(guard.getFov());
 
-            Vector2 catPos = level.isCatPresent() ? level.getCat().getPosition() : vec2tmp2;
-            Vector2 octPos = level.isOctopusPresent() ? level.getOctopus().getPosition() : vec2tmp3;
+            Obstacle catObs = level.isCatPresent() ? level.getCat().getObstacle() : null;
+            Obstacle octObs = level.isOctopusPresent() ? level.getOctopus().getObstacle() : null;
 
             // Check if cat is detected
-            if (level.isCatPresent() && visionCone.contains(catPos) && !level.getCat().isInvincible()) {
+            if (level.isCatPresent() && visionCone.contains(catObs) && !level.getCat().isInvincible()) {
                 guard.setAgroed(true);
                 guard.setAggroTarget(level.getCat());
                 guard.setTarget(level.getCat().getPosition());
@@ -1056,7 +1057,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             }
 
             // Check if octopus is detected
-            else if (level.isOctopusPresent() && visionCone.contains(octPos) && !level.getOctopus().isInvincible()) {
+            else if (level.isOctopusPresent() && visionCone.contains(octObs) && !level.getOctopus().isInvincible()) {
                 guard.setAgroed(true);
                 guard.setAggroTarget(level.getOctopus());
                 guard.setTarget(level.getOctopus().getPosition());
@@ -1179,21 +1180,23 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         Array<Guard> guards = level.getGuards();
         updateGuards(guards);
 
-        // TODO: Might need to comment out again
         for (Door door : level.getDoors()) {
             if (!door.isLocked()) {
-                Vector2 doorPos = door.getObstacle().getPosition().sub(0.5f,0.5f);//offset lol
                 BoxObstacle box = (BoxObstacle) door.getObstacle();
-                int startX = (int) (doorPos.x);
-                int startY = (int) (doorPos.y);
-                int endX = (int) ((doorPos.x + box.getWidth()));
-                int endY = (int) ((doorPos.y + box.getHeight()));
+                float doorX = door.getObstacle().getX() - box.getWidth() / 2f;
+                float doorY = door.getObstacle().getY() - box.getHeight() / 2f;
+                int startX = (int)Math.floor(doorX);
+                int startY = (int)Math.floor(doorY);
+                int endX = (int)Math.ceil(doorX + box.getWidth());
+                int endY = (int)Math.ceil(doorY + box.getHeight());
 
                 for (int x = startX; x < endX; x++) {
                     for (int y = startY; y < endY; y++) {
                         graph.getNode(x,y).isObstacle = false;
                     }
                 }
+                graph.addConnections(); //f**k
+                door.getObstacle().setSensor(true);
             }
 
             if (!door.isUnlocking()) {
@@ -1237,6 +1240,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             inCameraTransition = true;
 
             playerAIController.swapAvatars();
+            setFollowModeActive(false);
+
         }
     }
 
@@ -1364,21 +1369,16 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
     }
 
-    // 2. Initialize in your constructor or initialization method
-    public void initializePathfinding() {
-        // Create a path smoother with your existing graph
-        // pathSmoother = new PathSmoother(graph);
-
-        // Create a path follower for the inactive avatar
-        // You can customize arrival distance and speed factor
-    }
-
-    // In your handleFollowModeToggle method
     private void handleFollowModeToggle(InputController input) {
         if (input.didPressFollowMode()) {
             setFollowModeActive(!followModeActive);
             playerAIController.setFollowEnabled(followModeActive);
         }
+    }
+
+    private void setFollowMode(boolean newVal) {
+        setFollowModeActive(newVal);
+        playerAIController.setFollowEnabled(followModeActive);
     }
 
     @Override

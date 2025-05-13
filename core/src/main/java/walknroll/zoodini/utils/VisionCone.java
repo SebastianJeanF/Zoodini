@@ -20,6 +20,8 @@ import com.badlogic.gdx.utils.ShortArray;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.math.Poly2;
 import edu.cornell.gdiac.math.PolyFactory;
+import edu.cornell.gdiac.physics2.Obstacle;
+import edu.cornell.gdiac.physics2.WheelObstacle;
 import java.util.Arrays;
 import walknroll.zoodini.models.GameLevel;
 
@@ -122,8 +124,23 @@ public class VisionCone implements RayCastCallback{
         return poly;
     }
 
-    public boolean contains(Vector2 position){
-        return cone.contains(position.x, position.y);
+    public boolean contains(Obstacle obs){
+        WheelObstacle obstacle = (WheelObstacle) obs;
+        Vector2 center = obstacle.getPosition();
+        float radius = (obstacle.getRadius() / 1.414f) * 0.5f; //hardcoded offset
+        for(int i = 0; i < 4; i++){
+            switch (i) {
+                case 0: tmp1.set(center.x - radius, center.y - radius); break; // Bottom-left
+                case 1: tmp1.set(center.x + radius, center.y - radius); break; // Bottom-right
+                case 2: tmp1.set(center.x + radius, center.y + radius); break; // Top-right
+                case 3: tmp1.set(center.x - radius, center.y + radius); break; // Top-left
+                default: tmp1.set(center);
+            }
+            if(cone.contains(tmp1.x, tmp1.y)){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

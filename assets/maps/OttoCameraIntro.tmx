@@ -139,7 +139,7 @@
   <object id="20" type="Camera" x="2257.42" y="2412.79">
    <properties>
     <property name="alarmDistance" type="float" value="5"/>
-    <property name="angle" type="float" value="160"/>
+    <property name="angle" type="float" value="210"/>
     <property name="category" value="01000"/>
     <property name="disabledTime" type="float" value="5"/>
     <property name="exclude" value="00000"/>

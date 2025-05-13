@@ -57,6 +57,7 @@ public class Door extends ZoodiniSprite {
     private boolean showUnlockTimer = false;
 
     private short collideBits;
+    private short collideBitsUnlocked;
     private short excludeBitsLocked;
     private short excludeBitsUnlocked;
     private float units;
@@ -106,10 +107,9 @@ public class Door extends ZoodiniSprite {
         // When the door is locked, disable the sensor (door acts as a wall).
         // When unlocked, enable the sensor (door lets you pass through).
         Filter filter = new Filter();
-        filter.categoryBits = this.collideBits;
+        filter.categoryBits = locked ? this.collideBits : this.collideBitsUnlocked;
         filter.maskBits = locked ? this.excludeBitsLocked : this.excludeBitsUnlocked;
         obstacle.setFilterData(filter);
-        // obstacle.setSensor(!locked);
         setTextureRegion(locked ? lockedTexture : unlockedTexture);
     }
 
@@ -151,7 +151,8 @@ public class Door extends ZoodiniSprite {
 
 		// Create the collision filter (used for light penetration)
 		this.collideBits = GameLevel.bitStringToShort(constants.getString("category"));
-		this.excludeBitsLocked = GameLevel.bitStringToComplement(constants.getString("exclude"));
+        this.collideBitsUnlocked = GameLevel.bitStringToShort(constants.getString("category-unlocked"));
+        this.excludeBitsLocked = GameLevel.bitStringToComplement(constants.getString("exclude"));
 		this.excludeBitsUnlocked = GameLevel.bitStringToComplement(constants.getString("exclude-unlocked"));
 		Filter filter = new Filter();
 		filter.categoryBits = this.collideBits;
@@ -193,4 +194,5 @@ public class Door extends ZoodiniSprite {
             unlockTimer.draw(batch);
         }
     }
+
 }

@@ -4,13 +4,13 @@
     "cat": {
       "category": "000000001",
       "exclude" : "001000001",
-      "force" : 3.0,
+      "force" : 3.5,
       "maxSpeed" : 10.0,
       "spriteRadius": 0.6,
       "obstacleRadius" : 0.4,
       "abilityCooldown": 5.0,
       "abilityRange" : 7.25,
-      "meowExpansionSpeed" : 10.0
+      "meowExpansionSpeed" : 30.0
     },
     "octopus" : {
       "category": "000000001",
@@ -64,12 +64,13 @@
       "exclude" : "001111110",
       "force" : 1.0,
       "maxSpeed" : 10.0,
-      "size" : 1.0
+      "size" : 0.6
     },
     "door" : {
       "category": "000100000",
       "exclude" : "000011100",
-      "exclude-unlocked" : "001101111",
+      "category-unlocked" : "000000000",
+      "exclude-unlocked" : "111111111",
       "force" : 1.0,
       "maxSpeed" : 10.0,
       "size" : 3.0

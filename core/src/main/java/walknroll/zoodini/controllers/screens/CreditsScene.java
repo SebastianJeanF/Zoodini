@@ -127,44 +127,44 @@ public class CreditsScene implements Screen {
         Table table = new Table();
         // table.setSize(this.width, this.height);
         table.setFillParent(true);
-        table.defaults().spaceBottom(10f);
+        table.defaults().spaceBottom(10f).spaceRight(5f);
         table.top().pad(Value.percentWidth(0.01f)).padTop(Value.percentHeight(0.3f));
 
         Value labelWidth = Value.percentWidth(0.2f, table);
         Value controlWidth = Value.percentWidth(0.25f, table);
 
-        table.add(new Label("Project Lead", skin, "title")).left().width(labelWidth);
+        table.add(new Label("Project Lead", skin, "title")).left().minWidth(labelWidth);
         table.add(new Label("Sebastian Jean-Francois", skin, "white")).left().width(controlWidth);
 
-        table.add(new Label("librayr", skin, "title")).left().width(labelWidth);
+        table.add(new Label("librayr", skin, "title")).left().minWidth(labelWidth);
         table.add(new Label("libgdx", skin, "white")).left().width(controlWidth).expandX();
 
         table.row();
-        table.add(new Label("Software Lead", skin, "title")).left().width(labelWidth);
+        table.add(new Label("Software Lead", skin, "title")).left().minWidth(labelWidth);
         table.add(new Label("Bill Park", skin, "white")).left().width(controlWidth);
 
         table.row();
-        table.add(new Label("Design Lead", skin, "title")).left().width(labelWidth);
+        table.add(new Label("Design Lead", skin, "title")).left().minWidth(labelWidth);
         table.add(new Label("Lina Liu", skin, "white")).left().width(controlWidth);
 
         table.row();
-        table.add(new Label("Designer & Programmer", skin, "title")).left().width(labelWidth);
+        table.add(new Label("Designer & Programmer", skin, "title")).left().minWidth(labelWidth);
         table.add(new Label("Grace Jin", skin, "white")).left().width(controlWidth);
 
         table.row();
-        table.add(new Label("Programmer", skin, "title")).left().width(labelWidth);
+        table.add(new Label("Programmer", skin, "title")).left().minWidth(labelWidth);
         table.add(new Label("Nick Regennitter", skin, "white")).left().width(controlWidth);
 
         table.row();
-        table.add(new Label("Programmer", skin, "title")).left().width(labelWidth);
+        table.add(new Label("Programmer", skin, "title")).left().minWidth(labelWidth);
         table.add(new Label("Andrew Cheung", skin, "white")).left().width(controlWidth);
 
         table.row();
-        table.add(new Label("Programmer", skin, "title")).left().width(labelWidth);
+        table.add(new Label("Programmer", skin, "title")).left().minWidth(labelWidth);
         table.add(new Label("Abdul Raafai Asim", skin, "white")).left().width(controlWidth);
 
         table.row();
-        table.add(new Label("Programmer", skin, "title")).left().width(labelWidth);
+        table.add(new Label("Programmer", skin, "title")).left().minWidth(labelWidth);
         table.add(new Label("James Tu", skin, "white")).left().width(controlWidth);
 
         table.row();
