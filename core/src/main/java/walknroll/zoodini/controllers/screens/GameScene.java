@@ -1074,7 +1074,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         vec3tmp.setZero();
         vec2tmp.setZero();
 
-        if (input.didSwap()) {
+        if (input.didSwap() && !Constants.CO_OP) {
             onSwap(input);
         }
 
@@ -1084,36 +1084,22 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         if (avatar != level.getInactiveAvatar()) {
             moveAvatar(vertical, horizontal, avatar);
         }
-        if (playerAIController != null) {
+        if (Constants.CO_OP && level.getInactiveAvatar() != null) {
+            float verticalSecondary = input.getP2Vertical();
+            float horizontalSecondary = input.getP2Horizontal();
+            moveAvatar(verticalSecondary, horizontalSecondary, level.getInactiveAvatar());
+            handleOctopusAbility(input, (Octopus) level.getInactiveAvatar(), true);
+        } else if (playerAIController != null) {
             handleFollowModeToggle(input);
             updatePlayerAI(dt);
         }
+
         if (level.isOctopusPresent()) {
             level.getOctopus().regenerateInk(dt);
         }
 
         if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
-            Octopus octopus = (Octopus) avatar;
-            vec3tmp.set(input.getAiming(), 0);
-            vec3tmp = camera.unproject(vec3tmp);
-            vec2tmp.set(vec3tmp.x, vec3tmp.y)
-                    .scl(1.0f / level.getTileSize())
-                    .sub(octopus.getPosition())
-                    .clamp(0.0f, octopus.getAbilityRange()); // this decides the distance for projectile to travel
-            octopus.setTarget(vec2tmp); // set a target vector relative to octopus's position as origin.
-
-            if (input.didAbility() && octopus.canUseAbility()) { // check for ink resource here.
-                octopus.setCurrentlyAiming(!octopus.isCurrentlyAiming()); // turn the reticle on and off
-            }
-
-            if (octopus.isCurrentlyAiming() && input.didLeftClick()) {
-                octopus.setDidFire(true);
-                octopus.setCurrentlyAiming(false);
-                octopus.consumeInk();
-                soundController.playSound("octopus-shoot");
-            } else {
-                octopus.setDidFire(false);
-            }
+            handleOctopusAbility(input, (Octopus) avatar, false);
 
         } else if (avatar.getAvatarType() == AvatarType.CAT) {
             Cat cat = (Cat) avatar;
@@ -1134,6 +1120,29 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         vec3tmp.setZero();
         vec2tmp.setZero();
+    }
+
+    private void handleOctopusAbility(InputController input, Octopus octopus, boolean p2) {
+        vec3tmp.set(input.getAiming(), 0);
+        vec3tmp = camera.unproject(vec3tmp);
+        vec2tmp.set(vec3tmp.x, vec3tmp.y)
+                .scl(1.0f / level.getTileSize())
+                .sub(octopus.getPosition())
+                .clamp(0.0f, octopus.getAbilityRange()); // this decides the distance for projectile to travel
+        octopus.setTarget(vec2tmp); // set a target vector relative to octopus's position as origin.
+
+        if ((!p2 && input.didAbility() || p2 && input.didP2Ability()) && octopus.canUseAbility()) { // check for ink resource here.
+            octopus.setCurrentlyAiming(!octopus.isCurrentlyAiming()); // turn the reticle on and off
+        }
+
+        if (octopus.isCurrentlyAiming() && input.didLeftClick()) {
+            octopus.setDidFire(true);
+            octopus.setCurrentlyAiming(false);
+            octopus.consumeInk();
+            soundController.playSound("octopus-shoot");
+        } else {
+            octopus.setDidFire(false);
+        }
     }
 
     /**
@@ -1277,7 +1286,26 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             camera.zoom = Math.max(1.0f, camera.zoom - 0.005f);
         }
 
-        cameraTargetPosition.set(avatar.getPosition());
+        if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
+            PlayableAvatar avatar1 = level.getAvatar();
+            PlayableAvatar avatar2 = level.getInactiveAvatar();
+
+            // Calculate midpoint between the two avatars
+            cameraTargetPosition.set(
+                (avatar1.getPosition().x + avatar2.getPosition().x) * 0.5f,
+                (avatar1.getPosition().y + avatar2.getPosition().y) * 0.5f
+            );
+
+            // Calculate distance between avatars
+            float distance = avatar1.getPosition().dst(avatar2.getPosition());
+
+            // Adjust zoom based on distance between avatars
+            // Higher distance = more zoom out (higher zoom value)
+            float targetZoom = Math.max(1.0f, Math.min(2.0f, distance / 10.0f));
+
+            // Smoothly interpolate zoom
+            camera.zoom = camera.zoom + (targetZoom - camera.zoom) * 0.1f;
+        } else { cameraTargetPosition.set(avatar.getPosition()); }
 
         // Get viewport dimensions in world units
         float viewWidth = camera.viewportWidth / level.getTileSize();

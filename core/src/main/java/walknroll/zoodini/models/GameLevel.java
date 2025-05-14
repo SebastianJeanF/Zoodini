@@ -620,17 +620,28 @@ public class GameLevel {
             if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
                 Octopus octopus = (Octopus) avatar;
                 if (octopus.isCurrentlyAiming() && octopus.canUseAbility()) {
-                    drawOctopusReticle(batch, camera);
-                    drawAbilityRange(batch, camera);
+                    drawOctopusReticle(batch, octopus);
+                    drawAbilityRange(batch, avatarOctopus);
                 }
             }
             if (avatar.getAvatarType() == AvatarType.CAT) {
                 Cat cat = (Cat) avatar;
                 if (cat.isCurrentlyAiming() && cat.canUseAbility()) {
-                    drawAbilityRange(batch, camera);
+                    drawAbilityRange(batch, avatarCat);
                 }
             }
         }
+        if (Constants.CO_OP) {
+            Avatar inactiveAvatar = getInactiveAvatar();
+            if (inactiveAvatar != null && inactiveAvatar.getAvatarType() == AvatarType.OCTOPUS) {
+                Octopus octopus = (Octopus) inactiveAvatar;
+                if (octopus.isCurrentlyAiming() && octopus.canUseAbility()) {
+                    drawOctopusReticle(batch, octopus);
+                    drawAbilityRange(batch, avatarOctopus);
+                }
+            }
+        }
+
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
             if (entry.key instanceof Guard) {
                 entry.value.draw(batch, camera);
@@ -1080,8 +1091,7 @@ public class GameLevel {
     PathFactory pathFactory = new PathFactory();
     PathExtruder pathExtruder = new PathExtruder();
 
-    private void drawAbilityRange(SpriteBatch batch, Camera camera) {
-        PlayableAvatar avatar = getAvatar();
+    private void drawAbilityRange(SpriteBatch batch, PlayableAvatar avatar) {
         batch.setTexture(null);
         batch.setColor(Color.BLACK);
         float x = avatar.getObstacle().getX();
@@ -1108,11 +1118,8 @@ public class GameLevel {
      * </p>
      *
      * @param batch  the sprite batch used for rendering
-     * @param camera the camera used to unproject screen coordinates to world
-     *               coordinates
      */
-    private void drawOctopusReticle(SpriteBatch batch, Camera camera) {
-        Octopus octopus = (Octopus) getAvatar();
+    private void drawOctopusReticle(SpriteBatch batch, Octopus octopus) {
         batch.setTexture(null);
         batch.setColor(Color.BLACK);
         float x = octopus.getObstacle().getX();
