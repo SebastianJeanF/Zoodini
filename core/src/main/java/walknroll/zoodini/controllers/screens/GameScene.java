@@ -175,6 +175,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     private boolean followModeActive = false;
 
+
     /**
      * Creates a new game world
      *
@@ -243,6 +244,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         setComplete(false);
         setFailure(false);
         countdown = -1;
+        gameLost = false;
 
         level.populate(directory, map, batch);
         level.getWorld().setContactListener(this);
@@ -326,6 +328,15 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         if (gameLost) {
             soundController.stopAllSounds();
+            // Look through all doors and check if any has had their checkpoints reached
+            for (Door door : level.getDoors()) {
+                System.out.println("Door ID: " + door.getId() + ", Reached Checkpoint: " + door.getReachedCheckpoint());
+                if (door.getReachedCheckpoint()) {
+                    handlePlayerDeath();
+                    return false;
+                }
+            }
+            System.out.println("No checkpoints reached");
             listener.exitScreen(this, GDXRoot.EXIT_LOSE);
             return false;
         }
@@ -1401,5 +1412,45 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     public GameLevel getLevel(){
         return this.level;
+    }
+
+    private void handlePlayerDeath() {
+        resetFromSnapShot();
+//        if (level.getCheckpointManager().hasActiveCheckpoint("cat") ||
+//                level.getCheckpointManager().hasActiveCheckpoint("octopus")) {
+//            // Player died but has an active checkpoint, respawn from there
+//            resetFromSnapShot();
+//        } else {
+//            // No active checkpoint, go to game over screen
+//            gameLost = true;
+//        }
+    }
+
+
+    /**
+     * Respawns the player characters to the game state of the last checkpoint.
+     * This means respawning the characters at their checkpoints, keeping opened doors
+     * opened and keys collected.
+     */
+    private void resetFromSnapShot() {
+        System.out.println("Resetting from snapshot");
+        // Set spawn points to new checkpoints
+
+        // Keep opened doors opened
+        PooledList<Door> prevDoors = new PooledList<>();
+        prevDoors.addAll(level.getDoors());
+        Array<Key> prevKeys = new Array<>();
+        prevKeys.addAll(level.getKeys());
+
+        for (Key key: prevKeys) {
+            System.out.println("Key: " + key.getID() + " collected: " + key.isCollected());
+        }
+
+        // Don't reset keys, they are already collected
+        int numCatKeys = level.getCat().getNumKeys();
+        int numOctKeys = level.getOctopus().getNumKeys();
+
+        reset();
+        level.restoreFromSnapShot(prevDoors, numCatKeys, numOctKeys, prevKeys);
     }
 }
