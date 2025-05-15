@@ -425,8 +425,8 @@ public class GameLevel {
                 activate(vent);
             } else if ("Settings".equalsIgnoreCase(type)){
                 Boolean disableMinimap = properties.get("disableMinimap", Boolean.class);
-                if (disableMinimap != null){
-                    UIController.disableMinimap(disableMinimap);
+                if (disableMinimap != null && disableMinimap) {
+                    UIController.disableMinimap(true);
                 }
             }
         }
