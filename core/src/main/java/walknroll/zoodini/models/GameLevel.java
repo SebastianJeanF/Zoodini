@@ -516,7 +516,7 @@ public class GameLevel {
             for (Guard g : guards) {
                 g.update(dt);
                 g.updateInkBlindTimer(dt);
-                updateFlipSprite(g);
+                updateFlipGuardSprite(g);
             }
 
             for (SecurityCamera c : securityCameras) {
@@ -1054,6 +1054,16 @@ public class GameLevel {
         if (!avatar.isFlipped() && avatar.getMovement().x < 0.0f
                 || avatar.isFlipped() && avatar.getMovement().x > 0.0f) {
             avatar.flipSprite();
+        }
+    }
+
+    private void updateFlipGuardSprite(Guard guard){
+        // flips the sprite if the guard is moving left
+        if (!guard.isIdle() && (!guard.isFlipped() && guard.getMovement().x < 0.0f
+                || guard.isFlipped() && guard.getMovement().x > 0.0f)) {
+            guard.flipSprite();
+        } else if (guard.isIdle() && guard.getMovement().x == 0.0f) {
+            guard.setFlipped(false);
         }
     }
 

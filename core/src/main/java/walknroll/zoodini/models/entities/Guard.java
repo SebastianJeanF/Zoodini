@@ -444,7 +444,6 @@ public class Guard extends Enemy {
         if(isIdle) {
             float angle = idleAngle % 360;
             if (angle < 0) angle += 360;
-
             if (angle >= 315 || angle < 45) {
                 if(inkBlinded){
                     animationController.setState(AnimationState.IDLE_RIGHT_BLIND);
@@ -471,6 +470,11 @@ public class Guard extends Enemy {
                 }
             }
         }
+
+        if (animationController.getCurrentFrame() == 15) {
+            System.out.println("Guard is at frame 15");
+        }
+
     }
 
     /** The value of target is only valid if guard is agroed or is "meowed" */
