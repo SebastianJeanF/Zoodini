@@ -47,6 +47,11 @@
         "drawFill": true,
         "id": 3,
         "members": [
+            {
+                "name": "timeToOpen",
+                "type": "float",
+                "value": 2
+            }
         ],
         "name": "Door",
         "type": "class",
@@ -133,6 +138,31 @@
         "useAs": [
             "property",
             "object",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 11,
+        "members": [
+            {
+                "name": "disableMinimap",
+                "type": "bool",
+                "value": false
+            }
+        ],
+        "name": "Settings",
+        "type": "class",
+        "useAs": [
+            "property",
+            "map",
+            "layer",
+            "object",
+            "tile",
+            "tileset",
+            "wangcolor",
+            "wangset",
             "project"
         ]
     },

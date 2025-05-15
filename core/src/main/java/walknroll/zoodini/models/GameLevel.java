@@ -298,7 +298,9 @@ public class GameLevel {
             MapObjects objs =l.getObjects();
             imagesCache = new Array<>(objs.getCount());
             for(MapObject obj : objs){
-                imagesCache.add((TextureMapObject) obj);
+                if(obj instanceof TextureMapObject t) {
+                    imagesCache.add(t);
+                }
             }
             imagesCache.sort((a,b) -> Float.compare(b.getY(), a.getY())); //descending order
         }

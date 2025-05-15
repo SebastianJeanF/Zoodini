@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="128" tileheight="128" infinite="0" nextlayerid="8" nextobjectid="117">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="128" tileheight="128" infinite="0" nextlayerid="8" nextobjectid="171">
  <tileset firstgid="1" source="../tilesets/path-3.tsx"/>
  <tileset firstgid="257" source="../tilesets/trees.tsx"/>
  <tileset firstgid="263" source="../tilesets/fence.tsx"/>
+ <tileset firstgid="293" source="../tilesets/decorations-2.tsx"/>
+ <tileset firstgid="413" source="../tilesets/walls-1.tsx"/>
+ <tileset firstgid="623" source="../tilesets/walls-2.tsx"/>
  <layer id="1" name="ground" width="30" height="30">
   <data encoding="csv">
 11,12,13,14,11,12,13,14,15,11,27,11,12,13,14,15,16,32,27,28,11,27,11,27,11,27,28,11,12,13,
@@ -21,11 +24,11 @@
 27,28,29,30,31,11,12,13,62,63,64,11,27,11,62,63,64,30,31,11,62,63,64,12,13,14,15,16,11,11,
 28,29,30,31,11,12,13,14,78,79,80,11,11,27,78,79,80,31,32,11,78,79,80,12,13,14,15,16,27,11,
 28,29,30,31,11,12,13,14,94,95,96,11,27,28,94,95,96,32,11,11,94,95,96,13,14,15,16,11,11,12,
-29,30,31,11,12,13,14,11,110,111,112,27,28,29,110,111,112,15,11,27,110,111,112,13,14,15,11,27,11,12,
-30,31,32,11,12,13,11,27,126,127,128,28,29,30,126,127,128,11,27,28,126,127,128,14,15,11,27,11,12,11,
-30,31,11,12,13,11,27,11,142,143,144,29,30,31,142,143,144,11,27,28,142,143,144,14,11,27,11,12,11,27,
-31,32,11,12,11,27,28,27,158,159,160,29,30,31,158,159,160,27,28,11,158,159,160,15,27,11,12,11,27,28,
-32,11,12,13,27,28,11,27,174,175,176,30,31,32,174,175,176,27,28,11,174,175,176,11,27,11,11,27,28,11,
+29,30,31,421,421,13,14,11,110,111,112,27,28,29,110,111,112,15,11,27,110,111,112,13,14,15,11,27,11,12,
+30,31,549,649,649,13,11,27,126,127,128,28,29,30,126,127,128,11,27,28,126,127,128,14,15,11,27,11,12,11,
+30,31,549,549,549,11,27,11,142,143,144,29,30,31,142,143,144,11,27,28,142,143,144,14,11,27,11,12,11,27,
+31,32,549,421,421,27,28,27,158,159,160,29,30,31,158,159,160,27,28,11,158,159,160,15,27,11,12,11,27,28,
+32,11,549,649,649,28,11,27,174,175,176,30,31,32,174,175,176,27,28,11,174,175,176,11,27,11,11,27,28,11,
 12,11,12,11,27,28,27,11,190,191,192,30,31,32,190,191,192,28,11,12,190,191,192,27,11,11,27,28,29,11,
 11,12,11,27,28,11,11,27,206,207,207,207,207,207,207,207,207,207,207,207,207,207,208,28,11,27,28,29,11,12,
 11,12,27,28,11,11,27,28,222,207,207,207,207,207,207,207,207,207,207,207,207,223,224,11,27,28,29,11,12,13,
@@ -62,8 +65,8 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,370,370,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,382,382,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -126,13 +129,9 @@
   <object id="87" gid="262" x="739" y="3062" width="282" height="636"/>
   <object id="88" gid="262" x="723" y="2850" width="282" height="636"/>
   <object id="89" gid="262" x="723" y="2762" width="282" height="636"/>
-  <object id="90" gid="262" x="723" y="2638" width="282" height="636"/>
-  <object id="91" gid="262" x="743" y="2482" width="282" height="636"/>
-  <object id="92" gid="262" x="727" y="2398" width="282" height="636"/>
-  <object id="93" gid="262" x="723" y="2178" width="282" height="636"/>
+  <object id="93" gid="262" x="744.212" y="1881.03" width="282" height="636"/>
   <object id="94" gid="262" x="747" y="1910" width="282" height="636"/>
   <object id="95" gid="262" x="739" y="1826" width="282" height="636"/>
-  <object id="96" gid="262" x="755" y="2182" width="282" height="636"/>
   <object id="97" gid="260" x="2064.61" y="1900.24" width="392" height="551"/>
   <object id="98" gid="260" x="2188.85" y="1785.09" width="392" height="551"/>
   <object id="99" gid="260" x="2016.12" y="1418.42" width="392" height="551"/>
@@ -147,12 +146,32 @@
   <object id="108" gid="260" x="1434.3" y="1276" width="392" height="551"/>
   <object id="109" gid="260" x="1464.61" y="1606.3" width="392" height="551"/>
   <object id="110" gid="262" x="2915" y="3008" width="282" height="636"/>
+  <object id="123" x="1792" y="3712" width="384" height="128"/>
+  <object id="147" gid="257" x="502" y="1894" width="412" height="475"/>
+  <object id="148" gid="257" x="286" y="1892" width="412" height="475"/>
+  <object id="149" gid="257" x="96" y="1892" width="412" height="475"/>
+  <object id="150" gid="257" x="-124" y="1888" width="412" height="475"/>
+  <object id="151" gid="257" x="-228" y="2020" width="412" height="475"/>
+  <object id="152" gid="257" x="-246" y="2134" width="412" height="475"/>
+  <object id="153" gid="257" x="-248" y="2250" width="412" height="475"/>
+  <object id="154" gid="257" x="-266" y="2428" width="412" height="475"/>
+  <object id="155" gid="257" x="-250" y="2588" width="412" height="475"/>
+  <object id="156" gid="257" x="-252" y="2750" width="412" height="475"/>
+  <object id="157" gid="257" x="-244" y="2884" width="412" height="475"/>
+  <object id="158" gid="257" x="-232" y="2984" width="412" height="475"/>
+  <object id="159" gid="257" x="-176" y="3018" width="412" height="475"/>
+  <object id="164" gid="261" x="29" y="2998" width="271" height="336"/>
+  <object id="165" gid="261" x="135" y="3008" width="271" height="336"/>
+  <object id="166" gid="261" x="225" y="3008" width="271" height="336"/>
+  <object id="167" gid="261" x="343" y="3004" width="271" height="336"/>
+  <object id="168" gid="261" x="455" y="3002" width="271" height="336"/>
+  <object id="169" gid="261" x="571" y="3014" width="271" height="336"/>
+  <object id="170" gid="261" x="605" y="3018" width="271" height="336"/>
  </objectgroup>
  <objectgroup id="3" name="walls">
   <object id="10" x="2176" y="3200" width="128" height="640"/>
   <object id="11" x="1664" y="3200" width="128" height="640"/>
   <object id="12" x="896" y="3200" width="768" height="128"/>
-  <object id="13" x="896" y="1536" width="128" height="1664"/>
   <object id="16" x="2176" y="1664" width="384" height="384"/>
   <object id="17" x="2176" y="2048" width="128" height="768"/>
   <object id="19" x="2304" y="2432" width="256" height="384"/>
@@ -164,20 +183,32 @@
   <object id="27" x="2560" y="3200" width="384" height="256"/>
   <object id="72" x="2944" y="1536" width="128" height="2048"/>
   <object id="111" x="1024" y="1536" width="1920" height="128"/>
+  <object id="117" x="896" y="1536" width="128" height="384"/>
+  <object id="120" x="896" y="2304" width="128" height="896"/>
+  <object id="122" x="0" y="1792" width="896" height="128"/>
+  <object id="131" x="0" y="1920" width="128" height="384"/>
+  <object id="132" x="0" y="2304" width="128" height="640"/>
+  <object id="133" x="128" y="2816" width="768" height="128"/>
+  <object id="142" x="384" y="2048" width="256" height="256"/>
+  <object id="143" x="384" y="2432" width="256" height="256"/>
  </objectgroup>
  <objectgroup id="2" name="objects" class="Vent">
-  <object id="9" type="Door" x="1792" y="2560" width="384" height="256"/>
-  <object id="28" type="Guard" x="2439.39" y="3363.64">
+  <object id="9" type="Door" x="1792" y="1792" width="384" height="256">
+   <properties>
+    <property name="timeToOpen" type="float" value="1"/>
+   </properties>
+  </object>
+  <object id="28" type="Guard" x="2431.39" y="3377.64">
    <properties>
     <property name="angle" type="float" value="90"/>
     <property name="path" type="object" value="0"/>
    </properties>
    <point/>
   </object>
-  <object id="48" type="Cat" x="1975.76" y="3769.7">
+  <object id="48" type="Cat" x="1977.76" y="3523.7">
    <point/>
   </object>
-  <object id="49" type="Octopus" x="1984.85" y="2357.58">
+  <object id="49" type="Octopus" x="1988.85" y="2555.58">
    <point/>
   </object>
   <object id="68" type="Guard" x="2406.06" y="2215.15">
@@ -194,13 +225,13 @@
    </properties>
    <point/>
   </object>
-  <object id="70" type="Exit" x="1985.82" y="1818.61">
+  <object id="70" type="Exit" x="1981.82" y="1762.61">
    <point/>
   </object>
   <object id="73" type="Key" x="1208" y="1790">
    <point/>
   </object>
-  <object id="113" type="Vent" x="1206" y="2434">
+  <object id="113" type="Vent" x="1218" y="2662">
    <point/>
   </object>
   <object id="114" type="Settings" x="104" y="3524">
@@ -210,6 +241,14 @@
    <point/>
   </object>
   <object id="116" type="Vent" x="2752" y="2458">
+   <point/>
+  </object>
+  <object id="144" type="Camera" x="1732" y="2134">
+   <properties>
+    <property name="angle" type="float" value="0"/>
+    <property name="fov" type="float" value="60"/>
+    <property name="viewDistance" type="float" value="3"/>
+   </properties>
    <point/>
   </object>
  </objectgroup>
