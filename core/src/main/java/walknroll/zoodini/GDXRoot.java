@@ -300,8 +300,6 @@ public class GDXRoot extends Game implements ScreenListener {
 			case "fullscreen" -> Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
 		}
 
-        Gdx.graphics.setResizable(true);
-
 
         SoundController sound = SoundController.getInstance();
         sound.setMusicVolume(this.gameSettings.getMusicVolume() / 100f);

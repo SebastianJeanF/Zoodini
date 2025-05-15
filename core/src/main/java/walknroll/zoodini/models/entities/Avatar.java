@@ -181,6 +181,10 @@ public class Avatar extends ZoodiniSprite {
 		return flipped;
 	}
 
+    public void setFlipped(boolean flipped) {
+        this.flipped = flipped;
+    }
+
 	/**
 	 * flips the sprite horizontally for when user moves left
 	 */

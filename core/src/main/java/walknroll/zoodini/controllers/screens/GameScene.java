@@ -114,7 +114,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     /** Mark set to handle more sophisticated collision callbacks */
     protected ObjectSet<Fixture> sensorFixtures;
     /** The current level */
-    private final HashMap<Guard, GuardAIController> guardToAIController = new HashMap<>();
+    private HashMap<Guard, GuardAIController> guardToAIController = new HashMap<>();
 
     private PlayerAIController playerAIController;
 
@@ -132,8 +132,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private boolean failed;
     /** Countdown active for winning or losing */
     private int countdown;
-
-    private PathSmoother pathSmoother;
 
     /** Constant scale used for player movement */
     private final float MOVEMENT_SCALE = 32f;
@@ -258,11 +256,10 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         setFailure(false);
         countdown = -1;
 
-        // map = new TmxMapLoader().load(directory.getEntry("levels",
-        // JsonValue.class).getString("" + this.currentLevel));
-        // Reload the json each time
         level.populate(directory, map, batch);
         level.getWorld().setContactListener(this);
+        graph = new TileGraph<>(map,false,1);
+
         initializeAIControllers();
     }
 
@@ -339,12 +336,16 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             reset();
         }
 
+
+
         if (gameLost) {
+            soundController.stopAllSounds();
             listener.exitScreen(this, GDXRoot.EXIT_LOSE);
             return false;
         }
 
         if (complete) {
+            soundController.stopAllSounds();
             listener.exitScreen(this, GDXRoot.EXIT_WIN);
             return false;
         }
@@ -472,9 +473,40 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * Dispose of all (non-static) resources allocated to this mode.
      */
     public void dispose() {
-        level.dispose();
-        level = null;
-        ui.dispose();
+        if(level != null) {
+            level.dispose();
+            level = null;
+        }
+
+        if(playerAIController != null) {
+            playerAIController = null;
+        }
+
+        if(guardToAIController != null) {
+            guardToAIController.clear();
+            guardToAIController = null;
+        }
+
+        if(sensorFixtures != null) {
+            sensorFixtures.clear();
+            sensorFixtures = null;
+        }
+
+        if(map != null) {
+            map.dispose();
+            ;
+            map = null;
+        }
+
+        if(graph != null) {
+            graph.dispose();
+            graph = null;
+        }
+
+        if(ui != null) {
+            ui.dispose();
+            ui = null;
+        }
     }
 
     public void initializeAIControllers() {
@@ -994,7 +1026,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 if ((level.isCatPresent() && entry.value.contains(catObs))
                         || (level.isOctopusPresent() && entry.value.contains(octObs))) {
 
-                    ((SecurityCamera) entry.key).activateRing();
+
+                    ((SecurityCamera) entry.key).activateAlarm();
+
 
                     PlayableAvatar detectedPlayer = null;
                     if (catObs == null){
@@ -1005,6 +1039,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                     assert detectedPlayer != null;
 
                     detectedPlayer.setUnderCamera(true);
+
 
                     for (Guard guard : level.getGuards()) {
                         float guardToCameraDistance = guard.getPosition()
@@ -1215,7 +1250,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         // Projectiles
         // TODO: not sure about the order of if statements here.
-        if (inkProjectile.getShouldDestroy()) {
+        if (inkProjectile.getShouldDestroy() && !inkProjectile.isDestroyed()) {
             soundController.playSound("ink-finish");
             inkProjectile.destroy();
         }

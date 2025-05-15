@@ -36,6 +36,7 @@ import walknroll.zoodini.utils.enums.AvatarType;
 public class UIController {
 
     private final boolean debug = false;
+    private static boolean minimapDisabled = false;
 
     public interface PauseMenuListener {
         void onPauseStateChanged(boolean paused);
@@ -489,7 +490,10 @@ public class UIController {
             }
         }
 
-        // finally… draw the stage
+        if(minimapDisabled){
+            minimap.setDisabled(true);
+        }
+
         stage.draw();
     }
 
@@ -518,5 +522,8 @@ public class UIController {
 
     public void setPauseMenuListener(PauseMenuListener l){
         pauseListener = l;
+    }
+    public static void disableMinimap(boolean b){
+        minimapDisabled = b;
     }
 }

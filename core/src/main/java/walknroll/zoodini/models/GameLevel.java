@@ -53,6 +53,7 @@ import edu.cornell.gdiac.physics2.Obstacle;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.util.PooledList;
 import walknroll.zoodini.controllers.InputController;
+import walknroll.zoodini.controllers.UIController;
 import walknroll.zoodini.controllers.aitools.LOSController;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Cat;
@@ -297,7 +298,9 @@ public class GameLevel {
             MapObjects objs =l.getObjects();
             imagesCache = new Array<>(objs.getCount());
             for(MapObject obj : objs){
-                imagesCache.add((TextureMapObject) obj);
+                if(obj instanceof TextureMapObject t) {
+                    imagesCache.add(t);
+                }
             }
             imagesCache.sort((a,b) -> Float.compare(b.getY(), a.getY())); //descending order
         }
@@ -358,6 +361,7 @@ public class GameLevel {
                 activate(avatarOctopus);
                 octopusPresent = true;
             } else if ("Guard".equalsIgnoreCase(type)) {
+                System.out.println("Creating guard");
                 Guard g = new Guard(properties, entityConstants.get("guard"), units);
                 SpriteSheet idle = directory.getEntry("guard-idle-all.animation", SpriteSheet.class);
                 idle = new SpriteSheet(idle);
@@ -419,6 +423,11 @@ public class GameLevel {
                 Vent vent = new Vent(directory, properties, entityConstants.get("vent"), units);
                 vents.add(vent);
                 activate(vent);
+            } else if ("Settings".equalsIgnoreCase(type)){
+                Boolean disableMinimap = properties.get("disableMinimap", Boolean.class);
+                if (disableMinimap != null && disableMinimap) {
+                    UIController.disableMinimap(true);
+                }
             }
         }
 
@@ -460,7 +469,14 @@ public class GameLevel {
         securityCameras.clear();
         objects.clear();
         sprites.clear();
+        doors.clear();
         textObjects.clear();
+        if (imagesCache != null) {
+            imagesCache.clear();
+        }
+        keys.clear();
+        mapRenderer.dispose();
+        vents.clear();
         if (world != null) {
             world.dispose();
             world = null;
@@ -500,7 +516,7 @@ public class GameLevel {
             for (Guard g : guards) {
                 g.update(dt);
                 g.updateInkBlindTimer(dt);
-                updateFlipSprite(g);
+                updateFlipGuardSprite(g);
             }
 
             for (SecurityCamera c : securityCameras) {
@@ -597,6 +613,7 @@ public class GameLevel {
     public void draw(SpriteBatch batch, Camera camera) {
         // Draw the sprites first (will be hidden by shadows)
         batch.begin(camera);
+        batch.setColor(Color.WHITE);
         mapRenderer.setView((OrthographicCamera) camera);
 
         // Get ground layer and render it
@@ -606,7 +623,6 @@ public class GameLevel {
         sprites.sort(ZoodiniSprite.Comparison);
         for (ZoodiniSprite obj : sprites) {
             if (obj.isDrawingEnabled()) {
-                batch.setColor(Color.WHITE);
                 obj.draw(batch);
             }
             if (obj instanceof SecurityCamera cam) {
@@ -615,6 +631,7 @@ public class GameLevel {
             }
         }
 
+        batch.setColor(Color.WHITE);
         Avatar avatar = getAvatar();
         if (avatar != null) {
             if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
@@ -641,23 +658,30 @@ public class GameLevel {
                 }
             }
         }
-
+        batch.setColor(Color.WHITE);
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
             if (entry.key instanceof Guard) {
                 entry.value.draw(batch, camera);
             }
         }
 
+        batch.setColor(Color.WHITE);
+        MapLayer decorations = mapRenderer.getMap().getLayers().get("decorations");
+        if (decorations != null)
+            mapRenderer.renderTileLayer((TiledMapTileLayer) decorations);
+
+        batch.setColor(Color.WHITE);
+        // Get wall layer and render it
+        MapLayer wallLayer = mapRenderer.getMap().getLayers().get("wall-tiles");
+        if (wallLayer != null)
+            mapRenderer.renderTileLayer((TiledMapTileLayer) wallLayer);
+
+        batch.setColor(Color.WHITE);
         if(imagesCache != null) {
             for (TextureMapObject t : imagesCache) {
                 batch.draw(t.getTextureRegion(), t.getX(), t.getY());
             }
         }
-
-        // Get wall layer and render it
-        MapLayer wallLayer = mapRenderer.getMap().getLayers().get("wall-tiles");
-        if (wallLayer != null)
-            mapRenderer.renderTileLayer((TiledMapTileLayer) wallLayer);
 
 
         // d debugging on top of everything.
@@ -1045,6 +1069,16 @@ public class GameLevel {
         if (!avatar.isFlipped() && avatar.getMovement().x < 0.0f
                 || avatar.isFlipped() && avatar.getMovement().x > 0.0f) {
             avatar.flipSprite();
+        }
+    }
+
+    private void updateFlipGuardSprite(Guard guard){
+        // flips the sprite if the guard is moving left
+        if (!guard.isIdle() && (!guard.isFlipped() && guard.getMovement().x < 0.0f
+                || guard.isFlipped() && guard.getMovement().x > 0.0f)) {
+            guard.flipSprite();
+        } else if (guard.isIdle() && guard.getMovement().x == 0.0f) {
+            guard.setFlipped(false);
         }
     }
 

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="46" height="23" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="348">
- <tileset firstgid="1" source="../../tilesets/path-1.tsx"/>
- <tileset firstgid="211" source="../../tilesets/path-2.tsx"/>
- <tileset firstgid="421" source="../../tilesets/walls-1.tsx"/>
- <tileset firstgid="631" source="../../tilesets/path-3.tsx"/>
- <tileset firstgid="887" source="../../tilesets/decorations.tsx"/>
+ <tileset firstgid="1" source="../tilesets/path-1.tsx"/>
+ <tileset firstgid="211" source="../tilesets/path-2.tsx"/>
+ <tileset firstgid="421" source="../tilesets/walls-1.tsx"/>
+ <tileset firstgid="631" source="../tilesets/path-3.tsx"/>
+ <tileset firstgid="887" source="../tilesets/decorations.tsx"/>
  <layer id="1" name="ground" width="46" height="23">
   <data encoding="csv">
 537,537,537,537,537,537,537,537,537,1610613084,2684354906,537,537,537,537,537,537,537,537,537,537,537,537,537,537,537,537,537,537,537,537,537,537,537,537,552,552,552,537,552,552,552,552,552,552,552,

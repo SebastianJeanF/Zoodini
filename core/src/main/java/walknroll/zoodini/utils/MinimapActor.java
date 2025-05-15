@@ -37,6 +37,7 @@ public class MinimapActor extends Actor implements Disposable {
 
     private Texture octopusTexture;
     private Texture catTexture;
+    private boolean disabled;
 
     private int updateCounter = 0;
     private static final int UPDATE_FREQUENCY = 5;
@@ -99,7 +100,6 @@ public class MinimapActor extends Actor implements Disposable {
      */
     private void drawMinimap() {
         if (pixmap == null) return;
-
         // Clear the pixmap
         pixmap.setColor(BORDER_COLOR);
         pixmap.fill();
@@ -296,12 +296,18 @@ public class MinimapActor extends Actor implements Disposable {
     @Override
     public void draw(Batch batch, float parentAlpha) {
         // Check if we need to redraw the minimap
+        if(disabled){
+            batch.draw(minimapTexture, getX(), getY(), getWidth(), getHeight());
+            return;
+        }
+
         if (needsRedraw) {
             drawMinimap();
         }
 
         // Draw the minimap texture
         batch.draw(minimapTexture, getX(), getY(), getWidth(), getHeight());
+
 
         // Draw dynamic entities (players, guards, cameras)
         drawDynamicEntities(batch);
@@ -386,5 +392,9 @@ public class MinimapActor extends Actor implements Disposable {
         if (dotTexture != null) {
             dotTexture.dispose();
         }
+    }
+
+    public void setDisabled(boolean b){
+        this.disabled = b;
     }
 }
