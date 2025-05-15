@@ -7,10 +7,13 @@ import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.physics2.BoxObstacle;
+import edu.cornell.gdiac.util.PooledList;
+import java.util.HashMap;
 import java.util.Objects;
 import walknroll.zoodini.models.GameLevel;
 import com.badlogic.gdx.maps.MapObject;
@@ -18,6 +21,9 @@ import com.badlogic.gdx.maps.MapProperties;
 import walknroll.zoodini.models.entities.Cat;
 import walknroll.zoodini.models.entities.Octopus;
 import walknroll.zoodini.models.entities.PlayableAvatar;
+import walknroll.zoodini.models.nonentities.Door;
+import walknroll.zoodini.models.nonentities.Key;
+import walknroll.zoodini.utils.enums.AvatarType;
 
 public class Checkpoint {
     /** The unique ID for this checkpoint */
@@ -35,6 +41,27 @@ public class Checkpoint {
     /** The position of this checkpoint */
     private Vector2 position;
 
+    /** Snapshot of door states at activation time */
+    private HashMap<Integer, Boolean> doorStates;
+
+    /** Snapshot of key states at activation time */
+    private HashMap<Integer, KeyState> keyStates;
+
+    /** Number of keys each character had at checkpoint time */
+    private int catKeyCount;
+    private int octopusKeyCount;
+
+    /** Inner class to store key state */
+    public static class KeyState {
+        public boolean collected;
+        public AvatarType owner;
+
+        public KeyState(boolean collected, AvatarType owner) {
+            this.collected = collected;
+            this.owner = owner;
+        }
+    }
+
     /**
      * Creates a checkpoint with the given settings
      *
@@ -50,6 +77,12 @@ public class Checkpoint {
         this.forCharacter = (properties.get("forCat", Boolean.class)) ? "cat" : "octopus";
         this.position = new Vector2(properties.get("x", Float.class) / units, properties.get("y", Float.class) / units);
         this.isActive = properties.get("isActive", Boolean.class);
+
+        // Initialize state storage
+        this.doorStates = new HashMap<>();
+        this.keyStates = new HashMap<>();
+        this.catKeyCount = 0;
+        this.octopusKeyCount = 0;
     }
 
     // Getters and setters
@@ -65,8 +98,46 @@ public class Checkpoint {
 
     public Vector2 getPosition() { return position; }
 
+    public HashMap<Integer, Boolean> getDoorStates() { return doorStates; }
+
+    public HashMap<Integer, KeyState> getKeyStates() { return keyStates; }
+
+    public int getCatKeyCount() { return catKeyCount; }
+
+    public int getOctopusKeyCount() { return octopusKeyCount; }
+
     /** Returns whether this checkpoint applies to the given character */
     public boolean appliesTo(String character) {
-        return forCharacter.equals("Both") || forCharacter.equals(character);
+        return forCharacter.equals(character);
     }
+
+
+
+    /**
+     * Store the game state at the time this checkpoint is activated
+     */
+    public void storeGameState(
+        PooledList<Door> oldDoors, int numCatKeys, int numOctKeys, Array<Key> oldKeys) {
+        doorStates.clear();
+        keyStates.clear();
+
+        // Store door states
+        for (Door door : oldDoors) {
+            doorStates.put(door.getId(), door.isLocked());
+        }
+
+        // Store key states
+        for (Key key : oldKeys) {
+            keyStates.put(key.getID(), new KeyState(key.isCollected(), key.getOwner()));
+        }
+
+        // Store key counts
+        catKeyCount = numCatKeys;
+        octopusKeyCount = numOctKeys;
+
+        System.out.println("Stored game state at checkpoint: " + id +
+            " | Cat keys: " + catKeyCount +
+            " | Octopus keys: " + octopusKeyCount);
+    }
+
 }

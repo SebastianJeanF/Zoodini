@@ -69,6 +69,8 @@ import walknroll.zoodini.models.nonentities.Exit;
 import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.models.nonentities.Vent;
+import walknroll.zoodini.utils.Checkpoint.KeyState;
+import walknroll.zoodini.utils.CheckpointListener;
 import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.VisionCone;
@@ -86,7 +88,8 @@ import walknroll.zoodini.utils.enums.AvatarType;
  * You will notice that asset loading is very different. It relies on the
  * singleton asset manager to manage the various assets.
  */
-public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener{
+public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener,
+    CheckpointListener {
     /** How many frames after winning/losing do we continue? */
     public static final int EXIT_COUNT = 120;
     // ASSETS
@@ -222,6 +225,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         setFailure(false);
 
         soundController = SoundController.getInstance();
+
+        // Initialize checkpoint listeners
+        for (Door door : level.getDoors()) {
+            door.setCheckpointListener(this);
+        }
     }
 
     public int getCurrentLevel() {
@@ -1433,24 +1441,52 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * opened and keys collected.
      */
     private void resetFromSnapShot() {
-        System.out.println("Resetting from snapshot");
-        // Set spawn points to new checkpoints
-
-        // Keep opened doors opened
-        PooledList<Door> prevDoors = new PooledList<>();
-        prevDoors.addAll(level.getDoors());
-        Array<Key> prevKeys = new Array<>();
-        prevKeys.addAll(level.getKeys());
-
-        for (Key key: prevKeys) {
-            System.out.println("Key: " + key.getID() + " collected: " + key.isCollected());
-        }
-
-        // Don't reset keys, they are already collected
-        int numCatKeys = level.getCat().getNumKeys();
-        int numOctKeys = level.getOctopus().getNumKeys();
+//        System.out.println("Resetting from snapshot");
+//        // Set spawn points to new checkpoints
+//
+//        // Keep opened doors opened
+//        PooledList<Door> prevDoors = new PooledList<>();
+//        prevDoors.addAll(level.getDoors());
+//        Array<Key> prevKeys = new Array<>();
+//        prevKeys.addAll(level.getKeys());
+//
+//        for (Key key: prevKeys) {
+//            System.out.println("Key: " + key.getID() + " collected: " + key.isCollected());
+//        }
+//
+//        // Don't reset keys, they are already collected
+//        int numCatKeys = level.getCat().getNumKeys();
+//        int numOctKeys = level.getOctopus().getNumKeys();
 
         reset();
-        level.restoreFromSnapShot(prevDoors, numCatKeys, numOctKeys, prevKeys);
+        level.restoreFromSnapShot();
+    }
+
+    @Override
+    public void onCheckpointActivated(Integer doorId, PlayableAvatar unlocker) {
+        // Create snapshot of current game state
+        HashMap<Integer, Boolean> doorStates = new HashMap<>();
+        HashMap<Integer, KeyState> keyStates = new HashMap<>();
+
+        // Store door states
+        for (Door door : level.getDoors()) {
+            doorStates.put(door.getId(), door.isLocked());
+        }
+
+        // Store key states
+        for (Key key : level.getKeys()) {
+            keyStates.put(key.getID(), new KeyState(key.isCollected(), key.getOwner()));
+        }
+
+        // Get key counts
+        int catKeyCount = level.isCatPresent() ? level.getCat().getNumKeys() : 0;
+        int octopusKeyCount = level.isOctopusPresent() ? level.getOctopus().getNumKeys() : 0;
+
+        // Store the game state in the checkpoint manager
+        level.getCheckpointManager().storeGameState(doorId, doorStates, keyStates,
+            catKeyCount, octopusKeyCount);
+
+        // Activate the checkpoints for this door
+        level.getCheckpointManager().activateDoorCheckpoints(doorId);
     }
 }

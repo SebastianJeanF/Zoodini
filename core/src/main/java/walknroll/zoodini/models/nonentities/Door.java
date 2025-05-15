@@ -29,6 +29,7 @@ import java.util.Iterator;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.PlayableAvatar;
+import walknroll.zoodini.utils.CheckpointListener;
 import walknroll.zoodini.utils.CheckpointManager;
 import walknroll.zoodini.utils.CircleTimer;
 import walknroll.zoodini.utils.ZoodiniSprite;
@@ -66,6 +67,17 @@ public class Door extends ZoodiniSprite {
     private PlayableAvatar unlocker;
 
     private int id;
+
+    /** Listener for checkpoint activation events */
+    private CheckpointListener checkpointListener;
+
+    /**
+     * Sets the checkpoint listener for this door
+     * @param listener The listener to notify when checkpoints are activated
+     */
+    public void setCheckpointListener(CheckpointListener listener) {
+        this.checkpointListener = listener;
+    }
 
 
     public boolean isUnlocking() {
@@ -194,7 +206,11 @@ public class Door extends ZoodiniSprite {
             unlocker.decreaseNumKeys();
             if (checkpointManager.doorHasCheckpoints(this.id)) {
                 setReachedCheckpoint(true);
-                checkpointManager.activateDoorCheckpoints(this.id);
+                // Notify the listener instead of directly activating checkpoints
+                if (checkpointListener != null) {
+                    checkpointListener.onCheckpointActivated(this.id, unlocker);
+                }
+                // checkpointManager.activateDoorCheckpoints(this.id);
                 System.out.println("Checkpoint reached!: " + this.id);
             }
         }
