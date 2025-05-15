@@ -1301,25 +1301,26 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
             // Adjust zoom based on distance between avatars
             // Higher distance = more zoom out (higher zoom value)
-            float targetZoom = Math.max(1.0f, Math.min(2.0f, distance / 10.0f));
+//            float targetZoom = Math.max(1.0f, Math.min(2.0f, distance / 10.0f));
+            float targetZoom = Math.max(1.0f, Math.min(2.25f, distance / 9.25f));
 
             // Smoothly interpolate zoom
             camera.zoom = camera.zoom + (targetZoom - camera.zoom) * 0.1f;
         } else { cameraTargetPosition.set(avatar.getPosition()); }
 
         // Get viewport dimensions in world units
-        float viewWidth = camera.viewportWidth / level.getTileSize();
-        float viewHeight = camera.viewportHeight / level.getTileSize();
-
-        // Calculate soft boundaries that allow partial dead space
-        float minX = level.getBounds().x + (viewWidth * 0.5f * camera.zoom);
-        float maxX = level.getBounds().x + (level.getBounds().width) - (viewWidth * 0.5f * camera.zoom);
-        float minY = level.getBounds().y + (viewHeight * 0.5f * camera.zoom);
-        float maxY = level.getBounds().y + (level.getBounds().height) - (viewHeight * 0.5f * camera.zoom);
-
-        // Clamp camera position with soft boundaries
-        cameraTargetPosition.x = Math.max(minX, Math.min(cameraTargetPosition.x, maxX));
-        cameraTargetPosition.y = Math.max(minY, Math.min(cameraTargetPosition.y, maxY));
+//        float viewWidth = camera.viewportWidth / level.getTileSize();
+//        float viewHeight = camera.viewportHeight / level.getTileSize();
+//
+//        // Calculate soft boundaries that allow partial dead space
+//        float minX = level.getBounds().x + (viewWidth * 0.5f * camera.zoom);
+//        float maxX = level.getBounds().x + (level.getBounds().width) - (viewWidth * 0.5f * camera.zoom);
+//        float minY = level.getBounds().y + (viewHeight * 0.5f * camera.zoom);
+//        float maxY = level.getBounds().y + (level.getBounds().height) - (viewHeight * 0.5f * camera.zoom);
+//
+//        // Clamp camera position with soft boundaries
+//        cameraTargetPosition.x = Math.max(minX, Math.min(cameraTargetPosition.x, maxX));
+//        cameraTargetPosition.y = Math.max(minY, Math.min(cameraTargetPosition.y, maxY));
 
         if (inCameraTransition) {
             // Update transition timer
