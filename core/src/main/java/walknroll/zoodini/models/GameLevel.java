@@ -613,6 +613,7 @@ public class GameLevel {
     public void draw(SpriteBatch batch, Camera camera) {
         // Draw the sprites first (will be hidden by shadows)
         batch.begin(camera);
+        batch.setColor(Color.WHITE);
         mapRenderer.setView((OrthographicCamera) camera);
 
         // Get ground layer and render it
@@ -622,7 +623,6 @@ public class GameLevel {
         sprites.sort(ZoodiniSprite.Comparison);
         for (ZoodiniSprite obj : sprites) {
             if (obj.isDrawingEnabled()) {
-                batch.setColor(Color.WHITE);
                 obj.draw(batch);
             }
             if (obj instanceof SecurityCamera cam) {

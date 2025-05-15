@@ -324,6 +324,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             reset();
         }
 
+
+
         if (gameLost) {
             soundController.stopAllSounds();
             listener.exitScreen(this, GDXRoot.EXIT_LOSE);
