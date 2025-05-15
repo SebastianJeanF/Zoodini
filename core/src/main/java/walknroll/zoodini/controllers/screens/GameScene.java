@@ -1277,11 +1277,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      */
     private void updateCamera(float dt) {
         PlayableAvatar avatar = level.getAvatar();
-        if (avatar.isCurrentlyAiming()) {
-            camera.zoom = Math.min(1.2f, camera.zoom + 0.01f);
-        } else {
-            camera.zoom = Math.max(1.0f, camera.zoom - 0.005f);
-        }
+//        if (avatar.isCurrentlyAiming()) {
+//            camera.zoom = Math.min(1.2f, camera.zoom + 0.01f);
+//        } else {
+//            camera.zoom = Math.max(1.0f, camera.zoom - 0.005f);
+//        }
 
         cameraTargetPosition.set(avatar.getPosition());
 

@@ -645,12 +645,6 @@ public class GameLevel {
             }
         }
 
-        if(imagesCache != null) {
-            for (TextureMapObject t : imagesCache) {
-                batch.draw(t.getTextureRegion(), t.getX(), t.getY());
-            }
-        }
-
         MapLayer decorations = mapRenderer.getMap().getLayers().get("decorations");
         if (decorations != null)
             mapRenderer.renderTileLayer((TiledMapTileLayer) decorations);
@@ -659,6 +653,12 @@ public class GameLevel {
         MapLayer wallLayer = mapRenderer.getMap().getLayers().get("wall-tiles");
         if (wallLayer != null)
             mapRenderer.renderTileLayer((TiledMapTileLayer) wallLayer);
+
+        if(imagesCache != null) {
+            for (TextureMapObject t : imagesCache) {
+                batch.draw(t.getTextureRegion(), t.getX(), t.getY());
+            }
+        }
 
 
         // d debugging on top of everything.
