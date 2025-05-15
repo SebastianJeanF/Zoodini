@@ -361,6 +361,7 @@ public class GameLevel {
                 activate(avatarOctopus);
                 octopusPresent = true;
             } else if ("Guard".equalsIgnoreCase(type)) {
+                System.out.println("Creating guard");
                 Guard g = new Guard(properties, entityConstants.get("guard"), units);
                 SpriteSheet idle = directory.getEntry("guard-idle-all.animation", SpriteSheet.class);
                 idle = new SpriteSheet(idle);
