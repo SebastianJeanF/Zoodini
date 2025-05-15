@@ -12,6 +12,7 @@
  */
 package walknroll.zoodini.controllers.screens;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
@@ -98,6 +99,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     /** The orthographic camera */
     private OrthographicCamera camera;
+
+    private OrthographicCamera cameraLeft;
+    private OrthographicCamera cameraRight;
 
     /** Reference to the game canvas */
     protected SpriteBatch batch;
@@ -200,8 +204,16 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         camera = new OrthographicCamera();
 
         float NUM_TILES_WIDE = 18f;
-        camera.setToOrtho(false, level.getTileSize() * NUM_TILES_WIDE,
-                level.getTileSize() * NUM_TILES_WIDE * 720f / 1280f);
+        float viewportWidth = level.getTileSize() * NUM_TILES_WIDE;
+        float viewportHeight = level.getTileSize() * NUM_TILES_WIDE * 720f / 1280f;
+        camera.setToOrtho(false, viewportWidth, viewportHeight);
+
+        if (Constants.CO_OP) {
+            cameraLeft = new OrthographicCamera();
+            cameraRight = new OrthographicCamera();
+            cameraLeft.setToOrtho(false, viewportWidth / 2f, viewportHeight);
+            cameraRight.setToOrtho(false, viewportWidth / 2f, viewportHeight);
+        }
 
         // Initialize camera tracking variables
         cameraTargetPosition = new Vector2();
@@ -402,13 +414,23 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         // Color is based on green background of tileset: RBGA(22,89,98,255)
         ScreenUtils.clear(0.0863f, 0.349f, 0.3843f, 1.0f);
         // Set the camera's updated view
-        batch.setProjectionMatrix(camera.combined);
+        if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
+            // Left half (Cat)
+            Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight() * 2);
+            batch.setProjectionMatrix(cameraLeft.combined);
+            level.draw(batch, cameraLeft);
 
-//        mapRenderer.setView(camera);
-//        mapRenderer.render(); // divide this into layerwise rendering if you want
+            // Right half (Octopus)
+            Gdx.gl.glViewport(Gdx.graphics.getWidth(), 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight() * 2);
+            batch.setProjectionMatrix(cameraRight.combined);
+            level.draw(batch, cameraRight);
 
-
-        level.draw(batch, camera);
+            // Reset viewport for UI
+            Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth() * 2, Gdx.graphics.getHeight() * 2);
+        } else {
+            batch.setProjectionMatrix(camera.combined);
+            level.draw(batch, camera);
+        }
         if (Constants.DEBUG) {
             graph.clearMarkedNodes();
 
@@ -1279,48 +1301,93 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * Updates the camera position with interpolation when transitioning
      */
     private void updateCamera(float dt) {
+
+        if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
+            // Get avatar positions
+            Vector2 catPosition = null;
+            Vector2 octopusPosition = null;
+
+            // Determine which avatar is which
+            if (level.getAvatar().getAvatarType() == AvatarType.CAT) {
+                catPosition = level.getAvatar().getPosition();
+                octopusPosition = level.getInactiveAvatar().getPosition();
+            } else {
+                catPosition = level.getInactiveAvatar().getPosition();
+                octopusPosition = level.getAvatar().getPosition();
+            }
+
+            // Apply aiming zoom if needed
+            updateCameraZoom(dt);
+
+            // Update left camera (Cat)
+            updateSplitScreenCamera(cameraLeft, catPosition, dt);
+
+            // Update right camera (Octopus)
+            updateSplitScreenCamera(cameraRight, octopusPosition, dt);
+        } else {
+            updateCameraSinglePlayer(dt);
+        }
+    }
+
+    private void updateCameraZoom(float dt) {
+        PlayableAvatar avatar = level.getAvatar();
+        if (avatar.isCurrentlyAiming()) {
+            camera.zoom = Math.min(1.2f, camera.zoom + 0.01f);
+            cameraLeft.zoom = camera.zoom;
+            cameraRight.zoom = camera.zoom;
+        } else {
+            camera.zoom = Math.max(1.0f, camera.zoom - 0.005f);
+            cameraLeft.zoom = camera.zoom;
+            cameraRight.zoom = camera.zoom;
+        }
+    }
+
+    private void updateSplitScreenCamera(OrthographicCamera cam, Vector2 targetPosition, float dt) {
+        // Apply soft boundaries to the target position
+        Vector2 boundedPosition = new Vector2(targetPosition);
+
+        // Get viewport dimensions in world units
+        float viewWidth = cam.viewportWidth / level.getTileSize();
+        float viewHeight = cam.viewportHeight / level.getTileSize();
+
+        // Calculate soft boundaries for this camera
+        float minX = level.getBounds().x + (viewWidth * 0.5f * cam.zoom);
+        float maxX = level.getBounds().x + (level.getBounds().width) - (viewWidth * 0.5f * cam.zoom);
+        float minY = level.getBounds().y + (viewHeight * 0.5f * cam.zoom);
+        float maxY = level.getBounds().y + (level.getBounds().height) - (viewHeight * 0.5f * cam.zoom);
+
+        // Clamp camera position with soft boundaries
+        boundedPosition.x = Math.max(minX, Math.min(boundedPosition.x, maxX));
+        boundedPosition.y = Math.max(minY, Math.min(boundedPosition.y, maxY));
+
+        // Apply to camera position
+        cam.position.set(boundedPosition.x * level.getTileSize(),
+            boundedPosition.y * level.getTileSize(), 0);
+        cam.update();
+    }
+
+
+    private void updateCameraSinglePlayer(float dt) {
         PlayableAvatar avatar = level.getAvatar();
         if (avatar.isCurrentlyAiming()) {
             camera.zoom = Math.min(1.2f, camera.zoom + 0.01f);
         } else {
             camera.zoom = Math.max(1.0f, camera.zoom - 0.005f);
         }
-
-        if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
-            PlayableAvatar avatar1 = level.getAvatar();
-            PlayableAvatar avatar2 = level.getInactiveAvatar();
-
-            // Calculate midpoint between the two avatars
-            cameraTargetPosition.set(
-                (avatar1.getPosition().x + avatar2.getPosition().x) * 0.5f,
-                (avatar1.getPosition().y + avatar2.getPosition().y) * 0.5f
-            );
-
-            // Calculate distance between avatars
-            float distance = avatar1.getPosition().dst(avatar2.getPosition());
-
-            // Adjust zoom based on distance between avatars
-            // Higher distance = more zoom out (higher zoom value)
-//            float targetZoom = Math.max(1.0f, Math.min(2.0f, distance / 10.0f));
-            float targetZoom = Math.max(1.0f, Math.min(2.25f, distance / 9.25f));
-
-            // Smoothly interpolate zoom
-            camera.zoom = camera.zoom + (targetZoom - camera.zoom) * 0.1f;
-        } else { cameraTargetPosition.set(avatar.getPosition()); }
-
+        cameraTargetPosition.set(avatar.getPosition());
         // Get viewport dimensions in world units
-//        float viewWidth = camera.viewportWidth / level.getTileSize();
-//        float viewHeight = camera.viewportHeight / level.getTileSize();
-//
-//        // Calculate soft boundaries that allow partial dead space
-//        float minX = level.getBounds().x + (viewWidth * 0.5f * camera.zoom);
-//        float maxX = level.getBounds().x + (level.getBounds().width) - (viewWidth * 0.5f * camera.zoom);
-//        float minY = level.getBounds().y + (viewHeight * 0.5f * camera.zoom);
-//        float maxY = level.getBounds().y + (level.getBounds().height) - (viewHeight * 0.5f * camera.zoom);
-//
-//        // Clamp camera position with soft boundaries
-//        cameraTargetPosition.x = Math.max(minX, Math.min(cameraTargetPosition.x, maxX));
-//        cameraTargetPosition.y = Math.max(minY, Math.min(cameraTargetPosition.y, maxY));
+        float viewWidth = camera.viewportWidth / level.getTileSize();
+        float viewHeight = camera.viewportHeight / level.getTileSize();
+
+        // Calculate soft boundaries that allow partial dead space
+        float minX = level.getBounds().x + (viewWidth * 0.5f * camera.zoom);
+        float maxX = level.getBounds().x + (level.getBounds().width) - (viewWidth * 0.5f * camera.zoom);
+        float minY = level.getBounds().y + (viewHeight * 0.5f * camera.zoom);
+        float maxY = level.getBounds().y + (level.getBounds().height) - (viewHeight * 0.5f * camera.zoom);
+
+        // Clamp camera position with soft boundaries
+        cameraTargetPosition.x = Math.max(minX, Math.min(cameraTargetPosition.x, maxX));
+        cameraTargetPosition.y = Math.max(minY, Math.min(cameraTargetPosition.y, maxY));
 
         if (inCameraTransition) {
             // Update transition timer
