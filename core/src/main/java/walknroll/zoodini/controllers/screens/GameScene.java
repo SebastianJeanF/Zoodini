@@ -1150,18 +1150,49 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     }
 
     private void handleOctopusAbility(InputController input, Octopus octopus, boolean p2) {
-        vec3tmp.set(input.getAiming(), 0);
-        vec3tmp = camera.unproject(vec3tmp);
-        vec2tmp.set(vec3tmp.x, vec3tmp.y)
-                .scl(1.0f / level.getTileSize())
-                .sub(octopus.getPosition())
-                .clamp(0.0f, octopus.getAbilityRange()); // this decides the distance for projectile to travel
-        octopus.setTarget(vec2tmp); // set a target vector relative to octopus's position as origin.
+        if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
+            int screenWidth = Gdx.graphics.getWidth();
+            int screenHeight = Gdx.graphics.getHeight();
+            int halfWidth = screenWidth / 2;
+            float mouseX = input.getAiming().x;
+            float mouseY = input.getAiming().y;
 
-        if ((!p2 && input.didAbility() || p2 && input.didP2Ability()) && octopus.canUseAbility()) { // check for ink resource here.
-            octopus.setCurrentlyAiming(!octopus.isCurrentlyAiming()); // turn the reticle on and off
+            // Convert screen coordinates to normalized viewport coordinates (0-1)
+            // for the right half of the screen only
+            float viewportX = (mouseX - halfWidth) / halfWidth;
+            float viewportY = mouseY / screenHeight;
+
+            // Adjust for GDX's coordinate system (Y is inverted)
+            viewportY = 1.0f - viewportY;
+
+            // Convert viewport coordinates to normalized device coordinates (-1 to 1)
+            float ndcX = (viewportX * 2.0f) - 1.0f;
+            float ndcY = (viewportY * 2.0f) - 1.0f;
+
+            // Create a vector with these coordinates
+            vec3tmp.set(ndcX, ndcY, 0);
+
+            // Use the right camera's combined matrix to unproject properly
+            vec3tmp.prj(cameraRight.invProjectionView);
+        } else {
+            vec3tmp.set(input.getAiming(), 0);
+            vec3tmp = camera.unproject(vec3tmp);
         }
 
+        // Calculate target vector
+        vec2tmp.set(vec3tmp.x, vec3tmp.y)
+            .scl(1.0f / level.getTileSize())
+            .sub(octopus.getPosition())
+            .clamp(0.0f, octopus.getAbilityRange());
+
+        octopus.setTarget(vec2tmp);
+
+        // Handle ability activation
+        if ((!p2 && input.didAbility() || p2 && input.didP2Ability()) && octopus.canUseAbility()) {
+            octopus.setCurrentlyAiming(!octopus.isCurrentlyAiming());
+        }
+
+        // Handle firing
         if (octopus.isCurrentlyAiming() && input.didLeftClick()) {
             octopus.setDidFire(true);
             octopus.setCurrentlyAiming(false);
@@ -1338,15 +1369,15 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         PlayableAvatar avatar = level.getAvatar();
         PlayableAvatar inactiveAvatar = level.getInactiveAvatar();
         if (avatar.isCurrentlyAiming()) {
-            cameraLeft.zoom = Math.min(1.25f, cameraLeft.zoom + 0.01f);
+            cameraLeft.zoom = Math.min(1.65f, cameraLeft.zoom + 0.025f);
         } else {
-            cameraLeft.zoom = Math.max(1.0f, cameraLeft.zoom - 0.01f);
+            cameraLeft.zoom = Math.max(1.0f, cameraLeft.zoom - 0.025f);
         }
 
         if (inactiveAvatar != null && inactiveAvatar.isCurrentlyAiming()) {
-            cameraRight.zoom = Math.min(1.25f, cameraRight.zoom + 0.01f);
+            cameraRight.zoom = Math.min(1.65f, cameraRight.zoom + 0.025f);
         } else {
-            cameraRight.zoom = Math.max(1.0f, cameraRight.zoom - 0.01f);
+            cameraRight.zoom = Math.max(1.0f, cameraRight.zoom - 0.025f);
         }
     }
 
