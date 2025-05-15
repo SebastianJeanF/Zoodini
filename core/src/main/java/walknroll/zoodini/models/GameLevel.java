@@ -470,6 +470,10 @@ public class GameLevel {
         sprites.clear();
         doors.clear();
         textObjects.clear();
+        imagesCache.clear();
+        keys.clear();
+        mapRenderer.dispose();
+        vents.clear();
         if (world != null) {
             world.dispose();
             world = null;
