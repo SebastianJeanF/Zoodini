@@ -1304,8 +1304,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
             // Get avatar positions
-            Vector2 catPosition = null;
-            Vector2 octopusPosition = null;
+            Vector2 catPosition;
+            Vector2 octopusPosition;
 
             // Determine which avatar is which
             if (level.getAvatar().getAvatarType() == AvatarType.CAT) {
@@ -1331,14 +1331,17 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     private void updateCameraZoom(float dt) {
         PlayableAvatar avatar = level.getAvatar();
+        PlayableAvatar inactiveAvatar = level.getInactiveAvatar();
         if (avatar.isCurrentlyAiming()) {
-            camera.zoom = Math.min(1.2f, camera.zoom + 0.01f);
-            cameraLeft.zoom = camera.zoom;
-            cameraRight.zoom = camera.zoom;
+            cameraLeft.zoom = Math.min(1.25f, cameraLeft.zoom + 0.01f);
         } else {
-            camera.zoom = Math.max(1.0f, camera.zoom - 0.005f);
-            cameraLeft.zoom = camera.zoom;
-            cameraRight.zoom = camera.zoom;
+            cameraLeft.zoom = Math.max(1.0f, cameraLeft.zoom - 0.01f);
+        }
+
+        if (inactiveAvatar != null && inactiveAvatar.isCurrentlyAiming()) {
+            cameraRight.zoom = Math.min(1.25f, cameraRight.zoom + 0.01f);
+        } else {
+            cameraRight.zoom = Math.max(1.0f, cameraRight.zoom - 0.01f);
         }
     }
 
