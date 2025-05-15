@@ -636,4 +636,17 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         return true;
     }
 
+    public void dispose(){
+        for(TileNode n : nodes){
+            n.dispose();
+        }
+        nodes.clear();
+        nodes = null;
+        targetNodes.clear();
+        targetNodes = null;
+        waypoints.clear();;
+        waypoints = null;
+        heuristic = null;
+    }
+
 }
