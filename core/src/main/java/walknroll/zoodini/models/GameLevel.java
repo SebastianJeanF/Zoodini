@@ -631,6 +631,7 @@ public class GameLevel {
             }
         }
 
+        batch.setColor(Color.WHITE);
         Avatar avatar = getAvatar();
         if (avatar != null) {
             if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
@@ -647,21 +648,26 @@ public class GameLevel {
                 }
             }
         }
+
+        batch.setColor(Color.WHITE);
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
             if (entry.key instanceof Guard) {
                 entry.value.draw(batch, camera);
             }
         }
 
+        batch.setColor(Color.WHITE);
         MapLayer decorations = mapRenderer.getMap().getLayers().get("decorations");
         if (decorations != null)
             mapRenderer.renderTileLayer((TiledMapTileLayer) decorations);
 
+        batch.setColor(Color.WHITE);
         // Get wall layer and render it
         MapLayer wallLayer = mapRenderer.getMap().getLayers().get("wall-tiles");
         if (wallLayer != null)
             mapRenderer.renderTileLayer((TiledMapTileLayer) wallLayer);
 
+        batch.setColor(Color.WHITE);
         if(imagesCache != null) {
             for (TextureMapObject t : imagesCache) {
                 batch.draw(t.getTextureRegion(), t.getX(), t.getY());

@@ -648,5 +648,4 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         waypoints = null;
         heuristic = null;
     }
-
 }
