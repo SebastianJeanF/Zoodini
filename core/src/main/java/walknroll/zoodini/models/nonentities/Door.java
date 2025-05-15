@@ -49,7 +49,7 @@ public class Door extends ZoodiniSprite {
     private float remainingTimeToUnlock;
     /** Whether this door is being unlocked at current frame*/
     private boolean isUnlocking;
-    private static final float UNLOCK_DURATION = 3.0f;
+    private float UNLOCK_DURATION = 3.0f;
     /** Tiled MapObject for this door*/
     private MapObject mapObject;
 
@@ -84,7 +84,7 @@ public class Door extends ZoodiniSprite {
     }
 
     public void resetTimer(){
-        remainingTimeToUnlock = 3.0f; //TODO: set this using json somehow.
+        remainingTimeToUnlock = UNLOCK_DURATION; //TODO: set this using json somehow.
     }
 
     /**
@@ -137,6 +137,8 @@ public class Door extends ZoodiniSprite {
 		obstacle.setSensor(false);
 		obstacle.setPhysicsUnits(units);
         this.units = units;
+        Float timeToOpen = properties.get("timeToOpen", Float.class);
+        UNLOCK_DURATION = (timeToOpen == null) ? 3.0f : timeToOpen;
 
         w = w * units;
         h = h * units;
