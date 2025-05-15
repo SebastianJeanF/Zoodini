@@ -471,7 +471,9 @@ public class GameLevel {
         sprites.clear();
         doors.clear();
         textObjects.clear();
-        imagesCache.clear();
+        if (imagesCache != null) {
+            imagesCache.clear();
+        }
         keys.clear();
         mapRenderer.dispose();
         vents.clear();
