@@ -4,23 +4,16 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
-import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import walknroll.zoodini.controllers.screens.GameScene;
 import walknroll.zoodini.models.GameLevel;
-import walknroll.zoodini.models.entities.Avatar;
 
 //Scene2d stuff
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -30,21 +23,19 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 
 
 import walknroll.zoodini.models.entities.Octopus;
 import walknroll.zoodini.models.entities.PlayableAvatar;
-import walknroll.zoodini.utils.CounterActor;
 import walknroll.zoodini.utils.InkMeterActor;
 import walknroll.zoodini.utils.MeowCooldownIndicator;
 import walknroll.zoodini.utils.MinimapActor;
-import walknroll.zoodini.utils.UIMessenger;
 import walknroll.zoodini.utils.enums.AvatarType;
 
 public class UIController {
 
     private final boolean debug = false;
+    private static boolean minimapDisabled = false;
 
     public interface PauseMenuListener {
         void onPauseStateChanged(boolean paused);
@@ -369,8 +360,8 @@ public class UIController {
         stage.act(dt);
     }
 
-    public void draw (UIMessenger messenger){
-        GameLevel level = messenger.getLevel();
+    public void draw (GameScene scene){
+        GameLevel level = scene.getLevel();
         if (Gdx.input.getInputProcessor() != stage) {
             Gdx.input.setInputProcessor(stage);
         }
@@ -393,7 +384,7 @@ public class UIController {
             inkTextImage.setVisible(true);
         }
 
-        if (messenger.getFollowModeActive()) {
+        if (scene.getFollowModeActive()) {
             catFollowIconImage.setVisible(isOcto);
             octopusFollowIconImage.setVisible(!isOcto);
         }
@@ -429,7 +420,10 @@ public class UIController {
             }
         }
 
-        // finally… draw the stage
+        if(minimapDisabled){
+            minimap.setDisabled(true);
+        }
+
         stage.draw();
     }
 
@@ -458,5 +452,8 @@ public class UIController {
 
     public void setPauseMenuListener(PauseMenuListener l){
         pauseListener = l;
+    }
+    public static void disableMinimap(boolean b){
+        minimapDisabled = b;
     }
 }

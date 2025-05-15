@@ -24,6 +24,7 @@ import walknroll.zoodini.utils.animation.Animation;
 import walknroll.zoodini.utils.animation.AnimationController;
 import walknroll.zoodini.utils.animation.AnimationState;
 
+import static walknroll.zoodini.utils.animation.AnimationState.IDLE_NORTH;
 import static walknroll.zoodini.utils.animation.AnimationState.SUSPICION_METER;
 
 public class Guard extends Enemy {
@@ -137,6 +138,8 @@ public class Guard extends Enemy {
         super(properties, constants, units);
         fov = constants.getFloat("fov");
         idleAngle = properties.get("angle", Float.class);
+        setAngle(MathUtils.degreesToRadians * idleAngle);
+        animationController.setState(IDLE_NORTH);
         currentPatrolIndex = 0;
         cameraAlerted = false;
         isChasing = false;
@@ -413,6 +416,8 @@ public class Guard extends Enemy {
     }
 
     public void update(float dt) {
+        super.update(dt);
+
         // If we have a movement direction, update orientation
         if(movementDirection == null || movementDirection.len() < 0.0001f){
             setAngle(MathUtils.degreesToRadians * idleAngle);
@@ -427,7 +432,45 @@ public class Guard extends Enemy {
             tempFov += dt;
         }
         applyForce();
-        super.update(dt);
+
+        if (isLookingAround){
+            if (inkBlinded) {
+                animationController.setState(AnimationState.IDLE_SOUTH_BLIND);
+            } else {
+                animationController.setState(AnimationState.IDLE_SOUTH);
+            }
+        }
+
+        if(isIdle) {
+            float angle = idleAngle % 360;
+            if (angle < 0) angle += 360;
+
+            if (angle >= 315 || angle < 45) {
+                if(inkBlinded){
+                    animationController.setState(AnimationState.IDLE_RIGHT_BLIND);
+                } else {
+                    animationController.setState(AnimationState.IDLE_RIGHT);
+                }
+            } else if (angle >= 45 && angle < 135) {
+                if(inkBlinded){
+                    animationController.setState(AnimationState.IDLE_NORTH_BLIND);
+                } else {
+                    animationController.setState(AnimationState.IDLE_NORTH);
+                }
+            } else if (angle >= 135 && angle < 225) {
+                if(inkBlinded){
+                    animationController.setState(AnimationState.IDLE_LEFT_BLIND);
+                } else {
+                    animationController.setState(AnimationState.IDLE_LEFT);
+                }
+            } else { // 225 <= angle < 315
+                if(inkBlinded){
+                    animationController.setState(AnimationState.IDLE_SOUTH_BLIND);
+                } else {
+                    animationController.setState(AnimationState.IDLE_SOUTH);
+                }
+            }
+        }
     }
 
     /** The value of target is only valid if guard is agroed or is "meowed" */
@@ -443,44 +486,6 @@ public class Guard extends Enemy {
         drawSuspicionMeter(batch);
     }
 
-//    // class‐scope constants
-//    private static final float BASELINE_PX    = 32f;
-//    private static final float SCALE_FACTOR   = 0.2f;
-//    private static final Vector2  OFFSET_UNSCALED = new Vector2(-80f, 100f);
-//
-//    public void drawSuspicionMeter(SpriteBatch batch) {
-//        // early-exit if we can’t draw
-//        if (suspsicionMeter == null
-//            || suspsicionMeter.getCurrentSpriteSheet() == null
-//            || !Guard.isLoaded()) {
-//            return;
-//        }
-//
-//        // pick the right sprite
-//        TextureRegion region = isMeowed()
-//            ? Guard.SUSPICION_METER_CURIOUS
-//            : suspsicionMeter.getCurrentSpriteSheet();
-//
-//        // only update animation when using the dynamic meter
-//        if (!isMeowed()) {
-//            updateSuspicionAnimation();
-//        }
-//
-//        // compute scale & screen‐space position
-//        float physToPx = getObstacle().getPhysicsUnits();
-//        float scale    = SCALE_FACTOR * (physToPx / BASELINE_PX);
-//        float xPx      = getPosition().x * physToPx + OFFSET_UNSCALED.x * scale;
-//        float yPx      = getPosition().y * physToPx + OFFSET_UNSCALED.y * scale;
-//
-//        // single draw call
-//        batch.draw(
-//            region,
-//            xPx, yPx,
-//            region.getRegionWidth()  * scale,
-//            region.getRegionHeight() * scale
-//        );
-//    }
-//
 
     public void drawSuspicionMeter(SpriteBatch batch) {
         float BASELINE_PX = 32;

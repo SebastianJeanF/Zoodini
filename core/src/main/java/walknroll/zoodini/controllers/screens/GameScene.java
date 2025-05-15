@@ -14,15 +14,12 @@ package walknroll.zoodini.controllers.screens;
 
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Affine2;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import edu.cornell.gdiac.physics2.BoxObstacle;
-import edu.cornell.gdiac.physics2.ObstacleData;
-import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.util.PooledList;
 import java.util.HashMap;
 
@@ -63,7 +60,6 @@ import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Cat;
-import walknroll.zoodini.models.entities.Enemy;
 import walknroll.zoodini.models.entities.Guard;
 import walknroll.zoodini.models.entities.Octopus;
 import walknroll.zoodini.models.entities.PlayableAvatar;
@@ -75,7 +71,6 @@ import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.models.nonentities.Vent;
 import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.DebugPrinter;
-import walknroll.zoodini.utils.UIMessenger;
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 import walknroll.zoodini.utils.enums.AvatarType;
@@ -91,8 +86,7 @@ import walknroll.zoodini.utils.enums.AvatarType;
  * You will notice that asset loading is very different. It relies on the
  * singleton asset manager to manage the various assets.
  */
-public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener,
-    UIMessenger {
+public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener{
     /** How many frames after winning/losing do we continue? */
     public static final int EXIT_COUNT = 120;
     // ASSETS
@@ -116,7 +110,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     /** Mark set to handle more sophisticated collision callbacks */
     protected ObjectSet<Fixture> sensorFixtures;
     /** The current level */
-    private final HashMap<Guard, GuardAIController> guardToAIController = new HashMap<>();
+    private HashMap<Guard, GuardAIController> guardToAIController = new HashMap<>();
 
     private PlayerAIController playerAIController;
 
@@ -124,8 +118,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private TiledMap map;
     /** Graph representing the map */
     private TileGraph<TileNode> graph;
-    /** Tiled renderer */
-    private TiledMapRenderer mapRenderer;
 
     // Win/lose related fields
     /** Whether or not this is an active controller */
@@ -136,8 +128,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private boolean failed;
     /** Countdown active for winning or losing */
     private int countdown;
-
-    private PathSmoother pathSmoother;
 
     /** Constant scale used for player movement */
     private final float MOVEMENT_SCALE = 32f;
@@ -197,9 +187,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         this.currentLevel = currentLevel;
         level = new GameLevel();
         map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString("" + this.currentLevel));
-        level.populate(directory, map);
+        level.populate(directory, map, batch);
         level.getWorld().setContactListener(this);
-        mapRenderer = new OrthogonalTiledMapRenderer(map);
 
         complete = false;
         failed = false;
@@ -255,11 +244,10 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         setFailure(false);
         countdown = -1;
 
-        // map = new TmxMapLoader().load(directory.getEntry("levels",
-        // JsonValue.class).getString("" + this.currentLevel));
-        // Reload the json each time
-        level.populate(directory, map);
+        level.populate(directory, map, batch);
         level.getWorld().setContactListener(this);
+        graph = new TileGraph<>(map,false,1);
+
         initializeAIControllers();
     }
 
@@ -337,11 +325,13 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
 
         if (gameLost) {
+            soundController.stopAllSounds();
             listener.exitScreen(this, GDXRoot.EXIT_LOSE);
             return false;
         }
 
         if (complete) {
+            soundController.stopAllSounds();
             listener.exitScreen(this, GDXRoot.EXIT_WIN);
             return false;
         }
@@ -407,28 +397,15 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * The method draws all objects in the order that they were added.
      */
     public void draw() {
-        ScreenUtils.clear(0.39f, 0.58f, 0.93f, 1.0f);
 
+        // Color is based on green background of tileset: RBGA(22,89,98,255)
+        ScreenUtils.clear(0.0863f, 0.349f, 0.3843f, 1.0f);
         // Set the camera's updated view
         batch.setProjectionMatrix(camera.combined);
 
-        mapRenderer.setView(camera);
-        mapRenderer.render(); // divide this into layerwise rendering if you want
-        MapLayer l =  map.getLayers().get("images");
-        if(l != null) {
-            batch.begin(camera);
-            for (MapObject obj : l.getObjects()) {
-                if (obj instanceof TextureMapObject t) {
-                    affine2.idt();
-                    batch.draw(
-                        t.getTextureRegion(),
-                        t.getX(),
-                        t.getY()
-                    );
-                }
-            }
-            batch.end();
-        }
+//        mapRenderer.setView(camera);
+//        mapRenderer.render(); // divide this into layerwise rendering if you want
+
 
         level.draw(batch, camera);
         if (Constants.DEBUG) {
@@ -467,9 +444,40 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * Dispose of all (non-static) resources allocated to this mode.
      */
     public void dispose() {
-        level.dispose();
-        level = null;
-        ui.dispose();
+        if(level != null) {
+            level.dispose();
+            level = null;
+        }
+
+        if(playerAIController != null) {
+            playerAIController = null;
+        }
+
+        if(guardToAIController != null) {
+            guardToAIController.clear();
+            guardToAIController = null;
+        }
+
+        if(sensorFixtures != null) {
+            sensorFixtures.clear();
+            sensorFixtures = null;
+        }
+
+        if(map != null) {
+            map.dispose();
+            ;
+            map = null;
+        }
+
+        if(graph != null) {
+            graph.dispose();
+            graph = null;
+        }
+
+        if(ui != null) {
+            ui.dispose();
+            ui = null;
+        }
     }
 
     public void initializeAIControllers() {
@@ -479,7 +487,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             guardToAIController.put(g, aiController);
         }
         if (level.isCatPresent() && level.isOctopusPresent()) {
-            System.out.println("here");
             playerAIController = new PlayerAIController(level.getOctopus(), level.getCat(), level, graph, followModeActive);
         }
 
@@ -990,11 +997,20 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 if ((level.isCatPresent() && entry.value.contains(catObs))
                         || (level.isOctopusPresent() && entry.value.contains(octObs))) {
 
-                    ((SecurityCamera) entry.key).activateRing();
 
-                    PlayableAvatar detectedPlayer = entry.value.contains(catObs) ? level.getCat() : level.getOctopus();
+                    ((SecurityCamera) entry.key).activateAlarm();
+
+
+                    PlayableAvatar detectedPlayer = null;
+                    if (catObs == null){
+                        detectedPlayer = (entry.value.contains(octObs)) ? level.getOctopus() : level.getCat();
+                    } else {
+                        detectedPlayer = (entry.value.contains(catObs)) ? level.getCat() : level.getOctopus();
+                    }
+                    assert detectedPlayer != null;
 
                     detectedPlayer.setUnderCamera(true);
+
 
                     for (Guard guard : level.getGuards()) {
                         float guardToCameraDistance = guard.getPosition()
@@ -1127,6 +1143,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 octopus.setDidFire(true);
                 octopus.setCurrentlyAiming(false);
                 octopus.consumeInk();
+                soundController.playSound("octopus-shoot");
             } else {
                 octopus.setDidFire(false);
             }
@@ -1164,7 +1181,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         // Projectiles
         // TODO: not sure about the order of if statements here.
-        if (inkProjectile.getShouldDestroy()) {
+        if (inkProjectile.getShouldDestroy() && !inkProjectile.isDestroyed()) {
+            soundController.playSound("ink-finish");
             inkProjectile.destroy();
         }
 
@@ -1172,7 +1190,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             activateInkProjectile(inkProjectile, octopus.getPosition(), octopus.getTarget());
         }
 
-        if (level.isOctopusPresent()
+        if (!inkProjectile.getShouldDestroy() && level.isOctopusPresent()
                 && inkProjectile.getPosition().dst(inkProjectile.getStartPosition()) > octopus.getAbilityRange()) {
             inkProjectile.setShouldDestroy(true);
         }
@@ -1286,11 +1304,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      */
     private void updateCamera(float dt) {
         PlayableAvatar avatar = level.getAvatar();
-        if (avatar.isCurrentlyAiming()) {
-            camera.zoom = Math.min(1.2f, camera.zoom + 0.01f);
-        } else {
-            camera.zoom = Math.max(1.0f, camera.zoom - 0.005f);
-        }
+//        if (avatar.isCurrentlyAiming()) {
+//            camera.zoom = Math.min(1.2f, camera.zoom + 0.01f);
+//        } else {
+//            camera.zoom = Math.max(1.0f, camera.zoom - 0.005f);
+//        }
 
         cameraTargetPosition.set(avatar.getPosition());
 
@@ -1381,8 +1399,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         playerAIController.setFollowEnabled(followModeActive);
     }
 
-    @Override
-    public GameLevel getLevel() {
-        return level;
+    public GameLevel getLevel(){
+        return this.level;
     }
 }

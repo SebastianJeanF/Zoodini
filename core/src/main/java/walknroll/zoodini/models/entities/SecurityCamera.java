@@ -20,6 +20,7 @@ import edu.cornell.gdiac.physics2.WheelObstacle;
 import edu.cornell.gdiac.math.Path2;
 import edu.cornell.gdiac.math.PathExtruder;
 import edu.cornell.gdiac.math.PathFactory;
+import walknroll.zoodini.controllers.SoundController;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.utils.CircleTimer;
 import walknroll.zoodini.utils.ZoodiniSprite;
@@ -115,8 +116,9 @@ public class SecurityCamera extends ZoodiniSprite {
     /**
      * Activates the ring effect
      */
-    public void activateRing() {
+    public void activateAlarm() {
         if (!isRingActive) {
+           SoundController.getInstance().playCameraAlarm();
             isRingActive = true;
             currentRadius = 0f;
         }

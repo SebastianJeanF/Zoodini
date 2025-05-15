@@ -101,16 +101,15 @@ public class GDXRoot extends Game implements ScreenListener {
 		directory = new AssetDirectory("jsons/assets.json");
 		settingsPrefs = Gdx.app.getPreferences(SETTINGS_PREFERENCES_FILENAME);
 		gameSettings = new GameSettings(settingsPrefs);
-		applyGameSettings();
+        applyGameSettings();
 
-		statePrefs = Gdx.app.getPreferences(STATE_PREFERENCES_FILENAME);
+        statePrefs = Gdx.app.getPreferences(STATE_PREFERENCES_FILENAME);
 		gameState = new GameState(statePrefs);
 
 		loading = new MenuScene(directory, batch, 1);
-
 		loading.setScreenListener(this);
 		setScreen(loading);
-	}
+    }
 
 	/**
 	 * Called when the Application is destroyed.
@@ -291,16 +290,22 @@ public class GDXRoot extends Game implements ScreenListener {
 	}
 
 	private void applyGameSettings() {
-		InputController.getInstance().setAbilityKey(this.gameSettings.getAbilityKey());
-		InputController.getInstance().setSwapKey(this.gameSettings.getSwapKey());
-		InputController.getInstance().setFollowModeKey(this.gameSettings.getFollowKey());
+        InputController input = InputController.getInstance();
+        input.setAbilityKey(this.gameSettings.getAbilityKey());
+        input.setSwapKey(this.gameSettings.getSwapKey());
+        input.setFollowModeKey(this.gameSettings.getFollowKey());
 		switch (this.gameSettings.getResolution().toLowerCase()) {
 			case "1280x720" -> Gdx.graphics.setWindowedMode(1280, 720);
 			case "1920x1080" -> Gdx.graphics.setWindowedMode(1920, 1080);
 			case "fullscreen" -> Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
 		}
-		SoundController.getInstance().setMusicVolume(this.gameSettings.getMusicVolume() / 100f);
-		SoundController.getInstance().setSoundVolume(this.gameSettings.getSoundVolume() / 100f);
+
+        Gdx.graphics.setResizable(true);
+
+
+        SoundController sound = SoundController.getInstance();
+        sound.setMusicVolume(this.gameSettings.getMusicVolume() / 100f);
+        sound.setSoundVolume(this.gameSettings.getSoundVolume() / 100f);
 	}
 
 	private void startGameplay(Integer selectedLevel) {

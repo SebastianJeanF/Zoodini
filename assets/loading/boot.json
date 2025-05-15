@@ -47,13 +47,15 @@
         "height" : 576,
         "bar.width" : 0.66,
         "bar.height" : 0.25,
-        "button.x": 50,
+        "button.x": 60,
         "button.start.y": 230,
         "button.settings.y": 170,
         "button.credits.y": 110,
         "button.quit.y": 50,
-        "button.width": 335,
-        "button.height": 56
+        "button.width": 293,
+        "button.height": 49,
+        "screenWidth": 1280,
+        "screenHeight": 720
       }
     }
 }

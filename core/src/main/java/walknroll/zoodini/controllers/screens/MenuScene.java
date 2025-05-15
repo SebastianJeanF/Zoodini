@@ -35,6 +35,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.ScreenListener;
@@ -60,7 +62,9 @@ public class MenuScene implements Screen, InputProcessor {
 	private AssetDirectory assets;
 	/** The drawing camera for this scene */
 	private OrthographicCamera camera;
-	/** Reference to sprite batch created by the root */
+    /** Viewport */
+    private Viewport viewport;
+    /** Reference to sprite batch created by the root */
 	private SpriteBatch batch;
 	/** Listener that will update the player mode when we are done */
 	private ScreenListener listener;
@@ -95,7 +99,10 @@ public class MenuScene implements Screen, InputProcessor {
 
 	private Array<MenuButton> buttons;
 
-	/**
+    /** Scale factor for buttons/logo in screen. Equals 1 when resolution is 1280x720 */
+    private float resScale;
+
+    /**
 	 * Creates a LoadingMode with the default budget, size and position.
 	 *
 	 * @param assets The asset directory to load from
@@ -127,7 +134,8 @@ public class MenuScene implements Screen, InputProcessor {
 		internal.finishLoading();
 
 		constants = internal.getEntry("constants", JsonValue.class);
-		resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
 		// No progress so far.
 		progress = assets.getProgress();
@@ -140,17 +148,22 @@ public class MenuScene implements Screen, InputProcessor {
 		this.assets.loadAssets();
 		active = true;
 
-		float buttonX = constants.getFloat("button.x");
-		float buttonWidth = constants.getFloat("button.width");
-		float buttonHeight = constants.getFloat("button.height");
+        float resScaleX = Gdx.graphics.getWidth() / (float) constants.getFloat("screenWidth");
+        float resScaleY = Gdx.graphics.getHeight() / (float) constants.getFloat("screenHeight");
+        resScale = Math.min(resScaleX, resScaleY);
+
+		float buttonX = constants.getFloat("button.x") * resScale;
+		float buttonWidth = constants.getFloat("button.width") * resScale;
+		float buttonHeight = constants.getFloat("button.height") * resScale;
+
 		buttons = Array.with(
-				new MenuButton(buttonX, constants.getFloat("button.start.y"), buttonWidth, buttonHeight, "play",
+				new MenuButton(buttonX, constants.getFloat("button.start.y") * resScale, buttonWidth, buttonHeight, "play",
 						GDXRoot.EXIT_LEVEL_SELECT),
-				new MenuButton(buttonX, constants.getFloat("button.settings.y"), buttonWidth, buttonHeight, "settings",
+				new MenuButton(buttonX, constants.getFloat("button.settings.y") * resScale, buttonWidth, buttonHeight, "settings",
 						GDXRoot.EXIT_SETTINGS),
-				new MenuButton(buttonX, constants.getFloat("button.credits.y"), buttonWidth, buttonHeight, "credits",
+				new MenuButton(buttonX, constants.getFloat("button.credits.y") * resScale, buttonWidth, buttonHeight, "credits",
 						GDXRoot.EXIT_CREDITS),
-				new MenuButton(buttonX, constants.getFloat("button.quit.y"), buttonWidth, buttonHeight, "quit",
+				new MenuButton(buttonX, constants.getFloat("button.quit.y") * resScale, buttonWidth, buttonHeight, "quit",
 						GDXRoot.EXIT_QUIT));
 
         background = internal.getEntry("splash", Texture.class);
@@ -253,12 +266,8 @@ public class MenuScene implements Screen, InputProcessor {
 		scale = ((float) height) / constants.getFloat("height");
 		this.width = width;
 		this.height = height;
-		if (camera == null) {
-			camera = new OrthographicCamera(width, height);
-		} else {
-			camera.setToOrtho(false, width, height);
-		}
-	}
+        viewport.update(width, height, true);
+    }
 
 	/**
 	 * Called when the Screen is paused.
@@ -287,6 +296,7 @@ public class MenuScene implements Screen, InputProcessor {
 	public void show() {
 		// Useless if called in outside animation loop
 		active = true;
+        viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
 	}
 
 	/**
@@ -419,9 +429,17 @@ public class MenuScene implements Screen, InputProcessor {
 	 * @param screenY the y-coordinate of the mouse on the screen
 	 * @return whether to hand the event to other listeners.
 	 */
-	public boolean mouseMoved(int screenX, int screenY) {
-		return true;
-	}
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        // flip Y to match your draw coordinates
+        screenY = height - screenY;
+
+        for (MenuButton btn : buttons) {
+            // contains(...) already checks x,y vs btn.x,btn.y,btn.width,btn.height
+            btn.setHovered(btn.contains(screenX, screenY));
+        }
+        return false;
+    }
 
 	// UNSUPPORTED METHODS FROM InputProcessor
 
@@ -499,33 +517,40 @@ public class MenuScene implements Screen, InputProcessor {
 	 * prefer this in lecture.
 	 */
 	private void draw() {
-		// Cornell colors
-		ScreenUtils.clear(0.702f, 0.1255f, 0.145f, 1.0f);
-
-		batch.begin(camera);
-		batch.setColor(Color.WHITE);
-
-		// Height lock the logo
-		float scaleX = (float) width / (float) background.getWidth();
+        batch.begin(viewport.getCamera());
+        batch.setColor(Color.WHITE);
+        float scaleX = (float) width / (float) background.getWidth();
         float scaleY = (float) height / (float) background.getHeight();
         cache.idt();
         cache.scale(scaleX, scaleY);
-		batch.draw(background, cache);
+        batch.draw(background, cache);
 
-		batch.draw(logo, (width / 2f) - (logo.getWidth() / 2f), height - (logo.getHeight() + 50),
-				logo.getWidth(),
-				logo.getHeight());
+		batch.draw(logo,
+            ((width / 2f) - (logo.getWidth() / 2f) * resScale),
+            (height - (logo.getHeight() + 50) * resScale) ,
+				logo.getWidth() * resScale,
+            logo.getHeight()  * resScale
+        );
 
 		if (progress < 1.0f) {
 			drawProgress();
 		} else {
-			for (MenuButton menuButton : buttons) {
-				Color tint = menuButton.isPressed() ? Color.GRAY : Color.WHITE;
-				Texture texture = internal.getEntry(menuButton.getAssetName(), Texture.class);
+            for (MenuButton menuButton : buttons) {
+                // pick a tint based on state
+                Color tint = Color.WHITE;
+                if (menuButton.isPressed()) {
+                    tint = Color.GRAY;              // already had this
+                } else if (menuButton.isHovered()) {
+                    tint = new Color(0.8f,0.8f,0.8f,1f);  // a slightly darker white
+                }
 
-				batch.setColor(tint);
-				batch.draw(texture, menuButton.x, menuButton.y, menuButton.width, menuButton.height);
-			}
+                batch.setColor(tint);
+                Texture tex = internal.getEntry(menuButton.getAssetName(), Texture.class);
+                batch.draw(tex, menuButton.x, menuButton.y, menuButton.width, menuButton.height);
+            }
+
+            // reset color so nothing else is tinted
+            batch.setColor(Color.WHITE);
 		}
 		batch.end();
 	}

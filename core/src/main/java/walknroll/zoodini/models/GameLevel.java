@@ -7,9 +7,13 @@ package walknroll.zoodini.models;
 
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 
+import com.badlogic.gdx.maps.MapObjects;
+import com.badlogic.gdx.maps.objects.TextureMapObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import org.apache.commons.text.StringSubstitutor;
 
 import com.badlogic.gdx.Input;
@@ -49,6 +53,7 @@ import edu.cornell.gdiac.physics2.Obstacle;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.util.PooledList;
 import walknroll.zoodini.controllers.InputController;
+import walknroll.zoodini.controllers.UIController;
 import walknroll.zoodini.controllers.aitools.LOSController;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Cat;
@@ -240,6 +245,14 @@ public class GameLevel {
     private StringSubstitutor substitutor;
 
     /**
+     * The map renderer for this level
+     */
+    private OrthogonalTiledMapRenderer mapRenderer;
+
+    /** Array that contains image objects */
+    private Array<TextureMapObject> imagesCache;
+
+    /**
      * Creates a new GameLevel
      * <p>
      * The level is empty and there is no active physics world. You must read
@@ -268,7 +281,7 @@ public class GameLevel {
      *
      * @param directory the asset manager
      */
-    public void populate(AssetDirectory directory, TiledMap map) {
+    public void populate(AssetDirectory directory, TiledMap map, SpriteBatch batch) {
         // Compute the FPS
         int[] fps = { 20, 60 };
         maxFPS = fps[1];
@@ -279,6 +292,19 @@ public class GameLevel {
 
         world = new World(Vector2.Zero, false);
 
+        mapRenderer = new OrthogonalTiledMapRenderer(map, batch);
+        MapLayer l =  map.getLayers().get("images");
+        if(l != null){
+            MapObjects objs =l.getObjects();
+            imagesCache = new Array<>(objs.getCount());
+            for(MapObject obj : objs){
+                if(obj instanceof TextureMapObject t) {
+                    imagesCache.add(t);
+                }
+            }
+            imagesCache.sort((a,b) -> Float.compare(b.getY(), a.getY())); //descending order
+        }
+
         MapProperties props = map.getProperties();
         int width = props.get("width", Integer.class);
         int height = props.get("height", Integer.class);
@@ -288,6 +314,8 @@ public class GameLevel {
         MapLayer walls = map.getLayers().get("walls");
         JsonValue entityConstants = directory.getEntry("constants", JsonValue.class).get("entities");
         createWallBodies(walls, entityConstants.get("walls"));
+
+
 
         // Text
         textFont = directory.getEntry("game-text", BitmapFont.class);
@@ -310,7 +338,7 @@ public class GameLevel {
                 System.out.println("Creating cat");
                 avatarCat = new Cat(properties, entityConstants.get("cat"), units);
                 avatarCat.setAnimation(AnimationState.IDLE,
-                        directory.getEntry("cat-idle.animation", SpriteSheet.class), 16);
+                        directory.getEntry("cat-idle.animation", SpriteSheet.class), 15);
                 avatarCat.setAnimation(AnimationState.WALK,
                         directory.getEntry("cat-walk.animation", SpriteSheet.class), 4);
                 avatarCat.setAnimation(AnimationState.WALK_DOWN,
@@ -335,29 +363,39 @@ public class GameLevel {
             } else if ("Guard".equalsIgnoreCase(type)) {
                 System.out.println("Creating guard");
                 Guard g = new Guard(properties, entityConstants.get("guard"), units);
-                g.setAnimation(AnimationState.IDLE, directory.getEntry("guard-idle.animation", SpriteSheet.class), 16);
-                g.setAnimation(AnimationState.WALK, directory.getEntry("guard-walk.animation", SpriteSheet.class), 16);
+                SpriteSheet idle = directory.getEntry("guard-idle-all.animation", SpriteSheet.class);
+                idle = new SpriteSheet(idle);
+
+                g.setAnimation(AnimationState.IDLE_NORTH, idle, 16 ,16 , 15);
+                g.setAnimation(AnimationState.IDLE_LEFT, idle, 14 ,14 , 15);
+                g.setAnimation(AnimationState.IDLE_SOUTH, idle, 9 ,13 , 20, true);
+                g.setAnimation(AnimationState.IDLE_RIGHT, idle, 17, 17, 15);
+
+                g.setAnimation(AnimationState.IDLE_NORTH_BLIND, idle, 6, 6, 15);
+                g.setAnimation( AnimationState.IDLE_LEFT_BLIND, idle, 5, 5, 15);
+                g.setAnimation(AnimationState.IDLE_SOUTH_BLIND, idle, 1, 3, 20, true);
+                g.setAnimation(AnimationState.IDLE_RIGHT_BLIND, idle, 7, 8, 15);
+
+
+                g.setAnimation(AnimationState.WALK,
+                    new SpriteSheet(directory.getEntry("guard-walk.animation", SpriteSheet.class)), 8);
                 g.setAnimation(AnimationState.WALK_DOWN,
-                        directory.getEntry("guard-walk-down.animation", SpriteSheet.class), 16);
+                    new SpriteSheet(directory.getEntry("guard-walk-down.animation", SpriteSheet.class)), 8);
                 g.setAnimation(AnimationState.WALK_UP,
-                        directory.getEntry("guard-walk-up.animation", SpriteSheet.class), 16);
+                    new SpriteSheet(directory.getEntry("guard-walk-up.animation", SpriteSheet.class)), 8);
                 g.setAnimation(AnimationState.WALK_DOWN_BLIND,
-                        directory.getEntry("guard-walk-down-inked.animation", SpriteSheet.class), 16);
+                    new SpriteSheet(directory.getEntry("guard-walk-down-inked.animation", SpriteSheet.class)), 8);
                 g.setAnimation(AnimationState.WALK_BLIND,
-                        directory.getEntry("guard-walk-inked.animation", SpriteSheet.class), 16);
+                    new SpriteSheet(directory.getEntry("guard-walk-inked.animation", SpriteSheet.class)), 8);
                 g.setAnimation(AnimationState.WALK_UP_BLIND,
-                        directory.getEntry("guard-walk-up-inked.animation", SpriteSheet.class), 16);
-                g.setAnimation(AnimationState.IDLE_BLIND,
-                        directory.getEntry("guard-idle-inked.animation", SpriteSheet.class), 16);
-                g.setSusMeter(directory.getEntry("suspicion-meter.animation", SpriteSheet.class)); // TODO: There must
-                                                                                                   // be a better way
-                                                                                                   // t// do this
+                    new SpriteSheet(directory.getEntry("guard-walk-up-inked.animation", SpriteSheet.class)), 8);
+                g.setSusMeter(new SpriteSheet(directory.getEntry("suspicion-meter.animation", SpriteSheet.class)));
                 guards.add(g);
                 activate(g);
             } else if ("Camera".equalsIgnoreCase(type)) {
                 SecurityCamera cam = new SecurityCamera(properties, entityConstants.get("camera"), units);
                 cam.setAnimation(AnimationState.IDLE, directory.getEntry("camera-idle.animation", SpriteSheet.class),
-                        16);
+                        15);
                 securityCameras.add(cam);
                 activate(cam);
             } else if ("Door".equalsIgnoreCase(type)) {
@@ -385,6 +423,11 @@ public class GameLevel {
                 Vent vent = new Vent(directory, properties, entityConstants.get("vent"), units);
                 vents.add(vent);
                 activate(vent);
+            } else if ("Settings".equalsIgnoreCase(type)){
+                Boolean disableMinimap = properties.get("disableMinimap", Boolean.class);
+                if (disableMinimap != null){
+                    UIController.disableMinimap(disableMinimap);
+                }
             }
         }
 
@@ -426,7 +469,12 @@ public class GameLevel {
         securityCameras.clear();
         objects.clear();
         sprites.clear();
+        doors.clear();
         textObjects.clear();
+        imagesCache.clear();
+        keys.clear();
+        mapRenderer.dispose();
+        vents.clear();
         if (world != null) {
             world.dispose();
             world = null;
@@ -563,6 +611,11 @@ public class GameLevel {
     public void draw(SpriteBatch batch, Camera camera) {
         // Draw the sprites first (will be hidden by shadows)
         batch.begin(camera);
+        mapRenderer.setView((OrthographicCamera) camera);
+
+        // Get ground layer and render it
+        MapLayer groundLayer = mapRenderer.getMap().getLayers().get("ground");
+        mapRenderer.renderTileLayer((TiledMapTileLayer) groundLayer);
 
         sprites.sort(ZoodiniSprite.Comparison);
         for (ZoodiniSprite obj : sprites) {
@@ -592,12 +645,27 @@ public class GameLevel {
                 }
             }
         }
-        //
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
             if (entry.key instanceof Guard) {
                 entry.value.draw(batch, camera);
             }
         }
+
+        MapLayer decorations = mapRenderer.getMap().getLayers().get("decorations");
+        if (decorations != null)
+            mapRenderer.renderTileLayer((TiledMapTileLayer) decorations);
+
+        // Get wall layer and render it
+        MapLayer wallLayer = mapRenderer.getMap().getLayers().get("wall-tiles");
+        if (wallLayer != null)
+            mapRenderer.renderTileLayer((TiledMapTileLayer) wallLayer);
+
+        if(imagesCache != null) {
+            for (TextureMapObject t : imagesCache) {
+                batch.draw(t.getTextureRegion(), t.getX(), t.getY());
+            }
+        }
+
 
         // d debugging on top of everything.
         if (debug) {
