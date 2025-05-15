@@ -238,6 +238,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     public void reset() {
         level.dispose();
 
+
         catArrived = false;
         octopusArrived = false;
         followModeActive = false;
@@ -328,11 +329,13 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
 
         if (gameLost) {
+            soundController.stopAllSounds();
             listener.exitScreen(this, GDXRoot.EXIT_LOSE);
             return false;
         }
 
         if (complete) {
+            soundController.stopAllSounds();
             listener.exitScreen(this, GDXRoot.EXIT_WIN);
             return false;
         }
@@ -967,7 +970,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 if ((level.isCatPresent() && entry.value.contains(catObs))
                         || (level.isOctopusPresent() && entry.value.contains(octObs))) {
 
-                    ((SecurityCamera) entry.key).activateRing();
+
+                    ((SecurityCamera) entry.key).activateAlarm();
+
 
                     PlayableAvatar detectedPlayer = null;
                     if (catObs == null){
@@ -978,6 +983,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                     assert detectedPlayer != null;
 
                     detectedPlayer.setUnderCamera(true);
+
 
                     for (Guard guard : level.getGuards()) {
                         float guardToCameraDistance = guard.getPosition()

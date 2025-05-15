@@ -60,6 +60,8 @@ public class GuardAIController {
     /** Minimum time to stay in a state before changing */
     private static final int STATE_CHANGE_THRESHOLD = 20;
 
+    private SoundController soundController;
+
     /** Graph representation of the game */
     private TileGraph tileGraph;
     private IndexedAStarPathFinder<TileNode> pathFinder;
@@ -94,6 +96,7 @@ public class GuardAIController {
         this.pathFinder = new IndexedAStarPathFinder<>(tileGraph);
         this.nextTargetLocation = new Vector2(0, 0);
         this.CAT_MEOW_RADIUS = level.isCatPresent() ? level.getCat().getAbilityRange() : 0;
+        this.soundController = SoundController.getInstance();
 
         // Otherwise, stay in PATROL state
         if (waypoints.length <= 1) {
@@ -283,7 +286,8 @@ public class GuardAIController {
         // First check for max suspicion level, which always leads to CHASE (highest
         // priority)
         if (guard.isMaxSusLevel() && currState != GuardState.CHASE) {
-            currState = GuardState.CHASE;
+//            currState = GuardState.CHASE;
+            changeState(GuardState.CHASE);
             guard.startDeAggroTimer();
             return;
         }
@@ -455,7 +459,7 @@ public class GuardAIController {
         // or if we're forced to change by disabling/enabling follow
         if (potentialState != currState) {
             if (ticks >= STATE_CHANGE_THRESHOLD) {
-                currState = potentialState;
+                changeState(potentialState);
                 ticks = 0; // Reset counter on state change
             }
         }
@@ -652,6 +656,30 @@ public class GuardAIController {
         nextTargetLocation = tileGraph.getValidTileCoords(newTarget);
         // nextTargetLocation = newTarget;
 
+    }
+
+    private void changeState(GuardState newState) {
+
+        switch (newState) {
+            case CHASE:
+                soundController.playGuardAlerted();
+                break;
+            case DISTRACTED:
+                soundController.playGuardCurious();
+                break;
+            case AlERTED:
+                soundController.playGuardAlerted();
+                break;
+            case LOOKING_AROUND:
+                soundController.playGuardCurious();
+                break;
+            default:
+                break;
+        }
+
+        if (newState != currState) {
+            currState = newState;
+        }
     }
 
     /**

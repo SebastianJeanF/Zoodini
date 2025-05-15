@@ -53,6 +53,9 @@ public class SoundController implements Disposable {
         soundEffects.put("cat-meow", Gdx.audio.newSound(Gdx.files.internal("sounds/cat-meow.mp3")));
         soundEffects.put("octopus-shoot", Gdx.audio.newSound(Gdx.files.internal("sounds/octopus-shoot.mp3")));
         soundEffects.put("ink-finish", Gdx.audio.newSound(Gdx.files.internal("sounds/ink-finish.mp3")));
+        soundEffects.put("camera-alarm", Gdx.audio.newSound(Gdx.files.internal("sounds/camera-alarm.mp3")));
+        soundEffects.put("guard-curious", Gdx.audio.newSound(Gdx.files.internal("sounds/guard-curious.mp3")));
+        soundEffects.put("guard-alerted", Gdx.audio.newSound(Gdx.files.internal("sounds/guard-alerted.mp3")));
     }
 
     /**
@@ -69,7 +72,12 @@ public class SoundController implements Disposable {
     public void playCatMeow() {
         playSound("cat-meow");
     }
-
+    /**
+     * Play the camera alarm sound when a character is detected by the camera
+     */
+    public void playCameraAlarm() {
+        playSound("camera-alarm");
+    }
     /**
      * Play the ink spray sound when octopus uses ability
      */
@@ -85,12 +93,37 @@ public class SoundController implements Disposable {
     }
 
     /**
+    * Play the guard curious sound when the guard becomes distracted or suspicious
+     */
+    public void playGuardCurious() {
+        playSound("guard-curious");
+    }
+
+    /**
+    * Play the guard alert sound when the guard becomes alert
+     */
+    public void playGuardAlerted() {
+        playSound("guard-alerted");
+    }
+
+
+
+
+    /**
      * Play a sound by its key
      * @param soundKey The key of the sound to play
      */
     public void playSound(String soundKey) {
         if (soundEnabled && soundEffects.containsKey(soundKey)) {
             soundEffects.get(soundKey).play(soundVolume);
+        }
+    }
+    /**
+     * Stops all sound effects
+     */
+    public void stopAllSounds() {
+        for (Sound sound : soundEffects.values()) {
+            sound.stop();
         }
     }
 
