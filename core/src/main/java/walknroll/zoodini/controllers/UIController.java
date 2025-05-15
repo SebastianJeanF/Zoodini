@@ -90,7 +90,7 @@ public class UIController {
         stage = new Stage(viewport, batch);
         skin = new Skin(Gdx.files.internal("uiskins/default/uiskin.json")); //TODO: use AssetDirectory to load skins.
         initializeActors(directory, level);
-        setupStageLayout();
+        setupStageLayout(level);
     }
 
 
@@ -159,7 +159,7 @@ public class UIController {
         screenDivider = new Image(dividerDrawable);
         screenDivider.setSize(3, Gdx.graphics.getHeight());
         screenDivider.setPosition(Gdx.graphics.getWidth() / 2f - 1.5f, 0);
-        screenDivider.setVisible(Constants.CO_OP);
+        screenDivider.setVisible(Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent());
 
 
     }
@@ -168,7 +168,7 @@ public class UIController {
     /**
      * Places each Actor at the right position.
      */
-    private void setupStageLayout(){
+    private void setupStageLayout(GameLevel level){
         viewport = new ScreenViewport();
         float viewportScreenWidth = viewport.getScreenWidth();
         float graphicsWidth = Gdx.graphics.getWidth();
@@ -184,7 +184,7 @@ public class UIController {
         bottomLeftTable.setDebug(debug);
         stage.addActor(bottomLeftTable);
 
-        if (Constants.CO_OP) {
+        if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
             Table bottomRightTable = new Table();
             bottomRightTable.bottom().right();
             bottomRightTable.setFillParent(true);
@@ -205,7 +205,7 @@ public class UIController {
         Group avatarGroup = new Group();
         avatarGroup.addActor(catIconImage);
 
-        if (!Constants.CO_OP){
+        if (!Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
             avatarGroup.addActor(octopusIconImage);
             catFollowIconImage.setPosition(catIconImage.getWidth() * 0.85f, catIconImage.getHeight() * 0.85f);
             octopusFollowIconImage.setPosition(catIconImage.getWidth() * 0.85f, catIconImage.getHeight() * 0.85f);
@@ -233,10 +233,10 @@ public class UIController {
         inventory.add(keyInventory);
         Table inventoryTable = new Table();
         inventoryTable.right();
-        if (!Constants.CO_OP) {
-            inventoryTable.add(keyCount).padRight(15f);
-        } else {
+        if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
             inventoryTable.add(p2KeyCount).padRight(15f);
+        } else {
+            inventoryTable.add(keyCount).padRight(15f);
         }
         inventory.add(inventoryTable);
         topRightTable.add(inventory);
@@ -268,7 +268,7 @@ public class UIController {
         leftTable.left().add(dangerIcons).width(100).height(100);
         stage.addActor(leftTable);
 
-        if (Constants.CO_OP) {
+        if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
             Table topLeftTable = new Table();
             topLeftTable.setFillParent(true);
             topLeftTable.setDebug(debug);
@@ -287,7 +287,7 @@ public class UIController {
         setUpPauseMenu();
 
         meowCooldownIndicator = new MeowCooldownIndicator(displayFont);
-        float meowCooldownIndicatorXPosition = Constants.CO_OP ? graphicsWidth / 2f - 200 : viewportScreenWidth - 200;
+        float meowCooldownIndicatorXPosition = (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) ? graphicsWidth / 2f - 200 : viewportScreenWidth - 200;
         meowCooldownIndicator.setPosition(meowCooldownIndicatorXPosition, 40);
         stage.addActor(meowCooldownIndicator);
 
@@ -420,7 +420,7 @@ public class UIController {
         PlayableAvatar avatar = level.getAvatar();
         boolean isOcto = avatar.getAvatarType() == AvatarType.OCTOPUS;
 
-        if (Constants.CO_OP){
+        if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
             catIconImage.setVisible(true);
             octopusIconImage.setVisible(true);
             if (inkMeter != null && level.isOctopusPresent()) {
@@ -429,9 +429,13 @@ public class UIController {
             }
             meowCooldownIndicator.setVisible(true);
             meowCooldownIndicator.update(level.getCat());
+            if (level.isOctopusPresent()){
+                p2KeyCount.setText("x" + level.getOctopus().getNumKeys());
+            }
+
         }
         if (screenDivider != null) {
-            screenDivider.setVisible(Constants.CO_OP);
+            screenDivider.setVisible(Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent());
         }
         else {
             if (avatar.getAvatarType() == AvatarType.CAT) {
@@ -467,7 +471,7 @@ public class UIController {
 
         // Update the minimap
         keyCount.setText("x" + avatar.getNumKeys());
-        p2KeyCount.setText("x" + level.getOctopus().getNumKeys());
+
 
         if (dangerIconImage != null && smallCatIconImage != null && smallOctopusIconImage != null) {
             if (level.isInactiveAvatarInDanger()) {
