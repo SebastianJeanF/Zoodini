@@ -53,6 +53,7 @@ import edu.cornell.gdiac.physics2.Obstacle;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.util.PooledList;
 import walknroll.zoodini.controllers.InputController;
+import walknroll.zoodini.controllers.UIController;
 import walknroll.zoodini.controllers.aitools.LOSController;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Cat;
@@ -419,6 +420,11 @@ public class GameLevel {
                 Vent vent = new Vent(directory, properties, entityConstants.get("vent"), units);
                 vents.add(vent);
                 activate(vent);
+            } else if ("Settings".equalsIgnoreCase(type)){
+                Boolean disableMinimap = properties.get("disableMinimap", Boolean.class);
+                if (disableMinimap != null){
+                    UIController.disableMinimap(disableMinimap);
+                }
             }
         }
 
@@ -642,6 +648,10 @@ public class GameLevel {
                 batch.draw(t.getTextureRegion(), t.getX(), t.getY());
             }
         }
+
+        MapLayer decorations = mapRenderer.getMap().getLayers().get("decorations");
+        if (decorations != null)
+            mapRenderer.renderTileLayer((TiledMapTileLayer) decorations);
 
         // Get wall layer and render it
         MapLayer wallLayer = mapRenderer.getMap().getLayers().get("wall-tiles");
