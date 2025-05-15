@@ -118,6 +118,13 @@ public class InkProjectile extends ZoodiniSprite {
     }
 
     /**
+     * Returns whether the inkProjectile is destroyed.
+     */
+    public boolean isDestroyed() {
+        return obstacle == null || !obstacle.isActive();
+    }
+
+    /**
      * Creates a exit with the given settings
      *
      * @param json      The JSON values defining this avatar

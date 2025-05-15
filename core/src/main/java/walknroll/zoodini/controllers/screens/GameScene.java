@@ -1152,7 +1152,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         // Projectiles
         // TODO: not sure about the order of if statements here.
-        if (inkProjectile.getShouldDestroy()) {
+        if (inkProjectile.getShouldDestroy() && !inkProjectile.isDestroyed()) {
             soundController.playSound("ink-finish");
             inkProjectile.destroy();
         }
