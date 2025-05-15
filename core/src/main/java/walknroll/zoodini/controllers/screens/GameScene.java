@@ -444,25 +444,40 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * Dispose of all (non-static) resources allocated to this mode.
      */
     public void dispose() {
-        level.dispose();
-        level = null;
+        if(level != null) {
+            level.dispose();
+            level = null;
+        }
 
-        playerAIController = null;
+        if(playerAIController != null) {
+            playerAIController = null;
+        }
 
-        guardToAIController.clear();
-        guardToAIController = null;
+        if(guardToAIController != null) {
+            guardToAIController.clear();
+            guardToAIController = null;
+        }
 
-        sensorFixtures.clear();
-        sensorFixtures = null;
+        if(sensorFixtures != null) {
+            sensorFixtures.clear();
+            sensorFixtures = null;
+        }
 
-        map.dispose();;
-        map = null;
+        if(map != null) {
+            map.dispose();
+            ;
+            map = null;
+        }
 
-        graph.dispose();
-        graph = null;
+        if(graph != null) {
+            graph.dispose();
+            graph = null;
+        }
 
-        ui.dispose();
-        ui = null;
+        if(ui != null) {
+            ui.dispose();
+            ui = null;
+        }
     }
 
     public void initializeAIControllers() {
