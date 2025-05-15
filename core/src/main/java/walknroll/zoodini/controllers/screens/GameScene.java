@@ -110,7 +110,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     /** Mark set to handle more sophisticated collision callbacks */
     protected ObjectSet<Fixture> sensorFixtures;
     /** The current level */
-    private final HashMap<Guard, GuardAIController> guardToAIController = new HashMap<>();
+    private HashMap<Guard, GuardAIController> guardToAIController = new HashMap<>();
 
     private PlayerAIController playerAIController;
 
@@ -128,8 +128,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private boolean failed;
     /** Countdown active for winning or losing */
     private int countdown;
-
-    private PathSmoother pathSmoother;
 
     /** Constant scale used for player movement */
     private final float MOVEMENT_SCALE = 32f;
@@ -448,7 +446,23 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     public void dispose() {
         level.dispose();
         level = null;
+
+        playerAIController = null;
+
+        guardToAIController.clear();
+        guardToAIController = null;
+
+        sensorFixtures.clear();
+        sensorFixtures = null;
+
+        map.dispose();;
+        map = null;
+
+        graph.dispose();
+        graph = null;
+
         ui.dispose();
+        ui = null;
     }
 
     public void initializeAIControllers() {

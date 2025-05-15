@@ -36,4 +36,9 @@ public class TileNode {
     public Vector2 getCoords() {
         return new Vector2(x, y);
     }
+
+    public void dispose(){
+        connections.clear();
+        connections = null;
+    }
 }
