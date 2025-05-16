@@ -332,7 +332,9 @@
     "octopus" : "textures/entities/octopus/octopus.png",
     "switch1" : "textures/ui/gameplay/switch1.png",
     "switch2" : "textures/ui/gameplay/switch2.png",
-    "key-inventory" : "textures/ui/gameplay/key-inventory.png"
+    "key-inventory" : "textures/ui/gameplay/key-inventory.png",
+    "security-camera" : "textures/entities/static/security_camera.png",
+    "guard-single": "textures/entities/guard/guard_single.png"
   },
   "fonts": {
     "display": {

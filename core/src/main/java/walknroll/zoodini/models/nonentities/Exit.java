@@ -123,4 +123,8 @@ public class Exit extends ZoodiniSprite {
             batch.setTexture((Texture) null);
         }
     }
+
+    public ExitAnimal getCreature() {
+        return creature;
+    }
 }
