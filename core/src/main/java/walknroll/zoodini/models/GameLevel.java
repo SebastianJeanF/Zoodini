@@ -51,7 +51,6 @@ import edu.cornell.gdiac.physics2.BoxObstacle;
 import edu.cornell.gdiac.physics2.Obstacle;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.util.PooledList;
-import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.controllers.UIController;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Cat;
@@ -66,6 +65,7 @@ import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.models.nonentities.Vent;
 import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.DebugPrinter;
+import walknroll.zoodini.utils.GameSettings;
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 import walknroll.zoodini.utils.animation.AnimationState;
@@ -262,11 +262,10 @@ public class GameLevel {
         debug = Constants.DEBUG;
         catActive = true;
 
-        InputController ic = InputController.getInstance();
         Map<String, String> valuesMap = new HashMap<>();
-        valuesMap.put("swapKey", Input.Keys.toString(ic.getSwapKey()));
-        valuesMap.put("abilityKey", Input.Keys.toString(ic.getAbilityKey()));
-        valuesMap.put("followKey", Input.Keys.toString(ic.getFollowModeKey()));
+        valuesMap.put("swapKey", Input.Keys.toString(GameSettings.getInstance().getSwapKey()));
+        valuesMap.put("abilityKey", Input.Keys.toString(GameSettings.getInstance().getAbilityKey()));
+        valuesMap.put("followKey", Input.Keys.toString(GameSettings.getInstance().getFollowKey()));
         substitutor = new StringSubstitutor(valuesMap);
     }
 
