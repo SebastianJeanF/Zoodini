@@ -171,7 +171,6 @@ public class UIController {
      */
     private void setupStageLayout(GameLevel level){
         viewport = new ScreenViewport();
-        float viewportScreenWidth = viewport.getScreenWidth();
         float graphicsWidth = Gdx.graphics.getWidth();
         stage = new Stage(viewport);
         rootTable = new Table();
@@ -496,8 +495,8 @@ public class UIController {
             }
         }
 
-        if(minimapDisabled){
-            minimap.setDisabled(true);
+        if (minimapDisabled) {
+            minimap.setVisible(false);
         }
 
         stage.draw();
@@ -524,6 +523,7 @@ public class UIController {
         if (minimap != null) {
             minimap.dispose();
         }
+        minimapDisabled = false;
     }
 
     public void setPauseMenuListener(PauseMenuListener l){

@@ -260,6 +260,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         level.getWorld().setContactListener(this);
         graph = new TileGraph<>(map,false,1);
 
+        ui.dispose();
+        ui = new UIController(directory, level, batch);
+        ui.setPauseMenuListener(this);
+
+
         initializeAIControllers();
     }
 
