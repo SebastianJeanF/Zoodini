@@ -5,5 +5,4 @@ public class Constants {
     public static final boolean DEBUG = false;
     public static final boolean UNLOCK_ALL = true;
     public static final boolean INVINCIBLE = false;
-    public static final boolean CO_OP = false;
 }

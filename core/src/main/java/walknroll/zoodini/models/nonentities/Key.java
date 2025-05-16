@@ -129,4 +129,6 @@ public class Key extends ZoodiniSprite {
         return ID;
     }
 
+    public AvatarType getOwner() {return this.owner;}
+
 }

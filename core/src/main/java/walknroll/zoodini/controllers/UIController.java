@@ -28,6 +28,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import walknroll.zoodini.models.entities.Octopus;
 import walknroll.zoodini.models.entities.PlayableAvatar;
 import walknroll.zoodini.utils.Constants;
+import walknroll.zoodini.utils.GameSettings;
 import walknroll.zoodini.utils.InkMeterActor;
 import walknroll.zoodini.utils.MeowCooldownIndicator;
 import walknroll.zoodini.utils.MinimapActor;
@@ -151,7 +152,7 @@ public class UIController {
         screenDivider = new Image(dividerDrawable);
         screenDivider.setSize(3, Gdx.graphics.getHeight());
         screenDivider.setPosition(Gdx.graphics.getWidth() / 2f - 1.5f, 0);
-        screenDivider.setVisible(Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent());
+        screenDivider.setVisible(GameSettings.getInstance().isCoopEnabled() && level.isOctopusPresent() && level.isCatPresent());
 
 
     }
@@ -175,7 +176,7 @@ public class UIController {
         bottomLeftTable.setDebug(debug);
         stage.addActor(bottomLeftTable);
 
-        if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
+        if (GameSettings.getInstance().isCoopEnabled() && level.isOctopusPresent() && level.isCatPresent()) {
             Table bottomRightTable = new Table();
             bottomRightTable.bottom().right();
             bottomRightTable.setFillParent(true);
@@ -196,9 +197,9 @@ public class UIController {
         Group avatarGroup = new Group();
         avatarGroup.addActor(catIconImage);
 
-        if ((!Constants.CO_OP && (level.isOctopusPresent() || level.isCatPresent()))
-            || (Constants.CO_OP && level.isOctopusPresent() && !level.isCatPresent())
-            || (Constants.CO_OP && !level.isOctopusPresent() && level.isCatPresent())) {
+        if ((!GameSettings.getInstance().isCoopEnabled() && (level.isOctopusPresent() || level.isCatPresent()))
+            || (GameSettings.getInstance().isCoopEnabled() && level.isOctopusPresent() && !level.isCatPresent())
+            || (GameSettings.getInstance().isCoopEnabled() && !level.isOctopusPresent() && level.isCatPresent())) {
             avatarGroup.addActor(octopusIconImage);
             catFollowIconImage.setPosition(catIconImage.getWidth() * 0.85f, catIconImage.getHeight() * 0.85f);
             octopusFollowIconImage.setPosition(catIconImage.getWidth() * 0.85f, catIconImage.getHeight() * 0.85f);
@@ -226,7 +227,7 @@ public class UIController {
         inventory.add(keyInventory);
         Table inventoryTable = new Table();
         inventoryTable.right();
-        if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
+        if (GameSettings.getInstance().isCoopEnabled() && level.isOctopusPresent() && level.isCatPresent()) {
             inventoryTable.add(p2KeyCount).padRight(15f);
         } else {
             inventoryTable.add(keyCount).padRight(15f);
@@ -234,7 +235,7 @@ public class UIController {
         inventory.add(inventoryTable);
         topRightTable.add(inventory);
 
-        if (!Constants.CO_OP) {
+        if (!GameSettings.getInstance().isCoopEnabled()) {
             Stack avatarSwitch = new Stack();
             switch1.setVisible(false);
             switch2.setVisible(false);
@@ -261,7 +262,7 @@ public class UIController {
         leftTable.left().add(dangerIcons).width(100).height(100);
         stage.addActor(leftTable);
 
-        if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
+        if (GameSettings.getInstance().isCoopEnabled() && level.isOctopusPresent() && level.isCatPresent()) {
             Table topLeftTable = new Table();
             topLeftTable.setFillParent(true);
             topLeftTable.setDebug(debug);
@@ -279,14 +280,14 @@ public class UIController {
         setUpPauseMenu();
 
         meowCooldownIndicator = new MeowCooldownIndicator(displayFont);
-        if (!Constants.CO_OP) {
+        if (!GameSettings.getInstance().isCoopEnabled()) {
             Table bottomRightTable = new Table();
             bottomRightTable.setFillParent(true);
             bottomRightTable.setDebug(debug);
             bottomRightTable.bottom().right();
             bottomRightTable.add(meowCooldownIndicator).padBottom(40).padRight(200);
             stage.addActor(bottomRightTable);
-        } else if (Constants.CO_OP && level.isCatPresent()) {
+        } else if (GameSettings.getInstance().isCoopEnabled() && level.isCatPresent()) {
             float meowCooldownIndicatorCOOPXPosition = level.isCatPresent() && !level.isOctopusPresent() ? viewport.getScreenWidth() - 200 : graphicsWidth / 2f - 200;
             meowCooldownIndicator.setPosition(meowCooldownIndicatorCOOPXPosition, 40);
             stage.addActor(meowCooldownIndicator);
@@ -414,7 +415,7 @@ public class UIController {
         PlayableAvatar avatar = level.getAvatar();
         boolean isOcto = avatar.getAvatarType() == AvatarType.OCTOPUS;
 
-        if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
+        if (GameSettings.getInstance().isCoopEnabled() && level.isOctopusPresent() && level.isCatPresent()) {
             catIconImage.setVisible(true);
             octopusIconImage.setVisible(true);
             if (inkMeter != null && level.isOctopusPresent()) {
@@ -459,7 +460,7 @@ public class UIController {
         }
 
         if (screenDivider != null) {
-            screenDivider.setVisible(Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent());
+            screenDivider.setVisible(GameSettings.getInstance().isCoopEnabled() && level.isOctopusPresent() && level.isCatPresent());
         }
 
         // Update the minimap

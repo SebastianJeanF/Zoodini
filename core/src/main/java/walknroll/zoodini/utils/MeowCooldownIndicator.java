@@ -3,8 +3,8 @@ package walknroll.zoodini.utils;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Pixmap.Blending;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -16,7 +16,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
-import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.models.entities.Cat;
 
 public class MeowCooldownIndicator extends Actor {
@@ -99,8 +98,7 @@ public class MeowCooldownIndicator extends Actor {
 
         // Update text based on cooldown state
         if (cat.canUseAbility()) {
-            InputController ic = InputController.getInstance();
-            meowStateLabel.setText("[" + Input.Keys.toString(ic.getAbilityKey()) + "]");
+            meowStateLabel.setText("[" + Input.Keys.toString(GameSettings.getInstance().getAbilityKey()) + "]");
         } else {
             // Display remaining seconds rounded up
             int seconds = (int) Math.ceil(cat.getMeowCooldownRemaining());
