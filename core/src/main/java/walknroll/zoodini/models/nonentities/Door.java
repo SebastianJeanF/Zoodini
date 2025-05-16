@@ -29,6 +29,8 @@ import java.util.Iterator;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.PlayableAvatar;
+import walknroll.zoodini.utils.CheckpointListener;
+import walknroll.zoodini.utils.CheckpointManager;
 import walknroll.zoodini.utils.CircleTimer;
 import walknroll.zoodini.utils.ZoodiniSprite;
 
@@ -64,6 +66,21 @@ public class Door extends ZoodiniSprite {
 
     private PlayableAvatar unlocker;
 
+    private int id;
+
+    /** Listener for checkpoint activation events */
+    private CheckpointListener checkpointListener;
+
+    private boolean hasCheckpoint;
+
+    /**
+     * Sets the checkpoint listener for this door
+     * @param listener The listener to notify when checkpoints are activated
+     */
+    public void setCheckpointListener(CheckpointListener listener) {
+        this.checkpointListener = listener;
+    }
+
 
     public boolean isUnlocking() {
         return isUnlocking;
@@ -86,6 +103,8 @@ public class Door extends ZoodiniSprite {
     public void resetTimer(){
         remainingTimeToUnlock = UNLOCK_DURATION; //TODO: set this using json somehow.
     }
+
+    private boolean reachedCheckpoint = false;
 
     /**
      * Returns whether this door is locked.
@@ -132,6 +151,7 @@ public class Door extends ZoodiniSprite {
 		float[] pos = {properties.get("x",Float.class) / units, properties.get("y", Float.class) / units};
         float w = properties.get("width", Float.class) / units;
         float h = properties.get("height", Float.class) / units;
+        this.id = properties.get("id", Integer.class);
 		obstacle = new BoxObstacle(pos[0] + w/2, pos[1] + h/2, w, h);
 		obstacle.setName(properties.get("type", String.class));
 		obstacle.setSensor(false);
@@ -172,6 +192,8 @@ public class Door extends ZoodiniSprite {
         unlockTimer.setPosition(this.obstacle.getPosition());
 
         obstacle.setUserData(this);
+
+        reachedCheckpoint = false;
     }
 
     public void update(float dt){
@@ -184,8 +206,37 @@ public class Door extends ZoodiniSprite {
         if(remainingTimeToUnlock <= 0.0f){
             setLocked(false);
             unlocker.decreaseNumKeys();
+            if (hasCheckpoint) {
+                setReachedCheckpoint(true);
+                // Notify the listener instead of directly activating checkpoints
+                if (checkpointListener != null) {
+                    checkpointListener.onCheckpointActivated(this.id, unlocker);
+                }
+                // checkpointManager.activateDoorCheckpoints(this.id);
+                System.out.println("Checkpoint reached!: " + this.id);
+            }
         }
         unlockTimer.setProgress(remainingTimeToUnlock / UNLOCK_DURATION);
+    }
+
+    public boolean getReachedCheckpoint() {
+        return reachedCheckpoint;
+    }
+
+    public void setReachedCheckpoint(boolean value) {
+        reachedCheckpoint = value;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public boolean hasCheckpoint() {
+        return hasCheckpoint;
+    }
+
+    public void setHasCheckpoint(boolean hasCheckpoint) {
+        this.hasCheckpoint = hasCheckpoint;
     }
 
 

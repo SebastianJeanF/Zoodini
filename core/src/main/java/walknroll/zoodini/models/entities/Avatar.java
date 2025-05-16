@@ -80,6 +80,11 @@ public class Avatar extends ZoodiniSprite {
 		return obstacle.getPosition();
 	}
 
+    public void setPosition(Vector2 pos) {
+        obstacle.setPosition(pos);
+    }
+
+
 	/** Sets angle in radians */
 	public void setAngle(float angle) {
 		obstacle.setAngle(angle);

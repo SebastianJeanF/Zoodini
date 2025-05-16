@@ -12,6 +12,16 @@
  */
 package walknroll.zoodini.controllers.screens;
 
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapObjects;
+import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.objects.TextureMapObject;
+import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Affine2;
+import edu.cornell.gdiac.physics2.BoxObstacle;
+import edu.cornell.gdiac.util.PooledList;
 import java.util.HashMap;
 
 import com.badlogic.gdx.Gdx;
@@ -63,6 +73,12 @@ import walknroll.zoodini.models.nonentities.Exit;
 import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.models.nonentities.Vent;
+import walknroll.zoodini.utils.Checkpoint;
+import walknroll.zoodini.utils.Checkpoint.DoorState;
+import walknroll.zoodini.utils.Checkpoint.KeyState;
+import walknroll.zoodini.utils.CheckpointListener;
+import walknroll.zoodini.utils.CheckpointManager;
+import walknroll.zoodini.utils.CheckpointManager.CheckpointSaveState;
 import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.GameSettings;
@@ -81,7 +97,8 @@ import walknroll.zoodini.utils.enums.AvatarType;
  * You will notice that asset loading is very different. It relies on the
  * singleton asset manager to manage the various assets.
  */
-public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener{
+public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener,
+    CheckpointListener {
     /** How many frames after winning/losing do we continue? */
     public static final int EXIT_COUNT = 120;
     // ASSETS
@@ -175,6 +192,10 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     private boolean followModeActive = false;
 
+    /** Manages all checkpoints in the current level */
+    CheckpointManager checkpointManager;
+
+
     /**
      * Creates a new game world
      *
@@ -188,6 +209,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         level = new GameLevel();
         map = new TmxMapLoader().load(directory.getEntry("levels", JsonValue.class).getString("" + this.currentLevel));
         level.populate(directory, map, batch);
+        checkpointManager = new CheckpointManager();
+        initializeCheckpoints(map.getLayers().get("objects"), map.getProperties().get("tilewidth", Integer.class));
         level.getWorld().setContactListener(this);
 
         complete = false;
@@ -229,6 +252,33 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         setFailure(false);
 
         soundController = SoundController.getInstance();
+
+        // Initialize checkpoint listeners
+        attachCheckpointListeners();
+    }
+
+    private void attachCheckpointListeners() {
+        // Re-register as checkpoint listener for all doors
+        for (Door door : level.getDoors()) {
+            door.setCheckpointListener(this);
+        }
+        System.out.println("Re-attached checkpoint listeners to all doors");
+    }
+
+    public void initializeCheckpoints(MapLayer objectLayer, float units) {
+        for (MapObject obj : objectLayer.getObjects()) {
+            MapProperties properties = obj.getProperties();
+            String type = properties.get("type", String.class);
+            if ("Checkpoint".equalsIgnoreCase(type)) {
+                Checkpoint checkpoint = new Checkpoint(properties, units);
+                checkpointManager.addCheckpoint(checkpoint);
+            }
+        }
+        for (Door door: level.getDoors()) {
+            if (checkpointManager.doorHasCheckpoints(door.getId())) {
+                door.setHasCheckpoint(true);
+            }
+        }
     }
 
     public int getCurrentLevel() {
@@ -251,6 +301,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         setComplete(false);
         setFailure(false);
         countdown = -1;
+        gameLost = false;
 
         level.populate(directory, map, batch);
         level.getWorld().setContactListener(this);
@@ -263,6 +314,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
 
         initializeAIControllers();
+        attachCheckpointListeners();
     }
 
     /**
@@ -335,13 +387,24 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         // Handle resets
         if (input.didReset()) {
+            if (checkAnyCheckpointReached()) {
+                resetFromSnapShot();
+                return false;
+            }
             reset();
+            return false;
         }
 
 
 
         if (gameLost) {
             soundController.stopAllSounds();
+            // Look through all doors and check if any has had their checkpoints reached
+            if (checkAnyCheckpointReached()) {
+                resetFromSnapShot();
+                return false;
+            }
+            System.out.println("No checkpoints reached");
             listener.exitScreen(this, GDXRoot.EXIT_LOSE);
             return false;
         }
@@ -595,6 +658,15 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      */
     public void setScreenListener(ScreenListener listener) {
         this.listener = listener;
+    }
+
+    public boolean checkAnyCheckpointReached() {
+        for (Door door : level.getDoors()) {
+            if (door.getReachedCheckpoint()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -1550,5 +1622,200 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     public GameLevel getLevel(){
         return this.level;
+    }
+
+
+    /**
+     * Respawns the player characters to the game state of the last checkpoint.
+     * This means respawning the characters at their checkpoints, keeping opened doors
+     * opened and keys collected.
+     */
+    private void resetFromSnapShot() {
+        reset();
+        restoreFromSnapShot();
+    }
+
+//    @Override
+//    public void onCheckpointActivated(Integer doorId, PlayableAvatar unlocker) {
+//        // Create snapshot of current game state
+//        HashMap<Integer, Boolean> doorStates = new HashMap<>();
+//        HashMap<Integer, KeyState> keyStates = new HashMap<>();
+//
+//        // Store door states
+//        for (Door door : level.getDoors()) {
+//            doorStates.put(door.getId(), door.isLocked());
+//        }
+//
+//        // Store key states
+//        for (Key key : level.getKeys()) {
+//            keyStates.put(key.getID(), new KeyState(key.isCollected(), key.getOwner()));
+//        }
+//
+//        // Get key counts
+//        int catKeyCount = level.isCatPresent() ? level.getCat().getNumKeys() : 0;
+//        int octopusKeyCount = level.isOctopusPresent() ? level.getOctopus().getNumKeys() : 0;
+//
+//        // Store the game state in the checkpoint manager
+//        checkpointManager.storeGameState(doorId, doorStates, keyStates,
+//            catKeyCount, octopusKeyCount);
+//
+//        // Activate the checkpoints for this door
+//        checkpointManager.activateDoorCheckpoints(doorId);
+//    }
+//
+//    public void restoreFromSnapShot() {
+//        System.out.println("Restoring from snapshot");
+//
+//        // Get active checkpoints before resetting
+//        Checkpoint currGarCheckpoint = checkpointManager.getCurrGarCheckpoint();
+//        Checkpoint currOttoCheckpoint = checkpointManager.getCurrOttoCheckpoint();
+//
+//        if (currGarCheckpoint == null && currOttoCheckpoint == null) {
+//            System.out.println("No active checkpoints to restore from.");
+//            return;
+//        }
+//
+//        // Get the door ID that this checkpoint is associated with
+//        // One of the checkpoints should be associated with the door ID
+//        Integer doorId = (currGarCheckpoint != null) ? currGarCheckpoint.getDoorId() : currOttoCheckpoint.getDoorId();
+//
+//        CheckpointSaveState saveState = checkpointManager.getCheckpointSaveState(doorId);
+//
+//        // Now restore the saved state from the checkpoint
+//        restoreStateFromCheckpoint(saveState);
+//
+//        // Restore character positions
+//        if (currGarCheckpoint != null) {
+//            level.getCat().setPosition(currGarCheckpoint.getPosition());
+//
+//        }
+//        if (currOttoCheckpoint != null) {
+//            level.getOctopus().setPosition(currOttoCheckpoint.getPosition());
+//        }
+//        // Re-activate the checkpoints in the manager
+////
+////        for (String character : checkpoints.keySet()) {
+////            Integer activeDoorId = checkpoints.get(character).getDoorId();
+////            if (checkpointManager.doorHasCheckpoints(activeDoorId)) {
+////                checkpointManager.activateDoorCheckpoints(activeDoorId);
+////            }
+////        }
+//
+//    }
+
+    // Update the restoreFromSnapShot method in GameScene to use the merged checkpoint state
+
+    public void restoreFromSnapShot() {
+        System.out.println("Restoring from snapshot");
+
+        // Get active checkpoints
+        Checkpoint currGarCheckpoint = checkpointManager.getCurrGarCheckpoint();
+        Checkpoint currOttoCheckpoint = checkpointManager.getCurrOttoCheckpoint();
+
+        if (currGarCheckpoint == null && currOttoCheckpoint == null) {
+            System.out.println("No active checkpoints to restore from.");
+            return;
+        }
+
+        // Get a merged state from both active checkpoints
+        CheckpointSaveState mergedState = checkpointManager.getMergedCheckpointState();
+
+        if (mergedState == null) {
+            System.out.println("Failed to get merged checkpoint state.");
+            return;
+        }
+
+        attachCheckpointListeners();
+        // Now restore the saved state from the merged checkpoint state
+        restoreStateFromCheckpoint(mergedState);
+
+        // Restore character positions to their respective checkpoints
+        if (currGarCheckpoint != null && level.isCatPresent()) {
+            level.getCat().setPosition(currGarCheckpoint.getPosition());
+        }
+
+        if (currOttoCheckpoint != null && level.isOctopusPresent()) {
+            level.getOctopus().setPosition(currOttoCheckpoint.getPosition());
+        }
+
+        // Re-activate the checkpoints
+        for (Door door : level.getDoors()) {
+            if (door.getReachedCheckpoint() && checkpointManager.doorHasCheckpoints(door.getId())) {
+                // Reactivate any checkpoints associated with doors that were unlocked in the saved state
+                checkpointManager.activateDoorCheckpoints(door.getId());
+            }
+        }
+    }
+
+// We also need to update the onCheckpointActivated method to ensure we're not losing checkpoints
+
+    @Override
+    public void onCheckpointActivated(Integer doorId, PlayableAvatar unlocker) {
+        System.out.println("Checkpoint activated for door ID: " + doorId);
+        // Create snapshot of current game state
+        HashMap<Integer, DoorState> doorStates = new HashMap<>();
+        HashMap<Integer, KeyState> keyStates = new HashMap<>();
+
+        // Store door states
+        for (Door door : level.getDoors()) {
+            doorStates.put(door.getId(), new DoorState(door.isLocked(), door.hasCheckpoint()));
+        }
+
+        // Store key states
+        for (Key key : level.getKeys()) {
+            keyStates.put(key.getID(), new KeyState(key.isCollected(), key.getOwner()));
+        }
+
+        // Get key counts
+        int catKeyCount = level.isCatPresent() ? level.getCat().getNumKeys() : 0;
+        int octopusKeyCount = level.isOctopusPresent() ? level.getOctopus().getNumKeys() : 0;
+
+        // Store the game state in the checkpoint manager
+        checkpointManager.storeGameState(doorId, doorStates, keyStates,
+            catKeyCount, octopusKeyCount);
+
+        // Activate the checkpoints for this door (without deactivating other checkpoints)
+        checkpointManager.activateDoorCheckpoints(doorId);
+    }
+
+    // Helper method to restore state from saved data
+    private void restoreStateFromCheckpoint(CheckpointSaveState saveState) {
+        // Get saved states
+        HashMap<Integer, DoorState> doorStates = saveState.getDoorState();
+        HashMap<Integer, KeyState> keyStates = saveState.getKeyState();
+
+        // Restore door states
+        if (saveState.getDoorState() != null) {
+            for (Door door : level.getDoors()) {
+                if (doorStates.containsKey(door.getId())) {
+                    door.setLocked(doorStates.get(door.getId()).getUnlocked());
+                    if (!door.isLocked()) {
+                        door.setReachedCheckpoint(true);
+                    }
+                    door.setHasCheckpoint(doorStates.get(door.getId()).getIsCheckpoint());
+                }
+            }
+        }
+
+        // Restore key states
+        if (keyStates != null) {
+            for (Key key : level.getKeys()) {
+                if (keyStates.containsKey(key.getID())) {
+                    KeyState keyState = keyStates.get(key.getID());
+                    key.setCollected(keyState.collected);
+                    if (key.isCollected()) {
+                        key.setOwner(keyState.owner);
+                    }
+                }
+            }
+        }
+
+        // Set key counts to characters
+        if (level.isCatPresent()) {
+            level.getCat().setNumKeys(saveState.getCatKeyCount());
+        }
+        if (level.isOctopusPresent()) {
+            level.getOctopus().setNumKeys(saveState.getOctopusKeyCount());
+        }
     }
 }
