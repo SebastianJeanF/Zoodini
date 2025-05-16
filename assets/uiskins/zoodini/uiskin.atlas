@@ -60,7 +60,7 @@ dropdown-open
   index: -1
 knob
   rotate: false
-  xy: 337, 683
+  xy: 1, 567
   size: 100, 100
   split: 48, 48, 48, 48
   pad: 48, 48, 0, 48
@@ -69,14 +69,14 @@ knob
   index: -1
 knob-down
   rotate: false
-  xy: 1, 637
+  xy: 337, 695
   size: 30, 30
   orig: 30, 30
   offset: 0, 0
   index: -1
 knob-over
   rotate: false
-  xy: 439, 753
+  xy: 450, 753
   size: 30, 30
   orig: 30, 30
   offset: 0, 0
@@ -97,7 +97,7 @@ list-item-active
   index: -1
 scroll-bar
   rotate: false
-  xy: 761, 1
+  xy: 842, 1
   size: 14, 956
   split: 4, 4, 8, 8
   pad: 0, 0, 0, 0
@@ -122,7 +122,7 @@ slider-bar
   index: -1
 slider-knob
   rotate: false
-  xy: 729, 927
+  xy: 1, 535
   size: 30, 30
   split: 14, 14, 14, 14
   pad: 0, 0, 0, 0
@@ -131,16 +131,44 @@ slider-knob
   index: -1
 test-window
   rotate: false
-  xy: 1, 588
+  xy: 103, 620
   size: 20, 47
   split: 8, 8, 31, 7
   pad: 0, 0, 0, 0
   orig: 20, 47
   offset: 0, 0
   index: -1
+toggle-off
+  rotate: false
+  xy: 675, 901
+  size: 111, 56
+  orig: 111, 56
+  offset: 0, 0
+  index: -1
+toggle-off-over
+  rotate: false
+  xy: 673, 785
+  size: 111, 56
+  orig: 111, 56
+  offset: 0, 0
+  index: -1
+toggle-on
+  rotate: false
+  xy: 674, 843
+  size: 111, 56
+  orig: 111, 56
+  offset: 0, 0
+  index: -1
+toggle-on-over
+  rotate: false
+  xy: 337, 727
+  size: 111, 56
+  orig: 111, 56
+  offset: 0, 0
+  index: -1
 window
   rotate: false
-  xy: 675, 905
+  xy: 788, 905
   size: 52, 52
   split: 11, 11, 11, 10
   pad: 0, 0, 0, 0

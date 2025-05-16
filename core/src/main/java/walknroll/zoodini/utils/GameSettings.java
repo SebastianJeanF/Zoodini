@@ -4,33 +4,34 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Preferences;
 
 public class GameSettings {
+
     private int abilityKey;
     private int swapKey;
     private int followKey;
-
     private String resolution;
-
     private float musicVolume;
-
     private float soundVolume;
+    private boolean coopEnabled;
 
     public GameSettings() {
-        this(Input.Keys.E, Input.Keys.SPACE, Input.Keys.F, "1280x720", 100f, 100f);
+        this(Input.Keys.E, Input.Keys.SPACE, Input.Keys.F, "1280x720", 100f, 100f, false);
     }
 
-    public GameSettings(int abilityKey, int swapKey, int followKey, String resolution, float musicVolume,
-            float soundVolume) {
+    public GameSettings(int abilityKey, int swapKey, int followKey, String resolution,
+            float musicVolume,
+            float soundVolume, boolean coopEnabled) {
         this.abilityKey = abilityKey;
         this.swapKey = swapKey;
         this.followKey = followKey;
         this.resolution = resolution;
         this.musicVolume = musicVolume;
         this.soundVolume = soundVolume;
+        this.coopEnabled = coopEnabled;
     }
 
     public GameSettings(GameSettings other) {
         this(other.abilityKey, other.swapKey, other.followKey, other.resolution, other.musicVolume,
-                other.soundVolume);
+                other.soundVolume, other.coopEnabled);
     }
 
     public GameSettings(Preferences prefs) {
@@ -41,6 +42,15 @@ public class GameSettings {
         this.resolution = prefs.getString("resolution", defaults.getResolution());
         this.musicVolume = prefs.getFloat("musicVolume", defaults.getMusicVolume());
         this.soundVolume = prefs.getFloat("soundVolume", defaults.getSoundVolume());
+        this.coopEnabled = prefs.getBoolean("coopEnabled", defaults.isCoopEnabled());
+    }
+
+    public boolean isCoopEnabled() {
+        return coopEnabled;
+    }
+
+    public void setCoopEnabled(boolean coopEnabled) {
+        this.coopEnabled = coopEnabled;
     }
 
     public int getFollowKey() {
@@ -98,5 +108,6 @@ public class GameSettings {
         prefs.putInteger("swapKey", this.swapKey);
         prefs.putInteger("followKey", this.followKey);
         prefs.putString("resolution", this.resolution);
+        prefs.putBoolean("coopEnabled", this.coopEnabled);
     }
 }
