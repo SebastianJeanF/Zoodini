@@ -98,7 +98,7 @@ public class UIController {
     /**
      * Initialize all the Actors (Images, Buttons, etc.)
      */
-    private void initializeActors(AssetDirectory directory, GameLevel level){
+    private void initializeActors(AssetDirectory directory, GameLevel level) {
         displayFont = directory.getEntry("display", BitmapFont.class);
 
         catIconImage = new Image(directory.getEntry("cat-icon", Texture.class));
@@ -141,20 +141,11 @@ public class UIController {
         p2KeyCount = new Label("x0", style);
 
         final float followIconScale = 0.4f;
-        catFollowIconImage.setSize(
-            catFollowIconImage.getWidth() * followIconScale,
-            catFollowIconImage.getHeight() * followIconScale
-        );
-        octopusFollowIconImage.setSize(
-            octopusFollowIconImage.getWidth() * followIconScale,
-            octopusFollowIconImage.getHeight() * followIconScale
-        );
+        catFollowIconImage.setSize(catFollowIconImage.getWidth() * followIconScale, catFollowIconImage.getHeight() * followIconScale);
+        octopusFollowIconImage.setSize(octopusFollowIconImage.getWidth() * followIconScale, octopusFollowIconImage.getHeight() * followIconScale);
 
         final float inkTextScale = 0.4f;
-        inkTextImage.setSize(
-            inkTextImage.getWidth() * inkTextScale,
-            inkTextImage.getHeight() * inkTextScale
-        );
+        inkTextImage.setSize(inkTextImage.getWidth() * inkTextScale, inkTextImage.getHeight() * inkTextScale);
 
         Drawable dividerDrawable = skin.newDrawable("white", new Color(0.0f, 0.0f, 0.0f, 0.9f));
         screenDivider = new Image(dividerDrawable);
@@ -169,7 +160,7 @@ public class UIController {
     /**
      * Places each Actor at the right position.
      */
-    private void setupStageLayout(GameLevel level){
+    private void setupStageLayout(GameLevel level) {
         viewport = new ScreenViewport();
         float graphicsWidth = Gdx.graphics.getWidth();
         stage = new Stage(viewport);
@@ -205,7 +196,9 @@ public class UIController {
         Group avatarGroup = new Group();
         avatarGroup.addActor(catIconImage);
 
-        if (!Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
+        if ((!Constants.CO_OP && (level.isOctopusPresent() || level.isCatPresent()))
+            || (Constants.CO_OP && level.isOctopusPresent() && !level.isCatPresent())
+            || (Constants.CO_OP && !level.isOctopusPresent() && level.isCatPresent())) {
             avatarGroup.addActor(octopusIconImage);
             catFollowIconImage.setPosition(catIconImage.getWidth() * 0.85f, catIconImage.getHeight() * 0.85f);
             octopusFollowIconImage.setPosition(catIconImage.getWidth() * 0.85f, catIconImage.getHeight() * 0.85f);
@@ -263,7 +256,7 @@ public class UIController {
         Group dangerIcons = new Group();
         dangerIcons.addActor(smallCatIconImage);
         dangerIcons.addActor(smallOctopusIconImage);
-        dangerIconImage.moveBy(50,30);
+        dangerIconImage.moveBy(50, 30);
         dangerIcons.addActor(dangerIconImage);
         leftTable.left().add(dangerIcons).width(100).height(100);
         stage.addActor(leftTable);
@@ -293,8 +286,9 @@ public class UIController {
             bottomRightTable.bottom().right();
             bottomRightTable.add(meowCooldownIndicator).padBottom(40).padRight(200);
             stage.addActor(bottomRightTable);
-        } else if (Constants.CO_OP && level.isCatPresent() && level.isOctopusPresent()){
-            meowCooldownIndicator.setPosition(graphicsWidth / 2f - 200, 40);
+        } else if (Constants.CO_OP && level.isCatPresent()) {
+            float meowCooldownIndicatorCOOPXPosition = level.isCatPresent() && !level.isOctopusPresent() ? viewport.getScreenWidth() - 200 : graphicsWidth / 2f - 200;
+            meowCooldownIndicator.setPosition(meowCooldownIndicatorCOOPXPosition, 40);
             stage.addActor(meowCooldownIndicator);
         }
     }
@@ -329,10 +323,7 @@ public class UIController {
         pauseMenuTable = new Table();
         pauseMenuTable.setBackground(skin.newDrawable("white", new Color(0.2f, 0.2f, 0.2f, 0.9f)));
         pauseMenuTable.setSize(300, 200);
-        pauseMenuTable.setPosition(
-            (Gdx.graphics.getWidth() - 300) / 2,
-            (Gdx.graphics.getHeight() - 200) / 2
-        );
+        pauseMenuTable.setPosition((Gdx.graphics.getWidth() - 300) / 2, (Gdx.graphics.getHeight() - 200) / 2);
         pauseMenuTable.setVisible(false); // Hide initially
 
         Table buttonTable = new Table();
@@ -388,10 +379,7 @@ public class UIController {
 
         if (pauseBannerImage != null) {
             float scale = 1.0f;
-            pauseBannerImage.setSize(
-                pauseBannerImage.getWidth() * scale,
-                pauseBannerImage.getHeight() * scale
-            );
+            pauseBannerImage.setSize(pauseBannerImage.getWidth() * scale, pauseBannerImage.getHeight() * scale);
             Stack bannerStack = new Stack();
             bannerStack.setSize(pauseBannerImage.getWidth(), pauseBannerImage.getHeight());
 
@@ -413,11 +401,11 @@ public class UIController {
         stage.addActor(pauseMenuTable);
     }
 
-    public void update(float dt){
+    public void update(float dt) {
         stage.act(dt);
     }
 
-    public void draw (GameScene scene){
+    public void draw(GameScene scene) {
         GameLevel level = scene.getLevel();
         if (Gdx.input.getInputProcessor() != stage) {
             Gdx.input.setInputProcessor(stage);
@@ -435,7 +423,7 @@ public class UIController {
             }
             meowCooldownIndicator.setVisible(true);
             meowCooldownIndicator.update(level.getCat());
-            if (level.isOctopusPresent()){
+            if (level.isOctopusPresent()) {
                 p2KeyCount.setText("x" + level.getOctopus().getNumKeys());
             }
 
@@ -457,8 +445,7 @@ public class UIController {
             if (scene.getFollowModeActive()) {
                 catFollowIconImage.setVisible(isOcto);
                 octopusFollowIconImage.setVisible(!isOcto);
-            }
-            else {
+            } else {
                 catFollowIconImage.setVisible(false);
                 octopusFollowIconImage.setVisible(false);
             }
@@ -487,7 +474,8 @@ public class UIController {
                     smallOctopusIconImage.setVisible(false);
                 } else {
                     smallOctopusIconImage.setVisible(true);
-                    smallCatIconImage.setVisible(false);}
+                    smallCatIconImage.setVisible(false);
+                }
             } else {
                 dangerIconImage.setVisible(false);
                 smallCatIconImage.setVisible(false);
@@ -518,7 +506,8 @@ public class UIController {
             pauseListener.onPauseStateChanged(paused);
         }
     }
-    public void dispose(){
+
+    public void dispose() {
         stage.dispose();
         if (minimap != null) {
             minimap.dispose();
@@ -526,10 +515,11 @@ public class UIController {
         minimapDisabled = false;
     }
 
-    public void setPauseMenuListener(PauseMenuListener l){
+    public void setPauseMenuListener(PauseMenuListener l) {
         pauseListener = l;
     }
-    public static void disableMinimap(boolean b){
+
+    public static void disableMinimap(boolean b) {
         minimapDisabled = b;
     }
 }
