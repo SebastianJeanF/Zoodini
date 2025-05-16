@@ -36,7 +36,7 @@ public class SettingsScene implements Screen {
 
     /** The drawing camera for this scene */
     private OrthographicCamera camera;
-    
+
     /** Reference to sprite batch created by the root */
     private SpriteBatch batch;
 
@@ -191,12 +191,17 @@ public class SettingsScene implements Screen {
                 SettingsScene.this.waitingForFollowKey = false;
             }
         });
-        window.add(setAbilityKey).width(Value.percentWidth(0.2f, container))
-                .height(Value.percentHeight(0.06f, container)).pad(Value.percentWidth(0.01f, container));
+
+        window.add(setAbilityKey)
+                .width(Value.percentWidth(0.2f, container))
+                .height(Value.percentHeight(0.06f, container))
+                .pad(Value.percentWidth(0.01f, container));
 
         window.row();
-        window.add(new Label("Swap Character", skin, "dark")).width(Value.percentWidth(0.25f, container))
+        window.add(new Label("Swap Character", skin, "dark"))
+                .width(Value.percentWidth(0.25f, container))
                 .pad(Value.percentWidth(0.01f, container));
+
         TextButton setSwapKey = new TextButton("Current: " + Input.Keys.toString(this.stagedSettings.getSwapKey()),
                 skin);
         setSwapKey.addListener(new ChangeListener() {
@@ -206,8 +211,11 @@ public class SettingsScene implements Screen {
                 SettingsScene.this.waitingForFollowKey = false;
             }
         });
-        window.add(setSwapKey).width(Value.percentWidth(0.2f, container)).height(Value.percentHeight(0.06f, container))
-                .pad(Value.percentWidth(0.01f, container));
+
+        window.add(setSwapKey)
+            .width(Value.percentWidth(0.2f, container))
+            .height(Value.percentHeight(0.06f, container))
+            .pad(Value.percentWidth(0.01f, container));
 
         window.row();
         window.add(new Label("Toggle Following", skin, "dark")).width(Value.percentWidth(0.25f, container))

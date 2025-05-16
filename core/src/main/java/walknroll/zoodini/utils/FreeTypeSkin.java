@@ -1,5 +1,6 @@
 package walknroll.zoodini.utils;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -7,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.Hinting;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 
@@ -62,5 +64,27 @@ final public class FreeTypeSkin extends Skin {
                 });
 
         return json;
+    }
+
+    /**
+     * Resizes the font in the skin to match the current resolution.
+     */
+    public void resizeFont(float resScale) {
+        // TODO: Add BASE_FONT_SIZE to constants instead
+        int BASE_FONT_SIZE = 35;
+
+        FreeTypeFontGenerator gen =
+            new FreeTypeFontGenerator(Gdx.files.internal("fonts/LuckiestGuy-Regular.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        param.size = (int)(BASE_FONT_SIZE * resScale);
+        param.incremental = true;
+
+        // Generate scaled-up font
+        BitmapFont scaledFont = gen.generateFont(param);
+        this.add("default-font", scaledFont);
+        this.get(TextButton.TextButtonStyle.class).font = scaledFont;
+
+        // Clean up
+        gen.dispose();
     }
 }

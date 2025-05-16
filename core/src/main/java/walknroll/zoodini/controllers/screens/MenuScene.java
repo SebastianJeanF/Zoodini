@@ -18,7 +18,7 @@
  * at the start of the game.
  *
  * @author: Walker M. White
- * 
+ *
  * @date: 11/21/2024
  */
 package walknroll.zoodini.controllers.screens;
@@ -27,7 +27,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -37,6 +39,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -101,7 +104,7 @@ public class MenuScene implements Screen {
 	private float resScale;
 
 	private Stage stage;
-	private Skin skin;
+	private FreeTypeSkin skin;
 
 	Affine2 cache = new Affine2();
 
@@ -156,6 +159,8 @@ public class MenuScene implements Screen {
 
 		background = internal.getEntry("splash", Texture.class);
 		logo = internal.getEntry("logo", Texture.class);
+
+
 	}
 
 	public void create() {
@@ -163,11 +168,15 @@ public class MenuScene implements Screen {
 		Gdx.input.setInputProcessor(stage);
 
 		skin = new FreeTypeSkin(Gdx.files.internal("uiskins/zoodini/uiskin.json"));
+        skin.resizeFont(resScale);
 
 		Table table = makeSettingsTable();
 
 		stage.addActor(table);
 	}
+
+
+
 
 	/**
 	 * Returns the budget for the asset loader.
@@ -262,6 +271,7 @@ public class MenuScene implements Screen {
 		this.width = width;
 		this.height = height;
 		viewport.update(width, height, true);
+
 	}
 
 	/**
@@ -313,12 +323,13 @@ public class MenuScene implements Screen {
 
 	private Table makeSettingsTable() {
 		Table table = new Table();
-		// table.setSize(this.width, this.height);
+		 table.setSize(this.width, this.height);
 		table.setFillParent(true);
 		table.defaults().spaceBottom(10f);
 		table.bottom().pad(Value.percentWidth(0.01f));
 
 		Value labelWidth = Value.percentWidth(0.25f, table);
+        Value labelHeight = Value.percentHeight(0.09f, table);
 
 		TextButton menuStart = new TextButton("Start", skin);
 		menuStart.addListener(new ChangeListener() {
@@ -327,7 +338,12 @@ public class MenuScene implements Screen {
 				listener.exitScreen(MenuScene.this, GDXRoot.EXIT_LEVEL_SELECT);
 			}
 		});
-		table.add(menuStart).expandX().left().width(labelWidth).bottom();
+		table.add(menuStart)
+            .expandX()
+            .left()
+            .width(labelWidth)
+            .height(labelHeight)
+            .bottom();
 
 		table.row();
 		TextButton menuSettings = new TextButton("Settings", skin);
@@ -337,7 +353,11 @@ public class MenuScene implements Screen {
 				listener.exitScreen(MenuScene.this, GDXRoot.EXIT_SETTINGS);
 			}
 		});
-		table.add(menuSettings).left().width(labelWidth).bottom();
+		table.add(menuSettings)
+            .left()
+            .width(labelWidth)
+            .height(labelHeight)
+            .bottom();
 
 		table.row();
 		TextButton menuCredits = new TextButton("Credits", skin);
@@ -347,7 +367,11 @@ public class MenuScene implements Screen {
 				listener.exitScreen(MenuScene.this, GDXRoot.EXIT_CREDITS);
 			}
 		});
-		table.add(menuCredits).left().width(labelWidth).bottom();
+		table.add(menuCredits)
+            .left()
+            .width(labelWidth)
+            .height(labelHeight)
+            .bottom();
 
 		table.row();
 		TextButton menuQuit = new TextButton("Quit", skin);
@@ -357,7 +381,11 @@ public class MenuScene implements Screen {
 				listener.exitScreen(MenuScene.this, GDXRoot.EXIT_QUIT);
 			}
 		});
-		table.add(menuQuit).left().width(labelWidth).bottom();
+		table.add(menuQuit)
+            .left()
+            .width(labelWidth)
+            .height(labelHeight)
+            .bottom();
 
 		return table;
 	}
