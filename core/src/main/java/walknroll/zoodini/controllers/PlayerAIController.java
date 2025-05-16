@@ -1,14 +1,16 @@
 package walknroll.zoodini.controllers;
 
-import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
-import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.List;
-import walknroll.zoodini.controllers.aitools.LOSController;
+
+import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
+import com.badlogic.gdx.math.Vector2;
+
 import walknroll.zoodini.controllers.aitools.TileGraph;
 import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.PlayableAvatar;
+import walknroll.zoodini.utils.DebugPrinter;
 
 public class PlayerAIController {
     /** The avatar being controlled by AI */
@@ -193,7 +195,7 @@ public class PlayerAIController {
         if (previousFollowerPosition == null) {
             previousFollowerPosition = follower.getPosition().cpy();
         }
-        System.out.println("Current State: " + currState);
+        DebugPrinter.println("Current State: " + currState);
         setNextTargetLocation();
         setMovementDirection();
         previousFollowerPosition = follower.getPosition().cpy();

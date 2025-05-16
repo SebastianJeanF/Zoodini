@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
 import walknroll.zoodini.models.GameLevel;
+import walknroll.zoodini.utils.DebugPrinter;
 
 /**
  * Line of sight callback for raycasting
@@ -71,7 +72,7 @@ public class LOSCallback implements RayCastCallback {
 
         // Check if this is an obstacle using filter bits (same way VisionCone does)
         if ((obstacleCategory & fixture.getFilterData().categoryBits) != 0) {
-            System.out.println("Hit obstacle: " + fixture.getUserData());
+            DebugPrinter.println("Hit obstacle: " + fixture.getUserData());
             hitObstacle = true;
         }
 

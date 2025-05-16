@@ -335,7 +335,7 @@ public class GameLevel {
             String type = properties.get("type", String.class);
 
             if ("Cat".equalsIgnoreCase(type)) {
-                System.out.println("Creating cat");
+                DebugPrinter.println("Creating cat");
                 avatarCat = new Cat(properties, entityConstants.get("cat"), units);
                 avatarCat.setAnimation(AnimationState.IDLE,
                         directory.getEntry("cat-idle.animation", SpriteSheet.class), 15);
@@ -348,7 +348,7 @@ public class GameLevel {
                 activate(avatarCat);
                 catPresent = true;
             } else if ("Octopus".equalsIgnoreCase(type)) {
-                System.out.println("Creating octopus");
+                DebugPrinter.println("Creating octopus");
                 avatarOctopus = new Octopus(properties, entityConstants.get("octopus"), units);
                 avatarOctopus.setAnimation(AnimationState.IDLE,
                         directory.getEntry("octopus-idle.animation", SpriteSheet.class), 7);
@@ -361,7 +361,7 @@ public class GameLevel {
                 activate(avatarOctopus);
                 octopusPresent = true;
             } else if ("Guard".equalsIgnoreCase(type)) {
-                System.out.println("Creating guard");
+                DebugPrinter.println("Creating guard");
                 Guard g = new Guard(properties, entityConstants.get("guard"), units);
                 SpriteSheet idle = directory.getEntry("guard-idle-all.animation", SpriteSheet.class);
                 idle = new SpriteSheet(idle);

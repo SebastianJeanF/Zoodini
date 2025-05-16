@@ -1412,13 +1412,13 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         if (avatar.isCurrentlyAiming()) {
             cameraLeft.zoom = Math.min(1.65f, cameraLeft.zoom + 0.025f);
         } else {
-            cameraLeft.zoom = Math.max(1.0f, cameraLeft.zoom - 0.025f);
+            cameraLeft.zoom = Math.max(1.2f, cameraLeft.zoom - 0.025f);
         }
 
         if (inactiveAvatar != null && inactiveAvatar.isCurrentlyAiming()) {
             cameraRight.zoom = Math.min(1.65f, cameraRight.zoom + 0.025f);
         } else {
-            cameraRight.zoom = Math.max(1.0f, cameraRight.zoom - 0.025f);
+            cameraRight.zoom = Math.max(1.2f, cameraRight.zoom - 0.025f);
         }
     }
 

@@ -472,7 +472,7 @@ public class Guard extends Enemy {
         }
 
         if (animationController.getCurrentFrame() == 15) {
-            System.out.println("Guard is at frame 15");
+            DebugPrinter.println("Guard is at frame 15");
         }
 
     }

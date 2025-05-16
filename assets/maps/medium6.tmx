@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="128" tileheight="128" infinite="0" nextlayerid="8" nextobjectid="171">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="128" tileheight="128" infinite="0" nextlayerid="8" nextobjectid="175">
  <tileset firstgid="1" source="../tilesets/path-3.tsx"/>
  <tileset firstgid="257" source="../tilesets/trees.tsx"/>
  <tileset firstgid="263" source="../tilesets/fence.tsx"/>
@@ -24,8 +24,8 @@
 27,28,29,30,31,11,12,13,62,63,64,11,27,11,62,63,64,30,31,11,62,63,64,12,13,14,15,16,11,11,
 28,29,30,31,11,12,13,14,78,79,80,11,11,27,78,79,80,31,32,11,78,79,80,12,13,14,15,16,27,11,
 28,29,30,31,11,12,13,14,94,95,96,11,27,28,94,95,96,32,11,11,94,95,96,13,14,15,16,11,11,12,
-29,30,31,421,421,13,14,11,110,111,112,27,28,29,110,111,112,15,11,27,110,111,112,13,14,15,11,27,11,12,
-30,31,549,649,649,13,11,27,126,127,128,28,29,30,126,127,128,11,27,28,126,127,128,14,15,11,27,11,12,11,
+29,30,31,421,421,13,14,11,110,111,112,27,28,630,110,111,112,15,11,27,110,111,112,13,14,15,11,27,11,12,
+30,31,549,649,649,13,11,27,126,127,128,28,29,630,126,127,128,11,27,28,126,127,128,14,15,11,27,11,12,11,
 30,31,549,549,549,11,27,11,142,143,144,29,30,31,142,143,144,11,27,28,142,143,144,14,11,27,11,12,11,27,
 31,32,549,421,421,27,28,27,158,159,160,29,30,31,158,159,160,27,28,11,158,159,160,15,27,11,12,11,27,28,
 32,11,549,649,649,28,11,27,174,175,176,30,31,32,174,175,176,27,28,11,174,175,176,11,27,11,11,27,28,11,
@@ -108,7 +108,7 @@
   <object id="60" gid="260" x="1446.42" y="2730.55" width="392" height="551"/>
   <object id="61" gid="260" x="1331.27" y="2612.36" width="392" height="551"/>
   <object id="62" gid="260" x="1446.42" y="2821.45" width="392" height="551"/>
-  <object id="63" gid="260" x="1443.39" y="2382.06" width="392" height="551"/>
+  <object id="63" gid="260" x="1367.39" y="2360.73" width="392" height="551"/>
   <object id="64" gid="260" x="1334.3" y="2251.76" width="392" height="551"/>
   <object id="65" gid="260" x="1458.55" y="2085.09" width="392" height="551"/>
   <object id="66" gid="260" x="1349.45" y="2063.88" width="392" height="551"/>
@@ -125,10 +125,10 @@
   <object id="83" gid="262" x="2911" y="1974" width="282" height="636"/>
   <object id="84" gid="262" x="703" y="3498" width="282" height="636"/>
   <object id="85" gid="262" x="739" y="3250" width="282" height="636"/>
-  <object id="86" gid="262" x="743" y="3110" width="282" height="636"/>
+  <object id="86" gid="262" x="767" y="3110" width="282" height="636"/>
   <object id="87" gid="262" x="739" y="3062" width="282" height="636"/>
-  <object id="88" gid="262" x="723" y="2850" width="282" height="636"/>
-  <object id="89" gid="262" x="723" y="2762" width="282" height="636"/>
+  <object id="88" gid="262" x="755" y="2836" width="282" height="636"/>
+  <object id="89" gid="262" x="747" y="2762" width="282" height="636"/>
   <object id="93" gid="262" x="744.212" y="1881.03" width="282" height="636"/>
   <object id="94" gid="262" x="747" y="1910" width="282" height="636"/>
   <object id="95" gid="262" x="739" y="1826" width="282" height="636"/>
@@ -146,7 +146,6 @@
   <object id="108" gid="260" x="1434.3" y="1276" width="392" height="551"/>
   <object id="109" gid="260" x="1464.61" y="1606.3" width="392" height="551"/>
   <object id="110" gid="262" x="2915" y="3008" width="282" height="636"/>
-  <object id="123" x="1792" y="3712" width="384" height="128"/>
   <object id="147" gid="257" x="502" y="1894" width="412" height="475"/>
   <object id="148" gid="257" x="286" y="1892" width="412" height="475"/>
   <object id="149" gid="257" x="96" y="1892" width="412" height="475"/>
@@ -164,9 +163,9 @@
   <object id="165" gid="261" x="135" y="3008" width="271" height="336"/>
   <object id="166" gid="261" x="225" y="3008" width="271" height="336"/>
   <object id="167" gid="261" x="343" y="3004" width="271" height="336"/>
-  <object id="168" gid="261" x="455" y="3002" width="271" height="336"/>
+  <object id="168" gid="261" x="455" y="3008" width="271" height="336"/>
   <object id="169" gid="261" x="571" y="3014" width="271" height="336"/>
-  <object id="170" gid="261" x="605" y="3018" width="271" height="336"/>
+  <object id="170" gid="261" x="599" y="3026" width="271" height="336"/>
  </objectgroup>
  <objectgroup id="3" name="walls">
   <object id="10" x="2176" y="3200" width="128" height="640"/>
@@ -175,7 +174,6 @@
   <object id="16" x="2176" y="1664" width="384" height="384"/>
   <object id="17" x="2176" y="2048" width="128" height="768"/>
   <object id="19" x="2304" y="2432" width="256" height="384"/>
-  <object id="20" x="1408" y="1664" width="384" height="640"/>
   <object id="21" x="1664" y="2304" width="128" height="512"/>
   <object id="23" x="1408" y="2560" width="256" height="256"/>
   <object id="24" x="2304" y="2304" width="256" height="128"/>
@@ -191,6 +189,8 @@
   <object id="133" x="128" y="2816" width="768" height="128"/>
   <object id="142" x="384" y="2048" width="256" height="256"/>
   <object id="143" x="384" y="2432" width="256" height="256"/>
+  <object id="171" x="1408" y="1664" width="384" height="640"/>
+  <object id="174" x="1792" y="3712" width="384" height="128"/>
  </objectgroup>
  <objectgroup id="2" name="objects" class="Vent">
   <object id="9" type="Door" x="1792" y="1792" width="384" height="256">
@@ -198,7 +198,7 @@
     <property name="timeToOpen" type="float" value="1"/>
    </properties>
   </object>
-  <object id="28" type="Guard" x="2431.39" y="3377.64">
+  <object id="28" type="Guard" x="2375.39" y="3422.97">
    <properties>
     <property name="angle" type="float" value="90"/>
     <property name="path" type="object" value="0"/>
@@ -211,14 +211,14 @@
   <object id="49" type="Octopus" x="1988.85" y="2555.58">
    <point/>
   </object>
-  <object id="68" type="Guard" x="2406.06" y="2215.15">
+  <object id="68" type="Guard" x="2372.73" y="2219.15">
    <properties>
     <property name="angle" type="float" value="0"/>
     <property name="path" type="object" value="0"/>
    </properties>
    <point/>
   </object>
-  <object id="69" type="Guard" x="1539.39" y="2493.94">
+  <object id="69" type="Guard" x="1612.72" y="2508.61">
    <properties>
     <property name="angle" type="float" value="180"/>
     <property name="path" type="object" value="0"/>
@@ -240,15 +240,23 @@
    </properties>
    <point/>
   </object>
-  <object id="116" type="Vent" x="2752" y="2458">
+  <object id="116" type="Vent" x="2756" y="2440">
    <point/>
   </object>
-  <object id="144" type="Camera" x="1732" y="2134">
+  <object id="144" type="Camera" x="1709.33" y="2159.33">
    <properties>
     <property name="angle" type="float" value="0"/>
-    <property name="fov" type="float" value="60"/>
-    <property name="viewDistance" type="float" value="3"/>
+    <property name="fov" type="float" value="40"/>
+    <property name="viewDistance" type="float" value="4"/>
    </properties>
+   <point/>
+  </object>
+  <object id="172" type="Door" x="1792" y="2688" width="384" height="128">
+   <properties>
+    <property name="timeToOpen" type="float" value="2"/>
+   </properties>
+  </object>
+  <object id="173" type="Key" x="2754.67" y="1848">
    <point/>
   </object>
  </objectgroup>
