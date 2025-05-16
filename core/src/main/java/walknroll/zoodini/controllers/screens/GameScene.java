@@ -1280,6 +1280,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         for (Door door : level.getDoors()) {
             if (!door.isLocked() && !processedDoors.contains(door)) {
+                processedDoors.add(door);
                 BoxObstacle box = (BoxObstacle) door.getObstacle();
                 float doorX = door.getObstacle().getX() - box.getWidth() / 2f;
                 float doorY = door.getObstacle().getY() - box.getHeight() / 2f;

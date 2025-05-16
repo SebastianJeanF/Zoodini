@@ -147,7 +147,9 @@ public class MenuScene implements Screen {
 
 		// Start loading the REAL assets
 		this.assets = assets;
-		this.assets.loadAssets();
+		if (progress < 1.0f) {
+			this.assets.loadAssets();
+		}
 		active = true;
 
 		float resScaleX = Gdx.graphics.getWidth() / (float) constants.getFloat("screenWidth");
