@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="46" tilewidth="128" tileheight="128" infinite="0" nextlayerid="9" nextobjectid="298">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="46" tilewidth="128" tileheight="128" infinite="0" nextlayerid="9" nextobjectid="300">
  <tileset firstgid="1" source="../../tilesets/path-1.tsx"/>
  <tileset firstgid="211" source="../../tilesets/walls-1.tsx"/>
  <tileset firstgid="421" source="../../tilesets/walls-2.tsx"/>
@@ -291,6 +291,20 @@
    <point/>
   </object>
   <object id="297" type="Door" x="3584" y="768" width="512" height="512"/>
+  <object id="298" type="Checkpoint" x="3528" y="1584">
+   <properties>
+    <property name="door" type="object" value="297"/>
+    <property name="forCat" type="bool" value="false"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="299" type="Checkpoint" x="3844" y="2468">
+   <properties>
+    <property name="door" type="object" value="297"/>
+    <property name="forCat" type="bool" value="true"/>
+   </properties>
+   <point/>
+  </object>
  </objectgroup>
  <objectgroup id="8" name="images">
   <object id="91" gid="890" x="692" y="4820" width="392" height="551"/>
