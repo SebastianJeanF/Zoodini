@@ -251,7 +251,7 @@ public class SettingsScene implements Screen {
 
         window.row();
         window.add(
-                new Label("Change a keybind by clicking it button, then typing a new key", skin, "dark"))
+                new Label("Change a keybind by clicking its button, then typing a new key", skin, "dark"))
                 .colspan(2);
 
         window.row();
