@@ -17,6 +17,7 @@ import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import edu.cornell.gdiac.util.ScreenListener;
+import walknroll.zoodini.utils.FreeTypeSkin;
 import walknroll.zoodini.GDXRoot;
 
 public class StoryboardScene implements Screen {
@@ -66,7 +67,7 @@ public class StoryboardScene implements Screen {
         stage = new Stage(new ScreenViewport(camera));
         Gdx.input.setInputProcessor(stage);
 
-        skin = new Skin(Gdx.files.internal("uiskins/orange/uiskin.json"));
+        skin = new FreeTypeSkin(Gdx.files.internal("uiskins/zoodini/uiskin.json"));
 
         Table table = makeStoryboardTable();
 

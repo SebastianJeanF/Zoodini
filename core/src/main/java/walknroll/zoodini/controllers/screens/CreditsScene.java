@@ -20,6 +20,7 @@ import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.GDXRoot;
 import walknroll.zoodini.utils.GameSettings;
+import walknroll.zoodini.utils.FreeTypeSkin;
 
 public class CreditsScene implements Screen {
     private ScreenListener listener;
@@ -47,7 +48,7 @@ public class CreditsScene implements Screen {
         stage = new Stage(new ScreenViewport(camera));
         Gdx.input.setInputProcessor(stage);
 
-        skin = new Skin(Gdx.files.internal("uiskins/orange/uiskin.json"));
+        skin = new FreeTypeSkin(Gdx.files.internal("uiskins/zoodini/uiskin.json"));
 
         Table table = makeCreditsTable();
 
@@ -133,38 +134,38 @@ public class CreditsScene implements Screen {
         Value labelWidth = Value.percentWidth(0.2f, table);
         Value controlWidth = Value.percentWidth(0.25f, table);
 
-        table.add(new Label("Project Lead", skin, "title")).left().minWidth(labelWidth);
+        table.add(new Label("Project Lead", skin, "dark")).left().minWidth(labelWidth);
         table.add(new Label("Sebastian Jean-Francois", skin, "white")).left().width(controlWidth);
 
-        table.add(new Label("librayr", skin, "title")).left().minWidth(labelWidth);
+        table.add(new Label("librayr", skin, "dark")).left().minWidth(labelWidth);
         table.add(new Label("libgdx", skin, "white")).left().width(controlWidth).expandX();
 
         table.row();
-        table.add(new Label("Software Lead", skin, "title")).left().minWidth(labelWidth);
+        table.add(new Label("Software Lead", skin, "dark")).left().minWidth(labelWidth);
         table.add(new Label("Bill Park", skin, "white")).left().width(controlWidth);
 
         table.row();
-        table.add(new Label("Design Lead", skin, "title")).left().minWidth(labelWidth);
+        table.add(new Label("Design Lead", skin, "dark")).left().minWidth(labelWidth);
         table.add(new Label("Lina Liu", skin, "white")).left().width(controlWidth);
 
         table.row();
-        table.add(new Label("Designer & Programmer", skin, "title")).left().minWidth(labelWidth);
+        table.add(new Label("Designer & Programmer", skin, "dark")).left().minWidth(labelWidth);
         table.add(new Label("Grace Jin", skin, "white")).left().width(controlWidth);
 
         table.row();
-        table.add(new Label("Programmer", skin, "title")).left().minWidth(labelWidth);
+        table.add(new Label("Programmer", skin, "dark")).left().minWidth(labelWidth);
         table.add(new Label("Nick Regennitter", skin, "white")).left().width(controlWidth);
 
         table.row();
-        table.add(new Label("Programmer", skin, "title")).left().minWidth(labelWidth);
+        table.add(new Label("Programmer", skin, "dark")).left().minWidth(labelWidth);
         table.add(new Label("Andrew Cheung", skin, "white")).left().width(controlWidth);
 
         table.row();
-        table.add(new Label("Programmer", skin, "title")).left().minWidth(labelWidth);
+        table.add(new Label("Programmer", skin, "dark")).left().minWidth(labelWidth);
         table.add(new Label("Abdul Raafai Asim", skin, "white")).left().width(controlWidth);
 
         table.row();
-        table.add(new Label("Programmer", skin, "title")).left().minWidth(labelWidth);
+        table.add(new Label("Programmer", skin, "dark")).left().minWidth(labelWidth);
         table.add(new Label("James Tu", skin, "white")).left().width(controlWidth);
 
         table.row();
