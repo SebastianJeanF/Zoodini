@@ -477,6 +477,9 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
                 path.add(node);
             }
         }
+        if (path.isEmpty()) {
+            System.out.println("path is empty");
+        }
         return path;
     }
 
