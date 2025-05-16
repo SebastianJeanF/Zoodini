@@ -295,12 +295,6 @@ public class MinimapActor extends Actor implements Disposable {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        // Check if we need to redraw the minimap
-        if(disabled){
-            batch.draw(minimapTexture, getX(), getY(), getWidth(), getHeight());
-            return;
-        }
-
         if (needsRedraw) {
             drawMinimap();
         }
