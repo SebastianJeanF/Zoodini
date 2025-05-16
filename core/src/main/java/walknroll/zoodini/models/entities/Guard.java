@@ -42,8 +42,8 @@ public class Guard extends Enemy {
     private static final int FAR_ZONE_SUS_INCREASE = 2;
 
 
-    private float fov;
-    private float viewDistance;
+    private final float fov;
+    private final float viewDistance;
     private boolean isChasing;
     private boolean isLookingAround;
 
@@ -82,9 +82,9 @@ public class Guard extends Enemy {
     private float tempViewDistance;
     private float tempFov;
 
-    private float originalViewDistance;
+    private final float originalViewDistance;
 
-    private float originalFov;
+    private final float originalFov;
 
     private final float agroedForce;
     private final float alertedForce;
@@ -93,7 +93,9 @@ public class Guard extends Enemy {
     private final float blindedForceScale;
 
     private boolean isIdle = false;
-    private float idleAngle;
+    private final float idleAngle;
+
+    private boolean inMeowRadius = false;
 
 
     public float getSusForce() {
@@ -127,6 +129,15 @@ public class Guard extends Enemy {
     public float getIdleAngle(){
         return idleAngle;
     }
+
+    public boolean isInMeowRadius() {
+        return inMeowRadius;
+    }
+
+    public void setInMeowRadius(boolean inMeowRadius) {
+        this.inMeowRadius = inMeowRadius;
+    }
+
 
     /**
      * Creates a new dude with degenerate settings
@@ -355,6 +366,7 @@ public class Guard extends Enemy {
         setInkBlindTimer(0);
         setIdle(getPatrolPoints().length <= 1);
         setLookingAround(false);
+        setInMeowRadius(false);  // Reset the new flag
         deAggroTimer = 0;
     }
 
@@ -510,9 +522,10 @@ public class Guard extends Enemy {
 
     public void drawSuspicionMeter(SpriteBatch batch) {
         float BASELINE_PX = 32;
+
         if (suspsicionMeter == null
             || suspsicionMeter.getCurrentSpriteSheet() == null
-            || !Guard.isLoaded() || (susLevel == 0 && !isMeowed())) {
+            || !Guard.isLoaded()) {
             return;
         }
 
@@ -524,7 +537,20 @@ public class Guard extends Enemy {
         float X_PIXEL_OFFSET = (-80f * SCALE);
         float Y_PIXEL_OFFSET = 140f * SCALE;
 
+        if (isInMeowRadius()) {
+            // Draw the suspicion meter in the meow radius
+            batch.draw(
+                Guard.SUSPICION_METER_CURIOUS,
+                guardXPixel + getXPixelOffset(),
+                guardYPixel + Y_PIXEL_OFFSET,
+                Guard.SUSPICION_METER_CURIOUS.getWidth() * SCALE,
+                Guard.SUSPICION_METER_CURIOUS.getHeight() * SCALE);
+            return;
+        }
 
+        if (susLevel == 0 && !isMeowed()) {
+            return;
+        }
 
         if (isMeowed()) {
             batch.draw(
