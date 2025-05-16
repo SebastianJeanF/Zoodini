@@ -7,35 +7,59 @@ import walknroll.zoodini.utils.Checkpoint.KeyState;
 
 public class CheckpointManager {
     /** Map of door IDs to associated checkpoints */
-    private HashMap<Integer, List<Checkpoint>> doorCheckpoints;
+    private final HashMap<Integer, List<Checkpoint>> doorCheckpoints;
 
-    /** Map of character names to their active checkpoints */
-    private HashMap<String, Checkpoint> activeCheckpoints;
+    /** Map of character names to their active checkpoints {'cat': Checkpoint, 'octopus': Checkpoint} */
+    private final HashMap<String, Checkpoint> activeCheckpoints;
 
     /** List of all checkpoints */
-    private List<Checkpoint> allCheckpoints;
+    private final List<Checkpoint> allCheckpoints;
 
-    /** Stored door states for each door checkpoint */
-    private HashMap<Integer, HashMap<Integer, Boolean>> doorStates;
+    /** Stored game states for each door checkpoint; { doorId: CheckpointSaveState } */
+    private final HashMap<Integer, CheckpointSaveState> checkpointStates;
 
-    /** Stored key states for each door checkpoint */
-    private HashMap<Integer, HashMap<Integer, KeyState>> keyStates;
+    /** Snapshot of the game state that is saved when a checkpoint is unlocked */
+    public static class CheckpointSaveState {
+        /** Map of door IDs to their states (locked/unlocked) */
+        public HashMap<Integer, Boolean> doorStates;
+        /** Map of key IDs to their states (collected/uncollected) */
+        public HashMap<Integer, KeyState> keyStates;
+        /** Number of cat keys collected during snapshot */
+        public int catKeyCount;
+        /** Number of octopus keys collected during snapshot */
+        public int octopusKeyCount;
 
-    /** Stored cat key counts for each door checkpoint */
-    private HashMap<Integer, Integer> catKeyCounts;
+        public CheckpointSaveState() {
+            doorStates = new HashMap<>();
+            keyStates = new HashMap<>();
+            catKeyCount = 0;
+            octopusKeyCount = 0;
+        }
 
-    /** Stored octopus key counts for each door checkpoint */
-    private HashMap<Integer, Integer> octopusKeyCounts;
+        public HashMap<Integer, Boolean> getDoorState() {
+            return doorStates;
+        }
+
+        public HashMap<Integer, KeyState> getKeyState() {
+            return keyStates;
+        }
+
+        public int getCatKeyCount() {
+            return catKeyCount;
+        }
+
+        public int getOctopusKeyCount() {
+            return octopusKeyCount;
+        }
+
+    }
 
     /** Constructor */
     public CheckpointManager() {
         doorCheckpoints = new HashMap<>();
         activeCheckpoints = new HashMap<>();
         allCheckpoints = new ArrayList<>();
-        doorStates = new HashMap<>();
-        keyStates = new HashMap<>();
-        catKeyCounts = new HashMap<>();
-        octopusKeyCounts = new HashMap<>();
+        checkpointStates = new HashMap<>();
     }
 
     /** Add a checkpoint to the manager */
@@ -115,49 +139,24 @@ public class CheckpointManager {
         }
     }
 
-    /**
-     * Store game state for a specific door ID checkpoint
-     * This is called by the GameScene when a door is unlocked and has associated checkpoints
-     */
+    // Store game state for a door
     public void storeGameState(Integer doorId, HashMap<Integer, Boolean> doorState,
         HashMap<Integer, KeyState> keyState,
         int catKeyCount, int octopusKeyCount) {
-        doorStates.put(doorId, doorState);
-        keyStates.put(doorId, keyState);
-        catKeyCounts.put(doorId, catKeyCount);
-        octopusKeyCounts.put(doorId, octopusKeyCount);
+        CheckpointSaveState saveState = new CheckpointSaveState();
+        saveState.doorStates.putAll(doorState);
+        saveState.keyStates.putAll(keyState);
+        saveState.catKeyCount = catKeyCount;
+        saveState.octopusKeyCount = octopusKeyCount;
 
-        System.out.println("Stored game state for door: " + doorId +
-            " | Cat keys: " + catKeyCount +
-            " | Octopus keys: " + octopusKeyCount);
+        checkpointStates.put(doorId, saveState);
     }
 
-    /**
-     * Get cat key count for a door ID
-     */
-    public int getCatKeyCount(Integer doorId) {
-        return catKeyCounts.getOrDefault(doorId, 0);
-    }
-
-    /**
-     * Get octopus key count for a door ID
-     */
-    public int getOctopusKeyCount(Integer doorId) {
-        return octopusKeyCounts.getOrDefault(doorId, 0);
-    }
-
-    /**
-     * Get door states for a door ID
-     */
-    public HashMap<Integer, Boolean> getDoorStates(Integer doorId) {
-        return doorStates.get(doorId);
-    }
-
-    /**
-     * Get key states for a door ID
-     */
-    public HashMap<Integer, KeyState> getKeyStates(Integer doorId) {
-        return keyStates.get(doorId);
+    public CheckpointSaveState getCheckpointSaveState(Integer doorId) {
+        if (!checkpointStates.containsKey(doorId)) {
+            return null;
+        }
+        return checkpointStates.get(doorId);
     }
 
 

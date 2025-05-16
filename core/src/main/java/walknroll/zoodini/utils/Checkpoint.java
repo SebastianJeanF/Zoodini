@@ -41,16 +41,6 @@ public class Checkpoint {
     /** The position of this checkpoint */
     private Vector2 position;
 
-    /** Snapshot of door states at activation time */
-    private HashMap<Integer, Boolean> doorStates;
-
-    /** Snapshot of key states at activation time */
-    private HashMap<Integer, KeyState> keyStates;
-
-    /** Number of keys each character had at checkpoint time */
-    private int catKeyCount;
-    private int octopusKeyCount;
-
     /** Inner class to store key state */
     public static class KeyState {
         public boolean collected;
@@ -77,12 +67,6 @@ public class Checkpoint {
         this.forCharacter = (properties.get("forCat", Boolean.class)) ? "cat" : "octopus";
         this.position = new Vector2(properties.get("x", Float.class) / units, properties.get("y", Float.class) / units);
         this.isActive = properties.get("isActive", Boolean.class);
-
-        // Initialize state storage
-        this.doorStates = new HashMap<>();
-        this.keyStates = new HashMap<>();
-        this.catKeyCount = 0;
-        this.octopusKeyCount = 0;
     }
 
     // Getters and setters
@@ -98,14 +82,6 @@ public class Checkpoint {
 
     public Vector2 getPosition() { return position; }
 
-    public HashMap<Integer, Boolean> getDoorStates() { return doorStates; }
-
-    public HashMap<Integer, KeyState> getKeyStates() { return keyStates; }
-
-    public int getCatKeyCount() { return catKeyCount; }
-
-    public int getOctopusKeyCount() { return octopusKeyCount; }
-
     /** Returns whether this checkpoint applies to the given character */
     public boolean appliesTo(String character) {
         return forCharacter.equals(character);
@@ -113,31 +89,5 @@ public class Checkpoint {
 
 
 
-    /**
-     * Store the game state at the time this checkpoint is activated
-     */
-    public void storeGameState(
-        PooledList<Door> oldDoors, int numCatKeys, int numOctKeys, Array<Key> oldKeys) {
-        doorStates.clear();
-        keyStates.clear();
-
-        // Store door states
-        for (Door door : oldDoors) {
-            doorStates.put(door.getId(), door.isLocked());
-        }
-
-        // Store key states
-        for (Key key : oldKeys) {
-            keyStates.put(key.getID(), new KeyState(key.isCollected(), key.getOwner()));
-        }
-
-        // Store key counts
-        catKeyCount = numCatKeys;
-        octopusKeyCount = numOctKeys;
-
-        System.out.println("Stored game state at checkpoint: " + id +
-            " | Cat keys: " + catKeyCount +
-            " | Octopus keys: " + octopusKeyCount);
-    }
 
 }

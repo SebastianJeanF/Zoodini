@@ -69,6 +69,7 @@ import walknroll.zoodini.models.nonentities.Vent;
 import walknroll.zoodini.utils.Checkpoint;
 import walknroll.zoodini.utils.Checkpoint.KeyState;
 import walknroll.zoodini.utils.CheckpointManager;
+import walknroll.zoodini.utils.CheckpointManager.CheckpointSaveState;
 import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.VisionCone;
@@ -1251,55 +1252,51 @@ public class GameLevel {
         HashMap<String, Checkpoint> checkpoints =
             new HashMap<>(checkpointManager.getActiveCheckpoints());
 
-        // If we have any active checkpoints
-        if (!checkpoints.isEmpty()) {
-            // Get any checkpoint for state restoration (prefer cat's checkpoint if available)
-            Checkpoint checkpoint = checkpoints.containsKey("cat") ?
-                checkpoints.get("cat") : checkpoints.get("octopus");
+        if (checkpoints.isEmpty()) {
+            System.out.println("No active checkpoints to restore from.");
+            return;
+        }
 
-            // Get the door ID that this checkpoint is associated with
-            Integer doorId = checkpoint.getDoorId();
+        // Get checkpoint for state restoration
+        Checkpoint checkpoint = checkpoints.containsKey("cat") ?
+            checkpoints.get("cat") : checkpoints.get("octopus");
 
-            // Store key counts before reset
-            int catKeys = checkpointManager.getCatKeyCount(doorId);
-            int octopusKeys = checkpointManager.getOctopusKeyCount(doorId);
+        // Get the door ID that this checkpoint is associated with
+        Integer doorId = checkpoint.getDoorId();
 
-            // Get saved states
-            HashMap<Integer, Boolean> savedDoorStates = checkpointManager.getDoorStates(doorId);
-            HashMap<Integer, KeyState> savedKeyStates = checkpointManager.getKeyStates(doorId);
+        CheckpointSaveState saveState = checkpointManager.getCheckpointSaveState(doorId);
 
-            // Now restore the saved state from the checkpoint
-            restoreStateFromCheckpoint(savedDoorStates, savedKeyStates, catKeys, octopusKeys);
+        // Now restore the saved state from the checkpoint
+        restoreStateFromCheckpoint(saveState);
 
-            // Restore character positions
-            for (String character : checkpoints.keySet()) {
-                Vector2 respawnPos = checkpoints.get(character).getPosition();
-                if (character.equals("cat") && catPresent) {
-                    avatarCat.setPosition(respawnPos);
-                } else if (character.equals("octopus") && octopusPresent) {
-                    avatarOctopus.setPosition(respawnPos);
-                }
-            }
-
-            // Reset the restoration flag
-            isRestoringFromSnapshot = false;
-
-            // Re-activate the checkpoints in the manager
-            for (String character : checkpoints.keySet()) {
-                Integer activeDoorId = checkpoints.get(character).getDoorId();
-                if (checkpointManager.doorHasCheckpoints(activeDoorId)) {
-                    checkpointManager.activateDoorCheckpoints(activeDoorId);
-                }
+        // Restore character positions
+        for (String character : checkpoints.keySet()) {
+            Vector2 respawnPos = checkpoints.get(character).getPosition();
+            if (character.equals("cat") && catPresent) {
+                avatarCat.setPosition(respawnPos);
+            } else if (character.equals("octopus") && octopusPresent) {
+                avatarOctopus.setPosition(respawnPos);
             }
         }
+
+        // Re-activate the checkpoints in the manager
+        for (String character : checkpoints.keySet()) {
+            Integer activeDoorId = checkpoints.get(character).getDoorId();
+            if (checkpointManager.doorHasCheckpoints(activeDoorId)) {
+                checkpointManager.activateDoorCheckpoints(activeDoorId);
+            }
+        }
+
     }
 
     // Helper method to restore state from saved data
-    private void restoreStateFromCheckpoint(
-        HashMap<Integer, Boolean> doorStates, HashMap<Integer, KeyState> keyStates,
-        int catKeys, int octopusKeys) {
+    private void restoreStateFromCheckpoint(CheckpointSaveState saveState) {
+        // Get saved states
+        HashMap<Integer, Boolean> doorStates = saveState.getDoorState();
+        HashMap<Integer, KeyState> keyStates = saveState.getKeyState();
+
         // Restore door states
-        if (doorStates != null) {
+        if (saveState.getDoorState() != null) {
             for (Door door : doors) {
                 if (doorStates.containsKey(door.getId())) {
                     door.setLocked(doorStates.get(door.getId()));
@@ -1325,10 +1322,10 @@ public class GameLevel {
 
         // Set key counts to characters
         if (catPresent) {
-            avatarCat.setNumKeys(catKeys);
+            avatarCat.setNumKeys(saveState.getCatKeyCount());
         }
         if (octopusPresent) {
-            avatarOctopus.setNumKeys(octopusKeys);
+            avatarOctopus.setNumKeys(saveState.getOctopusKeyCount());
         }
     }
 }
