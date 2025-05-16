@@ -5,15 +5,9 @@
 
 package walknroll.zoodini.models;
 
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-
-import com.badlogic.gdx.maps.MapObjects;
-import com.badlogic.gdx.maps.objects.TextureMapObject;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import org.apache.commons.text.StringSubstitutor;
 
 import com.badlogic.gdx.Input;
@@ -21,27 +15,32 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.MapProperties;
-import com.badlogic.gdx.maps.MapRenderer;
 import com.badlogic.gdx.maps.objects.EllipseMapObject;
 import com.badlogic.gdx.maps.objects.PolygonMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Affine2;
+import com.badlogic.gdx.math.Ellipse;
+import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
 
-import box2dLight.PositionalLight;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
@@ -54,7 +53,6 @@ import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.util.PooledList;
 import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.controllers.UIController;
-import walknroll.zoodini.controllers.aitools.LOSController;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Cat;
 import walknroll.zoodini.models.entities.Guard;
@@ -335,7 +333,7 @@ public class GameLevel {
             String type = properties.get("type", String.class);
 
             if ("Cat".equalsIgnoreCase(type)) {
-                System.out.println("Creating cat");
+                DebugPrinter.println("Creating cat");
                 avatarCat = new Cat(properties, entityConstants.get("cat"), units);
                 avatarCat.setAnimation(AnimationState.IDLE,
                         directory.getEntry("cat-idle.animation", SpriteSheet.class), 15);
@@ -348,7 +346,7 @@ public class GameLevel {
                 activate(avatarCat);
                 catPresent = true;
             } else if ("Octopus".equalsIgnoreCase(type)) {
-                System.out.println("Creating octopus");
+                DebugPrinter.println("Creating octopus");
                 avatarOctopus = new Octopus(properties, entityConstants.get("octopus"), units);
                 avatarOctopus.setAnimation(AnimationState.IDLE,
                         directory.getEntry("octopus-idle.animation", SpriteSheet.class), 7);
@@ -361,7 +359,7 @@ public class GameLevel {
                 activate(avatarOctopus);
                 octopusPresent = true;
             } else if ("Guard".equalsIgnoreCase(type)) {
-                System.out.println("Creating guard");
+                DebugPrinter.println("Creating guard");
                 Guard g = new Guard(properties, entityConstants.get("guard"), units);
                 SpriteSheet idle = directory.getEntry("guard-idle-all.animation", SpriteSheet.class);
                 idle = new SpriteSheet(idle);
@@ -620,6 +618,11 @@ public class GameLevel {
         MapLayer groundLayer = mapRenderer.getMap().getLayers().get("ground");
         mapRenderer.renderTileLayer((TiledMapTileLayer) groundLayer);
 
+        batch.setColor(Color.WHITE);
+        MapLayer decorations = mapRenderer.getMap().getLayers().get("decoration");
+        if (decorations != null)
+            mapRenderer.renderTileLayer((TiledMapTileLayer) decorations);
+
         sprites.sort(ZoodiniSprite.Comparison);
         for (ZoodiniSprite obj : sprites) {
             batch.setColor(Color.WHITE);
@@ -665,11 +668,6 @@ public class GameLevel {
                 entry.value.draw(batch, camera);
             }
         }
-
-        batch.setColor(Color.WHITE);
-        MapLayer decorations = mapRenderer.getMap().getLayers().get("decorations");
-        if (decorations != null)
-            mapRenderer.renderTileLayer((TiledMapTileLayer) decorations);
 
         batch.setColor(Color.WHITE);
         // Get wall layer and render it
