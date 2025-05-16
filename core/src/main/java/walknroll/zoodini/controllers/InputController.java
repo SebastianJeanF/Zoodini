@@ -21,6 +21,7 @@ import com.badlogic.gdx.utils.Array;
 
 import edu.cornell.gdiac.util.Controllers;
 import edu.cornell.gdiac.util.XBoxController;
+import walknroll.zoodini.utils.Constants;
 
 /**
  * Class for reading player input.
@@ -65,9 +66,12 @@ public class InputController extends InputAdapter {
 	private boolean swapPressed;
 	private boolean swapPrevious;
 
+
 	/** Whether the ability button was pressed. */
 	private boolean abilityPressed;
 	private boolean abilityPrevious;
+    private boolean p2AbilityPressed;
+    private boolean p2AbilityPrevious;
 
 	/** Whether the left click was pressed. */
 	private boolean leftClicked;
@@ -75,13 +79,16 @@ public class InputController extends InputAdapter {
 
 	/** How much did we move horizontally? */
 	private float horizontal;
+    private float p2Horizontal;
 	/** How much did we move vertically? */
 	private float vertical;
+    private float p2Vertical;
 
 	/** Where are we targeting? */
 	private Vector2 aiming;
 
 	private int abilityKey;
+    private int p2AbilityKey;
 	private int swapKey;
 
 	private boolean followModePrevious;
@@ -90,6 +97,7 @@ public class InputController extends InputAdapter {
 
 	/** An X-Box controller (if it is connected) */
 	XBoxController xbox;
+    XBoxController p2xbox;
 
 	/**
 	 * Creates a new input controller
@@ -105,8 +113,14 @@ public class InputController extends InputAdapter {
 		} else {
 			xbox = null;
 		}
+        if (controllers.size > 1) {
+            p2xbox = controllers.get(1);
+        } else {
+            p2xbox = null;
+        }
 		aiming = new Vector2();
 		abilityKey = Input.Keys.E;
+        p2AbilityKey = Input.Keys.SHIFT_RIGHT;
 		swapKey = Input.Keys.SPACE;
 		followModeKey = Input.Keys.F;
 	}
@@ -118,6 +132,10 @@ public class InputController extends InputAdapter {
 	public int getAbilityKey() {
 		return abilityKey;
 	}
+
+    public int getP2AbilityKey() {
+        return p2AbilityKey;
+    }
 
 	public int getSwapKey() {
 		return swapKey;
@@ -141,6 +159,9 @@ public class InputController extends InputAdapter {
 	public float getHorizontal() {
 		return horizontal;
 	}
+    public float getP2Horizontal() {
+        return p2Horizontal;
+    }
 
 	/**
 	 * Returns the amount of vertical movement.
@@ -152,6 +173,9 @@ public class InputController extends InputAdapter {
 	public float getVertical() {
 		return vertical;
 	}
+    public float getP2Vertical() {
+        return p2Vertical;
+    }
 
 	/**
 	 * Returns true if the reset button was pressed.
@@ -216,6 +240,10 @@ public class InputController extends InputAdapter {
 		return abilityPressed && !abilityPrevious;
 	}
 
+    public boolean didP2Ability() {
+        return p2AbilityPressed && !p2AbilityPrevious;
+    }
+
 	/**
 	 * Returns true if the ability button is currently held down.
 	 *
@@ -224,6 +252,10 @@ public class InputController extends InputAdapter {
 	public boolean isAbilityHeld() {
 		return abilityPressed;
 	}
+
+    public boolean isP2AbilityHeld() {
+        return p2AbilityPressed;
+    }
 
 	public Vector2 getAiming() {
 		return aiming;
@@ -254,13 +286,17 @@ public class InputController extends InputAdapter {
 		prevPrevious = prevPressed;
 		swapPrevious = swapPressed;
 		abilityPrevious = abilityPressed;
+        p2AbilityPrevious = p2AbilityPressed;
 		leftPrevious = leftClicked;
 		followModePrevious = followModePressed;
 
 		// Check to see if a GamePad is connected
 		if (xbox != null && xbox.isConnected()) {
-			readGamepad();
-			readKeyboard(true); // Read as a back-up
+			readGamepad(xbox, false);
+            if (p2xbox != null && p2xbox.isConnected()) {
+                readGamepad(p2xbox, true);
+            }
+			readKeyboard(true);// Read as a back-up
 		} else {
 			readKeyboard(false);
 		}
@@ -276,7 +312,7 @@ public class InputController extends InputAdapter {
 	 * @param bounds The input bounds for the crosshair.
 	 * @param scale  The drawing scale
 	 */
-	private void readGamepad() {
+	private void readGamepad(XBoxController xbox, boolean p2) {
 		resetPressed = xbox.getStart();
 		exitPressed = xbox.getBack();
 		nextPressed = xbox.getRBumper();
@@ -286,9 +322,14 @@ public class InputController extends InputAdapter {
 		followModePressed = xbox.getB();
 
 		// Increase animation frame, but only if trying to move
-		horizontal = xbox.getLeftX();
-		vertical = xbox.getLeftY();
-	}
+        if (p2) {
+            p2Horizontal = xbox.getLeftX();
+            p2Vertical = xbox.getLeftY();
+        } else {
+            horizontal = xbox.getLeftX();
+            vertical = xbox.getLeftY();
+        }
+    }
 
 	/**
 	 * Reads input from the keyboard.
@@ -327,6 +368,25 @@ public class InputController extends InputAdapter {
 		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
 			vertical -= 1.0f;
 		}
+
+        if (Constants.CO_OP) {
+            p2AbilityPressed = (secondary && p2AbilityPressed) || (Gdx.input.isKeyPressed(this.p2AbilityKey));
+            p2Horizontal = (secondary ? p2Horizontal : 0.0f);
+            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+                p2Horizontal += 1.0f;
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+                p2Horizontal -= 1.0f;
+            }
+
+            p2Vertical = (secondary ? p2Vertical : 0.0f);
+            if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+                p2Vertical += 1.0f;
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+                p2Vertical -= 1.0f;
+            }
+        }
 
 		aiming.set(Gdx.input.getX(), Gdx.input.getY());
 	}

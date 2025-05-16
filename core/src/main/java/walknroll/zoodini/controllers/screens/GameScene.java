@@ -12,6 +12,7 @@
  */
 package walknroll.zoodini.controllers.screens;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
@@ -98,6 +99,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     /** The orthographic camera */
     private OrthographicCamera camera;
+
+    private OrthographicCamera cameraLeft;
+    private OrthographicCamera cameraRight;
 
     /** Reference to the game canvas */
     protected SpriteBatch batch;
@@ -198,8 +202,16 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         camera = new OrthographicCamera();
 
         float NUM_TILES_WIDE = 18f;
-        camera.setToOrtho(false, level.getTileSize() * NUM_TILES_WIDE,
-                level.getTileSize() * NUM_TILES_WIDE * 720f / 1280f);
+        float viewportWidth = level.getTileSize() * NUM_TILES_WIDE;
+        float viewportHeight = level.getTileSize() * NUM_TILES_WIDE * 720f / 1280f;
+        camera.setToOrtho(false, viewportWidth, viewportHeight);
+
+        if (Constants.CO_OP) {
+            cameraLeft = new OrthographicCamera();
+            cameraRight = new OrthographicCamera();
+            cameraLeft.setToOrtho(false, viewportWidth / 2f, viewportHeight);
+            cameraRight.setToOrtho(false, viewportWidth / 2f, viewportHeight);
+        }
 
         // Initialize camera tracking variables
         cameraTargetPosition = new Vector2();
@@ -247,6 +259,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         level.populate(directory, map, batch);
         level.getWorld().setContactListener(this);
         graph = new TileGraph<>(map,false,1);
+
+        ui.dispose();
+
 
         initializeAIControllers();
     }
@@ -403,13 +418,29 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         // Color is based on green background of tileset: RBGA(22,89,98,255)
         ScreenUtils.clear(0.0863f, 0.349f, 0.3843f, 1.0f);
         // Set the camera's updated view
-        batch.setProjectionMatrix(camera.combined);
+        if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
+            // Use backbuffer dimensions instead of logical dimensions
+            // This accounts for high-DPI displays (Retina on Mac)
+            int screenWidth = Gdx.graphics.getBackBufferWidth();
+            int screenHeight = Gdx.graphics.getBackBufferHeight();
+            int halfWidth = screenWidth / 2;
 
-//        mapRenderer.setView(camera);
-//        mapRenderer.render(); // divide this into layerwise rendering if you want
+            // Left half (Cat)
+            Gdx.gl.glViewport(0, 0, halfWidth, screenHeight);
+            batch.setProjectionMatrix(cameraLeft.combined);
+            level.draw(batch, cameraLeft);
 
+            // Right half (Octopus)
+            Gdx.gl.glViewport(halfWidth, 0, halfWidth, screenHeight);
+            batch.setProjectionMatrix(cameraRight.combined);
+            level.draw(batch, cameraRight);
 
-        level.draw(batch, camera);
+            // Reset viewport for UI
+            Gdx.gl.glViewport(0, 0, screenWidth, screenHeight);
+        } else {
+            batch.setProjectionMatrix(camera.combined);
+            level.draw(batch, camera);
+        }
         if (Constants.DEBUG) {
             graph.clearMarkedNodes();
 
@@ -1109,7 +1140,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         vec3tmp.setZero();
         vec2tmp.setZero();
 
-        if (input.didSwap()) {
+        if (input.didSwap() && !Constants.CO_OP) {
             onSwap(input);
         }
 
@@ -1119,36 +1150,22 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         if (avatar != level.getInactiveAvatar()) {
             moveAvatar(vertical, horizontal, avatar);
         }
-        if (playerAIController != null) {
+        if (Constants.CO_OP && level.getInactiveAvatar() != null) {
+            float verticalSecondary = input.getP2Vertical();
+            float horizontalSecondary = input.getP2Horizontal();
+            moveAvatar(verticalSecondary, horizontalSecondary, level.getInactiveAvatar());
+            handleOctopusAbility(input, (Octopus) level.getInactiveAvatar(), true);
+        } else if (playerAIController != null) {
             handleFollowModeToggle(input);
             updatePlayerAI(dt);
         }
+
         if (level.isOctopusPresent()) {
             level.getOctopus().regenerateInk(dt);
         }
 
         if (avatar.getAvatarType() == AvatarType.OCTOPUS) {
-            Octopus octopus = (Octopus) avatar;
-            vec3tmp.set(input.getAiming(), 0);
-            vec3tmp = camera.unproject(vec3tmp);
-            vec2tmp.set(vec3tmp.x, vec3tmp.y)
-                    .scl(1.0f / level.getTileSize())
-                    .sub(octopus.getPosition())
-                    .clamp(0.0f, octopus.getAbilityRange()); // this decides the distance for projectile to travel
-            octopus.setTarget(vec2tmp); // set a target vector relative to octopus's position as origin.
-
-            if (input.didAbility() && octopus.canUseAbility()) { // check for ink resource here.
-                octopus.setCurrentlyAiming(!octopus.isCurrentlyAiming()); // turn the reticle on and off
-            }
-
-            if (octopus.isCurrentlyAiming() && input.didLeftClick()) {
-                octopus.setDidFire(true);
-                octopus.setCurrentlyAiming(false);
-                octopus.consumeInk();
-                soundController.playSound("octopus-shoot");
-            } else {
-                octopus.setDidFire(false);
-            }
+            handleOctopusAbility(input, (Octopus) avatar, false);
 
         } else if (avatar.getAvatarType() == AvatarType.CAT) {
             Cat cat = (Cat) avatar;
@@ -1169,6 +1186,60 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         vec3tmp.setZero();
         vec2tmp.setZero();
+    }
+
+    private void handleOctopusAbility(InputController input, Octopus octopus, boolean p2) {
+        if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
+            int screenWidth = Gdx.graphics.getWidth();
+            int screenHeight = Gdx.graphics.getHeight();
+            int halfWidth = screenWidth / 2;
+            float mouseX = input.getAiming().x;
+            float mouseY = input.getAiming().y;
+
+            // Convert screen coordinates to normalized viewport coordinates (0-1)
+            // for the right half of the screen only
+            float viewportX = (mouseX - halfWidth) / halfWidth;
+            float viewportY = mouseY / screenHeight;
+
+            // Adjust for GDX's coordinate system (Y is inverted)
+            viewportY = 1.0f - viewportY;
+
+            // Convert viewport coordinates to normalized device coordinates (-1 to 1)
+            float ndcX = (viewportX * 2.0f) - 1.0f;
+            float ndcY = (viewportY * 2.0f) - 1.0f;
+
+            // Create a vector with these coordinates
+            vec3tmp.set(ndcX, ndcY, 0);
+
+            // Use the right camera's combined matrix to unproject properly
+            vec3tmp.prj(cameraRight.invProjectionView);
+        } else {
+            vec3tmp.set(input.getAiming(), 0);
+            vec3tmp = camera.unproject(vec3tmp);
+        }
+
+        // Calculate target vector
+        vec2tmp.set(vec3tmp.x, vec3tmp.y)
+            .scl(1.0f / level.getTileSize())
+            .sub(octopus.getPosition())
+            .clamp(0.0f, octopus.getAbilityRange());
+
+        octopus.setTarget(vec2tmp);
+
+        // Handle ability activation
+        if ((!p2 && input.didAbility() || p2 && input.didP2Ability()) && octopus.canUseAbility()) {
+            octopus.setCurrentlyAiming(!octopus.isCurrentlyAiming());
+        }
+
+        // Handle firing
+        if (octopus.isCurrentlyAiming() && input.didLeftClick()) {
+            octopus.setDidFire(true);
+            octopus.setCurrentlyAiming(false);
+            octopus.consumeInk();
+            soundController.playSound("octopus-shoot");
+        } else {
+            octopus.setDidFire(false);
+        }
     }
 
     /**
@@ -1305,15 +1376,83 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * Updates the camera position with interpolation when transitioning
      */
     private void updateCamera(float dt) {
+
+        if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
+            // Get avatar positions
+            Vector2 catPosition;
+            Vector2 octopusPosition;
+
+            // Determine which avatar is which
+            if (level.getAvatar().getAvatarType() == AvatarType.CAT) {
+                catPosition = level.getAvatar().getPosition();
+                octopusPosition = level.getInactiveAvatar().getPosition();
+            } else {
+                catPosition = level.getInactiveAvatar().getPosition();
+                octopusPosition = level.getAvatar().getPosition();
+            }
+
+            // Apply aiming zoom if needed
+            updateCameraZoom(dt);
+
+            // Update left camera (Cat)
+            updateSplitScreenCamera(cameraLeft, catPosition, dt);
+
+            // Update right camera (Octopus)
+            updateSplitScreenCamera(cameraRight, octopusPosition, dt);
+        } else {
+            updateCameraSinglePlayer(dt);
+        }
+    }
+
+    private void updateCameraZoom(float dt) {
         PlayableAvatar avatar = level.getAvatar();
-//        if (avatar.isCurrentlyAiming()) {
-//            camera.zoom = Math.min(1.2f, camera.zoom + 0.01f);
-//        } else {
-//            camera.zoom = Math.max(1.0f, camera.zoom - 0.005f);
-//        }
+        PlayableAvatar inactiveAvatar = level.getInactiveAvatar();
+        if (avatar.isCurrentlyAiming()) {
+            cameraLeft.zoom = Math.min(1.65f, cameraLeft.zoom + 0.025f);
+        } else {
+            cameraLeft.zoom = Math.max(1.0f, cameraLeft.zoom - 0.025f);
+        }
 
+        if (inactiveAvatar != null && inactiveAvatar.isCurrentlyAiming()) {
+            cameraRight.zoom = Math.min(1.65f, cameraRight.zoom + 0.025f);
+        } else {
+            cameraRight.zoom = Math.max(1.0f, cameraRight.zoom - 0.025f);
+        }
+    }
+
+    private void updateSplitScreenCamera(OrthographicCamera cam, Vector2 targetPosition, float dt) {
+        // Apply soft boundaries to the target position
+        Vector2 boundedPosition = new Vector2(targetPosition);
+
+        // Get viewport dimensions in world units
+        float viewWidth = cam.viewportWidth / level.getTileSize();
+        float viewHeight = cam.viewportHeight / level.getTileSize();
+
+        // Calculate soft boundaries for this camera
+        float minX = level.getBounds().x + (viewWidth * 0.5f * cam.zoom);
+        float maxX = level.getBounds().x + (level.getBounds().width) - (viewWidth * 0.5f * cam.zoom);
+        float minY = level.getBounds().y + (viewHeight * 0.5f * cam.zoom);
+        float maxY = level.getBounds().y + (level.getBounds().height) - (viewHeight * 0.5f * cam.zoom);
+
+        // Clamp camera position with soft boundaries
+        boundedPosition.x = Math.max(minX, Math.min(boundedPosition.x, maxX));
+        boundedPosition.y = Math.max(minY, Math.min(boundedPosition.y, maxY));
+
+        // Apply to camera position
+        cam.position.set(boundedPosition.x * level.getTileSize(),
+            boundedPosition.y * level.getTileSize(), 0);
+        cam.update();
+    }
+
+
+    private void updateCameraSinglePlayer(float dt) {
+        PlayableAvatar avatar = level.getAvatar();
+        if (avatar.isCurrentlyAiming()) {
+            camera.zoom = Math.min(1.2f, camera.zoom + 0.01f);
+        } else {
+            camera.zoom = Math.max(1.0f, camera.zoom - 0.005f);
+        }
         cameraTargetPosition.set(avatar.getPosition());
-
         // Get viewport dimensions in world units
         float viewWidth = camera.viewportWidth / level.getTileSize();
         float viewHeight = camera.viewportHeight / level.getTileSize();
