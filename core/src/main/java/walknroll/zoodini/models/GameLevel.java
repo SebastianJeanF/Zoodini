@@ -654,7 +654,7 @@ public class GameLevel {
                 }
             }
         }
-        if (Constants.CO_OP) {
+        if (GameSettings.getInstance().isCoopEnabled()) {
             Avatar inactiveAvatar = getInactiveAvatar();
             if (inactiveAvatar != null && inactiveAvatar.getAvatarType() == AvatarType.OCTOPUS) {
                 Octopus octopus = (Octopus) inactiveAvatar;

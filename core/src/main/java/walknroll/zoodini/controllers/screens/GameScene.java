@@ -12,23 +12,14 @@
  */
 package walknroll.zoodini.controllers.screens;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.maps.MapLayer;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.MapObjects;
-import com.badlogic.gdx.maps.objects.TextureMapObject;
-import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Affine2;
-import com.sun.source.doctree.SerialFieldTree;
-import edu.cornell.gdiac.physics2.BoxObstacle;
-import edu.cornell.gdiac.util.PooledList;
 import java.util.HashMap;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -47,18 +38,17 @@ import com.badlogic.gdx.utils.Timer;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
+import edu.cornell.gdiac.physics2.BoxObstacle;
 import edu.cornell.gdiac.physics2.Obstacle;
 import edu.cornell.gdiac.physics2.WheelObstacle;
+import edu.cornell.gdiac.util.PooledList;
 import edu.cornell.gdiac.util.ScreenListener;
-import java.util.HashSet;
-import java.util.Set;
 import walknroll.zoodini.GDXRoot;
 import walknroll.zoodini.controllers.GuardAIController;
 import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.controllers.PlayerAIController;
 import walknroll.zoodini.controllers.SoundController;
 import walknroll.zoodini.controllers.UIController;
-import walknroll.zoodini.controllers.aitools.PathSmoother;
 import walknroll.zoodini.controllers.aitools.TileGraph;
 import walknroll.zoodini.controllers.aitools.TileNode;
 import walknroll.zoodini.models.GameLevel;
@@ -75,6 +65,7 @@ import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.models.nonentities.Vent;
 import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.DebugPrinter;
+import walknroll.zoodini.utils.GameSettings;
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 import walknroll.zoodini.utils.enums.AvatarType;
@@ -211,7 +202,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         float viewportHeight = level.getTileSize() * NUM_TILES_WIDE * 720f / 1280f;
         camera.setToOrtho(false, viewportWidth, viewportHeight);
 
-        if (Constants.CO_OP) {
+        if (GameSettings.getInstance().isCoopEnabled()) {
             cameraLeft = new OrthographicCamera();
             cameraRight = new OrthographicCamera();
             cameraLeft.setToOrtho(false, viewportWidth / 2f, viewportHeight);
@@ -426,7 +417,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         // Color is based on green background of tileset: RBGA(22,89,98,255)
         ScreenUtils.clear(0.0863f, 0.349f, 0.3843f, 1.0f);
         // Set the camera's updated view
-        if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
+        if (GameSettings.getInstance().isCoopEnabled() && level.isOctopusPresent() && level.isCatPresent()) {
             // Use backbuffer dimensions instead of logical dimensions
             // This accounts for high-DPI displays (Retina on Mac)
             int screenWidth = Gdx.graphics.getBackBufferWidth();
@@ -1153,7 +1144,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         vec3tmp.setZero();
         vec2tmp.setZero();
 
-        if (input.didSwap() && !Constants.CO_OP) {
+        if (input.didSwap() && !GameSettings.getInstance().isCoopEnabled()) {
             onSwap(input);
         }
 
@@ -1163,7 +1154,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         if (avatar != level.getInactiveAvatar()) {
             moveAvatar(vertical, horizontal, avatar);
         }
-        if (Constants.CO_OP && level.getInactiveAvatar() != null) {
+        if (GameSettings.getInstance().isCoopEnabled() && level.getInactiveAvatar() != null) {
             float verticalSecondary = input.getP2Vertical();
             float horizontalSecondary = input.getP2Horizontal();
             moveAvatar(verticalSecondary, horizontalSecondary, level.getInactiveAvatar());
@@ -1202,7 +1193,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     }
 
     private void handleOctopusAbility(InputController input, Octopus octopus, boolean p2) {
-        if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
+        if (GameSettings.getInstance().isCoopEnabled() && level.isOctopusPresent() && level.isCatPresent()) {
             int screenWidth = Gdx.graphics.getWidth();
             int screenHeight = Gdx.graphics.getHeight();
             int halfWidth = screenWidth / 2;
@@ -1394,7 +1385,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      */
     private void updateCamera(float dt) {
 
-        if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
+        if (GameSettings.getInstance().isCoopEnabled() && level.isOctopusPresent() && level.isCatPresent()) {
             // Get avatar positions
             Vector2 catPosition;
             Vector2 octopusPosition;

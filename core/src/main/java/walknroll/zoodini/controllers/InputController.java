@@ -361,7 +361,7 @@ public class InputController extends InputAdapter {
 			vertical -= 1.0f;
 		}
 
-		if (Constants.CO_OP) {
+		if (GameSettings.getInstance().isCoopEnabled()) {
 			p2AbilityPressed = (secondary && p2AbilityPressed) || (Gdx.input.isKeyPressed(
 					this.p2AbilityKey));
 			p2Horizontal = (secondary ? p2Horizontal : 0.0f);
