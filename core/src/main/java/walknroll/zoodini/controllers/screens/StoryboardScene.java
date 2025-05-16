@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -17,10 +18,11 @@ import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import edu.cornell.gdiac.util.ScreenListener;
-import walknroll.zoodini.utils.FreeTypeSkin;
 import walknroll.zoodini.GDXRoot;
+import walknroll.zoodini.utils.FreeTypeSkin;
 
 public class StoryboardScene implements Screen {
+
     private static SpriteSheet STORYBOARD;
 
     public static void setSpriteSheet(SpriteSheet spritesheet) {
@@ -49,6 +51,7 @@ public class StoryboardScene implements Screen {
     private Skin skin;
 
     private int selectedLevel;
+    Affine2 cache = new Affine2();
 
     public StoryboardScene(SpriteBatch batch, AssetDirectory assets, int selectedLevel) {
         this.batch = batch;
@@ -92,8 +95,11 @@ public class StoryboardScene implements Screen {
 
         batch.begin(camera);
         batch.setColor(Color.WHITE);
-        float ratio = (float) width / (float) STORYBOARD.getRegionWidth();
-        batch.draw(STORYBOARD, 0, 0, width, ratio * STORYBOARD.getRegionHeight());
+        float scaleX = (float) width / (float) STORYBOARD.getRegionWidth();
+        float scaleY = (float) height / (float) STORYBOARD.getRegionHeight();
+        cache.idt();
+        cache.scale(scaleX, scaleY);
+        batch.draw(STORYBOARD, cache);
         batch.end();
 
         stage.draw();
@@ -151,11 +157,13 @@ public class StoryboardScene implements Screen {
 
         TextButton nextButton = new TextButton("Next", skin);
         nextButton.addListener(new ChangeListener() {
+
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 int nextFrame = StoryboardScene.STORYBOARD.getFrame() + 1;
                 if (nextFrame >= StoryboardScene.STORYBOARD.getSize()) {
-                    StoryboardScene.this.listener.exitScreen(StoryboardScene.this, GDXRoot.EXIT_PLAY);
+                    StoryboardScene.this.listener.exitScreen(StoryboardScene.this,
+                            GDXRoot.EXIT_PLAY);
                 } else {
                     StoryboardScene.STORYBOARD.setFrame(StoryboardScene.STORYBOARD.getFrame() + 1);
                 }
@@ -167,6 +175,7 @@ public class StoryboardScene implements Screen {
         // table.row();
         TextButton skipButton = new TextButton("Skip", skin);
         skipButton.addListener(new ChangeListener() {
+
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 StoryboardScene.this.listener.exitScreen(StoryboardScene.this, GDXRoot.EXIT_PLAY);

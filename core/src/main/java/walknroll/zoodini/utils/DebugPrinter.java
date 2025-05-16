@@ -4,7 +4,7 @@ public class DebugPrinter {
     // Wrapper for DebugPrinter.println()
     public static void println(String message) {
         if (Constants.DEBUG) {
-            System.out.println(message);
+            DebugPrinter.println(message);
         }
     }
 
