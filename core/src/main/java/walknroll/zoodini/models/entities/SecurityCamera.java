@@ -52,13 +52,16 @@ public class SecurityCamera extends ZoodiniSprite {
     PathFactory pf = new PathFactory();
     PathExtruder extruder = new PathExtruder();
 
+    private float cameraAngleDegrees;
+
     public SecurityCamera(MapProperties properties, JsonValue constants, float units) {
         float[] pos = new float[2];
         pos[0] = properties.get("x", Float.class) / units;
         pos[1] = properties.get("y", Float.class) / units;
         float radius = constants.getFloat("obstacleRadius");
+        cameraAngleDegrees = properties.get("angle", Float.class);
         obstacle = new WheelObstacle(pos[0], pos[1], radius);
-        obstacle.setAngle(MathUtils.degreesToRadians * properties.get("angle", Float.class));
+        obstacle.setAngle(MathUtils.degreesToRadians * cameraAngleDegrees);
         obstacle.setName(properties.get("type", String.class));
         obstacle.setFixedRotation(false);
 
@@ -149,8 +152,7 @@ public class SecurityCamera extends ZoodiniSprite {
             sprite.setFrame(animationController.getCurrentFrame());
         }
         if (sprite != null) {
-            float degrees = MathUtils.radiansToDegrees * obstacle.getAngle();
-            if(degrees < 90 || degrees > 270){
+            if(cameraAngleDegrees < 90 || cameraAngleDegrees > 270){
                 sprite.flip(true,false);
             }
         }

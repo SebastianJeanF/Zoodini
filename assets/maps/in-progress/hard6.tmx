@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="46" tilewidth="128" tileheight="128" infinite="0" nextlayerid="9" nextobjectid="300">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="46" tilewidth="128" tileheight="128" infinite="0" nextlayerid="9" nextobjectid="302">
  <tileset firstgid="1" source="../../tilesets/path-1.tsx"/>
  <tileset firstgid="211" source="../../tilesets/walls-1.tsx"/>
  <tileset firstgid="421" source="../../tilesets/walls-2.tsx"/>
@@ -114,7 +114,7 @@
   <object id="7" x="959.44" y="2767.41">
    <polyline points="0,0 3.46911,-207.366 -385.07,-208.949 -388.54,-14.2466"/>
   </object>
-  <object id="8" type="Guard" x="1732.73" y="2322.56">
+  <object id="8" type="Guard" x="1794.73" y="2328.56">
    <properties>
     <property name="angle" type="float" value="90"/>
     <property name="path" type="object" value="9"/>
@@ -129,14 +129,14 @@
   </object>
   <object id="12" type="Door" x="1664" y="2432" width="384" height="384"/>
   <object id="13" type="Door" x="5632" y="2304" width="384" height="510"/>
-  <object id="16" type="Key" x="6934.03" y="3863.31">
+  <object id="16" type="Key" x="6756.03" y="3809.31">
    <point/>
   </object>
-  <object id="17" type="Camera" x="6729.95" y="3663.98">
+  <object id="17" type="Camera" x="6751.95" y="4015.98">
    <properties>
-    <property name="angle" type="float" value="315"/>
-    <property name="fov" type="float" value="60"/>
-    <property name="viewDistance" type="float" value="5"/>
+    <property name="angle" type="float" value="90"/>
+    <property name="fov" type="float" value="40"/>
+    <property name="viewDistance" type="float" value="40"/>
    </properties>
    <point/>
   </object>
@@ -179,10 +179,10 @@
    </properties>
    <point/>
   </object>
-  <object id="27" type="Guard" x="2506.06" y="2981.82">
+  <object id="27" type="Guard" x="2400.06" y="2925.82">
    <properties>
-    <property name="angle" type="float" value="270"/>
-    <property name="path" type="object" value="196"/>
+    <property name="angle" type="float" value="0"/>
+    <property name="path" type="object" value="301"/>
    </properties>
    <point/>
   </object>
@@ -190,7 +190,7 @@
    <point/>
   </object>
   <object id="190" x="6720" y="2236">
-   <polyline points="0,0 372,0 368,1784 244,1780 240,764"/>
+   <polyline points="0,0 372,0 368,1662 244,1658.27 240,711.753"/>
   </object>
   <object id="191" type="Guard" x="1968" y="2320">
    <properties>
@@ -198,9 +198,6 @@
     <property name="path" type="object" value="9"/>
    </properties>
    <point/>
-  </object>
-  <object id="196" x="2476" y="2740">
-   <polyline points="0,0 154,2 152,408 14,408"/>
   </object>
   <object id="198" x="3844" y="4376">
    <polyline points="0,0 -4,620 492,620"/>
@@ -213,7 +210,7 @@
    </properties>
    <point/>
   </object>
-  <object id="205" type="Vent" x="5180.24" y="896.48">
+  <object id="205" type="Vent" x="5164.24" y="896.48">
    <point/>
   </object>
   <object id="206" type="Guard" x="3852" y="1448">
@@ -234,7 +231,7 @@
    </properties>
    <point/>
   </object>
-  <object id="212" type="Vent" x="2494.67" y="888.48">
+  <object id="212" type="Vent" x="2554.67" y="896.48">
    <point/>
   </object>
   <object id="234" type="Checkpoint" x="3836.37" y="3209.09">
@@ -303,6 +300,9 @@
     <property name="door" type="object" value="297"/>
     <property name="forCat" type="bool" value="true"/>
    </properties>
+   <point/>
+  </object>
+  <object id="300" type="Vent" x="7044" y="3988">
    <point/>
   </object>
  </objectgroup>

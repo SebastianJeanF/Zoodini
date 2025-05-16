@@ -473,7 +473,7 @@ public class GuardAIController {
         // Only change state if we've been in the current state long enough
         // or if we're forced to change by disabling/enabling follow
         if (potentialState != currState) {
-            if (ticks >= STATE_CHANGE_THRESHOLD) {
+            if (ticks >= STATE_CHANGE_THRESHOLD || potentialState == GuardState.DISTRACTED) {
                 changeState(potentialState);
                 ticks = 0; // Reset counter on state change
             }
