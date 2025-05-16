@@ -91,28 +91,7 @@
    <point/>
   </object>
   <object id="64" type="Door" x="3712" y="512" width="384" height="384"/>
-  <object id="67" type="Guard" x="3605.58" y="1550.29">
-   <properties>
-    <property name="angle" type="float" value="1"/>
-    <property name="path" type="object" value="140"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="76" type="Guard" x="4230.39" y="1387.25">
-   <properties>
-    <property name="angle" type="float" value="180"/>
-    <property name="path" type="object" value="139"/>
-   </properties>
-   <point/>
-  </object>
   <object id="78" type="Octopus" x="3849.09" y="2178.39">
-   <point/>
-  </object>
-  <object id="80" type="Guard" x="2024.63" y="974.898">
-   <properties>
-    <property name="angle" type="float" value="180"/>
-    <property name="path" type="object" value="149"/>
-   </properties>
    <point/>
   </object>
   <object id="81" type="Guard" x="1583" y="1838.63">
@@ -182,7 +161,6 @@
    <properties>
     <property name="door" type="object" value="64"/>
     <property name="forCat" type="bool" value="true"/>
-    <property name="isActive" type="bool" value="false"/>
    </properties>
    <point/>
   </object>
