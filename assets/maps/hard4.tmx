@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="35" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="177">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="35" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="179">
+ <editorsettings>
+  <export target="hard4.tmx" format="tmx"/>
+ </editorsettings>
  <tileset firstgid="1" source="../tilesets/decorations-2.tsx"/>
  <tileset firstgid="121" source="../tilesets/decorations.tsx"/>
  <tileset firstgid="241" source="../tilesets/fence.tsx"/>
@@ -78,7 +81,13 @@
   <object id="59" type="Exit" x="2247.88" y="350.133">
    <point/>
   </object>
-  <object id="61" type="Vent" x="4183.11" y="434.477">
+  <object id="61" type="Vent" x="4183.11" y="372.269">
+   <point/>
+  </object>
+  <object id="177" type="Vent" x="4183.11" y="372.269">
+   <point/>
+  </object>
+  <object id="178" type="Vent" x="4183.11" y="372.269">
    <point/>
   </object>
   <object id="62" type="Vent" x="4157.48" y="1104.02">
@@ -99,7 +108,7 @@
    </properties>
    <point/>
   </object>
-  <object id="78" type="Octopus" x="4004.61" y="2186.17">
+  <object id="78" type="Octopus" x="2779.88" y="374.35">
    <point/>
   </object>
   <object id="80" type="Guard" x="2024.63" y="974.898">
@@ -135,13 +144,13 @@
   <object id="84" type="Key" x="2484" y="1414.8">
    <point/>
   </object>
-  <object id="85" type="Cat" x="2760.63" y="361.124">
+  <object id="85" type="Cat" x="4070.89" y="2165.17">
    <point/>
   </object>
   <object id="91" x="1747.5" y="2139.08">
    <polyline points="0,0 167.379,18.9794 161.607,-816.116 -198.161,-806.627 -194.313,28.4692 -17.3151,37.9589"/>
   </object>
-  <object id="92" type="Key" x="3499.42" y="444.522">
+  <object id="92" type="Key" x="3546.07" y="452.298">
    <point/>
   </object>
   <object id="127" type="Camera" x="2451.94" y="823.359">

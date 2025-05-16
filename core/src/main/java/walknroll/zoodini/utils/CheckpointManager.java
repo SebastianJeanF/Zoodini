@@ -11,6 +11,7 @@ public class CheckpointManager {
 
     /** Map of character names to their active checkpoints {'cat': Checkpoint, 'octopus': Checkpoint} */
     private final HashMap<String, Checkpoint> activeCheckpoints;
+    
 
     /** List of all checkpoints */
     private final List<Checkpoint> allCheckpoints;
@@ -114,7 +115,6 @@ public class CheckpointManager {
         for (Checkpoint checkpoint : allCheckpoints) {
             checkpoint.setActive(false);
         }
-        activeCheckpoints.clear();
     }
 
     public void clear() {

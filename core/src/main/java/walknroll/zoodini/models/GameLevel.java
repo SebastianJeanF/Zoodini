@@ -256,8 +256,6 @@ public class GameLevel {
     /** Array that contains image objects */
     private Array<TextureMapObject> imagesCache;
 
-    /** Manages all checkpoints in the level */
-    CheckpointManager checkpointManager;
 
     /** Tracks doors that have been unlocked for checkpoint restoration */
     private ObjectMap<Integer, Boolean> doorUnlockStates = new ObjectMap<>();
@@ -290,7 +288,6 @@ public class GameLevel {
         valuesMap.put("abilityKey", Input.Keys.toString(ic.getAbilityKey()));
         valuesMap.put("followKey", Input.Keys.toString(ic.getFollowModeKey()));
         substitutor = new StringSubstitutor(valuesMap);
-        checkpointManager = new CheckpointManager();
     }
 
     public ObjectMap<ZoodiniSprite, VisionCone> getVisionConeMap() {
@@ -455,9 +452,6 @@ public class GameLevel {
                 if (disableMinimap != null && disableMinimap) {
                     UIController.disableMinimap(true);
                 }
-            } else if ("Checkpoint".equalsIgnoreCase(type)) {
-                Checkpoint checkpoint = new Checkpoint(directory, properties, entityConstants.get("checkpoint"), units);
-                checkpointManager.addCheckpoint(checkpoint);
             }
         }
 
@@ -558,7 +552,7 @@ public class GameLevel {
             }
 
             for (Door door : doors) {
-                door.update(dt, checkpointManager);
+                door.update(dt);
             }
 
             for (Key key : keys) {
@@ -1188,9 +1182,6 @@ public class GameLevel {
         batch.setColor(Color.WHITE);
     }
 
-    public CheckpointManager getCheckpointManager() {
-        return checkpointManager;
-    }
 
 //    public void restoreFromSnapShot(PooledList<Door> oldDoors, int numCatKeys, int numOctKeys, Array<Key> oldKeys) {
 //        // Apply the door unlock states from the old doors
@@ -1245,87 +1236,4 @@ public class GameLevel {
 //        }
 //    }
 
-    public void restoreFromSnapShot() {
-        System.out.println("Restoring from snapshot");
-
-        // Get active checkpoints before resetting
-        HashMap<String, Checkpoint> checkpoints =
-            new HashMap<>(checkpointManager.getActiveCheckpoints());
-
-        if (checkpoints.isEmpty()) {
-            System.out.println("No active checkpoints to restore from.");
-            return;
-        }
-
-        // Get checkpoint for state restoration
-        Checkpoint checkpoint = checkpoints.containsKey("cat") ?
-            checkpoints.get("cat") : checkpoints.get("octopus");
-
-        // Get the door ID that this checkpoint is associated with
-        Integer doorId = checkpoint.getDoorId();
-
-        CheckpointSaveState saveState = checkpointManager.getCheckpointSaveState(doorId);
-
-        // Now restore the saved state from the checkpoint
-        restoreStateFromCheckpoint(saveState);
-
-        // Restore character positions
-        for (String character : checkpoints.keySet()) {
-            Vector2 respawnPos = checkpoints.get(character).getPosition();
-            if (character.equals("cat") && catPresent) {
-                avatarCat.setPosition(respawnPos);
-            } else if (character.equals("octopus") && octopusPresent) {
-                avatarOctopus.setPosition(respawnPos);
-            }
-        }
-
-        // Re-activate the checkpoints in the manager
-        for (String character : checkpoints.keySet()) {
-            Integer activeDoorId = checkpoints.get(character).getDoorId();
-            if (checkpointManager.doorHasCheckpoints(activeDoorId)) {
-                checkpointManager.activateDoorCheckpoints(activeDoorId);
-            }
-        }
-
-    }
-
-    // Helper method to restore state from saved data
-    private void restoreStateFromCheckpoint(CheckpointSaveState saveState) {
-        // Get saved states
-        HashMap<Integer, Boolean> doorStates = saveState.getDoorState();
-        HashMap<Integer, KeyState> keyStates = saveState.getKeyState();
-
-        // Restore door states
-        if (saveState.getDoorState() != null) {
-            for (Door door : doors) {
-                if (doorStates.containsKey(door.getId())) {
-                    door.setLocked(doorStates.get(door.getId()));
-                    if (!door.isLocked()) {
-                        door.setReachedCheckpoint(true);
-                    }
-                }
-            }
-        }
-
-        // Restore key states
-        if (keyStates != null) {
-            for (Key key : keys) {
-                if (keyStates.containsKey(key.getID())) {
-                    KeyState keyState = keyStates.get(key.getID());
-                    key.setCollected(keyState.collected);
-                    if (key.isCollected()) {
-                        key.setOwner(keyState.owner);
-                    }
-                }
-            }
-        }
-
-        // Set key counts to characters
-        if (catPresent) {
-            avatarCat.setNumKeys(saveState.getCatKeyCount());
-        }
-        if (octopusPresent) {
-            avatarOctopus.setNumKeys(saveState.getOctopusKeyCount());
-        }
-    }
 }

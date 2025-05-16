@@ -27,19 +27,19 @@ import walknroll.zoodini.utils.enums.AvatarType;
 
 public class Checkpoint {
     /** The unique ID for this checkpoint */
-    private Integer id;
+    private final Integer id;
 
     /** The ID of the door that activates this checkpoint */
-    private Integer doorId;
+    private final Integer doorId;
 
     /** Which character this checkpoint is for ("Gar", "Otto", or "Both") */
-    private String forCharacter;
+    private final String forCharacter;
 
     /** Whether this checkpoint is currently active */
     private boolean isActive;
 
     /** The position of this checkpoint */
-    private Vector2 position;
+    private final Vector2 position;
 
     /** Inner class to store key state */
     public static class KeyState {
@@ -54,13 +54,12 @@ public class Checkpoint {
 
     /**
      * Creates a checkpoint with the given settings
-     *
-     * @param directory The asset directory (for textures, etc)
+     * @param properties The properties of the checkpoint
      * @param units     The physics units for this avatar
      */
 
     // Constructor
-    public Checkpoint(AssetDirectory directory, MapProperties properties, JsonValue constants, float units) {
+    public Checkpoint(MapProperties properties, float units) {
         this.id = properties.get("id", Integer.class);
         MapObject door = properties.get("door", MapObject.class);
         this.doorId = door.getProperties().get("id", Integer.class);

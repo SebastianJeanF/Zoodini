@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="10" height="40" tilewidth="128" tileheight="128" infinite="0" nextlayerid="5" nextobjectid="42">
+ <tileset firstgid="1" source="../tilesets/walls-1.tsx"/>
+ <layer id="1" name="ground" width="10" height="40">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,5,5,5,5,5,5,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,64,0,0,0,64,5,0,
+0,0,5,64,0,0,0,64,5,0,
+0,0,5,64,0,0,0,64,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,64,0,0,0,64,5,0,
+0,0,5,64,0,0,0,64,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,64,0,0,0,64,5,0,
+0,0,5,64,0,0,0,64,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,64,0,0,0,64,5,0,
+0,0,5,64,0,0,0,64,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,0,0,0,0,0,5,0,
+0,0,5,5,5,5,5,5,5,0
+</data>
+ </layer>
+ <objectgroup id="2" name="objects">
+  <object id="2" type="Door" x="512" y="3840" width="384" height="384"/>
+  <object id="6" type="Door" x="512" y="2304" width="384" height="384"/>
+  <object id="7" type="Door" x="512" y="3072" width="384" height="384"/>
+  <object id="8" type="Door" x="512" y="1664" width="384" height="384"/>
+  <object id="28" type="Cat" x="540.221" y="4743.69">
+   <point/>
+  </object>
+  <object id="29" type="Octopus" x="832.019" y="4716.09">
+   <point/>
+  </object>
+  <object id="30" type="Exit" x="694.006" y="1482.65">
+   <point/>
+  </object>
+  <object id="31" type="Key" x="666.404" y="4365.14">
+   <point/>
+  </object>
+  <object id="32" type="Key" x="705.836" y="3604.1">
+   <point/>
+  </object>
+  <object id="33" type="Key" x="709.779" y="2862.78">
+   <point/>
+  </object>
+  <object id="34" type="Key" x="709.779" y="2168.77">
+   <point/>
+  </object>
+  <object id="35" type="Checkpoint" x="481.073" y="3907.73">
+   <properties>
+    <property name="door" type="object" value="2"/>
+    <property name="forCat" type="bool" value="true"/>
+    <property name="isActive" type="bool" value="false"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="36" type="Guard" x="973.975" y="3958.99">
+   <properties>
+    <property name="angle" type="float" value="0"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="37" type="Guard" x="981.861" y="3194.01">
+   <properties>
+    <property name="angle" type="float" value="0"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="38" type="Guard" x="981.861" y="2409.31">
+   <properties>
+    <property name="angle" type="float" value="0"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="39" type="Checkpoint" x="465.3" y="3040.22">
+   <properties>
+    <property name="door" type="object" value="7"/>
+    <property name="forCat" type="bool" value="true"/>
+    <property name="isActive" type="bool" value="false"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="40" type="Checkpoint" x="465.3" y="2933.75">
+   <properties>
+    <property name="door" type="object" value="7"/>
+    <property name="forCat" type="bool" value="false"/>
+    <property name="isActive" type="bool" value="false"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="41" type="Checkpoint" x="457.413" y="2223.97">
+   <properties>
+    <property name="door" type="object" value="6"/>
+    <property name="forCat" type="bool" value="true"/>
+    <property name="isActive" type="bool" value="false"/>
+   </properties>
+   <point/>
+  </object>
+ </objectgroup>
+ <objectgroup id="4" name="walls">
+  <object id="10" x="256" y="1152" width="896" height="128"/>
+  <object id="12" x="256" y="1280" width="128" height="1536"/>
+  <object id="13" x="1024" y="1280" width="128" height="1536"/>
+  <object id="14" x="384" y="1664" width="128" height="384"/>
+  <object id="15" x="896" y="1664" width="128" height="384"/>
+  <object id="17" x="384" y="2432" width="128" height="256"/>
+  <object id="18" x="896" y="2432" width="128" height="256"/>
+  <object id="19" x="384" y="3200" width="128" height="256"/>
+  <object id="20" x="896" y="3200" width="128" height="256"/>
+  <object id="21" x="384" y="3968" width="128" height="256"/>
+  <object id="22" x="896" y="3968" width="128" height="256"/>
+  <object id="24" x="1024" y="2816" width="128" height="1536"/>
+  <object id="25" x="256" y="2816" width="128" height="2176"/>
+  <object id="26" x="1024" y="4352" width="128" height="768"/>
+  <object id="27" x="256" y="4992" width="768" height="128"/>
+ </objectgroup>
+</map>

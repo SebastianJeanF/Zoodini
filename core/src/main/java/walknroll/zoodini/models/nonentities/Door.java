@@ -71,6 +71,8 @@ public class Door extends ZoodiniSprite {
     /** Listener for checkpoint activation events */
     private CheckpointListener checkpointListener;
 
+    private boolean hasCheckpoint;
+
     /**
      * Sets the checkpoint listener for this door
      * @param listener The listener to notify when checkpoints are activated
@@ -194,7 +196,7 @@ public class Door extends ZoodiniSprite {
         reachedCheckpoint = false;
     }
 
-    public void update(float dt, CheckpointManager checkpointManager){
+    public void update(float dt){
         super.update(dt);
         if(isLocked() && isUnlocking()){
             remainingTimeToUnlock -= dt;
@@ -204,7 +206,7 @@ public class Door extends ZoodiniSprite {
         if(remainingTimeToUnlock <= 0.0f){
             setLocked(false);
             unlocker.decreaseNumKeys();
-            if (checkpointManager.doorHasCheckpoints(this.id)) {
+            if (hasCheckpoint) {
                 setReachedCheckpoint(true);
                 // Notify the listener instead of directly activating checkpoints
                 if (checkpointListener != null) {
@@ -227,6 +229,14 @@ public class Door extends ZoodiniSprite {
 
     public int getId() {
         return id;
+    }
+
+    public boolean hasCheckpoint() {
+        return hasCheckpoint;
+    }
+
+    public void setHasCheckpoint(boolean hasCheckpoint) {
+        this.hasCheckpoint = hasCheckpoint;
     }
 
 
