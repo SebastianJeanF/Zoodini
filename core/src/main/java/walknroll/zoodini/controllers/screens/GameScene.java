@@ -305,6 +305,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         level.populate(directory, map, batch);
         level.getWorld().setContactListener(this);
+
         processedDoors.clear();
         graph = new TileGraph<>(map,false,1);
 
@@ -315,6 +316,13 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         initializeAIControllers();
         attachCheckpointListeners();
+
+        // Reinitialize checkpoints for doors
+        for (Door door : level.getDoors()) {
+            if (checkpointManager.doorHasCheckpoint(door.getId())) {
+                door.setHasCheckpoint(true);
+            }
+        }
     }
 
     /**
@@ -1635,74 +1643,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         restoreFromSnapShot();
     }
 
-//    @Override
-//    public void onCheckpointActivated(Integer doorId, PlayableAvatar unlocker) {
-//        // Create snapshot of current game state
-//        HashMap<Integer, Boolean> doorStates = new HashMap<>();
-//        HashMap<Integer, KeyState> keyStates = new HashMap<>();
-//
-//        // Store door states
-//        for (Door door : level.getDoors()) {
-//            doorStates.put(door.getId(), door.isLocked());
-//        }
-//
-//        // Store key states
-//        for (Key key : level.getKeys()) {
-//            keyStates.put(key.getID(), new KeyState(key.isCollected(), key.getOwner()));
-//        }
-//
-//        // Get key counts
-//        int catKeyCount = level.isCatPresent() ? level.getCat().getNumKeys() : 0;
-//        int octopusKeyCount = level.isOctopusPresent() ? level.getOctopus().getNumKeys() : 0;
-//
-//        // Store the game state in the checkpoint manager
-//        checkpointManager.storeGameState(doorId, doorStates, keyStates,
-//            catKeyCount, octopusKeyCount);
-//
-//        // Activate the checkpoints for this door
-//        checkpointManager.activateDoorCheckpoints(doorId);
-//    }
-//
-//    public void restoreFromSnapShot() {
-//        System.out.println("Restoring from snapshot");
-//
-//        // Get active checkpoints before resetting
-//        Checkpoint currGarCheckpoint = checkpointManager.getCurrGarCheckpoint();
-//        Checkpoint currOttoCheckpoint = checkpointManager.getCurrOttoCheckpoint();
-//
-//        if (currGarCheckpoint == null && currOttoCheckpoint == null) {
-//            System.out.println("No active checkpoints to restore from.");
-//            return;
-//        }
-//
-//        // Get the door ID that this checkpoint is associated with
-//        // One of the checkpoints should be associated with the door ID
-//        Integer doorId = (currGarCheckpoint != null) ? currGarCheckpoint.getDoorId() : currOttoCheckpoint.getDoorId();
-//
-//        CheckpointSaveState saveState = checkpointManager.getCheckpointSaveState(doorId);
-//
-//        // Now restore the saved state from the checkpoint
-//        restoreStateFromCheckpoint(saveState);
-//
-//        // Restore character positions
-//        if (currGarCheckpoint != null) {
-//            level.getCat().setPosition(currGarCheckpoint.getPosition());
-//
-//        }
-//        if (currOttoCheckpoint != null) {
-//            level.getOctopus().setPosition(currOttoCheckpoint.getPosition());
-//        }
-//        // Re-activate the checkpoints in the manager
-////
-////        for (String character : checkpoints.keySet()) {
-////            Integer activeDoorId = checkpoints.get(character).getDoorId();
-////            if (checkpointManager.doorHasCheckpoints(activeDoorId)) {
-////                checkpointManager.activateDoorCheckpoints(activeDoorId);
-////            }
-////        }
-//
-//    }
-
     // Update the restoreFromSnapShot method in GameScene to use the merged checkpoint state
 
     public void restoreFromSnapShot() {
@@ -1747,8 +1687,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
     }
 
-// We also need to update the onCheckpointActivated method to ensure we're not losing checkpoints
-
     @Override
     public void onCheckpointActivated(Integer doorId, PlayableAvatar unlocker) {
         System.out.println("Checkpoint activated for door ID: " + doorId);
@@ -1792,7 +1730,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                     if (!door.isLocked()) {
                         door.setReachedCheckpoint(true);
                     }
-                    door.setHasCheckpoint(doorStates.get(door.getId()).getIsCheckpoint());
+                    door.setHasCheckpoint(checkpointManager.doorHasCheckpoint(door.getId()));
                 }
             }
         }
