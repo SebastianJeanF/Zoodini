@@ -107,6 +107,7 @@ public class GDXRoot extends Game implements ScreenListener {
 		gameState = new GameState(statePrefs);
 
 		loading = new MenuScene(directory, batch, 1);
+		loading.create();
 		loading.setScreenListener(this);
 		setScreen(loading);
     }
@@ -230,6 +231,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			case GDXRoot.EXIT_MENU:
 				loading = new MenuScene(directory, batch, 1);
 				loading.setScreenListener(this);
+				loading.create();
 				setScreen(loading);
 				disposeExcept(loading);
 				break;

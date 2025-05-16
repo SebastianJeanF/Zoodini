@@ -36,6 +36,7 @@ public class SettingsScene implements Screen {
 
     /** The drawing camera for this scene */
     private OrthographicCamera camera;
+    
     /** Reference to sprite batch created by the root */
     private SpriteBatch batch;
 

@@ -69,14 +69,14 @@ knob
   index: -1
 knob-down
   rotate: false
-  xy: 1, 1002
+  xy: 1569, 1822
   size: 30, 30
   orig: 30, 30
   offset: 0, 0
   index: -1
 knob-over
   rotate: false
-  xy: 337, 1060
+  xy: 1, 1002
   size: 30, 30
   orig: 30, 30
   offset: 0, 0
@@ -93,6 +93,15 @@ list-item-active
   xy: 1569, 1854
   size: 334, 56
   orig: 334, 56
+  offset: 0, 0
+  index: -1
+scroll-bar
+  rotate: false
+  xy: 1, 44
+  size: 14, 956
+  split: 4, 4, 8, 8
+  pad: 0, 0, 0, 0
+  orig: 14, 956
   offset: 0, 0
   index: -1
 slider
@@ -113,8 +122,10 @@ slider-bar
   index: -1
 slider-knob
   rotate: false
-  xy: 1569, 1822
+  xy: 337, 1060
   size: 30, 30
+  split: 14, 14, 14, 14
+  pad: 0, 0, 0, 0
   orig: 30, 30
   offset: 0, 0
   index: -1

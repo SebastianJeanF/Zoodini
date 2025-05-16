@@ -13,35 +13,38 @@
  * loading screens with the inane tips that want to be helpful? That is
  * asynchronous loading.
  *
- * This player mode provides a basic loading screen.  While you could adapt it
+ * This player mode provides a basic loading screen. While you could adapt it
  * for between level loading, it is currently designed for loading all assets
  * at the start of the game.
  *
  * @author: Walker M. White
+ * 
  * @date: 11/21/2024
  */
 package walknroll.zoodini.controllers.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Affine2;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Value;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.ScreenUtils;
-
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.GDXRoot;
-import walknroll.zoodini.utils.MenuButton;
+import walknroll.zoodini.utils.FreeTypeSkin;
 
 /**
  * Class that provides a loading screen for the state of the game.
@@ -50,7 +53,8 @@ import walknroll.zoodini.utils.MenuButton;
  * progress bar. Once all assets are loaded, the progress bar is replaced
  * by a play button. You are free to adopt this to your needs.
  */
-public class MenuScene implements Screen, InputProcessor {
+public class MenuScene implements Screen {
+
 	/** Default budget for asset loader (do nothing but load 60 fps) */
 	private static int DEFAULT_BUDGET = 15;
 	// There are TWO asset managers.
@@ -60,11 +64,9 @@ public class MenuScene implements Screen, InputProcessor {
 
 	/** The actual assets to be loaded */
 	private AssetDirectory assets;
-	/** The drawing camera for this scene */
-	private OrthographicCamera camera;
-    /** Viewport */
-    private Viewport viewport;
-    /** Reference to sprite batch created by the root */
+	/** Viewport */
+	private Viewport viewport;
+	/** Reference to sprite batch created by the root */
 	private SpriteBatch batch;
 	/** Listener that will update the player mode when we are done */
 	private ScreenListener listener;
@@ -83,10 +85,10 @@ public class MenuScene implements Screen, InputProcessor {
 	/** The current state of the play button */
 	private Integer pressState;
 
-    /** Background image */
-    private Texture background;
-    /** logo */
-    private Texture logo;
+	/** Background image */
+	private Texture background;
+	/** logo */
+	private Texture logo;
 
 	/**
 	 * The amount of time to devote to loading assets (as opposed to on screen
@@ -97,12 +99,15 @@ public class MenuScene implements Screen, InputProcessor {
 	/** Whether or not this player mode is still active */
 	private boolean active;
 
-	private Array<MenuButton> buttons;
+	/** Scale factor for buttons/logo in screen. Equals 1 when resolution is 1280x720 */
+	private float resScale;
 
-    /** Scale factor for buttons/logo in screen. Equals 1 when resolution is 1280x720 */
-    private float resScale;
+	private Stage stage;
+	private Skin skin;
 
-    /**
+	Affine2 cache = new Affine2();
+
+	/**
 	 * Creates a LoadingMode with the default budget, size and position.
 	 *
 	 * @param assets The asset directory to load from
@@ -135,39 +140,35 @@ public class MenuScene implements Screen, InputProcessor {
 
 		constants = internal.getEntry("constants", JsonValue.class);
 
-        viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
 		// No progress so far.
 		progress = assets.getProgress();
 		pressState = null;
-
-		Gdx.input.setInputProcessor(this);
 
 		// Start loading the REAL assets
 		this.assets = assets;
 		this.assets.loadAssets();
 		active = true;
 
-        float resScaleX = Gdx.graphics.getWidth() / (float) constants.getFloat("screenWidth");
-        float resScaleY = Gdx.graphics.getHeight() / (float) constants.getFloat("screenHeight");
-        resScale = Math.min(resScaleX, resScaleY);
+		float resScaleX = Gdx.graphics.getWidth() / (float) constants.getFloat("screenWidth");
+		float resScaleY = Gdx.graphics.getHeight() / (float) constants.getFloat("screenHeight");
+		resScale = Math.min(resScaleX, resScaleY);
 
-		float buttonX = constants.getFloat("button.x") * resScale;
-		float buttonWidth = constants.getFloat("button.width") * resScale;
-		float buttonHeight = constants.getFloat("button.height") * resScale;
+		background = internal.getEntry("splash", Texture.class);
+		logo = internal.getEntry("logo", Texture.class);
+	}
 
-		buttons = Array.with(
-				new MenuButton(buttonX, constants.getFloat("button.start.y") * resScale, buttonWidth, buttonHeight, "play",
-						GDXRoot.EXIT_LEVEL_SELECT),
-				new MenuButton(buttonX, constants.getFloat("button.settings.y") * resScale, buttonWidth, buttonHeight, "settings",
-						GDXRoot.EXIT_SETTINGS),
-				new MenuButton(buttonX, constants.getFloat("button.credits.y") * resScale, buttonWidth, buttonHeight, "credits",
-						GDXRoot.EXIT_CREDITS),
-				new MenuButton(buttonX, constants.getFloat("button.quit.y") * resScale, buttonWidth, buttonHeight, "quit",
-						GDXRoot.EXIT_QUIT));
+	public void create() {
+		stage = new Stage(viewport);
+		Gdx.input.setInputProcessor(stage);
 
-        background = internal.getEntry("splash", Texture.class);
-        logo = internal.getEntry("logo", Texture.class);
+		skin = new FreeTypeSkin(Gdx.files.internal("uiskins/zoodini/uiskin.json"));
+
+		Table table = makeSettingsTable();
+
+		stage.addActor(table);
 	}
 
 	/**
@@ -228,6 +229,8 @@ public class MenuScene implements Screen, InputProcessor {
 	public void dispose() {
 		internal.unloadAssets();
 		internal.dispose();
+		skin.dispose();
+		stage.dispose();
 	}
 
 	// ADDITIONAL SCREEN METHODS
@@ -244,11 +247,6 @@ public class MenuScene implements Screen, InputProcessor {
 		if (active) {
 			update(delta);
 			draw();
-
-			// We are are ready, notify our listener
-			if (isReady() && listener != null) {
-				listener.exitScreen(this, pressState);
-			}
 		}
 	}
 
@@ -266,8 +264,8 @@ public class MenuScene implements Screen, InputProcessor {
 		scale = ((float) height) / constants.getFloat("height");
 		this.width = width;
 		this.height = height;
-        viewport.update(width, height, true);
-    }
+		viewport.update(width, height, true);
+	}
 
 	/**
 	 * Called when the Screen is paused.
@@ -296,7 +294,7 @@ public class MenuScene implements Screen, InputProcessor {
 	public void show() {
 		// Useless if called in outside animation loop
 		active = true;
-        viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
+		viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
 	}
 
 	/**
@@ -316,172 +314,55 @@ public class MenuScene implements Screen, InputProcessor {
 		this.listener = listener;
 	}
 
-	// PROCESSING PLAYER INPUT
-	/**
-	 * Called when the screen was touched or a mouse button was pressed.
-	 *
-	 * This method checks to see if the play button is available and if the click
-	 * is in the bounds of the play button. If so, it signals the that the button
-	 * has been pressed and is currently down. Any mouse button is accepted.
-	 *
-	 * @param screenX the x-coordinate of the mouse on the screen
-	 * @param screenY the y-coordinate of the mouse on the screen
-	 * @param pointer the button or touch finger number
-	 * @return whether to hand the event to other listeners.
-	 */
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		if (progress < 1.0f) {
-			return true;
-		}
+	private Table makeSettingsTable() {
+		Table table = new Table();
+		// table.setSize(this.width, this.height);
+		table.setFillParent(true);
+		table.defaults().spaceBottom(10f);
+		table.bottom().pad(Value.percentWidth(0.01f));
 
-		// Flip to match graphics coordinates
-		screenY = height - screenY;
+		Value labelWidth = Value.percentWidth(0.25f, table);
 
-		// Play button is a circle.
-		for (MenuButton menuButton : buttons) {
-			if (menuButton.isPressed()) {
-				return true;
+		TextButton menuStart = new TextButton("Start", skin);
+		menuStart.addListener(new ChangeListener() {
+
+			public void changed(ChangeEvent event, Actor actor) {
+				listener.exitScreen(MenuScene.this, GDXRoot.EXIT_LEVEL_SELECT);
 			}
-			if (menuButton.contains(screenX, screenY)) {
-				menuButton.press();
-				break;
+		});
+		table.add(menuStart).expandX().left().width(labelWidth).bottom();
+
+		table.row();
+		TextButton menuSettings = new TextButton("Settings", skin);
+		menuSettings.addListener(new ChangeListener() {
+
+			public void changed(ChangeEvent event, Actor actor) {
+				listener.exitScreen(MenuScene.this, GDXRoot.EXIT_SETTINGS);
 			}
-		}
-		// float buttonX = constants.getFloat("button.x");
-		// float buttonWidth = constants.getFloat("button.width");
-		// if (screenX >= buttonX && screenX <= buttonX + buttonWidth) {
-		// pressState = 1;
-		// }
-		// float cx = width / 2;
-		// float cy = (int) (constants.getFloat("bar.height") * height);
-		// float s = constants.getFloat("button.scale") * scale;
-		// float radius = s * internal.getEntry("play", Texture.class).getWidth() /
-		// 2.0f;
-		// float dist = (screenX - cx) * (screenX - cx) + (screenY - cy) * (screenY -
-		// cy);
-		// if (dist < radius * radius) {
-		// pressState = 1;
-		// }
-		return false;
-	}
+		});
+		table.add(menuSettings).left().width(labelWidth).bottom();
 
-	/**
-	 * Called when a finger was lifted or a mouse button was released.
-	 *
-	 * This method checks to see if the play button is currently pressed down. If
-	 * so,
-	 * it signals the that the player is ready to go.
-	 *
-	 * @param screenX the x-coordinate of the mouse on the screen
-	 * @param screenY the y-coordinate of the mouse on the screen
-	 * @param pointer the button or touch finger number
-	 * @return whether to hand the event to other listeners.
-	 */
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		for (MenuButton menuButton : buttons) {
-			if (menuButton.isPressed()) {
-				pressState = menuButton.getPressedState();
-				return false;
+		table.row();
+		TextButton menuCredits = new TextButton("Credits", skin);
+		menuCredits.addListener(new ChangeListener() {
+
+			public void changed(ChangeEvent event, Actor actor) {
+				listener.exitScreen(MenuScene.this, GDXRoot.EXIT_CREDITS);
 			}
-		}
-		return true;
-	}
+		});
+		table.add(menuCredits).left().width(labelWidth).bottom();
 
-	/**
-	 * Called when a key is pressed
-	 *
-	 * Used to process quitting the game with the ESC key
-	 *
-	 * @param keycode the key pressed
-	 * @return whether to hand the event to other listeners.
-	 */
-	public boolean keyDown(int keycode) {
-		if (keycode == Input.Keys.ESCAPE) {
-			pressState = GDXRoot.EXIT_QUIT;
-		}
-		return true;
-	}
+		table.row();
+		TextButton menuQuit = new TextButton("Quit", skin);
+		menuQuit.addListener(new ChangeListener() {
 
-	/**
-	 * Called when a key is typed (UNSUPPORTED)
-	 *
-	 * @return whether to hand the event to other listeners.
-	 */
-	public boolean keyTyped(char character) {
-		return true;
-	}
+			public void changed(ChangeEvent event, Actor actor) {
+				listener.exitScreen(MenuScene.this, GDXRoot.EXIT_QUIT);
+			}
+		});
+		table.add(menuQuit).left().width(labelWidth).bottom();
 
-	/**
-	 * Called when a key is released (UNSUPPORTED)
-	 *
-	 * @param keycode the key released
-	 * @return whether to hand the event to other listeners.
-	 */
-	public boolean keyUp(int keycode) {
-		return true;
-	}
-
-	/**
-	 * Called when the mouse was moved without any buttons being pressed.
-	 * (UNSUPPORTED)
-	 *
-	 * @param screenX the x-coordinate of the mouse on the screen
-	 * @param screenY the y-coordinate of the mouse on the screen
-	 * @return whether to hand the event to other listeners.
-	 */
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        // flip Y to match your draw coordinates
-        screenY = height - screenY;
-
-        for (MenuButton btn : buttons) {
-            // contains(...) already checks x,y vs btn.x,btn.y,btn.width,btn.height
-            btn.setHovered(btn.contains(screenX, screenY));
-        }
-        return false;
-    }
-
-	// UNSUPPORTED METHODS FROM InputProcessor
-
-	/**
-	 * Called when the mouse wheel was scrolled. (UNSUPPORTED)
-	 *
-	 * @param dx the amount of horizontal scroll
-	 * @param dy the amount of vertical scroll
-	 *
-	 * @return whether to hand the event to other listeners.
-	 */
-	public boolean scrolled(float dx, float dy) {
-		return true;
-	}
-
-	/**
-	 * Called when the touch gesture is cancelled (UNSUPPORTED)
-	 *
-	 * Reason may be from OS interruption to touch becoming a large surface such
-	 * as the user cheek. Relevant on Android and iOS only. The button parameter
-	 * will be Input.Buttons.LEFT on iOS.
-	 *
-	 * @param screenX the x-coordinate of the mouse on the screen
-	 * @param screenY the y-coordinate of the mouse on the screen
-	 * @param pointer the button or touch finger number
-	 * @param button  the button
-	 * @return whether to hand the event to other listeners.
-	 */
-	public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
-		return true;
-	}
-
-	/**
-	 * Called when the mouse or finger was dragged. (UNSUPPORTED)
-	 *
-	 * @param screenX the x-coordinate of the mouse on the screen
-	 * @param screenY the y-coordinate of the mouse on the screen
-	 * @param pointer the button or touch finger number
-	 * @return whether to hand the event to other listeners.
-	 */
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		return true;
+		return table;
 	}
 
 	/**
@@ -503,10 +384,9 @@ public class MenuScene implements Screen, InputProcessor {
 				this.progress = 1.0f;
 			}
 		}
+		stage.act(delta);
 	}
 
-
-    Affine2 cache = new Affine2();
 	/**
 	 * Draw the status of this player mode.
 	 *
@@ -517,42 +397,28 @@ public class MenuScene implements Screen, InputProcessor {
 	 * prefer this in lecture.
 	 */
 	private void draw() {
-        batch.begin(viewport.getCamera());
-        batch.setColor(Color.WHITE);
-        float scaleX = (float) width / (float) background.getWidth();
-        float scaleY = (float) height / (float) background.getHeight();
-        cache.idt();
-        cache.scale(scaleX, scaleY);
-        batch.draw(background, cache);
+		batch.begin(viewport.getCamera());
+		batch.setColor(Color.WHITE);
+		float scaleX = (float) width / (float) background.getWidth();
+		float scaleY = (float) height / (float) background.getHeight();
+		cache.idt();
+		cache.scale(scaleX, scaleY);
+		batch.draw(background, cache);
 
 		batch.draw(logo,
-            ((width / 2f) - (logo.getWidth() / 2f) * resScale),
-            (height - (logo.getHeight() + 50) * resScale) ,
+				((width / 2f) - (logo.getWidth() / 2f) * resScale),
+				(height - (logo.getHeight() + 50) * resScale),
 				logo.getWidth() * resScale,
-            logo.getHeight()  * resScale
-        );
+				logo.getHeight() * resScale
+		);
 
 		if (progress < 1.0f) {
 			drawProgress();
+			batch.end();
 		} else {
-            for (MenuButton menuButton : buttons) {
-                // pick a tint based on state
-                Color tint = Color.WHITE;
-                if (menuButton.isPressed()) {
-                    tint = Color.GRAY;              // already had this
-                } else if (menuButton.isHovered()) {
-                    tint = new Color(0.8f,0.8f,0.8f,1f);  // a slightly darker white
-                }
-
-                batch.setColor(tint);
-                Texture tex = internal.getEntry(menuButton.getAssetName(), Texture.class);
-                batch.draw(tex, menuButton.x, menuButton.y, menuButton.width, menuButton.height);
-            }
-
-            // reset color so nothing else is tinted
-            batch.setColor(Color.WHITE);
+			batch.end();
+			stage.draw();
 		}
-		batch.end();
 	}
 
 	/**
@@ -571,7 +437,8 @@ public class MenuScene implements Screen, InputProcessor {
 		// "3-patch" the background
 		batch.setColor(Color.WHITE);
 		region1 = internal.getEntry("progress.backleft", TextureRegion.class);
-		batch.draw(region1, cx - w / 2, cy, scale * region1.getRegionWidth(), scale * region1.getRegionHeight());
+		batch.draw(region1, cx - w / 2, cy, scale * region1.getRegionWidth(), scale * region1
+				.getRegionHeight());
 
 		region2 = internal.getEntry("progress.backright", TextureRegion.class);
 		batch.draw(region2, cx + w / 2 - scale * region2.getRegionWidth(), cy,
@@ -584,11 +451,13 @@ public class MenuScene implements Screen, InputProcessor {
 
 		// "3-patch" the foreground
 		region1 = internal.getEntry("progress.foreleft", TextureRegion.class);
-		batch.draw(region1, cx - w / 2, cy, scale * region1.getRegionWidth(), scale * region1.getRegionHeight());
+		batch.draw(region1, cx - w / 2, cy, scale * region1.getRegionWidth(), scale * region1
+				.getRegionHeight());
 
 		if (progress > 0) {
 			region2 = internal.getEntry("progress.foreright", TextureRegion.class);
-			float span = progress * (w - scale * (region1.getRegionWidth() + region2.getRegionWidth()));
+			float span = progress * (w - scale * (region1.getRegionWidth() + region2
+					.getRegionWidth()));
 
 			batch.draw(region2, cx - w / 2 + scale * region1.getRegionWidth() + span, cy,
 					scale * region2.getRegionWidth(), scale * region2.getRegionHeight());
