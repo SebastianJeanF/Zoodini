@@ -71,6 +71,7 @@ import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.models.nonentities.Vent;
 import walknroll.zoodini.utils.Checkpoint;
+import walknroll.zoodini.utils.Checkpoint.DoorState;
 import walknroll.zoodini.utils.Checkpoint.KeyState;
 import walknroll.zoodini.utils.CheckpointListener;
 import walknroll.zoodini.utils.CheckpointManager;
@@ -236,9 +237,15 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         soundController = SoundController.getInstance();
 
         // Initialize checkpoint listeners
+        attachCheckpointListeners();
+    }
+
+    private void attachCheckpointListeners() {
+        // Re-register as checkpoint listener for all doors
         for (Door door : level.getDoors()) {
             door.setCheckpointListener(this);
         }
+        System.out.println("Re-attached checkpoint listeners to all doors");
     }
 
     public void initializeCheckpoints(MapLayer objectLayer, float units) {
@@ -284,6 +291,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         graph = new TileGraph<>(map,false,1);
 
         initializeAIControllers();
+        attachCheckpointListeners();
     }
 
     /**
@@ -356,18 +364,20 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         // Handle resets
         if (input.didReset()) {
+            if (checkAnyCheckpointReached()) {
+                resetFromSnapShot();
+                return false;
+            }
             reset();
+            return false;
         }
 
         if (gameLost) {
             soundController.stopAllSounds();
             // Look through all doors and check if any has had their checkpoints reached
-            for (Door door : level.getDoors()) {
-                System.out.println("Door ID: " + door.getId() + ", Reached Checkpoint: " + door.getReachedCheckpoint());
-                if (door.getReachedCheckpoint()) {
-                    handlePlayerDeath();
-                    return false;
-                }
+            if (checkAnyCheckpointReached()) {
+                resetFromSnapShot();
+                return false;
             }
             System.out.println("No checkpoints reached");
             listener.exitScreen(this, GDXRoot.EXIT_LOSE);
@@ -602,6 +612,15 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      */
     public void setScreenListener(ScreenListener listener) {
         this.listener = listener;
+    }
+
+    public boolean checkAnyCheckpointReached() {
+        for (Door door : level.getDoors()) {
+            if (door.getReachedCheckpoint()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -1447,18 +1466,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         return this.level;
     }
 
-    private void handlePlayerDeath() {
-        resetFromSnapShot();
-//        if (level.getCheckpointManager().hasActiveCheckpoint("cat") ||
-//                level.getCheckpointManager().hasActiveCheckpoint("octopus")) {
-//            // Player died but has an active checkpoint, respawn from there
-//            resetFromSnapShot();
-//        } else {
-//            // No active checkpoint, go to game over screen
-//            gameLost = true;
-//        }
-    }
-
 
     /**
      * Respawns the player characters to the game state of the last checkpoint.
@@ -1466,36 +1473,134 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * opened and keys collected.
      */
     private void resetFromSnapShot() {
-//        System.out.println("Resetting from snapshot");
-//        // Set spawn points to new checkpoints
-//
-//        // Keep opened doors opened
-//        PooledList<Door> prevDoors = new PooledList<>();
-//        prevDoors.addAll(level.getDoors());
-//        Array<Key> prevKeys = new Array<>();
-//        prevKeys.addAll(level.getKeys());
-//
-//        for (Key key: prevKeys) {
-//            System.out.println("Key: " + key.getID() + " collected: " + key.isCollected());
-//        }
-//
-//        // Don't reset keys, they are already collected
-//        int numCatKeys = level.getCat().getNumKeys();
-//        int numOctKeys = level.getOctopus().getNumKeys();
-
         reset();
         restoreFromSnapShot();
     }
 
+//    @Override
+//    public void onCheckpointActivated(Integer doorId, PlayableAvatar unlocker) {
+//        // Create snapshot of current game state
+//        HashMap<Integer, Boolean> doorStates = new HashMap<>();
+//        HashMap<Integer, KeyState> keyStates = new HashMap<>();
+//
+//        // Store door states
+//        for (Door door : level.getDoors()) {
+//            doorStates.put(door.getId(), door.isLocked());
+//        }
+//
+//        // Store key states
+//        for (Key key : level.getKeys()) {
+//            keyStates.put(key.getID(), new KeyState(key.isCollected(), key.getOwner()));
+//        }
+//
+//        // Get key counts
+//        int catKeyCount = level.isCatPresent() ? level.getCat().getNumKeys() : 0;
+//        int octopusKeyCount = level.isOctopusPresent() ? level.getOctopus().getNumKeys() : 0;
+//
+//        // Store the game state in the checkpoint manager
+//        checkpointManager.storeGameState(doorId, doorStates, keyStates,
+//            catKeyCount, octopusKeyCount);
+//
+//        // Activate the checkpoints for this door
+//        checkpointManager.activateDoorCheckpoints(doorId);
+//    }
+//
+//    public void restoreFromSnapShot() {
+//        System.out.println("Restoring from snapshot");
+//
+//        // Get active checkpoints before resetting
+//        Checkpoint currGarCheckpoint = checkpointManager.getCurrGarCheckpoint();
+//        Checkpoint currOttoCheckpoint = checkpointManager.getCurrOttoCheckpoint();
+//
+//        if (currGarCheckpoint == null && currOttoCheckpoint == null) {
+//            System.out.println("No active checkpoints to restore from.");
+//            return;
+//        }
+//
+//        // Get the door ID that this checkpoint is associated with
+//        // One of the checkpoints should be associated with the door ID
+//        Integer doorId = (currGarCheckpoint != null) ? currGarCheckpoint.getDoorId() : currOttoCheckpoint.getDoorId();
+//
+//        CheckpointSaveState saveState = checkpointManager.getCheckpointSaveState(doorId);
+//
+//        // Now restore the saved state from the checkpoint
+//        restoreStateFromCheckpoint(saveState);
+//
+//        // Restore character positions
+//        if (currGarCheckpoint != null) {
+//            level.getCat().setPosition(currGarCheckpoint.getPosition());
+//
+//        }
+//        if (currOttoCheckpoint != null) {
+//            level.getOctopus().setPosition(currOttoCheckpoint.getPosition());
+//        }
+//        // Re-activate the checkpoints in the manager
+////
+////        for (String character : checkpoints.keySet()) {
+////            Integer activeDoorId = checkpoints.get(character).getDoorId();
+////            if (checkpointManager.doorHasCheckpoints(activeDoorId)) {
+////                checkpointManager.activateDoorCheckpoints(activeDoorId);
+////            }
+////        }
+//
+//    }
+
+    // Update the restoreFromSnapShot method in GameScene to use the merged checkpoint state
+
+    public void restoreFromSnapShot() {
+        System.out.println("Restoring from snapshot");
+
+        // Get active checkpoints
+        Checkpoint currGarCheckpoint = checkpointManager.getCurrGarCheckpoint();
+        Checkpoint currOttoCheckpoint = checkpointManager.getCurrOttoCheckpoint();
+
+        if (currGarCheckpoint == null && currOttoCheckpoint == null) {
+            System.out.println("No active checkpoints to restore from.");
+            return;
+        }
+
+        // Get a merged state from both active checkpoints
+        CheckpointSaveState mergedState = checkpointManager.getMergedCheckpointState();
+
+        if (mergedState == null) {
+            System.out.println("Failed to get merged checkpoint state.");
+            return;
+        }
+
+        attachCheckpointListeners();
+        // Now restore the saved state from the merged checkpoint state
+        restoreStateFromCheckpoint(mergedState);
+
+        // Restore character positions to their respective checkpoints
+        if (currGarCheckpoint != null && level.isCatPresent()) {
+            level.getCat().setPosition(currGarCheckpoint.getPosition());
+        }
+
+        if (currOttoCheckpoint != null && level.isOctopusPresent()) {
+            level.getOctopus().setPosition(currOttoCheckpoint.getPosition());
+        }
+
+        // Re-activate the checkpoints
+        for (Door door : level.getDoors()) {
+            if (door.getReachedCheckpoint() && checkpointManager.doorHasCheckpoints(door.getId())) {
+                // Reactivate any checkpoints associated with doors that were unlocked in the saved state
+                checkpointManager.activateDoorCheckpoints(door.getId());
+            }
+        }
+    }
+
+// We also need to update the onCheckpointActivated method to ensure we're not losing checkpoints
+
     @Override
     public void onCheckpointActivated(Integer doorId, PlayableAvatar unlocker) {
+        System.out.println("Checkpoint activated for door ID: " + doorId);
         // Create snapshot of current game state
-        HashMap<Integer, Boolean> doorStates = new HashMap<>();
+        HashMap<Integer, DoorState> doorStates = new HashMap<>();
         HashMap<Integer, KeyState> keyStates = new HashMap<>();
 
         // Store door states
         for (Door door : level.getDoors()) {
-            doorStates.put(door.getId(), door.isLocked());
+            doorStates.put(door.getId(), new DoorState(door.isLocked(), door.hasCheckpoint()));
         }
 
         // Store key states
@@ -1511,68 +1616,25 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         checkpointManager.storeGameState(doorId, doorStates, keyStates,
             catKeyCount, octopusKeyCount);
 
-        // Activate the checkpoints for this door
+        // Activate the checkpoints for this door (without deactivating other checkpoints)
         checkpointManager.activateDoorCheckpoints(doorId);
-    }
-
-    public void restoreFromSnapShot() {
-        System.out.println("Restoring from snapshot");
-
-        // Get active checkpoints before resetting
-        HashMap<String, Checkpoint> checkpoints =
-            new HashMap<>(checkpointManager.getActiveCheckpoints());
-
-        if (checkpoints.isEmpty()) {
-            System.out.println("No active checkpoints to restore from.");
-            return;
-        }
-
-        // Get checkpoint for state restoration
-        Checkpoint checkpoint = checkpoints.containsKey("cat") ?
-            checkpoints.get("cat") : checkpoints.get("octopus");
-
-        // Get the door ID that this checkpoint is associated with
-        Integer doorId = checkpoint.getDoorId();
-
-        CheckpointSaveState saveState = checkpointManager.getCheckpointSaveState(doorId);
-
-        // Now restore the saved state from the checkpoint
-        restoreStateFromCheckpoint(saveState);
-
-        // Restore character positions
-        for (String character : checkpoints.keySet()) {
-            Vector2 respawnPos = checkpoints.get(character).getPosition();
-            if (character.equals("cat") && level.isCatPresent()) {
-                level.getCat().setPosition(respawnPos);
-            } else if (character.equals("octopus") && level.isOctopusPresent()) {
-                level.getOctopus().setPosition(respawnPos);
-            }
-        }
-
-        // Re-activate the checkpoints in the manager
-        for (String character : checkpoints.keySet()) {
-            Integer activeDoorId = checkpoints.get(character).getDoorId();
-            if (checkpointManager.doorHasCheckpoints(activeDoorId)) {
-                checkpointManager.activateDoorCheckpoints(activeDoorId);
-            }
-        }
-
     }
 
     // Helper method to restore state from saved data
     private void restoreStateFromCheckpoint(CheckpointSaveState saveState) {
         // Get saved states
-        HashMap<Integer, Boolean> doorStates = saveState.getDoorState();
+        HashMap<Integer, DoorState> doorStates = saveState.getDoorState();
         HashMap<Integer, KeyState> keyStates = saveState.getKeyState();
 
         // Restore door states
         if (saveState.getDoorState() != null) {
             for (Door door : level.getDoors()) {
                 if (doorStates.containsKey(door.getId())) {
-                    door.setLocked(doorStates.get(door.getId()));
+                    door.setLocked(doorStates.get(door.getId()).getUnlocked());
                     if (!door.isLocked()) {
                         door.setReachedCheckpoint(true);
                     }
+                    door.setHasCheckpoint(doorStates.get(door.getId()).getIsCheckpoint());
                 }
             }
         }

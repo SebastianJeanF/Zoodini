@@ -3,15 +3,18 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.ArrayList;
 import com.badlogic.gdx.math.Vector2;
+import walknroll.zoodini.utils.Checkpoint.DoorState;
 import walknroll.zoodini.utils.Checkpoint.KeyState;
 
 public class CheckpointManager {
     /** Map of door IDs to associated checkpoints */
     private final HashMap<Integer, List<Checkpoint>> doorCheckpoints;
 
-    /** Map of character names to their active checkpoints {'cat': Checkpoint, 'octopus': Checkpoint} */
-    private final HashMap<String, Checkpoint> activeCheckpoints;
-    
+    /** Current Checkpoint for Gar */
+    private Checkpoint currGarCheckpoint;
+
+    /** Current Checkpoint for Otto */
+    private Checkpoint currOttoCheckpoint;
 
     /** List of all checkpoints */
     private final List<Checkpoint> allCheckpoints;
@@ -22,7 +25,7 @@ public class CheckpointManager {
     /** Snapshot of the game state that is saved when a checkpoint is unlocked */
     public static class CheckpointSaveState {
         /** Map of door IDs to their states (locked/unlocked) */
-        public HashMap<Integer, Boolean> doorStates;
+        public HashMap<Integer, DoorState> doorStates;
         /** Map of key IDs to their states (collected/uncollected) */
         public HashMap<Integer, KeyState> keyStates;
         /** Number of cat keys collected during snapshot */
@@ -37,7 +40,7 @@ public class CheckpointManager {
             octopusKeyCount = 0;
         }
 
-        public HashMap<Integer, Boolean> getDoorState() {
+        public HashMap<Integer, DoorState> getDoorState() {
             return doorStates;
         }
 
@@ -58,9 +61,10 @@ public class CheckpointManager {
     /** Constructor */
     public CheckpointManager() {
         doorCheckpoints = new HashMap<>();
-        activeCheckpoints = new HashMap<>();
         allCheckpoints = new ArrayList<>();
         checkpointStates = new HashMap<>();
+        currGarCheckpoint = null;
+        currOttoCheckpoint = null;
     }
 
     /** Add a checkpoint to the manager */
@@ -80,33 +84,71 @@ public class CheckpointManager {
     }
 
     /** Activate checkpoints associated with a door ID */
+//    public void activateDoorCheckpoints(Integer doorId) {
+//        if (!doorHasCheckpoints(doorId)) {
+//            return;
+//        }
+//        System.out.println("Activating checkpoints for door ID: " + doorId);
+//        resetCheckpoints(); // deactivate old checkpoints
+//        for (Checkpoint checkpoint : doorCheckpoints.get(doorId)) {
+//            checkpoint.setActive(true);
+//
+//            // Update active checkpoint for the character(s)
+//            String forCharacter = checkpoint.getForCharacter();
+//            if (forCharacter.equals("cat")) {
+//                currGarCheckpoint = checkpoint;
+//            }
+//            if (forCharacter.equals("octopus")) {
+//                currOttoCheckpoint = checkpoint;
+//            }
+//        }
+//        printActiveCheckpoints();
+//    }
+
+    /**
+     * Activate checkpoints associated with a door ID without deactivating existing checkpoints
+     * for other characters
+     */
     public void activateDoorCheckpoints(Integer doorId) {
-        if (!doorHasCheckpoints(doorId)) {
+        if (!doorCheckpoints.containsKey(doorId)) {
             return;
         }
+
         System.out.println("Activating checkpoints for door ID: " + doorId);
-        resetCheckpoints(); // deactivate old checkpoints
+
+        // Instead of resetting all checkpoints, we'll process each character individually
         for (Checkpoint checkpoint : doorCheckpoints.get(doorId)) {
             checkpoint.setActive(true);
 
-            // Update active checkpoint for the character(s)
+            // Update active checkpoint for the specific character only
             String forCharacter = checkpoint.getForCharacter();
             if (forCharacter.equals("cat")) {
-                activeCheckpoints.put("cat", checkpoint);
-            }
-            if (forCharacter.equals("octopus")) {
-                activeCheckpoints.put("octopus", checkpoint);
+                // If there was a previous checkpoint for this character, deactivate it
+                if (currGarCheckpoint != null) {
+                    currGarCheckpoint.setActive(false);
+                }
+                currGarCheckpoint = checkpoint;
+                System.out.println("Set Gar's checkpoint to door ID: " + doorId);
+            } else if (forCharacter.equals("octopus")) {
+                // If there was a previous checkpoint for this character, deactivate it
+                if (currOttoCheckpoint != null) {
+                    currOttoCheckpoint.setActive(false);
+                }
+                currOttoCheckpoint = checkpoint;
+                System.out.println("Set Otto's checkpoint to door ID: " + doorId);
             }
         }
+
         printActiveCheckpoints();
     }
 
     /** Get the respawn position for a character */
     public Vector2 getRespawnPosition(String character) {
-        if (activeCheckpoints.containsKey(character)) {
-            return activeCheckpoints.get(character).getPosition();
+        if (character.equals("cat")) {
+            return currGarCheckpoint.getPosition();
+        } else if (character.equals("octopus")) {
+            return currOttoCheckpoint.getPosition();
         }
-        // Return null if no active checkpoint (game will use default spawn)
         return null;
     }
 
@@ -119,28 +161,33 @@ public class CheckpointManager {
 
     public void clear() {
         doorCheckpoints.clear();
-        activeCheckpoints.clear();
         allCheckpoints.clear();
+        currGarCheckpoint = null;
+        currOttoCheckpoint = null;
     }
 
     public boolean hasActiveCheckpoint(String character) {
-        return activeCheckpoints.containsKey(character);
-    }
-
-    public HashMap<String, Checkpoint> getActiveCheckpoints() {
-        return activeCheckpoints;
+        if (character.equals("cat") && currGarCheckpoint != null) {
+            return true;
+        } else
+            return character.equals("octopus") && currOttoCheckpoint != null;
     }
 
     public void printActiveCheckpoints() {
-        System.out.println("Active Checkpoints:");
-        for (String character : activeCheckpoints.keySet()) {
-            Checkpoint checkpoint = activeCheckpoints.get(character);
-            System.out.println("Character: " + character + ", Checkpoint ID: " + checkpoint.getId());
+        if (currGarCheckpoint == null) {
+            System.out.println("No active checkpoint for Gar");
+        } else {
+            System.out.println("Active checkpoint for Gar: " + currGarCheckpoint.getId());
+        }
+        if (currOttoCheckpoint == null) {
+            System.out.println("No active checkpoint for Otto");
+        } else {
+            System.out.println("Active checkpoint for Otto: " + currOttoCheckpoint.getId());
         }
     }
 
     // Store game state for a door
-    public void storeGameState(Integer doorId, HashMap<Integer, Boolean> doorState,
+    public void storeGameState(Integer doorId, HashMap<Integer, DoorState> doorState,
         HashMap<Integer, KeyState> keyState,
         int catKeyCount, int octopusKeyCount) {
         CheckpointSaveState saveState = new CheckpointSaveState();
@@ -159,5 +206,83 @@ public class CheckpointManager {
         return checkpointStates.get(doorId);
     }
 
+    public Checkpoint getCurrGarCheckpoint() {
+        return currGarCheckpoint;
+    }
 
+    public Checkpoint getCurrOttoCheckpoint() {
+        return currOttoCheckpoint;
+    }
+
+    /**
+     * Get the merged checkpoint state from both characters' checkpoints
+     * This creates a combined state to ensure both characters' progress is preserved
+     */
+    public CheckpointSaveState getMergedCheckpointState() {
+        // If neither character has a checkpoint, return null
+        if (currGarCheckpoint == null && currOttoCheckpoint == null) {
+            return null;
+        }
+
+        // Create a new merged state
+        CheckpointSaveState mergedState = new CheckpointSaveState();
+
+        // Add states from Gar's checkpoint if it exists
+        if (currGarCheckpoint != null) {
+
+            Integer garDoorId = currGarCheckpoint.getDoorId();
+            CheckpointSaveState garState = checkpointStates.get(garDoorId);
+
+            if (garState != null) {
+                mergedState.doorStates.putAll(garState.doorStates);
+                mergedState.keyStates.putAll(garState.keyStates);
+                mergedState.catKeyCount = garState.catKeyCount;
+
+                // Only use Otto's key count if Gar's checkpoint doesn't have it
+                if (currOttoCheckpoint == null) {
+                    mergedState.octopusKeyCount = garState.octopusKeyCount;
+                }
+            }
+        }
+
+        // Add states from Otto's checkpoint if it exists
+        if (currOttoCheckpoint != null) {
+            Integer ottoDoorId = currOttoCheckpoint.getDoorId();
+            CheckpointSaveState ottoState = checkpointStates.get(ottoDoorId);
+
+            if (ottoState != null) {
+                // For doors, we want to merge (prefer unlocked state)
+                for (Integer doorId : ottoState.doorStates.keySet()) {
+                    // If the door is already in merged state but locked, and Otto's state has it unlocked,
+                    // use Otto's unlocked state
+                    if (!mergedState.doorStates.containsKey(doorId) ||
+                        (mergedState.doorStates.get(doorId).getUnlocked() && !ottoState.doorStates.get(doorId).getUnlocked())) {
+                        mergedState.doorStates.put(doorId, ottoState.doorStates.get(doorId));
+                    }
+                }
+
+                // For keys, we want to merge (prefer collected state)
+                for (Integer keyId : ottoState.keyStates.keySet()) {
+                    KeyState ottoKeyState = ottoState.keyStates.get(keyId);
+
+                    // If the key is not in merged state, or is uncollected but Otto collected it,
+                    // use Otto's key state
+                    if (!mergedState.keyStates.containsKey(keyId) ||
+                        (!mergedState.keyStates.get(keyId).collected && ottoKeyState.collected)) {
+                        mergedState.keyStates.put(keyId, ottoKeyState);
+                    }
+                }
+
+                // Always use Otto's key count
+                mergedState.octopusKeyCount = ottoState.octopusKeyCount;
+
+                // Only use Gar's key count if Otto's checkpoint doesn't have it
+                if (currGarCheckpoint == null) {
+                    mergedState.catKeyCount = ottoState.catKeyCount;
+                }
+            }
+        }
+
+        return mergedState;
+    }
 }

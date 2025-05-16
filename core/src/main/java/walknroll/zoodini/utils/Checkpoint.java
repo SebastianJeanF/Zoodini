@@ -32,7 +32,7 @@ public class Checkpoint {
     /** The ID of the door that activates this checkpoint */
     private final Integer doorId;
 
-    /** Which character this checkpoint is for ("Gar", "Otto", or "Both") */
+    /** Which character this checkpoint is for (either "cat" or "octopus") */
     private final String forCharacter;
 
     /** Whether this checkpoint is currently active */
@@ -50,6 +50,32 @@ public class Checkpoint {
             this.collected = collected;
             this.owner = owner;
         }
+
+        public boolean getCollected() {
+            return collected;
+        }
+
+        public AvatarType getOwner() {
+            return owner;
+        }
+    }
+
+    public static class DoorState {
+        public boolean unlocked;
+        public boolean isCheckpoint;
+
+        public DoorState(boolean unlocked, boolean isCheckpoint) {
+            this.unlocked = unlocked;
+            this.isCheckpoint = isCheckpoint;
+        }
+
+        public boolean getUnlocked() {
+            return unlocked;
+        }
+
+        public boolean getIsCheckpoint() {
+            return isCheckpoint;
+        }
     }
 
     /**
@@ -65,7 +91,7 @@ public class Checkpoint {
         this.doorId = door.getProperties().get("id", Integer.class);
         this.forCharacter = (properties.get("forCat", Boolean.class)) ? "cat" : "octopus";
         this.position = new Vector2(properties.get("x", Float.class) / units, properties.get("y", Float.class) / units);
-        this.isActive = properties.get("isActive", Boolean.class);
+        this.isActive = false;
     }
 
     // Getters and setters
