@@ -283,7 +283,6 @@ public class GuardAIController {
         // First check for max suspicion level, which always leads to CHASE (highest
         // priority)
         if (guard.isMaxSusLevel() && currState != GuardState.CHASE) {
-//            currState = GuardState.CHASE;
             changeState(GuardState.CHASE);
             guard.startDeAggroTimer();
             return;
@@ -338,12 +337,6 @@ public class GuardAIController {
                 }
                 break;
             case DISTRACTED:
-                // If guard has reached meow location; DISTRACTED -> PATROL
-//                if (hasReachedTargetLocation(distractPosition)) {
-//                    currState = GuardState.PATROL;
-//                    guard.setMeow(false);
-//                    lastStateChangeTime = ticks;
-//                }
                 // If guard has reached meow location; DISTRACTED -> LOOKING_AROUND
                 if (hasReachedTargetLocation(distractPosition)) {
                     potentialState = GuardState.LOOKING_AROUND;
@@ -370,7 +363,6 @@ public class GuardAIController {
                 }
                 // Gar meows again -> should update distractPosition
                 else if (didDistractionOccur()) {
-                    DebugPrinter.println("here");
                     guard.setMeow(true);
                     Vector2 playerPosition = getActivePlayer().getPosition();
                     distractPosition.set(tileGraph.getValidTileCoords(playerPosition));
@@ -453,11 +445,13 @@ public class GuardAIController {
 
         // Only change state if we've been in the current state long enough
         // or if we're forced to change by disabling/enabling follow
-        if (potentialState != currState) {
+        if (potentialState != GuardState.DISTRACTED && potentialState != currState) {
             if (ticks >= STATE_CHANGE_THRESHOLD) {
                 changeState(potentialState);
                 ticks = 0; // Reset counter on state change
             }
+        } else {
+            changeState(potentialState);
         }
 
     }
