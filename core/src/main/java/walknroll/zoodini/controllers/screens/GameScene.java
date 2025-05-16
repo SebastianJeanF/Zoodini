@@ -303,6 +303,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         countdown = -1;
         gameLost = false;
 
+        guardToAIController.clear();
+        if (graph != null) {
+            graph.dispose();
+        }
+
         level.populate(directory, map, batch);
         level.getWorld().setContactListener(this);
         processedDoors.clear();

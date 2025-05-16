@@ -98,6 +98,7 @@ public class GuardAIController {
         this.CAT_MEOW_RADIUS = level.isCatPresent() ? level.getCat().getAbilityRange() : 0;
         this.soundController = SoundController.getInstance();
 
+        this.guard.resetState();
         // Otherwise, stay in PATROL state
         if (waypoints.length <= 1) {
             guard.setIdle(true);
@@ -489,9 +490,9 @@ public class GuardAIController {
         ticks++;
         executeLookAround(dt);
         updateSusLevel();
-//        DebugPrinter.println("Guard state before: " + currState);
+        DebugPrinter.println("Guard state before: " + currState);
         updateGuardState();
-//        DebugPrinter.println("Guard state after: " + currState);
+        DebugPrinter.println("Guard state after: " + currState);
         setNextTargetLocation();
 
     }
@@ -553,14 +554,6 @@ public class GuardAIController {
         }
 
         int pathIndex = 0;
-        Vector2 nextStep = tileGraph.tileToWorld(path.get(pathIndex));
-//        final float MIN_STEP_DISTANCE = 0.5F;
-//
-//        // Skip steps that are too close to the guard to prevent jittering
-//        while (nextStep.dst(guard.getPosition().cpy()) < MIN_STEP_DISTANCE && pathIndex < path.size() - 1) {
-//            pathIndex++;
-//            nextStep = tileGraph.tileToWorld(path.get(pathIndex));
-//        }
 
         // Furthest visible waypoint
         int furthestVisibleIndex = pathIndex;
