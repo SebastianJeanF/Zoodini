@@ -21,5 +21,6 @@
   "16" : "maps/medium7.tmx",
   "17" : "maps/medium8.tmx",
   "18": "maps/hard4.tmx",
-  "19": "maps/checkpointTest.tmx"
+  "19": "maps/checkpointTest.tmx",
+    "20": "maps/in-progress/hard6.tmx"
 }

@@ -37,7 +37,7 @@ import walknroll.zoodini.utils.enums.AvatarType;
 public class UIController {
 
     private final boolean debug = false;
-    private static boolean minimapDisabled = false;
+    private boolean minimapDisabled = false;
 
     public interface PauseMenuListener {
         void onPauseStateChanged(boolean paused);
@@ -93,6 +93,7 @@ public class UIController {
         skin = new Skin(Gdx.files.internal("uiskins/default/uiskin.json")); //TODO: use AssetDirectory to load skins.
         initializeActors(directory, level);
         setupStageLayout(level);
+        disableMinimap(level.isMinimapDisabled());
     }
 
 
@@ -513,14 +514,13 @@ public class UIController {
         if (minimap != null) {
             minimap.dispose();
         }
-        minimapDisabled = false;
     }
 
     public void setPauseMenuListener(PauseMenuListener l) {
         pauseListener = l;
     }
 
-    public static void disableMinimap(boolean b) {
+    public void disableMinimap(boolean b) {
         minimapDisabled = b;
     }
 }

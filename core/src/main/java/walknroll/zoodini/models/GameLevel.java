@@ -64,6 +64,7 @@ import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.models.nonentities.Vent;
 import walknroll.zoodini.utils.Checkpoint;
+import walknroll.zoodini.utils.Checkpoint.DoorState;
 import walknroll.zoodini.utils.Checkpoint.KeyState;
 import walknroll.zoodini.utils.CheckpointManager;
 import walknroll.zoodini.utils.CheckpointManager.CheckpointSaveState;
@@ -178,6 +179,9 @@ public class GameLevel {
     private Array<Key> keys = new Array<>();
 
     private PooledList<Door> doors = new PooledList<>();
+
+    /** Minimap disabled? */
+    private boolean minimapDisabled = false;
 
     /**
      * All the object sprites in the world.
@@ -447,7 +451,7 @@ public class GameLevel {
             } else if ("Settings".equalsIgnoreCase(type)){
                 Boolean disableMinimap = properties.get("disableMinimap", Boolean.class);
                 if (disableMinimap != null && disableMinimap) {
-                    UIController.disableMinimap(true);
+                    minimapDisabled = true;
                 }
             }
         }
@@ -778,6 +782,9 @@ public class GameLevel {
     }
 
     // ------------------Helpers-----------------------//
+    public boolean isMinimapDisabled(){
+        return minimapDisabled;
+    }
 
     public boolean isCatPresent() {
         return catPresent;
