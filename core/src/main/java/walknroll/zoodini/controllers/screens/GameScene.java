@@ -126,7 +126,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     /** Graph representing the map */
     private TileGraph<TileNode> graph;
     /** Set that keeps track of which doors are open and processed*/
-    private Set<Door> processedDoors = new HashSet<>();
+    private ObjectSet<Door> processedDoors = new ObjectSet<>();
 
     // Win/lose related fields
     /** Whether or not this is an active controller */
@@ -263,6 +263,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         level.populate(directory, map, batch);
         level.getWorld().setContactListener(this);
+        processedDoors.clear();
         graph = new TileGraph<>(map,false,1);
 
         ui.dispose();
@@ -467,7 +468,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
             InputController ic = InputController.getInstance();
             if (ic.didLeftClick()) {
-                graph.markNearestTile(camera, ic.getAiming(), level.getTileSize());
+                TileNode selected = graph.markNearestTile(camera, ic.getAiming(), level.getTileSize());
+                DebugPrinter.print("isObstacle: " + selected.isObstacle);
             }
             if (playerAIController != null && playerAIController.getNextTargetLocation() != null) {
                 graph.markPositionAsTarget(playerAIController.getNextTargetLocation());
@@ -505,7 +507,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
         if(map != null) {
             map.dispose();
-            ;
             map = null;
         }
 
@@ -517,6 +518,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         if(ui != null) {
             ui.dispose();
             ui = null;
+        }
+
+        if(processedDoors != null){
+            processedDoors.clear();
+            processedDoors = null;
         }
     }
 
@@ -1293,9 +1299,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                     for (int y = startY; y < endY; y++) {
                         TileNode n = graph.getNode(x,y);
                         n.isObstacle = false;
-                        graph.redoConnections(n);
                     }
                 }
+
+                graph.addConnections();
+
                 door.getObstacle().setSensor(true);
             }
 
