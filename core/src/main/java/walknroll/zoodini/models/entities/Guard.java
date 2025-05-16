@@ -341,6 +341,23 @@ public class Guard extends Enemy {
         this.meowed = meowed;
     }
 
+    public void resetState() {
+        // Reset all state-related fields
+        setAgroed(false);
+        setSusLevel(0);
+        setAggroTarget(null);
+        setTarget(null);
+        setSeesPlayer(false);
+        setSeenPlayer(null);
+        setCameraAlerted(false);
+        setMeow(false);
+        setInkBlinded(false);
+        setInkBlindTimer(0);
+        setIdle(getPatrolPoints().length <= 1);
+        setLookingAround(false);
+        deAggroTimer = 0;
+    }
+
     public int calculateSusIncrease(Vector2 playerPosition) {
         // Calculate distance and angle to player
         Vector2 toPlayer = new Vector2(playerPosition).sub(getPosition());
