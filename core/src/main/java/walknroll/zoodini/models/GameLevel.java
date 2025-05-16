@@ -619,7 +619,10 @@ public class GameLevel {
         mapRenderer.renderTileLayer((TiledMapTileLayer) groundLayer);
 
         batch.setColor(Color.WHITE);
-        MapLayer decorations = mapRenderer.getMap().getLayers().get("decoration");
+        MapLayer decorations = mapRenderer.getMap().getLayers().get("decorations");
+        if(decorations == null){
+            decorations = mapRenderer.getMap().getLayers().get("decoration");
+        }
         if (decorations != null)
             mapRenderer.renderTileLayer((TiledMapTileLayer) decorations);
 
