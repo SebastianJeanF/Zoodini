@@ -142,7 +142,7 @@ public class StartupHelper {
                 String line;
 
                 while ((line = processOutput.readLine()) != null) {
-                     DebugPrinter.println(line);
+                     System.out.println(line);
                 }
 
                 process.waitFor();
