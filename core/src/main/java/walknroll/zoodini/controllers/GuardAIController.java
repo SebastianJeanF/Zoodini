@@ -236,23 +236,7 @@ public class GuardAIController {
     private boolean hasReachedTargetLocation(Vector2 target) {
         // Use world coordinates and a reasonable threshold
         float distance = guard.getPosition().dst(target);
-
-        // Optional debugging
-        // if (distance < 1.0f) {
-        // DebugPrinter.println("Distance to target: " + distance);
-        // }
-
         return distance < this.ARRIVAL_DISTANCE;
-        // if (!tileGraph.isValidTile(target)) {
-        // target = tileGraph.getNearestValidTile(target).getCoords();
-        // }
-        // Vector2 guardTile = tileGraph.worldToTile(guard.getPosition()).getCoords();
-        // Vector2 targetTile = tileGraph.worldToTile(target).getCoords();
-        // DebugPrinter.println("Current guard tile " + guardTile);
-        // DebugPrinter.println("Current target tile " + targetTile);
-        // DebugPrinter.println(tileGraph.worldToTile(guard.getPosition()).isWall);
-        // DebugPrinter.println(tileGraph.worldToTile(target).isWall);
-        // return guardTile.x == targetTile.x && guardTile.y == targetTile.y;
     }
 
     /**
@@ -504,9 +488,9 @@ public class GuardAIController {
         ticks++;
         executeLookAround(dt);
         updateSusLevel();
-        DebugPrinter.println("Guard state before: " + currState);
+//        DebugPrinter.println("Guard state before: " + currState);
         updateGuardState();
-        DebugPrinter.println("Guard state after: " + currState);
+//        DebugPrinter.println("Guard state after: " + currState);
         setNextTargetLocation();
 
     }

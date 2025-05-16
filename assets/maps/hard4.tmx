@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="35" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="179">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="35" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="182">
  <tileset firstgid="1" source="../tilesets/decorations-2.tsx"/>
  <tileset firstgid="121" source="../tilesets/decorations.tsx"/>
  <tileset firstgid="241" source="../tilesets/fence.tsx"/>
@@ -91,7 +91,7 @@
    <point/>
   </object>
   <object id="64" type="Door" x="3712" y="512" width="384" height="384"/>
-  <object id="78" type="Octopus" x="3849.09" y="2178.39">
+  <object id="78" type="Octopus" x="4202.9" y="2186.17">
    <point/>
   </object>
   <object id="81" type="Guard" x="1583" y="1838.63">
@@ -164,10 +164,31 @@
    </properties>
    <point/>
   </object>
-  <object id="176" type="Checkpoint" x="3961.9" y="2169.52">
+  <object id="176" type="Checkpoint" x="3627.53" y="2173.41">
    <properties>
     <property name="door" type="object" value="64"/>
     <property name="forCat" type="bool" value="false"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="179" type="Guard" x="2220.06" y="882.582">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="path" type="object" value="149"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="180" type="Guard" x="4210.73" y="1380.25">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="path" type="object" value="139"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="181" type="Guard" x="3573.09" y="1516.33">
+   <properties>
+    <property name="angle" type="float" value="0"/>
+    <property name="path" type="object" value="140"/>
    </properties>
    <point/>
   </object>

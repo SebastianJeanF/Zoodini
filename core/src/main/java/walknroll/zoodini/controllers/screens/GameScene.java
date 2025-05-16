@@ -1263,13 +1263,35 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             Cat cat = (Cat) avatar;
 
             if (input.isAbilityHeld() && cat.canUseAbility()) {
+                System.out.println("Cat ability held");
                 cat.setCurrentlyAiming(true);
+
+                float meowRadius = cat.getAbilityRange();
+                Vector2 catPosition = cat.getPosition();
+
+                // Check each guard to see if they're in meow radius
+                for (Guard guard : level.getGuards()) {
+                    float distance = guard.getPosition().dst(catPosition);
+                    if (distance <= meowRadius) {
+                        System.out.println("Guard in meow radius: ");
+                        guard.setInMeowRadius(true);
+                    } else {
+                        guard.setInMeowRadius(false);
+                    }
+                }
             }
 
             if (cat.isCurrentlyAiming() && !input.isAbilityHeld()) {
+                System.out.println("Cat ability fired");
                 cat.setDidFire(true);
                 cat.setCurrentlyAiming(false);
                 soundController.playCatMeow();
+
+                // Clear the meow radius indicators when cat actually meows
+                for (Guard guard : level.getGuards()) {
+                    guard.setInMeowRadius(false);
+                }
+
             } else {
                 cat.setDidFire(false);
             }
