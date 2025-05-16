@@ -284,14 +284,20 @@ public class UIController {
             stage.addActor(topLeftTable);
             stage.addActor(screenDivider);
         }
-
         setUpPauseMenu();
 
         meowCooldownIndicator = new MeowCooldownIndicator(displayFont);
-        float meowCooldownIndicatorXPosition = (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) ? graphicsWidth / 2f - 200 : viewportScreenWidth - 200;
-        meowCooldownIndicator.setPosition(meowCooldownIndicatorXPosition, 40);
-        stage.addActor(meowCooldownIndicator);
-
+        if (!Constants.CO_OP) {
+            Table bottomRightTable = new Table();
+            bottomRightTable.setFillParent(true);
+            bottomRightTable.setDebug(debug);
+            bottomRightTable.bottom().right();
+            bottomRightTable.add(meowCooldownIndicator).padBottom(40).padRight(200);
+            stage.addActor(bottomRightTable);
+        } else if (Constants.CO_OP && level.isCatPresent() && level.isOctopusPresent()){
+            meowCooldownIndicator.setPosition(graphicsWidth / 2f - 200, 40);
+            stage.addActor(meowCooldownIndicator);
+        }
     }
 
     private void setUpPauseMenu() {
@@ -434,11 +440,7 @@ public class UIController {
                 p2KeyCount.setText("x" + level.getOctopus().getNumKeys());
             }
 
-        }
-        if (screenDivider != null) {
-            screenDivider.setVisible(Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent());
-        }
-        else {
+        } else {
             if (avatar.getAvatarType() == AvatarType.CAT) {
                 meowCooldownIndicator.setVisible(true);
                 inkTextImage.setVisible(false);
@@ -468,6 +470,10 @@ public class UIController {
                 inkMeter.setVisible(isOcto);
                 inkMeter.sync(level.getOctopus().getInkRemaining());
             }
+        }
+
+        if (screenDivider != null) {
+            screenDivider.setVisible(Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent());
         }
 
         // Update the minimap
