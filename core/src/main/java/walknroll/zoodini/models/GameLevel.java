@@ -620,6 +620,11 @@ public class GameLevel {
         MapLayer groundLayer = mapRenderer.getMap().getLayers().get("ground");
         mapRenderer.renderTileLayer((TiledMapTileLayer) groundLayer);
 
+        batch.setColor(Color.WHITE);
+        MapLayer decorations = mapRenderer.getMap().getLayers().get("decoration");
+        if (decorations != null)
+            mapRenderer.renderTileLayer((TiledMapTileLayer) decorations);
+
         sprites.sort(ZoodiniSprite.Comparison);
         for (ZoodiniSprite obj : sprites) {
             batch.setColor(Color.WHITE);
@@ -665,11 +670,6 @@ public class GameLevel {
                 entry.value.draw(batch, camera);
             }
         }
-
-        batch.setColor(Color.WHITE);
-        MapLayer decorations = mapRenderer.getMap().getLayers().get("decoration");
-        if (decorations != null)
-            mapRenderer.renderTileLayer((TiledMapTileLayer) decorations);
 
         batch.setColor(Color.WHITE);
         // Get wall layer and render it
