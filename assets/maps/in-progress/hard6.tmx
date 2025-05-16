@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="46" tilewidth="128" tileheight="128" infinite="0" nextlayerid="9" nextobjectid="302">
+ <editorsettings>
+  <export target="hard6.tmx" format="tmx"/>
+ </editorsettings>
  <tileset firstgid="1" source="../../tilesets/path-1.tsx"/>
  <tileset firstgid="211" source="../../tilesets/walls-1.tsx"/>
  <tileset firstgid="421" source="../../tilesets/walls-2.tsx"/>
@@ -154,11 +157,11 @@
    </properties>
    <point/>
   </object>
-  <object id="21" type="Camera" x="5955.91" y="3135.91">
+  <object id="21" type="Camera" x="5953.91" y="3121.91">
    <properties>
     <property name="angle" type="float" value="110"/>
     <property name="fov" type="float" value="60"/>
-    <property name="viewDistance" type="float" value="6"/>
+    <property name="viewDistance" type="float" value="5"/>
    </properties>
    <point/>
   </object>
@@ -204,13 +207,13 @@
   </object>
   <object id="204" type="Camera" x="4420" y="1264">
    <properties>
-    <property name="angle" type="float" value="45"/>
-    <property name="fov" type="float" value="60"/>
+    <property name="angle" type="float" value="25"/>
+    <property name="fov" type="float" value="50"/>
     <property name="viewDistance" type="float" value="5"/>
    </properties>
    <point/>
   </object>
-  <object id="205" type="Vent" x="5164.24" y="896.48">
+  <object id="205" type="Vent" x="4828.24" y="1400.48">
    <point/>
   </object>
   <object id="206" type="Guard" x="3852" y="1448">
@@ -225,13 +228,13 @@
   </object>
   <object id="211" type="Camera" x="3268" y="1264">
    <properties>
-    <property name="angle" type="float" value="135"/>
-    <property name="fov" type="float" value="60"/>
+    <property name="angle" type="float" value="155"/>
+    <property name="fov" type="float" value="50"/>
     <property name="viewDistance" type="float" value="5"/>
    </properties>
    <point/>
   </object>
-  <object id="212" type="Vent" x="2554.67" y="896.48">
+  <object id="212" type="Vent" x="2914.67" y="1396.48">
    <point/>
   </object>
   <object id="234" type="Checkpoint" x="3836.37" y="3209.09">
@@ -248,14 +251,14 @@
    </properties>
    <point/>
   </object>
-  <object id="247" type="Guard" x="4416" y="908">
+  <object id="247" type="Guard" x="4420" y="1016">
    <properties>
     <property name="angle" type="float" value="270"/>
     <property name="path" type="object" value="0"/>
    </properties>
    <point/>
   </object>
-  <object id="248" type="Guard" x="3272" y="904">
+  <object id="248" type="Guard" x="3268" y="1012">
    <properties>
     <property name="angle" type="float" value="270"/>
     <property name="path" type="object" value="0"/>
@@ -302,7 +305,7 @@
    </properties>
    <point/>
   </object>
-  <object id="300" type="Vent" x="7044" y="3988">
+  <object id="300" type="Vent" x="7038" y="3992">
    <point/>
   </object>
  </objectgroup>
