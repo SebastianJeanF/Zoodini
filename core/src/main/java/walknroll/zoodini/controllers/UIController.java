@@ -27,12 +27,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 import walknroll.zoodini.models.entities.Octopus;
 import walknroll.zoodini.models.entities.PlayableAvatar;
+import walknroll.zoodini.models.nonentities.Exit;
 import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.GameSettings;
 import walknroll.zoodini.utils.InkMeterActor;
 import walknroll.zoodini.utils.MeowCooldownIndicator;
 import walknroll.zoodini.utils.MinimapActor;
 import walknroll.zoodini.utils.enums.AvatarType;
+import walknroll.zoodini.utils.enums.ExitAnimal;
 
 public class UIController {
 
@@ -110,8 +112,23 @@ public class UIController {
         octopusIconImage.setVisible(false);
         minimap = new MinimapActor(level);
         minimap.setPosition(20, Gdx.graphics.getHeight() - (minimap.getHeight() + 20));
-        minimap.setCatTexture((directory.getEntry("cat-walk-transition", Texture.class)));
-        minimap.setOctopusTexture((directory.getEntry("octopus", Texture.class)));
+        minimap.setCatTexture(directory.getEntry("cat-walk-transition", Texture.class));
+        minimap.setOctopusTexture(directory.getEntry("octopus", Texture.class));
+        minimap.setGuardTexture(directory.getEntry("guard-single", Texture.class));
+        minimap.setKeyTexture(directory.getEntry("key", Texture.class));
+        minimap.setVentTexture(directory.getEntry("vent-closed", Texture.class));
+        minimap.setCameraTexture(directory.getEntry("security-camera", Texture.class));
+//        ExitAnimal animalType = level.getExit().getCreature();
+//        Texture t = null;
+//        switch(animalType) {
+//            case RABBIT -> t = directory.getEntry("rabbit-chained-idle", Texture.class);
+//            case PENGUIN -> t = directory.getEntry("penguin-chained-idle", Texture.class);
+//            case OCTOPUS -> t = directory.getEntry("octopus-chained-idle", Texture.class);
+//            default -> t = directory.getEntry("exit", Texture.class);
+//        }
+//        minimap.setExitTexture(t);
+        minimap.setExitTexture(directory.getEntry("exit", Texture.class));
+
 
 
 

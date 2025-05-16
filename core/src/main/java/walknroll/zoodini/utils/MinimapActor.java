@@ -37,9 +37,14 @@ public class MinimapActor extends Actor implements Disposable {
     private final Color KEY_COLOR = new Color(0.9f, 0.9f, 0.2f, 1f);
     private final Color VENT_COLOR = new Color(0.5f, 0.23f, 0.26f, 1f);
 
-
     private Texture octopusTexture;
     private Texture catTexture;
+    private Texture guardTexture;
+    private Texture cameraTexture;
+    private Texture ventTexture;
+    private Texture keyTexture;
+    private Texture exitTexture;
+    private Texture doorTexture;
     private boolean disabled;
 
     private int updateCounter = 0;
@@ -78,6 +83,31 @@ public class MinimapActor extends Actor implements Disposable {
     public void setCatTexture(Texture t){
         catTexture = t;
     }
+
+    public void setGuardTexture(Texture t){
+        guardTexture = t;
+    }
+
+    public void setVentTexture(Texture t){
+        ventTexture = t;
+    }
+
+    public void setKeyTexture(Texture t) {
+        keyTexture = t;
+    }
+
+    public void setDoorTexture(Texture t) {
+        doorTexture = t;
+    }
+
+    public void setCameraTexture(Texture t) {
+        cameraTexture = t;
+    }
+
+    public void setExitTexture(Texture t) {
+        exitTexture = t;
+    }
+
 
 
 
@@ -140,14 +170,9 @@ public class MinimapActor extends Actor implements Disposable {
         // Draw doors directly from doors collection
         drawAllDoors();
 
-        // Draw keys
-        drawAllKeys();
+        // drawAllKeys()
 
-        // Draw vents
-        drawAllVents();
-
-        // Draw exit
-        drawExitDirect();
+        // drawExitDirect()
 
         // Update the minimap texture
         minimapTexture.draw(pixmap, 0, 0);
@@ -270,25 +295,6 @@ public class MinimapActor extends Actor implements Disposable {
         }
     }
 
-    /**
-     * Draws all vents directly from the vents collection
-     */
-    private void drawAllVents() {
-        pixmap.setColor(VENT_COLOR);
-
-        for (Vent vent : level.getVents()) {
-            Vector2 position = vent.getObstacle().getPosition();
-            float size = 1f;
-
-            // Try to determine actual size if available
-            if (vent.getObstacle() instanceof BoxObstacle) {
-                BoxObstacle box = (BoxObstacle) vent.getObstacle();
-                size = Math.max(box.getWidth(), box.getHeight());
-            }
-
-            drawMapEntity(position, size, size, VENT_COLOR);
-        }
-    }
 
     /**
      * Draws the exit directly from the exit reference
@@ -358,7 +364,7 @@ public class MinimapActor extends Actor implements Disposable {
             Vector2 octopusPos = level.getOctopus().getPosition();
             Vector2 minimapOctopusPos = worldToMinimap(octopusPos.x, octopusPos.y);
 
-            //batch.setColor(OCTOPUS_COLOR);
+//            batch.setColor(OCTOPUS_COLOR);
             batch.draw(octopusTexture,
                 getX() + minimapOctopusPos.x - 4,
                 getY() + minimapOctopusPos.y - 4,
@@ -366,28 +372,59 @@ public class MinimapActor extends Actor implements Disposable {
         }
 
         // Draw guards
-        batch.setColor(GUARD_COLOR);
+        // batch.setColor(GUARD_COLOR);
         for (Guard guard : level.getGuards()) {
             Vector2 guardPos = guard.getPosition();
             Vector2 minimapGuardPos = worldToMinimap(guardPos.x, guardPos.y);
 
-            batch.draw(dotTexture,
+            batch.draw(guardTexture,
                 getX() + minimapGuardPos.x - 3,
                 getY() + minimapGuardPos.y - 3,
-                6, 6);
+                8, 10);
         }
 
         // Draw security cameras
-        batch.setColor(CAMERA_COLOR);
+        // batch.setColor(CAMERA_COLOR);
         for (SecurityCamera camera : level.getSecurityCameras()) {
             Vector2 cameraPos = camera.getPosition();
             Vector2 minimapCameraPos = worldToMinimap(cameraPos.x, cameraPos.y);
 
-            batch.draw(dotTexture,
+            batch.draw(cameraTexture,
                 getX() + minimapCameraPos.x - 3,
                 getY() + minimapCameraPos.y - 3,
-                6, 6);
+                8, 6);
         }
+
+        for (Vent vent : level.getVents()) {
+            Vector2 position = vent.getObstacle().getPosition();
+            Vector2 ventPos = worldToMinimap(position.x, position.y);
+            batch.draw(ventTexture,
+                getX() + ventPos.x - 4,
+                getY() + ventPos.y - 4,
+                12, 12);
+        }
+
+        for (Key key : level.getKeys()) {
+            // Only draw if not collected
+            Vector2 keyPos = key.getObstacle().getPosition();
+            Vector2 minimapKeyPos = worldToMinimap(keyPos.x, keyPos.y);
+            batch.draw(keyTexture,
+                getX() + minimapKeyPos.x - 4,
+                getY() + minimapKeyPos.y - 4,
+                10, 10);
+        }
+
+        if (level.getExit() != null) {
+            Vector2 exitPos = level.getExit().getObstacle().getPosition();
+            Vector2 minimapExitPos = worldToMinimap(exitPos.x, exitPos.y);
+
+            batch.draw(exitTexture,
+                getX() + minimapExitPos.x - 4,
+                getY() + minimapExitPos.y - 4,
+                12, 12);
+        }
+
+
 
         // Restore original color
         batch.setColor(originalColor);
