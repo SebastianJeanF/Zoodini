@@ -100,6 +100,7 @@ public class GDXRoot extends Game implements ScreenListener {
 		directory = new AssetDirectory("jsons/assets.json");
 		settingsPrefs = Gdx.app.getPreferences(SETTINGS_PREFERENCES_FILENAME);
 		gameSettings = new GameSettings(settingsPrefs);
+		GameSettings.setInstance(gameSettings);
         applyGameSettings();
 
         statePrefs = Gdx.app.getPreferences(STATE_PREFERENCES_FILENAME);
