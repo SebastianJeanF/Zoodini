@@ -91,7 +91,10 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
 
             for (int x = startX; x < endX; x++) {
                 for (int y = startY; y < endY; y++) {
-                    getNode(x, y).isObstacle = true;
+                    TileNode node = getNode(x, y);
+                    if (node != null) {
+                        node.isObstacle = true;
+                    }
                 }
             }
         }
@@ -121,7 +124,10 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
 
                 for (int x = startX; x < endX; x++) {
                     for (int y = startY; y < endY; y++) {
-                        getNode(x, y).isObstacle = true;
+                        TileNode node = getNode(x, y);
+                        if (node != null) {
+                            getNode(x, y).isObstacle = true;
+                        }
                     }
                 }
             } else {
@@ -133,7 +139,10 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
 
                 for (int x = startX; x <= endX; x++) {
                     for (int y = startY; y <= endY; y++) {
-                        getNode(x, y).isObstacle = true;
+                        TileNode node = getNode(x, y);
+                        if (node != null) {
+                            getNode(x, y).isObstacle = true;
+                        }
                     }
                 }
             }
@@ -173,66 +182,6 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
             addConnection(n, 0, 1);
     }
 
-    /**
-     * Creates connections between nodes in the graph
-     * Handles both cardinal and diagonal directions based on the diagonal flag
-     */
-    private void createConnections() {
-        for (int x = 0; x < WIDTH; x++) {
-            for (int y = 0; y < HEIGHT; y++) {
-                TileNode n = getNode(x, y);
-
-                // Cardinal connections (up, down, left, right)
-                if (x > 0)
-                    addConnection(n, -1, 0);  // Left
-                if (y > 0)
-                    addConnection(n, 0, -1);  // Down
-                if (x < WIDTH - 1)
-                    addConnection(n, 1, 0);   // Right
-                if (y < HEIGHT - 1)
-                    addConnection(n, 0, 1);   // Up
-
-                // Add diagonal connections if enabled
-                if (diagonal) {
-                    if (x > 0 && y > 0)
-                        addDiagonalConnection(n, -1, -1);  // Bottom-left
-                    if (x < WIDTH - 1 && y > 0)
-                        addDiagonalConnection(n, 1, -1);   // Bottom-right
-                    if (x > 0 && y < HEIGHT - 1)
-                        addDiagonalConnection(n, -1, 1);   // Top-left
-                    if (x < WIDTH - 1 && y < HEIGHT - 1)
-                        addDiagonalConnection(n, 1, 1);    // Top-right
-                }
-            }
-        }
-    }
-
-    /**
-     * Helper method for adding diagonal edges to a node.
-     * Ensures that diagonal movement is only allowed if there are no obstacles
-     * in the adjacent cardinal directions to prevent corner-cutting.
-     *
-     * @param n       a node
-     * @param xOffset x offset of neighbor node
-     * @param yOffset y offset of neighbor node
-     */
-    private void addDiagonalConnection(TileNode n, int xOffset, int yOffset) {
-        TileNode targetNode = getNode(n.x + xOffset, n.y + yOffset);
-
-        // Don't connect to obstacle nodes
-        if (targetNode.isObstacle) {
-            return;
-        }
-
-        // Check if the path is blocked by adjacent obstacles (prevents corner-cutting)
-        TileNode horizNeighbor = getNode(n.x + xOffset, n.y);
-        TileNode vertNeighbor = getNode(n.x, n.y + yOffset);
-
-        // We can only move diagonally if at least one of the adjacent cardinal nodes is not an obstacle
-        if (!horizNeighbor.isObstacle || !vertNeighbor.isObstacle) {
-            n.getConnections().add(new TileEdge(this, n, targetNode));
-        }
-    }
 
     /**
      * Helper method for adding edges to a node. Modifies TileNode n's connections.
@@ -243,12 +192,25 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
      */
     private void addConnection(TileNode n, int xOffset, int yOffset) {
         TileNode t = getNode(n.x + xOffset, n.y + yOffset);
-        if (!t.isObstacle)
+        if (t != null && !t.isObstacle)
             n.getConnections().add(new TileEdge(this, n, t));
     }
 
     public TileNode getNode(int x, int y) {
-        return nodes.get(x * HEIGHT + y);
+        // First check if x and y are within bounds
+        if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) {
+            return null; // Return null for out of bounds coordinates
+        }
+
+        // Calculate the index
+        int index = x * HEIGHT + y;
+
+        // Double-check that the calculated index is valid
+        if (index < 0 || index >= nodes.size) {
+            return null;
+        }
+
+        return nodes.get(index);
     }
 
     @Override
@@ -413,7 +375,10 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
      * @return a Vector2 containing the world coordinates of the tile's center
      */
     public Vector2 tileToWorld(TileNode tile) {
-        return new Vector2((tile.x + 0.5f) / density, (tile.y + 0.5f) / density);
+        if (tile != null) {
+            return new Vector2((tile.x + 0.5f) / density, (tile.y + 0.5f) / density);
+        }
+        return new Vector2();
     }
 
     public TileNode findNearestNonObstacleNode(Vector2 pos) {
@@ -438,16 +403,6 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         return nearestNode;
     }
 
-    /**
-     * Returns whether the tile at the given world coordinates is a valid tile (not
-     * a wall).
-     *
-     * @param targetLocation the target location to check (in World Coords)
-     * @return true if the target location is a valid tile, false otherwise
-     */
-    public boolean isValidTile(Vector2 targetLocation) {
-        return worldToTile(targetLocation).isObstacle;
-    }
 
     /**
      * Returns the Tile of the nearest non-wall tile to the given target location
@@ -465,7 +420,8 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         for (int[] coord : horizontal) {
             int newX = targetTile.x + coord[0];
             int newY = targetTile.y + coord[1];
-            if (!(getNode(newX, newY)).isObstacle) {
+            TileNode newTile = getNode(newX, newY);
+            if (newTile != null && !newTile.isObstacle) {
                 return getNode(newX, newY);
             }
         }
@@ -561,7 +517,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
      */
     public Vector2 getValidTileCoords(Vector2 target) {
         TileNode targetTile = worldToTile(target);
-        if (!targetTile.isObstacle) {
+        if (targetTile == null || !targetTile.isObstacle) {
             return target;
         } else {
             // If the target tile is a wall, find the nearest non-wall tile

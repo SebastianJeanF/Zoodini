@@ -536,7 +536,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             InputController ic = InputController.getInstance();
             if (ic.didLeftClick()) {
                 TileNode selected = graph.markNearestTile(camera, ic.getAiming(), level.getTileSize());
-                DebugPrinter.print("isObstacle: " + selected.isObstacle);
+                if (selected != null) {
+                    DebugPrinter.print("isObstacle: " + selected.isObstacle);
+                }
             }
             if (playerAIController != null && playerAIController.getNextTargetLocation() != null) {
                 graph.markPositionAsTarget(playerAIController.getNextTargetLocation());
