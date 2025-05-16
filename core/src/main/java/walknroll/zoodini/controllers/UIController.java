@@ -420,9 +420,8 @@ public class UIController {
             }
         }
 
-        if(minimapDisabled){
-            minimap.setDisabled(true);
-        }
+        minimap.setDisabled(minimapDisabled);
+
 
         stage.draw();
     }

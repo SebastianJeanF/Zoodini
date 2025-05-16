@@ -622,6 +622,7 @@ public class GameLevel {
 
         sprites.sort(ZoodiniSprite.Comparison);
         for (ZoodiniSprite obj : sprites) {
+            batch.setColor(Color.WHITE);
             if (obj.isDrawingEnabled()) {
                 obj.draw(batch);
             }
