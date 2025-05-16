@@ -20,6 +20,7 @@ import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Affine2;
+import com.sun.source.doctree.SerialFieldTree;
 import edu.cornell.gdiac.physics2.BoxObstacle;
 import edu.cornell.gdiac.util.PooledList;
 import java.util.HashMap;
@@ -49,6 +50,8 @@ import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.physics2.Obstacle;
 import edu.cornell.gdiac.physics2.WheelObstacle;
 import edu.cornell.gdiac.util.ScreenListener;
+import java.util.HashSet;
+import java.util.Set;
 import walknroll.zoodini.GDXRoot;
 import walknroll.zoodini.controllers.GuardAIController;
 import walknroll.zoodini.controllers.InputController;
@@ -122,6 +125,8 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private TiledMap map;
     /** Graph representing the map */
     private TileGraph<TileNode> graph;
+    /** Set that keeps track of which doors are open and processed*/
+    private Set<Door> processedDoors = new HashSet<>();
 
     // Win/lose related fields
     /** Whether or not this is an active controller */
@@ -1274,7 +1279,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         updateGuards(guards);
 
         for (Door door : level.getDoors()) {
-            if (!door.isLocked()) {
+            if (!door.isLocked() && !processedDoors.contains(door)) {
                 BoxObstacle box = (BoxObstacle) door.getObstacle();
                 float doorX = door.getObstacle().getX() - box.getWidth() / 2f;
                 float doorY = door.getObstacle().getY() - box.getHeight() / 2f;
@@ -1285,10 +1290,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
                 for (int x = startX; x < endX; x++) {
                     for (int y = startY; y < endY; y++) {
-                        graph.getNode(x,y).isObstacle = false;
+                        TileNode n = graph.getNode(x,y);
+                        n.isObstacle = false;
+                        graph.redoConnections(n);
                     }
                 }
-                graph.addConnections(); //f**k
                 door.getObstacle().setSensor(true);
             }
 
