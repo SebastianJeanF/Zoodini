@@ -78,8 +78,6 @@ public class MenuScene implements Screen {
 
 	/** The constants for arranging images on the screen */
 	JsonValue constants;
-	/** Scaling factor for when the student changes the resolution. */
-	private float scale;
 	/** Current progress (0 to 1) of the asset manager */
 	private float progress;
 	/** The current state of the play button */
@@ -261,7 +259,6 @@ public class MenuScene implements Screen {
 	 */
 	public void resize(int width, int height) {
 		// Compute the drawing scale
-		scale = ((float) height) / constants.getFloat("height");
 		this.width = width;
 		this.height = height;
 		viewport.update(width, height, true);
@@ -437,38 +434,38 @@ public class MenuScene implements Screen {
 		// "3-patch" the background
 		batch.setColor(Color.WHITE);
 		region1 = internal.getEntry("progress.backleft", TextureRegion.class);
-		batch.draw(region1, cx - w / 2, cy, scale * region1.getRegionWidth(), scale * region1
+		batch.draw(region1, cx - w / 2, cy, resScale * region1.getRegionWidth(), resScale * region1
 				.getRegionHeight());
 
 		region2 = internal.getEntry("progress.backright", TextureRegion.class);
-		batch.draw(region2, cx + w / 2 - scale * region2.getRegionWidth(), cy,
-				scale * region2.getRegionWidth(), scale * region2.getRegionHeight());
+		batch.draw(region2, cx + w / 2 - resScale * region2.getRegionWidth(), cy,
+				resScale * region2.getRegionWidth(), resScale * region2.getRegionHeight());
 
 		region3 = internal.getEntry("progress.background", TextureRegion.class);
-		batch.draw(region3, cx - w / 2 + scale * region1.getRegionWidth(), cy,
-				w - scale * (region2.getRegionWidth() + region1.getRegionWidth()),
-				scale * region3.getRegionHeight());
+		batch.draw(region3, cx - w / 2 + resScale * region1.getRegionWidth(), cy,
+				w - resScale * (region2.getRegionWidth() + region1.getRegionWidth()),
+				resScale * region3.getRegionHeight());
 
 		// "3-patch" the foreground
 		region1 = internal.getEntry("progress.foreleft", TextureRegion.class);
-		batch.draw(region1, cx - w / 2, cy, scale * region1.getRegionWidth(), scale * region1
+		batch.draw(region1, cx - w / 2, cy, resScale * region1.getRegionWidth(), resScale * region1
 				.getRegionHeight());
 
 		if (progress > 0) {
 			region2 = internal.getEntry("progress.foreright", TextureRegion.class);
-			float span = progress * (w - scale * (region1.getRegionWidth() + region2
+			float span = progress * (w - resScale * (region1.getRegionWidth() + region2
 					.getRegionWidth()));
 
-			batch.draw(region2, cx - w / 2 + scale * region1.getRegionWidth() + span, cy,
-					scale * region2.getRegionWidth(), scale * region2.getRegionHeight());
+			batch.draw(region2, cx - w / 2 + resScale * region1.getRegionWidth() + span, cy,
+					resScale * region2.getRegionWidth(), resScale * region2.getRegionHeight());
 
 			region3 = internal.getEntry("progress.foreground", TextureRegion.class);
-			batch.draw(region3, cx - w / 2 + scale * region1.getRegionWidth(), cy,
-					span, scale * region3.getRegionHeight());
+			batch.draw(region3, cx - w / 2 + resScale * region1.getRegionWidth(), cy,
+					span, resScale * region3.getRegionHeight());
 		} else {
 			region2 = internal.getEntry("progress.foreright", TextureRegion.class);
-			batch.draw(region2, cx - w / 2 + scale * region1.getRegionWidth(), cy,
-					scale * region2.getRegionWidth(), scale * region2.getRegionHeight());
+			batch.draw(region2, cx - w / 2 + resScale * region1.getRegionWidth(), cy,
+					resScale * region2.getRegionWidth(), resScale * region2.getRegionHeight());
 		}
 
 	}
