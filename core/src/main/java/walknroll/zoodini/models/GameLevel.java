@@ -64,6 +64,7 @@ import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.models.nonentities.Vent;
 import walknroll.zoodini.utils.Checkpoint;
+import walknroll.zoodini.utils.Checkpoint.DoorState;
 import walknroll.zoodini.utils.Checkpoint.KeyState;
 import walknroll.zoodini.utils.CheckpointManager;
 import walknroll.zoodini.utils.CheckpointManager.CheckpointSaveState;

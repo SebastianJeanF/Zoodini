@@ -285,4 +285,8 @@ public class CheckpointManager {
 
         return mergedState;
     }
+
+    public boolean doorHasCheckpoint(Integer doorId) {
+        return doorCheckpoints.containsKey(doorId);
+    }
 }
