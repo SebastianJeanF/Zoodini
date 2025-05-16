@@ -27,6 +27,7 @@ import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.GDXRoot;
 import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.LevelPortal;
+import walknroll.zoodini.utils.FreeTypeSkin;
 
 public class LevelSelectScene implements Screen {
     private Array<Integer> availableLevels;
@@ -68,7 +69,7 @@ public class LevelSelectScene implements Screen {
         Gdx.input.setInputProcessor(stage);
 
         levelSelectSkin = new Skin(Gdx.files.internal("uiskins/levelselect/uiskin.json"));
-        normalButtonSkin = new Skin(Gdx.files.internal("uiskins/orange/uiskin.json"));
+        normalButtonSkin = new FreeTypeSkin(Gdx.files.internal("uiskins/zoodini/uiskin.json"));
 
         Table table = makeLevelSelectTable();
 

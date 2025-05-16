@@ -5,13 +5,16 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Value;
+import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
@@ -19,9 +22,10 @@ import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.GDXRoot;
-import walknroll.zoodini.utils.GameSettings;
+import walknroll.zoodini.utils.FreeTypeSkin;
 
 public class CreditsScene implements Screen {
+
     private ScreenListener listener;
 
     private AssetDirectory assets;
@@ -37,9 +41,19 @@ public class CreditsScene implements Screen {
     private Stage stage;
     private Skin skin;
 
+    Affine2 cache = new Affine2();
+
+    /** Background image */
+    private Texture background;
+
+    /** logo */
+    private Texture logo;
+
     public CreditsScene(SpriteBatch batch, AssetDirectory assets) {
         this.batch = batch;
         this.assets = assets;
+        this.background = assets.getEntry("splash", Texture.class);
+        this.logo = assets.getEntry("logo", Texture.class);
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
@@ -47,7 +61,7 @@ public class CreditsScene implements Screen {
         stage = new Stage(new ScreenViewport(camera));
         Gdx.input.setInputProcessor(stage);
 
-        skin = new Skin(Gdx.files.internal("uiskins/orange/uiskin.json"));
+        skin = new FreeTypeSkin(Gdx.files.internal("uiskins/zoodini/uiskin.json"));
 
         Table table = makeCreditsTable();
 
@@ -72,14 +86,15 @@ public class CreditsScene implements Screen {
 
         batch.begin(camera);
         batch.setColor(Color.WHITE);
-        Texture texture = assets.getEntry("splash", Texture.class);
-        float ratio = (float) width / (float) texture.getWidth();
-        batch.draw(texture, 0, 0, width, ratio * texture.getHeight());
+        float scaleX = (float) width / (float) background.getWidth();
+        float scaleY = (float) height / (float) background.getHeight();
+        cache.idt();
+        cache.scale(scaleX, scaleY);
+        batch.draw(background, cache);
 
-        texture = assets.getEntry("logo", Texture.class);
-        batch.draw(texture, (width / 2f) - (texture.getWidth() / 2f), height - (texture.getHeight() + 50),
-                texture.getWidth(),
-                texture.getHeight());
+        batch.draw(logo, (width / 2f) - (logo.getWidth() / 2f), height - (logo.getHeight() + 50),
+                logo.getWidth(),
+                logo.getHeight());
         batch.end();
 
         stage.draw();
@@ -128,48 +143,37 @@ public class CreditsScene implements Screen {
         // table.setSize(this.width, this.height);
         table.setFillParent(true);
         table.defaults().spaceBottom(10f).spaceRight(5f);
-        table.top().pad(Value.percentWidth(0.01f)).padTop(Value.percentHeight(0.3f));
+        table.top().pad(Value.percentWidth(0.01f)).padTop(Value.percentHeight(0.2f));
 
         Value labelWidth = Value.percentWidth(0.2f, table);
-        Value controlWidth = Value.percentWidth(0.25f, table);
+        Value controlWidth = Value.percentWidth(0.3f, table);
+        
+        VerticalGroup group = new VerticalGroup();
 
-        table.add(new Label("Project Lead", skin, "title")).left().minWidth(labelWidth);
-        table.add(new Label("Sebastian Jean-Francois", skin, "white")).left().width(controlWidth);
+        group.addActor(new Label("Project Lead", skin, "gold"));
+        group.addActor(new Label("Sebastian Jean-Francois", skin));
+        group.addActor(new Label("Software Lead", skin, "gold"));
+        group.addActor(new Label("Bill Park", skin));
+        group.addActor(new Label("Design Lead", skin, "gold"));
+        group.addActor(new Label("Lina Liu", skin));
+        group.addActor(new Label("Designer & Programmer", skin, "gold"));
+        group.addActor(new Label("Grace Jin", skin));
+        group.addActor(new Label("Programmer", skin, "gold"));
+        group.addActor(new Label("Nick Regennitter", skin));
+        group.addActor(new Label("Programmer", skin, "gold"));
+        group.addActor(new Label("Andrew Cheung", skin));
+        group.addActor(new Label("Programmer", skin, "gold"));
+        group.addActor(new Label("Abdul Raafai Asim", skin));
+        group.addActor(new Label("Programmer", skin, "gold"));
+        group.addActor(new Label("James Tu", skin));
+        group.addActor(new Label("librayr", skin, "gold"));
+        group.addActor(new Label("libgdx", skin));
 
-        table.add(new Label("librayr", skin, "title")).left().minWidth(labelWidth);
-        table.add(new Label("libgdx", skin, "white")).left().width(controlWidth).expandX();
-
-        table.row();
-        table.add(new Label("Software Lead", skin, "title")).left().minWidth(labelWidth);
-        table.add(new Label("Bill Park", skin, "white")).left().width(controlWidth);
-
-        table.row();
-        table.add(new Label("Design Lead", skin, "title")).left().minWidth(labelWidth);
-        table.add(new Label("Lina Liu", skin, "white")).left().width(controlWidth);
-
-        table.row();
-        table.add(new Label("Designer & Programmer", skin, "title")).left().minWidth(labelWidth);
-        table.add(new Label("Grace Jin", skin, "white")).left().width(controlWidth);
-
-        table.row();
-        table.add(new Label("Programmer", skin, "title")).left().minWidth(labelWidth);
-        table.add(new Label("Nick Regennitter", skin, "white")).left().width(controlWidth);
-
-        table.row();
-        table.add(new Label("Programmer", skin, "title")).left().minWidth(labelWidth);
-        table.add(new Label("Andrew Cheung", skin, "white")).left().width(controlWidth);
-
-        table.row();
-        table.add(new Label("Programmer", skin, "title")).left().minWidth(labelWidth);
-        table.add(new Label("Abdul Raafai Asim", skin, "white")).left().width(controlWidth);
-
-        table.row();
-        table.add(new Label("Programmer", skin, "title")).left().minWidth(labelWidth);
-        table.add(new Label("James Tu", skin, "white")).left().width(controlWidth);
-
+        table.add(new ScrollPane(group, skin)).expandX().width(Value.percentWidth(0.8f, table));
         table.row();
         TextButton menuReturn = new TextButton("Back to Menu", skin);
         menuReturn.addListener(new ChangeListener() {
+
             public void changed(ChangeEvent event, Actor actor) {
                 listener.exitScreen(CreditsScene.this, GDXRoot.EXIT_MENU);
             }

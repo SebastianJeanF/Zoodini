@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
@@ -28,12 +29,14 @@ import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.GDXRoot;
 import walknroll.zoodini.utils.GameSettings;
+import walknroll.zoodini.utils.FreeTypeSkin;
 
 public class SettingsScene implements Screen {
     private ScreenListener listener;
 
     /** The drawing camera for this scene */
     private OrthographicCamera camera;
+    
     /** Reference to sprite batch created by the root */
     private SpriteBatch batch;
 
@@ -78,9 +81,9 @@ public class SettingsScene implements Screen {
         stage = new Stage(new ScreenViewport(camera));
         Gdx.input.setInputProcessor(stage);
 
-        skin = new Skin(Gdx.files.internal("uiskins/orange/uiskin.json"));
+        skin = new FreeTypeSkin(Gdx.files.internal("uiskins/zoodini/uiskin.json"));
 
-        Window window = new Window("Edit Keybinds", skin, "maroon");
+        Window window = new Window("", skin);
         Container<Window> windowContainer = makeKeybindsContainer(window);
 
         Table table = makeSettingsTable(window);
@@ -171,17 +174,12 @@ public class SettingsScene implements Screen {
         window.setMovable(false);
         window.setVisible(false);
         window.defaults().spaceBottom(10f);
+        window.pad(Value.percentWidth(0.02f, container));
 
-        TextButton closeWindow = new TextButton("Done", skin, "maroon");
-        closeWindow.addListener(new ChangeListener() {
-            public void changed(ChangeEvent event, Actor actor) {
-                window.setVisible(false);
-            }
-        });
-        window.getTitleTable().add(closeWindow).height(window.getPadTop());
+        // window.getTitleTable().add(closeWindow).height(window.getPadTop());
         window.row().fill().expandX();
 
-        window.add(new Label("Use Ability", skin, "title")).width(Value.percentWidth(0.25f, container))
+        window.add(new Label("Use Ability", skin, "dark")).width(Value.percentWidth(0.25f, container))
                 .pad(Value.percentWidth(0.01f, container));
         TextButton setAbilityKey = new TextButton(
                 "Current: " + Input.Keys.toString(this.stagedSettings.getAbilityKey()),
@@ -197,7 +195,7 @@ public class SettingsScene implements Screen {
                 .height(Value.percentHeight(0.06f, container)).pad(Value.percentWidth(0.01f, container));
 
         window.row();
-        window.add(new Label("Swap Character", skin, "title")).width(Value.percentWidth(0.25f, container))
+        window.add(new Label("Swap Character", skin, "dark")).width(Value.percentWidth(0.25f, container))
                 .pad(Value.percentWidth(0.01f, container));
         TextButton setSwapKey = new TextButton("Current: " + Input.Keys.toString(this.stagedSettings.getSwapKey()),
                 skin);
@@ -212,7 +210,7 @@ public class SettingsScene implements Screen {
                 .pad(Value.percentWidth(0.01f, container));
 
         window.row();
-        window.add(new Label("Toggle Following", skin, "title")).width(Value.percentWidth(0.25f, container))
+        window.add(new Label("Toggle Following", skin, "dark")).width(Value.percentWidth(0.25f, container))
                 .pad(Value.percentWidth(0.01f, container));
         TextButton setFollowButton = new TextButton(
                 "Current: " + Input.Keys.toString(this.stagedSettings.getFollowKey()), skin);
@@ -252,8 +250,18 @@ public class SettingsScene implements Screen {
         });
 
         window.row();
-        window.add(new Label("Change a keybind by clicking its respective button, then typing the new key", skin))
+        window.add(
+                new Label("Change a keybind by clicking it button, then typing a new key", skin, "dark"))
                 .colspan(2);
+
+        window.row();
+        TextButton closeWindow = new TextButton("Done", skin);
+        closeWindow.addListener(new ChangeListener() {
+            public void changed(ChangeEvent event, Actor actor) {
+                window.setVisible(false);
+            }
+        });
+        window.add(closeWindow).colspan(2); // .width(Value.percentWidth(0.8f, container));
 
         window.center();
         return container;
@@ -266,10 +274,10 @@ public class SettingsScene implements Screen {
         table.defaults().spaceBottom(10f);
         table.top().pad(Value.percentWidth(0.01f)).padTop(Value.percentHeight(0.3f));
 
-        Value labelWidth = Value.percentWidth(0.25f, table);
+        Value labelWidth = Value.percentWidth(0.33f, table);
         Value controlWidth = Value.percentWidth(0.5f, table);
 
-        table.add(new Label("Music Volume", skin, "title")).left().width(labelWidth);
+        table.add(new Label("Music Volume", skin)).left().width(labelWidth);
         Slider musicVolumeSlider = new Slider(0f, 100f, 1f, false, skin);
         musicVolumeSlider.setValue(stagedSettings.getMusicVolume());
         musicVolumeSlider.addListener(new ChangeListener() {
@@ -281,7 +289,7 @@ public class SettingsScene implements Screen {
         table.add(musicVolumeSlider).left().width(controlWidth).expandX();
 
         table.row();
-        table.add(new Label("Sound Effect Volume", skin, "title")).left().width(labelWidth);
+        table.add(new Label("Sound Effect Volume", skin)).left().width(labelWidth);
         Slider soundVolumeSlider = new Slider(0f, 100f, 1f, false, skin);
         soundVolumeSlider.setValue(stagedSettings.getSoundVolume());
         soundVolumeSlider.addListener(new ChangeListener() {
@@ -293,10 +301,11 @@ public class SettingsScene implements Screen {
         table.add(soundVolumeSlider).left().width(controlWidth);
 
         table.row();
-        table.add(new Label("Resolution", skin, "title")).left().width(labelWidth);
+        table.add(new Label("Resolution", skin)).left().width(labelWidth);
         SelectBox<String> resolutionSelect = new SelectBox<>(skin);
         resolutionSelect.setItems("1280x720", "1920x1080", "Fullscreen");
         resolutionSelect.setSelected(this.stagedSettings.getResolution());
+        resolutionSelect.setAlignment(Align.center);
         resolutionSelect.addListener(new ChangeListener() {
             public void changed(ChangeEvent event, Actor actor) {
                 SettingsScene.this.stagedSettings.setResolution(resolutionSelect.getSelected());
@@ -305,7 +314,7 @@ public class SettingsScene implements Screen {
         table.add(resolutionSelect).left().width(controlWidth);
 
         table.row();
-        table.add(new Label("Update Keybinds", skin, "title")).left().width(labelWidth);
+        table.add(new Label("Update Keybinds", skin)).left().width(labelWidth);
         TextButton keybindsDialogOpen = new TextButton("Open Keybind Editor", skin);
         keybindsDialogOpen.addListener(new ChangeListener() {
             public void changed(ChangeEvent event, Actor actor) {
@@ -315,7 +324,7 @@ public class SettingsScene implements Screen {
         table.add(keybindsDialogOpen).left().width(controlWidth);
 
         table.row();
-        table.add(new Label("Reset Game State", skin, "title")).left().width(labelWidth);
+        table.add(new Label("Reset Game State", skin)).left().width(labelWidth);
         TextButton resetGameState = new TextButton("Reset", skin);
         resetGameState.addListener(new ChangeListener() {
             public void changed(ChangeEvent event, Actor actor) {
