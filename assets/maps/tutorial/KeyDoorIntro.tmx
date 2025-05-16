@@ -41,7 +41,7 @@
 242,286,287,288,289,290,242,243,244,171,242,243,244,171,171,171,171,171,171,171,171,171,171,171,171,171,171,171,171,171
 </data>
  </layer>
- <layer id="6" name="decoration" width="30" height="30">
+ <layer id="6" name="decorations" width="30" height="30">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -149,7 +149,11 @@
    </properties>
    <point/>
   </object>
-  <object id="107" type="Door" x="2304" y="896" width="384" height="384"/>
+  <object id="107" type="Door" x="2304" y="896" width="384" height="384">
+   <properties>
+    <property name="timeToOpen" type="float" value="2"/>
+   </properties>
+  </object>
   <object id="116" type="Octopus" x="2500" y="1836">
    <point/>
   </object>
@@ -160,8 +164,8 @@
    </properties>
    <point/>
   </object>
-  <object id="118" x="2872" y="1404">
-   <polyline points="506.485,-64.4283 -20.576,-66.435 -499.46,-77.145"/>
+  <object id="118" x="3066.09" y="1404">
+   <polyline points="703.304,-64.4283 -28.5718,-66.435 -693.55,-77.145"/>
   </object>
   <object id="121" type="Text" x="2494" y="1366">
    <properties>

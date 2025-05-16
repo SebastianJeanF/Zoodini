@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="46" height="23" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="347">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="46" height="23" tilewidth="128" tileheight="128" infinite="0" nextlayerid="4" nextobjectid="348">
  <tileset firstgid="1" source="../../tilesets/path-1.tsx"/>
  <tileset firstgid="211" source="../../tilesets/path-2.tsx"/>
  <tileset firstgid="421" source="../../tilesets/walls-1.tsx"/>
@@ -73,6 +73,7 @@
   <object id="335" x="1152" y="640" width="384" height="256"/>
   <object id="345" x="1920" y="1664" width="128" height="512"/>
   <object id="346" x="2048" y="1920" width="128" height="256"/>
+  <object id="347" x="1152" y="0" width="256" height="128"/>
  </objectgroup>
  <objectgroup id="3" name="objects">
   <object id="215" type="Guard" x="2344" y="1376">
@@ -122,7 +123,7 @@
   <object id="262" x="751.964" y="948.424">
    <polyline points="-131.254,23.0563 392.174,17.0631"/>
   </object>
-  <object id="303" type="Octopus" x="1221.21" y="169.697">
+  <object id="303" type="Octopus" x="1217.21" y="261.697">
    <point/>
   </object>
   <object id="304" type="Cat" x="1281.82" y="281.818">

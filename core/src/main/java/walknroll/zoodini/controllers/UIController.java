@@ -27,6 +27,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 import walknroll.zoodini.models.entities.Octopus;
 import walknroll.zoodini.models.entities.PlayableAvatar;
+import walknroll.zoodini.utils.Constants;
+import walknroll.zoodini.utils.GameSettings;
 import walknroll.zoodini.utils.InkMeterActor;
 import walknroll.zoodini.utils.MeowCooldownIndicator;
 import walknroll.zoodini.utils.MinimapActor;
@@ -75,7 +77,10 @@ public class UIController {
     private Image switch1;
     private Image switch2;
     private Image keyInventory;
+    private Image catKeyInventory;
     private Label keyCount;
+    private Label p2KeyCount;
+    private Image screenDivider;
 
     private MeowCooldownIndicator meowCooldownIndicator;
 
@@ -87,14 +92,14 @@ public class UIController {
         stage = new Stage(viewport, batch);
         skin = new Skin(Gdx.files.internal("uiskins/default/uiskin.json")); //TODO: use AssetDirectory to load skins.
         initializeActors(directory, level);
-        setupStageLayout();
+        setupStageLayout(level);
     }
 
 
     /**
      * Initialize all the Actors (Images, Buttons, etc.)
      */
-    private void initializeActors(AssetDirectory directory, GameLevel level){
+    private void initializeActors(AssetDirectory directory, GameLevel level) {
         displayFont = directory.getEntry("display", BitmapFont.class);
 
         catIconImage = new Image(directory.getEntry("cat-icon", Texture.class));
@@ -131,24 +136,23 @@ public class UIController {
         switch1 = new Image(directory.getEntry("switch1", Texture.class));
         switch2 = new Image(directory.getEntry("switch2", Texture.class));
         keyInventory = new Image(directory.getEntry("key-inventory", Texture.class));
+        catKeyInventory = new Image(directory.getEntry("key-inventory", Texture.class));
         LabelStyle style = new LabelStyle(displayFont, Color.BLACK);
         keyCount = new Label("x0", style);
+        p2KeyCount = new Label("x0", style);
 
         final float followIconScale = 0.4f;
-        catFollowIconImage.setSize(
-            catFollowIconImage.getWidth() * followIconScale,
-            catFollowIconImage.getHeight() * followIconScale
-        );
-        octopusFollowIconImage.setSize(
-            octopusFollowIconImage.getWidth() * followIconScale,
-            octopusFollowIconImage.getHeight() * followIconScale
-        );
+        catFollowIconImage.setSize(catFollowIconImage.getWidth() * followIconScale, catFollowIconImage.getHeight() * followIconScale);
+        octopusFollowIconImage.setSize(octopusFollowIconImage.getWidth() * followIconScale, octopusFollowIconImage.getHeight() * followIconScale);
 
         final float inkTextScale = 0.4f;
-        inkTextImage.setSize(
-            inkTextImage.getWidth() * inkTextScale,
-            inkTextImage.getHeight() * inkTextScale
-        );
+        inkTextImage.setSize(inkTextImage.getWidth() * inkTextScale, inkTextImage.getHeight() * inkTextScale);
+
+        Drawable dividerDrawable = skin.newDrawable("white", new Color(0.0f, 0.0f, 0.0f, 0.9f));
+        screenDivider = new Image(dividerDrawable);
+        screenDivider.setSize(3, Gdx.graphics.getHeight());
+        screenDivider.setPosition(Gdx.graphics.getWidth() / 2f - 1.5f, 0);
+        screenDivider.setVisible(GameSettings.getInstance().isCoopEnabled() && level.isOctopusPresent() && level.isCatPresent());
 
 
     }
@@ -157,8 +161,9 @@ public class UIController {
     /**
      * Places each Actor at the right position.
      */
-    private void setupStageLayout(){
+    private void setupStageLayout(GameLevel level) {
         viewport = new ScreenViewport();
+        float graphicsWidth = Gdx.graphics.getWidth();
         stage = new Stage(viewport);
         rootTable = new Table();
         rootTable.setFillParent(true);
@@ -171,23 +176,43 @@ public class UIController {
         bottomLeftTable.setDebug(debug);
         stage.addActor(bottomLeftTable);
 
+        if (GameSettings.getInstance().isCoopEnabled() && level.isOctopusPresent() && level.isCatPresent()) {
+            Table bottomRightTable = new Table();
+            bottomRightTable.bottom().right();
+            bottomRightTable.setFillParent(true);
+            bottomRightTable.setDebug(debug);
+            stage.addActor(bottomRightTable);
+
+            Group octopusGroup = new Group();
+            octopusGroup.addActor(octopusIconImage);
+            if (inkMeter != null) {
+                inkMeter.setPosition(catIconImage.getWidth() * 1.4f, 0);
+                octopusGroup.addActor(inkMeter);
+                inkTextImage.setPosition(catIconImage.getWidth() * 1.4f, catIconImage.getHeight() * 0.35f);
+                octopusGroup.addActor(inkTextImage);
+            }
+            bottomRightTable.add(octopusGroup).padBottom(30).padRight(graphicsWidth / 2f - 30);
+        }
+
         Group avatarGroup = new Group();
         avatarGroup.addActor(catIconImage);
-        avatarGroup.addActor(octopusIconImage);
 
-//
-        catFollowIconImage.setPosition(catIconImage.getWidth() * 0.85f, catIconImage.getHeight() * 0.85f);
-        octopusFollowIconImage.setPosition(catIconImage.getWidth() * 0.85f, catIconImage.getHeight() * 0.85f);
-        avatarGroup.addActor(catFollowIconImage);
-        avatarGroup.addActor(octopusFollowIconImage);
+        if ((!GameSettings.getInstance().isCoopEnabled() && (level.isOctopusPresent() || level.isCatPresent()))
+            || (GameSettings.getInstance().isCoopEnabled() && level.isOctopusPresent() && !level.isCatPresent())
+            || (GameSettings.getInstance().isCoopEnabled() && !level.isOctopusPresent() && level.isCatPresent())) {
+            avatarGroup.addActor(octopusIconImage);
+            catFollowIconImage.setPosition(catIconImage.getWidth() * 0.85f, catIconImage.getHeight() * 0.85f);
+            octopusFollowIconImage.setPosition(catIconImage.getWidth() * 0.85f, catIconImage.getHeight() * 0.85f);
+            avatarGroup.addActor(catFollowIconImage);
+            avatarGroup.addActor(octopusFollowIconImage);
 
-        if (inkMeter != null) {
-            inkMeter.setPosition(catIconImage.getWidth() * 1.4f, 0);
-            avatarGroup.addActor(inkMeter);
-            inkTextImage.setPosition(catIconImage.getWidth() * 1.4f, catIconImage.getHeight() * 0.35f);
-            avatarGroup.addActor(inkTextImage);
+            if (inkMeter != null) {
+                inkMeter.setPosition(catIconImage.getWidth() * 1.4f, 0);
+                avatarGroup.addActor(inkMeter);
+                inkTextImage.setPosition(catIconImage.getWidth() * 1.4f, catIconImage.getHeight() * 0.35f);
+                avatarGroup.addActor(inkTextImage);
+            }
         }
-//        inkMeter.setPosition(catIconImage.getWidth() * 1.4f, 0);
 
         bottomLeftTable.add(avatarGroup).pad(30);
 
@@ -202,16 +227,22 @@ public class UIController {
         inventory.add(keyInventory);
         Table inventoryTable = new Table();
         inventoryTable.right();
-        inventoryTable.add(keyCount).padRight(15f);
+        if (GameSettings.getInstance().isCoopEnabled() && level.isOctopusPresent() && level.isCatPresent()) {
+            inventoryTable.add(p2KeyCount).padRight(15f);
+        } else {
+            inventoryTable.add(keyCount).padRight(15f);
+        }
         inventory.add(inventoryTable);
         topRightTable.add(inventory);
 
-        Stack avatarSwitch = new Stack();
-        switch1.setVisible(false);
-        switch2.setVisible(false);
-        avatarSwitch.add(switch1);
-        avatarSwitch.add(switch2);
-        topRightTable.add(avatarSwitch).pad(10f);
+        if (!GameSettings.getInstance().isCoopEnabled()) {
+            Stack avatarSwitch = new Stack();
+            switch1.setVisible(false);
+            switch2.setVisible(false);
+            avatarSwitch.add(switch1);
+            avatarSwitch.add(switch2);
+            topRightTable.add(avatarSwitch).pad(10f);
+        }
 
         Stack pauseStack = new Stack();
         pauseStack.add(pauseIconImage);
@@ -226,17 +257,44 @@ public class UIController {
         Group dangerIcons = new Group();
         dangerIcons.addActor(smallCatIconImage);
         dangerIcons.addActor(smallOctopusIconImage);
-        dangerIconImage.moveBy(50,30);
+        dangerIconImage.moveBy(50, 30);
         dangerIcons.addActor(dangerIconImage);
         leftTable.left().add(dangerIcons).width(100).height(100);
         stage.addActor(leftTable);
 
-//        if (dangerIconImage != null) {
-//            dangerIconImage.setPosition(105, 615);
-//            dangerIconImage.setVisible(false);
-//            stage.addActor(dangerIconImage);
-//        }
-//
+        if (GameSettings.getInstance().isCoopEnabled() && level.isOctopusPresent() && level.isCatPresent()) {
+            Table topLeftTable = new Table();
+            topLeftTable.setFillParent(true);
+            topLeftTable.setDebug(debug);
+            topLeftTable.top().left();
+            Stack inventoryCat = new Stack();
+            inventoryCat.add(catKeyInventory);
+            Table inventoryCatTable = new Table();
+            inventoryCatTable.right();
+            inventoryCatTable.add(keyCount).padRight(15f);
+            inventoryCat.add(inventoryCatTable);
+            topLeftTable.add(inventoryCat).padLeft(graphicsWidth / 2f - 130).padTop(30);
+            stage.addActor(topLeftTable);
+            stage.addActor(screenDivider);
+        }
+        setUpPauseMenu();
+
+        meowCooldownIndicator = new MeowCooldownIndicator(displayFont);
+        if (!GameSettings.getInstance().isCoopEnabled()) {
+            Table bottomRightTable = new Table();
+            bottomRightTable.setFillParent(true);
+            bottomRightTable.setDebug(debug);
+            bottomRightTable.bottom().right();
+            bottomRightTable.add(meowCooldownIndicator).padBottom(40).padRight(200);
+            stage.addActor(bottomRightTable);
+        } else if (GameSettings.getInstance().isCoopEnabled() && level.isCatPresent()) {
+            float meowCooldownIndicatorCOOPXPosition = level.isCatPresent() && !level.isOctopusPresent() ? viewport.getScreenWidth() - 200 : graphicsWidth / 2f - 200;
+            meowCooldownIndicator.setPosition(meowCooldownIndicatorCOOPXPosition, 40);
+            stage.addActor(meowCooldownIndicator);
+        }
+    }
+
+    private void setUpPauseMenu() {
         if (pauseIconImage != null) {
             pauseIconImage.setVisible(true);
             pauseIconImage.addListener(new ClickListener() {
@@ -266,10 +324,7 @@ public class UIController {
         pauseMenuTable = new Table();
         pauseMenuTable.setBackground(skin.newDrawable("white", new Color(0.2f, 0.2f, 0.2f, 0.9f)));
         pauseMenuTable.setSize(300, 200);
-        pauseMenuTable.setPosition(
-            (Gdx.graphics.getWidth() - 300) / 2,
-            (Gdx.graphics.getHeight() - 200) / 2
-        );
+        pauseMenuTable.setPosition((Gdx.graphics.getWidth() - 300) / 2, (Gdx.graphics.getHeight() - 200) / 2);
         pauseMenuTable.setVisible(false); // Hide initially
 
         Table buttonTable = new Table();
@@ -325,10 +380,7 @@ public class UIController {
 
         if (pauseBannerImage != null) {
             float scale = 1.0f;
-            pauseBannerImage.setSize(
-                pauseBannerImage.getWidth() * scale,
-                pauseBannerImage.getHeight() * scale
-            );
+            pauseBannerImage.setSize(pauseBannerImage.getWidth() * scale, pauseBannerImage.getHeight() * scale);
             Stack bannerStack = new Stack();
             bannerStack.setSize(pauseBannerImage.getWidth(), pauseBannerImage.getHeight());
 
@@ -347,20 +399,14 @@ public class UIController {
             bannerStack.addActor(overlayTable);
             pauseMenuTable.add(bannerStack).padTop(20).row();
         }
-
         stage.addActor(pauseMenuTable);
-
-        meowCooldownIndicator = new MeowCooldownIndicator(displayFont);
-        meowCooldownIndicator.setPosition(viewport.getScreenWidth() - 200, 40);  // Position it where needed
-        stage.addActor(meowCooldownIndicator);
-
     }
 
-    public void update(float dt){
+    public void update(float dt) {
         stage.act(dt);
     }
 
-    public void draw (GameScene scene){
+    public void draw(GameScene scene) {
         GameLevel level = scene.getLevel();
         if (Gdx.input.getInputProcessor() != stage) {
             Gdx.input.setInputProcessor(stage);
@@ -369,40 +415,57 @@ public class UIController {
         PlayableAvatar avatar = level.getAvatar();
         boolean isOcto = avatar.getAvatarType() == AvatarType.OCTOPUS;
 
-        // In draw method, add:
-        if (avatar.getAvatarType() == AvatarType.CAT) {
+        if (GameSettings.getInstance().isCoopEnabled() && level.isOctopusPresent() && level.isCatPresent()) {
+            catIconImage.setVisible(true);
+            octopusIconImage.setVisible(true);
+            if (inkMeter != null && level.isOctopusPresent()) {
+                inkMeter.setVisible(true);
+                inkMeter.sync(level.getOctopus().getInkRemaining());
+            }
             meowCooldownIndicator.setVisible(true);
-            inkTextImage.setVisible(false);
-            switch1.setVisible(true);
-            switch2.setVisible(false);
             meowCooldownIndicator.update(level.getCat());
+            if (level.isOctopusPresent()) {
+                p2KeyCount.setText("x" + level.getOctopus().getNumKeys());
+            }
+
         } else {
-            // Octopus
-            meowCooldownIndicator.setVisible(false);
-            switch1.setVisible(false);
-            switch2.setVisible(true);
-            inkTextImage.setVisible(true);
+            if (avatar.getAvatarType() == AvatarType.CAT) {
+                meowCooldownIndicator.setVisible(true);
+                inkTextImage.setVisible(false);
+                switch1.setVisible(true);
+                switch2.setVisible(false);
+                meowCooldownIndicator.update(level.getCat());
+            } else {
+                // Octopus
+                meowCooldownIndicator.setVisible(false);
+                switch1.setVisible(false);
+                switch2.setVisible(true);
+                inkTextImage.setVisible(true);
+            }
+
+            if (scene.getFollowModeActive()) {
+                catFollowIconImage.setVisible(isOcto);
+                octopusFollowIconImage.setVisible(!isOcto);
+            } else {
+                catFollowIconImage.setVisible(false);
+                octopusFollowIconImage.setVisible(false);
+            }
+            // Icons
+            if (catIconImage != null) catIconImage.setVisible(!isOcto);
+            if (octopusIconImage != null) octopusIconImage.setVisible(isOcto);
+            if (inkMeter != null && level.isOctopusPresent()) {
+                inkMeter.setVisible(isOcto);
+                inkMeter.sync(level.getOctopus().getInkRemaining());
+            }
         }
 
-        if (scene.getFollowModeActive()) {
-            catFollowIconImage.setVisible(isOcto);
-            octopusFollowIconImage.setVisible(!isOcto);
-        }
-        else {
-            catFollowIconImage.setVisible(false);
-            octopusFollowIconImage.setVisible(false);
+        if (screenDivider != null) {
+            screenDivider.setVisible(GameSettings.getInstance().isCoopEnabled() && level.isOctopusPresent() && level.isCatPresent());
         }
 
         // Update the minimap
         keyCount.setText("x" + avatar.getNumKeys());
 
-        // Icons
-        if (catIconImage != null) catIconImage.setVisible(!isOcto);
-        if (octopusIconImage != null) octopusIconImage.setVisible(isOcto);
-        if (inkMeter != null && level.isOctopusPresent()) {
-            inkMeter.setVisible(isOcto);
-            inkMeter.sync(level.getOctopus().getInkRemaining());
-        }
 
         if (dangerIconImage != null && smallCatIconImage != null && smallOctopusIconImage != null) {
             if (level.isInactiveAvatarInDanger()) {
@@ -412,7 +475,8 @@ public class UIController {
                     smallOctopusIconImage.setVisible(false);
                 } else {
                     smallOctopusIconImage.setVisible(true);
-                    smallCatIconImage.setVisible(false);}
+                    smallCatIconImage.setVisible(false);
+                }
             } else {
                 dangerIconImage.setVisible(false);
                 smallCatIconImage.setVisible(false);
@@ -420,8 +484,8 @@ public class UIController {
             }
         }
 
-        if(minimapDisabled){
-            minimap.setDisabled(true);
+        if (minimapDisabled) {
+            minimap.setVisible(false);
         }
 
         stage.draw();
@@ -443,17 +507,20 @@ public class UIController {
             pauseListener.onPauseStateChanged(paused);
         }
     }
-    public void dispose(){
+
+    public void dispose() {
         stage.dispose();
         if (minimap != null) {
             minimap.dispose();
         }
+        minimapDisabled = false;
     }
 
-    public void setPauseMenuListener(PauseMenuListener l){
+    public void setPauseMenuListener(PauseMenuListener l) {
         pauseListener = l;
     }
-    public static void disableMinimap(boolean b){
+
+    public static void disableMinimap(boolean b) {
         minimapDisabled = b;
     }
 }

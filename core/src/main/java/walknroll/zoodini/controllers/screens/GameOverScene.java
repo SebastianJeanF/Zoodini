@@ -13,11 +13,12 @@
  * loading screens with the inane tips that want to be helpful? That is
  * asynchronous loading.
  *
- * This player mode provides a basic loading screen.  While you could adapt it
+ * This player mode provides a basic loading screen. While you could adapt it
  * for between level loading, it is currently designed for loading all assets
  * at the start of the game.
  *
  * @author: Walker M. White
+ * 
  * @date: 11/21/2024
  */
 package walknroll.zoodini.controllers.screens;
@@ -29,6 +30,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -47,6 +49,7 @@ import walknroll.zoodini.utils.MenuButton;
  * by a play button. You are free to adopt this to your needs.
  */
 public class GameOverScene implements Screen, InputProcessor {
+
     // There are TWO asset managers.
     // One to load the loading screen. The other to load the assets
     /** The actual assets to be loaded */
@@ -77,6 +80,11 @@ public class GameOverScene implements Screen, InputProcessor {
 
     private Array<MenuButton> buttons;
 
+    Affine2 cache = new Affine2();
+
+    /** Background image */
+    private Texture background;
+
     /**
      * Creates a LoadingMode with the default size and position.
      *
@@ -100,15 +108,18 @@ public class GameOverScene implements Screen, InputProcessor {
 
         pressState = null;
         Gdx.input.setInputProcessor(this);
+        this.background = assets.getEntry("game-over-splash", Texture.class);
 
         float buttonY = constants.getFloat("button.y");
         float buttonWidth = constants.getFloat("button.width");
         float buttonHeight = constants.getFloat("button.height");
         buttons = Array.with(
-                new MenuButton(constants.getFloat("button.restart.x"), buttonY, buttonWidth, buttonHeight,
+                new MenuButton(constants.getFloat("button.restart.x"), buttonY, buttonWidth,
+                        buttonHeight,
                         "game-over-restart-button",
                         GDXRoot.EXIT_PLAY),
-                new MenuButton(constants.getFloat("button.menu.x"), buttonY, buttonWidth, buttonHeight,
+                new MenuButton(constants.getFloat("button.menu.x"), buttonY, buttonWidth,
+                        buttonHeight,
                         "game-over-menu-button",
                         GDXRoot.EXIT_MENU));
     }
@@ -400,17 +411,15 @@ public class GameOverScene implements Screen, InputProcessor {
      * prefer this in lecture.
      */
     private void draw() {
-        // Cornell colors
-        ScreenUtils.clear(0.702f, 0.1255f, 0.145f, 1.0f);
-
         batch.begin(camera);
         batch.setColor(Color.WHITE);
+        float scaleX = (float) width / (float) background.getWidth();
+        float scaleY = (float) height / (float) background.getHeight();
+        cache.idt();
+        cache.scale(scaleX, scaleY);
+        batch.draw(background, cache);
 
-        // Height lock the logo
-        Texture texture = assets.getEntry("game-over-splash", Texture.class);
-        float ratio = (float) width / (float) texture.getWidth();
-        batch.draw(texture, 0, height - (ratio * texture.getHeight()), width, ratio * texture.getHeight());
-
+        Texture texture;
         for (MenuButton menuButton : buttons) {
             Color tint = menuButton.isPressed() ? Color.GRAY : Color.WHITE;
             texture = assets.getEntry(menuButton.getAssetName(), Texture.class);

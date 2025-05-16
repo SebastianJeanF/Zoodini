@@ -13,11 +13,12 @@
  * loading screens with the inane tips that want to be helpful? That is
  * asynchronous loading.
  *
- * This player mode provides a basic loading screen.  While you could adapt it
+ * This player mode provides a basic loading screen. While you could adapt it
  * for between level loading, it is currently designed for loading all assets
  * at the start of the game.
  *
  * @author: Walker M. White
+ * 
  * @date: 11/21/2024
  */
 package walknroll.zoodini.controllers.screens;
@@ -29,6 +30,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -47,6 +49,7 @@ import walknroll.zoodini.utils.MenuButton;
  * by a play button. You are free to adopt this to your needs.
  */
 public class GameWinScene implements Screen, InputProcessor {
+
     // There are TWO asset managers.
     // One to load the loading screen. The other to load the assets
     /** The actual assets to be loaded */
@@ -78,6 +81,12 @@ public class GameWinScene implements Screen, InputProcessor {
 
     private Array<MenuButton> buttons;
 
+    Affine2 cache = new Affine2();
+
+    /** Background image */
+    private Texture background;
+    private Texture backgroundFinal;
+
     /**
      * Creates a LoadingMode with the default size and position.
      *
@@ -102,14 +111,18 @@ public class GameWinScene implements Screen, InputProcessor {
 
         pressState = null;
         Gdx.input.setInputProcessor(this);
+        this.background = assets.getEntry("game-win-splash", Texture.class);
+        this.backgroundFinal = assets.getEntry("game-win-final-splash", Texture.class);
 
         float buttonY = constants.getFloat("button.y");
         buttons = Array.with(new MenuButton(constants.getFloat("button.menu.x"), buttonY,
-                constants.getFloat("button.menu.width"), constants.getFloat("button.menu.height"), "home-icon",
+                constants.getFloat("button.menu.width"), constants.getFloat("button.menu.height"),
+                "home-icon",
                 GDXRoot.EXIT_MENU));
         if (!this.onLastLevel) {
             buttons.add(new MenuButton(constants.getFloat("button.next.x"), buttonY,
-                    constants.getFloat("button.next.width"), constants.getFloat("button.next.height"),
+                    constants.getFloat("button.next.width"), constants.getFloat(
+                            "button.next.height"),
                     "game-win-next-level", GDXRoot.EXIT_PLAY));
         }
     }
@@ -401,18 +414,16 @@ public class GameWinScene implements Screen, InputProcessor {
      * prefer this in lecture.
      */
     private void draw() {
-        // Cornell colors
-        ScreenUtils.clear(0.702f, 0.1255f, 0.145f, 1.0f);
-
         batch.begin(camera);
         batch.setColor(Color.WHITE);
+        Texture bgImage = onLastLevel ? backgroundFinal : background;
+        float scaleX = (float) width / (float) bgImage.getWidth();
+        float scaleY = (float) height / (float) bgImage.getHeight();
+        cache.idt();
+        cache.scale(scaleX, scaleY);
+        batch.draw(bgImage, cache);
 
-        // Height lock the logo
-        Texture texture = this.onLastLevel ? assets.getEntry("game-win-final-splash", Texture.class)
-                : assets.getEntry("game-win-splash", Texture.class);
-        float ratio = (float) width / (float) texture.getWidth();
-        batch.draw(texture, 0, height - (ratio * texture.getHeight()), width, ratio * texture.getHeight());
-
+        Texture texture;
         for (MenuButton menuButton : buttons) {
             Color tint = menuButton.isPressed() ? Color.GRAY : Color.WHITE;
             texture = assets.getEntry(menuButton.getAssetName(), Texture.class);

@@ -21,7 +21,6 @@ import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import edu.cornell.gdiac.util.ScreenListener;
-import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.controllers.SoundController;
 import walknroll.zoodini.controllers.screens.CreditsScene;
 import walknroll.zoodini.controllers.screens.GameOverScene;
@@ -101,12 +100,14 @@ public class GDXRoot extends Game implements ScreenListener {
 		directory = new AssetDirectory("jsons/assets.json");
 		settingsPrefs = Gdx.app.getPreferences(SETTINGS_PREFERENCES_FILENAME);
 		gameSettings = new GameSettings(settingsPrefs);
+		GameSettings.setInstance(gameSettings);
         applyGameSettings();
 
         statePrefs = Gdx.app.getPreferences(STATE_PREFERENCES_FILENAME);
 		gameState = new GameState(statePrefs);
 
 		loading = new MenuScene(directory, batch, 1);
+		loading.create();
 		loading.setScreenListener(this);
 		setScreen(loading);
     }
@@ -193,6 +194,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			// extract settings info from settings screen here
 			gameSettings = settings.getSettings();
 			gameSettings.saveToPreferences(settingsPrefs);
+			GameSettings.setInstance(gameSettings);
 			settingsPrefs.flush();
 			applyGameSettings();
 
@@ -230,6 +232,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			case GDXRoot.EXIT_MENU:
 				loading = new MenuScene(directory, batch, 1);
 				loading.setScreenListener(this);
+				loading.create();
 				setScreen(loading);
 				disposeExcept(loading);
 				break;
@@ -290,22 +293,20 @@ public class GDXRoot extends Game implements ScreenListener {
 	}
 
 	private void applyGameSettings() {
-        InputController input = InputController.getInstance();
-        input.setAbilityKey(this.gameSettings.getAbilityKey());
-        input.setSwapKey(this.gameSettings.getSwapKey());
-        input.setFollowModeKey(this.gameSettings.getFollowKey());
-		switch (this.gameSettings.getResolution().toLowerCase()) {
+        // InputController input = InputController.getInstance();
+        // input.setAbilityKey(GameSettings.getInstance().getAbilityKey());
+        // input.setSwapKey(GameSettings.getInstance().getSwapKey());
+        // input.setFollowModeKey(GameSettings.getInstance().getFollowKey());
+		switch (GameSettings.getInstance().getResolution().toLowerCase()) {
 			case "1280x720" -> Gdx.graphics.setWindowedMode(1280, 720);
 			case "1920x1080" -> Gdx.graphics.setWindowedMode(1920, 1080);
 			case "fullscreen" -> Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
 		}
 
-        Gdx.graphics.setResizable(true);
-
 
         SoundController sound = SoundController.getInstance();
-        sound.setMusicVolume(this.gameSettings.getMusicVolume() / 100f);
-        sound.setSoundVolume(this.gameSettings.getSoundVolume() / 100f);
+        sound.setMusicVolume(GameSettings.getInstance().getMusicVolume() / 100f);
+        sound.setSoundVolume(GameSettings.getInstance().getSoundVolume() / 100f);
 	}
 
 	private void startGameplay(Integer selectedLevel) {

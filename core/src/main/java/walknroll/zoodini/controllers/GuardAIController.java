@@ -275,10 +275,6 @@ public class GuardAIController {
         }
     }
 
-    public boolean canStateTransition() {
-        return ticks - lastStateChangeTime > STATE_CHANGE_COOLDOWN;
-    }
-
     /**
      * Updates the guard's state based on current conditions and state priority.
      */
@@ -374,7 +370,6 @@ public class GuardAIController {
                 // Gar meows again -> should update distractPosition
                 else if (didDistractionOccur()) {
                     DebugPrinter.println("here");
-                    potentialState = GuardState.DISTRACTED;
                     guard.setMeow(true);
                     Vector2 playerPosition = getActivePlayer().getPosition();
                     distractPosition.set(tileGraph.getValidTileCoords(playerPosition));
@@ -494,9 +489,9 @@ public class GuardAIController {
         ticks++;
         executeLookAround(dt);
         updateSusLevel();
-//        System.out.println("Guard state before: " + currState);
+//        DebugPrinter.println("Guard state before: " + currState);
         updateGuardState();
-//        System.out.println("Guard state after: " + currState);
+//        DebugPrinter.println("Guard state after: " + currState);
         setNextTargetLocation();
 
     }

@@ -158,6 +158,21 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         }
     }
 
+    public void redoConnections(TileNode n) {
+        int i = n.getIndex();
+        int x = i % WIDTH;
+        int y = i / WIDTH;
+
+        if (x > 0)
+            addConnection(n, -1, 0);
+        if (y > 0)
+            addConnection(n, 0, -1);
+        if (x < WIDTH - 1)
+            addConnection(n, 1, 0);
+        if (y < HEIGHT - 1)
+            addConnection(n, 0, 1);
+    }
+
     /**
      * Creates connections between nodes in the graph
      * Handles both cardinal and diagonal directions based on the diagonal flag
@@ -648,5 +663,4 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         waypoints = null;
         heuristic = null;
     }
-
 }
