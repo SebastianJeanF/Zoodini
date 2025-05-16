@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="46" tilewidth="128" tileheight="128" infinite="0" nextlayerid="9" nextobjectid="247">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="46" tilewidth="128" tileheight="128" infinite="0" nextlayerid="9" nextobjectid="298">
  <tileset firstgid="1" source="../../tilesets/path-1.tsx"/>
  <tileset firstgid="211" source="../../tilesets/walls-1.tsx"/>
  <tileset firstgid="421" source="../../tilesets/walls-2.tsx"/>
@@ -22,9 +22,9 @@
 136,137,219,220,463,463,463,468,469,470,473,473,552,523,463,463,219,220,219,200,136,166,136,137,138,136,321,321,321,321,321,321,321,321,136,137,196,197,198,136,137,220,220,220,220,220,220,220,220,221,3221225692,3221225691,463,463,463,463,3221225692,3221225691,322,323,
 136,137,219,220,463,463,463,483,484,485,487,488,552,552,463,463,219,220,219,200,136,181,151,136,137,136,2147483916,2147483915,261,262,261,262,267,268,136,137,196,197,198,136,137,220,221,221,221,221,221,221,221,221,3221225692,3221225691,463,463,463,463,3221225692,3221225691,322,323,
 136,137,219,220,463,463,463,498,499,500,502,503,503,503,463,463,219,220,219,200,136,196,166,136,137,137,2147483931,2147483930,2147483930,276,277,2147483930,282,283,136,137,196,197,198,136,137,235,235,235,235,235,235,235,235,236,3221225692,3221225691,463,463,463,463,3221225692,3221225691,322,323,
-136,137,219,220,463,463,463,463,463,463,463,463,463,463,463,463,219,220,219,200,136,196,181,151,136,137,2147483931,2147483930,275,276,277,278,282,283,136,137,196,197,198,136,137,235,236,236,236,236,236,236,236,236,3221225692,3221225691,463,463,463,463,3221225692,3221225691,322,323,
-136,137,219,220,463,463,463,463,463,463,463,463,463,463,463,463,219,220,219,201,136,196,196,166,136,137,2147483946,2147483945,290,291,292,293,297,298,136,137,196,197,198,136,137,3221225672,3221225671,3221225670,3221225669,3221225668,3221225608,3221225610,3221225609,3221225608,3221225692,3221225691,463,463,463,463,3221225692,3221225691,322,323,
-136,137,219,220,463,463,463,463,463,463,463,463,463,463,463,463,219,220,219,201,136,196,197,181,136,137,2147483976,2147483975,140,166,196,197,327,328,136,137,196,197,198,136,137,3221225672,3221225671,3221225670,3221225669,3221225668,3221225610,3221225609,3221225608,3221225674,3221225692,3221225691,463,463,463,463,3221225692,3221225691,322,323,
+136,137,219,220,463,463,463,463,463,463,463,463,463,463,463,463,219,220,219,200,136,196,181,151,136,137,2147483931,2147483930,2147483930,276,277,2147483930,282,283,136,137,196,197,198,136,137,235,236,236,236,236,236,236,236,236,3221225692,3221225691,463,463,463,463,3221225692,3221225691,322,323,
+136,137,219,220,463,463,463,463,463,463,463,463,463,463,463,463,219,220,219,201,136,196,196,166,136,137,2147483946,2147483945,275,276,277,278,297,298,136,137,196,197,198,136,137,3221225672,3221225671,3221225670,3221225669,3221225668,3221225608,3221225610,3221225609,3221225608,3221225692,3221225691,463,463,463,463,3221225692,3221225691,322,323,
+136,137,219,220,463,463,463,463,463,463,463,463,463,463,463,463,219,220,219,201,136,196,197,181,136,137,2147483976,2147483975,290,291,292,293,327,328,136,137,196,197,198,136,137,3221225672,3221225671,3221225670,3221225669,3221225668,3221225610,3221225609,3221225608,3221225674,3221225692,3221225691,463,463,463,463,3221225692,3221225691,322,323,
 136,137,219,220,463,463,463,463,219,220,219,219,220,463,463,463,219,220,219,201,136,196,197,196,136,137,2147483991,2147483990,140,181,196,197,342,343,136,137,196,197,198,136,137,219,219,220,3221225669,3221225668,3221225610,219,219,220,3221225692,3221225691,463,463,463,463,3221225692,3221225691,322,323,
 136,137,219,220,463,463,463,463,219,220,219,220,220,463,463,463,219,220,219,201,136,196,197,198,136,137,273,274,140,196,197,198,2147483922,2147483921,136,137,196,197,198,136,137,219,220,220,435,435,435,219,219,220,3221225692,3221225691,463,463,463,463,3221225692,3221225691,322,323,
 136,137,219,220,463,463,463,463,219,220,234,234,235,463,463,463,234,234,235,201,136,196,197,198,136,137,288,289,136,196,197,136,2147483937,2147483936,136,137,196,197,198,136,137,3221225691,3221225692,3221225691,435,435,435,234,234,235,234,235,463,463,463,463,3221225692,3221225691,322,323,
@@ -85,26 +85,14 @@
   <object id="121" x="384" y="4224" width="2432" height="896"/>
   <object id="135" x="5376" y="4608" width="1792" height="512"/>
   <object id="147" x="5248" y="768" width="1152" height="768"/>
-  <object id="172" gid="891" x="5273" y="1112" width="271" height="336"/>
-  <object id="173" gid="891" x="5525" y="1112" width="271" height="336"/>
-  <object id="174" gid="891" x="5769" y="1112" width="271" height="336"/>
-  <object id="175" gid="891" x="6053" y="1112" width="271" height="336"/>
-  <object id="176" gid="891" x="6137" y="1292" width="271" height="336"/>
-  <object id="177" gid="891" x="5917" y="1284" width="271" height="336"/>
-  <object id="178" gid="891" x="5653" y="1272" width="271" height="336"/>
-  <object id="179" gid="891" x="5401" y="1284" width="271" height="336"/>
-  <object id="180" gid="891" x="5269" y="1504" width="271" height="336"/>
-  <object id="181" gid="891" x="5505" y="1480" width="271" height="336"/>
-  <object id="182" gid="891" x="5729" y="1508" width="271" height="336"/>
-  <object id="183" gid="891" x="5941" y="1484" width="271" height="336"/>
-  <object id="184" gid="891" x="6133" y="1520" width="271" height="336"/>
   <object id="188" x="640" y="2816" width="256" height="384"/>
-  <object id="230" x="3328" y="1664" width="1024" height="512"/>
   <object id="231" x="3328" y="2048" width="256" height="640"/>
   <object id="232" x="4096" y="2048" width="256" height="640"/>
   <object id="236" x="896" y="1024" width="896" height="384"/>
   <object id="237" x="896" y="1536" width="896" height="384"/>
   <object id="238" x="1536" y="1280" width="256" height="384"/>
+  <object id="251" x="3328" y="1664" width="1024" height="640"/>
+  <object id="292" x="6400" y="768" width="768" height="128"/>
  </objectgroup>
  <objectgroup id="4" name="objects">
   <object id="3" type="Cat" x="773.774" y="3520.38">
@@ -141,7 +129,6 @@
   </object>
   <object id="12" type="Door" x="1664" y="2432" width="384" height="384"/>
   <object id="13" type="Door" x="5632" y="2304" width="384" height="510"/>
-  <object id="15" type="Door" x="3584" y="896" width="512" height="384"/>
   <object id="16" type="Key" x="6934.03" y="3863.31">
    <point/>
   </object>
@@ -167,7 +154,7 @@
    </properties>
    <point/>
   </object>
-  <object id="21" type="Camera" x="5955.91" y="3151.91">
+  <object id="21" type="Camera" x="5955.91" y="3135.91">
    <properties>
     <property name="angle" type="float" value="110"/>
     <property name="fov" type="float" value="60"/>
@@ -199,7 +186,7 @@
    </properties>
    <point/>
   </object>
-  <object id="52" type="Exit" x="3848" y="836">
+  <object id="52" type="Exit" x="3840" y="836">
    <point/>
   </object>
   <object id="190" x="6720" y="2236">
@@ -222,11 +209,11 @@
    <properties>
     <property name="angle" type="float" value="45"/>
     <property name="fov" type="float" value="60"/>
-    <property name="viewDistance" type="float" value="4"/>
+    <property name="viewDistance" type="float" value="5"/>
    </properties>
    <point/>
   </object>
-  <object id="205" type="Vent" x="4832.24" y="1284.48">
+  <object id="205" type="Vent" x="5180.24" y="896.48">
    <point/>
   </object>
   <object id="206" type="Guard" x="3852" y="1448">
@@ -236,24 +223,18 @@
    </properties>
    <point/>
   </object>
-  <object id="208" x="3377.08" y="1336">
-   <polyline points="0,0 944.865,-8 948.614,120 -3.74946,116"/>
-  </object>
-  <object id="209" type="Vent" x="3492" y="1440">
-   <point/>
-  </object>
-  <object id="210" type="Vent" x="4192" y="1444">
-   <point/>
+  <object id="208" x="3607.17" y="1336">
+   <polyline points="0,0 460.707,-8 462.535,120 -1.8282,116"/>
   </object>
   <object id="211" type="Camera" x="3268" y="1264">
    <properties>
     <property name="angle" type="float" value="135"/>
     <property name="fov" type="float" value="60"/>
-    <property name="viewDistance" type="float" value="4"/>
+    <property name="viewDistance" type="float" value="5"/>
    </properties>
    <point/>
   </object>
-  <object id="212" type="Vent" x="2882.67" y="1284.48">
+  <object id="212" type="Vent" x="2494.67" y="888.48">
    <point/>
   </object>
   <object id="234" type="Checkpoint" x="3836.37" y="3209.09">
@@ -270,42 +251,46 @@
    </properties>
    <point/>
   </object>
-  <object id="239" type="Camera" x="3363.76" y="1653.21">
-   <properties>
-    <property name="angle" type="float" value="105"/>
-    <property name="fov" type="float" value="50"/>
-    <property name="viewDistance" type="float" value="5"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="240" type="Camera" x="4306.06" y="1654.18">
-   <properties>
-    <property name="angle" type="float" value="65"/>
-    <property name="fov" type="float" value="50"/>
-    <property name="viewDistance" type="float" value="5"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="241" type="Guard" x="5118.18" y="942.424">
+  <object id="247" type="Guard" x="4416" y="908">
    <properties>
     <property name="angle" type="float" value="270"/>
-    <property name="path" type="object" value="245"/>
+    <property name="path" type="object" value="0"/>
    </properties>
    <point/>
   </object>
-  <object id="243" type="Guard" x="2568" y="936">
+  <object id="248" type="Guard" x="3272" y="904">
    <properties>
     <property name="angle" type="float" value="270"/>
-    <property name="path" type="object" value="246"/>
+    <property name="path" type="object" value="0"/>
    </properties>
    <point/>
   </object>
-  <object id="245" x="4484" y="904">
-   <polyline points="0,0 640,4 640,236"/>
+  <object id="249" type="Vent" x="4160" y="1576">
+   <point/>
   </object>
-  <object id="246" x="3200" y="896">
-   <polyline points="0,0 -640,0 -640,256"/>
+  <object id="293" type="Vent" x="3524" y="1584">
+   <point/>
   </object>
+  <object id="294" type="Camera" x="4296" y="1360">
+   <properties>
+    <property name="angle" type="float" value="305"/>
+    <property name="fov" type="float" value="60"/>
+    <property name="viewDistance" type="float" value="4"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="295" type="Camera" x="3396" y="1360">
+   <properties>
+    <property name="angle" type="float" value="235"/>
+    <property name="fov" type="float" value="60"/>
+    <property name="viewDistance" type="float" value="4"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="296" type="Vent" x="3840" y="960">
+   <point/>
+  </object>
+  <object id="297" type="Door" x="3584" y="768" width="512" height="512"/>
  </objectgroup>
  <objectgroup id="8" name="images">
   <object id="91" gid="890" x="692" y="4820" width="392" height="551"/>
@@ -324,5 +309,32 @@
   <object id="131" gid="887" x="6058" y="5134" width="412" height="475"/>
   <object id="132" gid="887" x="5706" y="5102" width="412" height="475"/>
   <object id="134" gid="887" x="5378" y="5118" width="412" height="475"/>
+  <object id="252" gid="888" x="5227" y="1123" width="379" height="501"/>
+  <object id="253" gid="888" x="5459" y="1083" width="379" height="501"/>
+  <object id="267" gid="888" x="5707" y="1151" width="379" height="501"/>
+  <object id="268" gid="888" x="5919" y="1083" width="379" height="501"/>
+  <object id="269" gid="888" x="6067" y="1187" width="379" height="501"/>
+  <object id="270" gid="888" x="6067" y="1531" width="379" height="501"/>
+  <object id="271" gid="888" x="5815" y="1395" width="379" height="501"/>
+  <object id="272" gid="888" x="5611" y="1463" width="379" height="501"/>
+  <object id="273" gid="888" x="5335" y="1395" width="379" height="501"/>
+  <object id="274" gid="888" x="5167" y="1507" width="379" height="501"/>
+  <object id="275" gid="888" x="5423" y="1559" width="379" height="501"/>
+  <object id="276" gid="888" x="5859" y="1543" width="379" height="501"/>
+  <object id="277" gid="887" x="5570" y="5142" width="412" height="475"/>
+  <object id="278" gid="887" x="5846" y="5122" width="412" height="475"/>
+  <object id="279" gid="887" x="6226" y="5122" width="412" height="475"/>
+  <object id="280" gid="887" x="6534" y="5118" width="412" height="475"/>
+  <object id="281" gid="890" x="500" y="4764" width="392" height="551"/>
+  <object id="282" gid="890" x="892" y="4764" width="392" height="551"/>
+  <object id="283" gid="890" x="1276" y="4732" width="392" height="551"/>
+  <object id="284" gid="890" x="1664" y="4716" width="392" height="551"/>
+  <object id="285" gid="890" x="2080" y="4736" width="392" height="551"/>
+  <object id="286" gid="890" x="1884" y="5116" width="392" height="551"/>
+  <object id="287" gid="890" x="1520" y="5100" width="392" height="551"/>
+  <object id="288" gid="890" x="1060" y="5156" width="392" height="551"/>
+  <object id="289" gid="890" x="652" y="5136" width="392" height="551"/>
+  <object id="290" gid="890" x="2460" y="4756" width="392" height="551"/>
+  <object id="291" gid="890" x="480" y="5016" width="392" height="551"/>
  </objectgroup>
 </map>
