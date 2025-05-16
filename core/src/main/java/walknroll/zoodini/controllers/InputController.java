@@ -89,14 +89,8 @@ public class InputController extends InputAdapter {
 	/** Where are we targeting? */
 	private Vector2 aiming;
 
-	private int abilityKey;
-	private int p2AbilityKey;
-	private int swapKey;
-
 	private boolean followModePrevious;
 	private boolean followModePressed;
-	private int followModeKey;
-
 	/** An X-Box controller (if it is connected) */
 	XBoxController xbox;
 	XBoxController p2xbox;
@@ -121,14 +115,6 @@ public class InputController extends InputAdapter {
 			p2xbox = null;
 		}
 		aiming = new Vector2();
-		abilityKey = Input.Keys.E;
-		p2AbilityKey = Input.Keys.SHIFT_RIGHT;
-		swapKey = Input.Keys.SPACE;
-		followModeKey = Input.Keys.F;
-	}
-
-	public void setFollowModeKey(int followModeKey) {
-		this.followModeKey = followModeKey;
 	}
 
 	public boolean didPressFollowMode() {
@@ -253,14 +239,6 @@ public class InputController extends InputAdapter {
 		return leftClicked && !leftPrevious;
 	}
 
-	public void setAbilityKey(int keycode) {
-		abilityKey = keycode;
-	}
-
-	public void setSwapKey(int keycode) {
-		swapKey = keycode;
-	}
-
 	/**
 	 * Synchronizes the game input with the current animation frame.
 	 */
@@ -363,7 +341,7 @@ public class InputController extends InputAdapter {
 
 		if (GameSettings.getInstance().isCoopEnabled()) {
 			p2AbilityPressed = (secondary && p2AbilityPressed) || (Gdx.input.isKeyPressed(
-					this.p2AbilityKey));
+					GameSettings.getInstance().getP2AbilityKey()));
 			p2Horizontal = (secondary ? p2Horizontal : 0.0f);
 			if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
 				p2Horizontal += 1.0f;
