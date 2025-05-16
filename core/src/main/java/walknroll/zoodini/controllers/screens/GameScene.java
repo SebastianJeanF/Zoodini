@@ -416,22 +416,23 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         ScreenUtils.clear(0.0863f, 0.349f, 0.3843f, 1.0f);
         // Set the camera's updated view
         if (Constants.CO_OP && level.isOctopusPresent() && level.isCatPresent()) {
-            // Left half (Cat)
-            int screenWidth = Gdx.graphics.getWidth();
-            int screenHeight = Gdx.graphics.getHeight();
+            // Use backbuffer dimensions instead of logical dimensions
+            // This accounts for high-DPI displays (Retina on Mac)
+            int screenWidth = Gdx.graphics.getBackBufferWidth();
+            int screenHeight = Gdx.graphics.getBackBufferHeight();
             int halfWidth = screenWidth / 2;
 
-            // Left half (Cat) - use exact half of screen width
+            // Left half (Cat)
             Gdx.gl.glViewport(0, 0, halfWidth, screenHeight);
             batch.setProjectionMatrix(cameraLeft.combined);
             level.draw(batch, cameraLeft);
 
-            // Right half (Octopus) - use exact half of screen width
+            // Right half (Octopus)
             Gdx.gl.glViewport(halfWidth, 0, halfWidth, screenHeight);
             batch.setProjectionMatrix(cameraRight.combined);
             level.draw(batch, cameraRight);
 
-            // Reset viewport for UI - use full screen dimensions
+            // Reset viewport for UI
             Gdx.gl.glViewport(0, 0, screenWidth, screenHeight);
         } else {
             batch.setProjectionMatrix(camera.combined);
