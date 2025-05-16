@@ -18,7 +18,7 @@
  * at the start of the game.
  *
  * @author: Walker M. White
- * 
+ *
  * @date: 11/21/2024
  */
 package walknroll.zoodini.controllers.screens;
