@@ -113,6 +113,9 @@ public class UIController {
         minimap.setCatTexture((directory.getEntry("cat-walk-transition", Texture.class)));
         minimap.setOctopusTexture((directory.getEntry("octopus", Texture.class)));
 
+
+
+
         if (level.isOctopusPresent()) {
             SpriteSheet inkSprites = directory.getEntry("ink-meter.animation", SpriteSheet.class);
             Octopus o = level.getOctopus();

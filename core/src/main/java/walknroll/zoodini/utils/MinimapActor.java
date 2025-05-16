@@ -17,6 +17,7 @@ import walknroll.zoodini.models.entities.SecurityCamera;
 import walknroll.zoodini.models.nonentities.Door;
 import walknroll.zoodini.models.nonentities.Exit;
 import walknroll.zoodini.models.nonentities.Key;
+import walknroll.zoodini.models.nonentities.Vent;
 
 public class MinimapActor extends Actor implements Disposable {
     // Minimap display parameters
@@ -34,6 +35,8 @@ public class MinimapActor extends Actor implements Disposable {
     private final Color DOOR_COLOR = new Color(0.6f, 0.4f, 0.2f, 1f);
     private final Color EXIT_COLOR = new Color(0.2f, 0.9f, 0.2f, 1f);
     private final Color KEY_COLOR = new Color(0.9f, 0.9f, 0.2f, 1f);
+    private final Color VENT_COLOR = new Color(0.5f, 0.23f, 0.26f, 1f);
+
 
     private Texture octopusTexture;
     private Texture catTexture;
@@ -75,6 +78,8 @@ public class MinimapActor extends Actor implements Disposable {
     public void setCatTexture(Texture t){
         catTexture = t;
     }
+
+
 
     private void createMinimapTexture() {
         // Create a pixmap for the minimap
@@ -137,6 +142,9 @@ public class MinimapActor extends Actor implements Disposable {
 
         // Draw keys
         drawAllKeys();
+
+        // Draw vents
+        drawAllVents();
 
         // Draw exit
         drawExitDirect();
@@ -259,6 +267,26 @@ public class MinimapActor extends Actor implements Disposable {
                 float size = 0.5f;  // Keys are small
                 drawMapEntity(position, size, size, KEY_COLOR);
             }
+        }
+    }
+
+    /**
+     * Draws all vents directly from the vents collection
+     */
+    private void drawAllVents() {
+        pixmap.setColor(VENT_COLOR);
+
+        for (Vent vent : level.getVents()) {
+            Vector2 position = vent.getObstacle().getPosition();
+            float size = 1f;
+
+            // Try to determine actual size if available
+            if (vent.getObstacle() instanceof BoxObstacle) {
+                BoxObstacle box = (BoxObstacle) vent.getObstacle();
+                size = Math.max(box.getWidth(), box.getHeight());
+            }
+
+            drawMapEntity(position, size, size, VENT_COLOR);
         }
     }
 
