@@ -274,6 +274,7 @@ public class SettingsScene implements Screen {
                     setSwapKey.setText("Current: " + Input.Keys.toString(keycode));
                     SettingsScene.this.stagedSettings.setSwapKey(keycode);
                     SettingsScene.this.waitingForSwapKey = false;
+
                 }
                 if (SettingsScene.this.waitingForFollowKey) {
                     setFollowButton.setText("Current: " + Input.Keys.toString(keycode));

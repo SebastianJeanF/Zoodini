@@ -193,7 +193,7 @@ public class LevelSelectScene implements Screen {
             portalStack.add(labelContainer);
             table.add(portalStack);
 
-            if ((i + 1) % 6 == 0) {
+            if ((i + 1) % 7 == 0) {
                 table.row();
             }
         }
