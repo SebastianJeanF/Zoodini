@@ -372,7 +372,7 @@ public class MenuScene implements Screen {
 		table.add(group).left().bottom();
 
 		Image teamLogo = new Image(internal.getEntry("team-logo", Texture.class));
-		table.add(teamLogo).expandX().right().bottom().size(Value.percentWidth(0.125f, table)).pad(Value
+		table.add(teamLogo).expandX().right().bottom().size(Value.percentHeight(0.2f, table)).pad(Value
 				.percentWidth(0.02f));
 
 		return table;
