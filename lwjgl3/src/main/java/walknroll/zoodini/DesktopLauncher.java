@@ -60,7 +60,7 @@ public class DesktopLauncher {
         config.fullscreen = false;
         config.width  = 1280;
         config.height = 720;
-
+        config.resizable = false;
 
         config.rawHDPI = false;
 

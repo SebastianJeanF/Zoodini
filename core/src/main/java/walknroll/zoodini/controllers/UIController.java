@@ -39,7 +39,6 @@ import walknroll.zoodini.utils.enums.ExitAnimal;
 public class UIController {
 
     private final boolean debug = false;
-    private boolean minimapDisabled = false;
 
     public interface PauseMenuListener {
         void onPauseStateChanged(boolean paused);
@@ -95,7 +94,6 @@ public class UIController {
         skin = new Skin(Gdx.files.internal("uiskins/default/uiskin.json")); //TODO: use AssetDirectory to load skins.
         initializeActors(directory, level);
         setupStageLayout(level);
-        disableMinimap(level.isMinimapDisabled());
     }
 
 
@@ -110,7 +108,7 @@ public class UIController {
 
         octopusIconImage = new Image((directory.getEntry("octopus-icon", Texture.class)));
         octopusIconImage.setVisible(false);
-        minimap = new MinimapActor(level);
+        minimap = new MinimapActor(directory, level);
         minimap.setPosition(20, Gdx.graphics.getHeight() - (minimap.getHeight() + 20));
         minimap.setCatTexture(directory.getEntry("cat-walk-transition", Texture.class));
         minimap.setOctopusTexture(directory.getEntry("octopus", Texture.class));
@@ -505,10 +503,6 @@ public class UIController {
             }
         }
 
-        if (minimapDisabled) {
-            minimap.setVisible(false);
-        }
-
         stage.draw();
     }
 
@@ -538,9 +532,5 @@ public class UIController {
 
     public void setPauseMenuListener(PauseMenuListener l) {
         pauseListener = l;
-    }
-
-    public void disableMinimap(boolean b) {
-        minimapDisabled = b;
     }
 }
