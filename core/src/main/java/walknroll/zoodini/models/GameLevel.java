@@ -740,6 +740,11 @@ public class GameLevel {
         }
         batch.setColor(Color.WHITE);
 
+        // Draw the suspicion meter of each guard
+        for (Guard g : guards) {
+            g.drawSuspicionMeter(batch);
+        }
+
         // Draw the text last on top of everything else
         drawGameText(batch);
 
