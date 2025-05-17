@@ -1,5 +1,10 @@
 package walknroll.zoodini.utils;
 
+import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.objects.TextureMapObject;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import edu.cornell.gdiac.graphics.SpriteMesh;
+import edu.cornell.gdiac.physics2.BoxObstacle;
 import edu.cornell.gdiac.physics2.Obstacle;
 import java.util.Comparator;
 
@@ -9,6 +14,29 @@ import edu.cornell.gdiac.physics2.ObstacleSprite;
 
 public class ZoodiniSprite extends ObstacleSprite implements Comparable<ZoodiniSprite> {
     private boolean drawingEnabled = true;
+
+    public ZoodiniSprite(){
+        super();
+    }
+
+
+    /** Constructor for images */
+    public ZoodiniSprite(TextureMapObject t, float units){
+        super();
+        MapProperties properties = t.getProperties();
+        float[] pos = {properties.get("x", Float.class) / units, properties.get("y", Float.class)
+            / units};
+        float w = properties.get("width", Float.class) / units;
+        float h = properties.get("height", Float.class) / units;
+        obstacle = new BoxObstacle(pos[0] + w / 2, pos[1] + h / 2, w, h);
+        obstacle.setSensor(true);
+        obstacle.setPhysicsUnits(units);
+        obstacle.setBodyType(BodyType.StaticBody);
+        w = w * units;
+        h = h * units;
+        mesh = new SpriteMesh(-w / 2, -h / 2, w, h);
+        setTextureRegion(t.getTextureRegion());
+    }
 
     public static Comparator<ZoodiniSprite> Comparison = new Comparator<ZoodiniSprite>() {
         @Override
