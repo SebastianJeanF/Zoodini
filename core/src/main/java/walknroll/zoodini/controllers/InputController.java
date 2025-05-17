@@ -282,8 +282,8 @@ public class InputController extends InputAdapter {
 		GameSettings settings = GameSettings.getInstance();
 
 		// Give priority to gamepad results
-		resetPressed = (secondary && resetPressed) || (Gdx.input.isKeyPressed(Input.Keys.R));
-		debugPressed = (secondary && debugPressed) || (Gdx.input.isKeyPressed(Input.Keys.O));
+		resetPressed = Constants.DEBUG && (secondary && resetPressed) || (Gdx.input.isKeyPressed(Input.Keys.R));
+		debugPressed = Constants.DEBUG && (secondary && debugPressed) || (Gdx.input.isKeyPressed(Input.Keys.O));
 		exitPressed = (secondary && exitPressed) || (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));
 		swapPressed = (secondary && swapPressed) || (Gdx.input.isKeyPressed(settings.getSwapKey()));
 		abilityPressed = (secondary && abilityPressed) || (Gdx.input.isKeyPressed(settings
