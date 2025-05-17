@@ -1,5 +1,6 @@
 package walknroll.zoodini.utils;
 
+import edu.cornell.gdiac.physics2.Obstacle;
 import java.util.Comparator;
 
 import com.badlogic.gdx.math.Vector2;
