@@ -320,10 +320,19 @@ public class GameLevel {
             for(MapObject obj : objs){
                 if(obj instanceof TextureMapObject t) {
                     imagesCache.add(t);
+//                    BoxObstacle obs = new BoxObstacle(t.getX() / units, t.getY() / units, 1, 1);
+//                    obs.setPhysicsUnits(units);
+//                    obs.setBodyType(BodyType.StaticBody);
+//                    obs.setSensor(true);
+//                    ZoodiniSprite image = new ZoodiniSprite();
+//                    image.setTexture(t.getTextureRegion().getTexture());
+//                    image.setObstacle(obs);
+//                    activate(image);
                 }
             }
             imagesCache.sort((a,b) -> Float.compare(b.getY(), a.getY())); //descending order
         }
+
 
         // Clear state tracking if this is a fresh populate (not restoration)
         if (!isRestoringFromSnapshot) {
@@ -645,6 +654,8 @@ public class GameLevel {
      * @param camera the drawing camera
      */
     public void draw(SpriteBatch batch, Camera camera) {
+        sprites.sort(ZoodiniSprite.Comparison);
+
         // Draw the sprites first (will be hidden by shadows)
         batch.begin(camera);
         batch.setColor(Color.WHITE);
@@ -663,7 +674,6 @@ public class GameLevel {
         if (decorations != null)
             mapRenderer.renderTileLayer((TiledMapTileLayer) decorations);
 
-        sprites.sort(ZoodiniSprite.Comparison);
         for (Vent vent : vents) {
             vent.draw(batch);
         }
@@ -724,6 +734,13 @@ public class GameLevel {
         MapLayer wallLayer = mapRenderer.getMap().getLayers().get("wall-tiles");
         if (wallLayer != null){
             mapRenderer.renderTileLayer((TiledMapTileLayer) wallLayer);
+
+        }
+
+        batch.setColor(Color.WHITE);
+        MapLayer foreground = mapRenderer.getMap().getLayers().get("foreground");
+        if (foreground != null){
+            mapRenderer.renderTileLayer((TiledMapTileLayer) foreground);
 
         }
 

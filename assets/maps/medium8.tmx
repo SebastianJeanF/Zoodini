@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="128" tileheight="128" infinite="0" nextlayerid="6" nextobjectid="229">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="128" tileheight="128" infinite="0" nextlayerid="7" nextobjectid="229">
  <tileset firstgid="1" source="../tilesets/walls-1.tsx"/>
  <tileset firstgid="211" source="../tilesets/fence.tsx"/>
  <tileset firstgid="241" source="../tilesets/decorations-2.tsx"/>
@@ -40,7 +40,7 @@
 181,182,183,184,139,139,139,124,184,184,184,184,184,184,169,169,169,169,181,166,181,182,183,184,184,184,184,184,169,169
 </data>
  </layer>
- <layer id="4" name="decorations" width="30" height="30">
+ <layer id="4" name="foreground" width="30" height="30">
   <data encoding="csv">
 225,225,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,225,225,
 225,225,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,225,225,
