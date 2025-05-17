@@ -347,12 +347,12 @@
     }
   },
   "sounds": {
-    "cat-meow": "sounds/cat-meow.mp3",
-    "ink-explosion": "sounds/explosion.mp3",
-    "octopus-shoot": "sounds/octopus-shoot.mp3"
+    "cat-meow": "sounds/cat-meow.ogg",
+    "ink-explosion": "sounds/explosion.ogg",
+    "octopus-shoot": "sounds/octopus-shoot.ogg"
   },
   "music": {
-    "game-music": "music/game-music.mp3"
+    "game-music": "music/game-music.ogg"
   },
   "jsons": {
     "constants": "jsons/constants.json",
