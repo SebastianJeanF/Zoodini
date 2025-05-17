@@ -53,12 +53,6 @@ public class InputController extends InputAdapter {
 	/** Whether the reset button was pressed. */
 	private boolean resetPressed;
 	private boolean resetPrevious;
-	/** Whether the button to advanced worlds was pressed. */
-	private boolean nextPressed;
-	private boolean nextPrevious;
-	/** Whether the button to step back worlds was pressed. */
-	private boolean prevPressed;
-	private boolean prevPrevious;
 	/** Whether the debug toggle was pressed. */
 	private boolean debugPressed;
 	private boolean debugPrevious;
@@ -161,24 +155,6 @@ public class InputController extends InputAdapter {
 	}
 
 	/**
-	 * Returns true if the player wants to go to the next level.
-	 *
-	 * @return true if the player wants to go to the next level.
-	 */
-	public boolean didForward() {
-		return nextPressed && !nextPrevious;
-	}
-
-	/**
-	 * Returns true if the player wants to go to the previous level.
-	 *
-	 * @return true if the player wants to go to the previous level.
-	 */
-	public boolean didBack() {
-		return prevPressed && !prevPrevious;
-	}
-
-	/**
 	 * Returns true if the player wants to go toggle the debug mode.
 	 *
 	 * @return true if the player wants to go toggle the debug mode.
@@ -248,8 +224,6 @@ public class InputController extends InputAdapter {
 		resetPrevious = resetPressed;
 		debugPrevious = debugPressed;
 		exitPrevious = exitPressed;
-		nextPrevious = nextPressed;
-		prevPrevious = prevPressed;
 		swapPrevious = swapPressed;
 		abilityPrevious = abilityPressed;
 		p2AbilityPrevious = p2AbilityPressed;
@@ -281,8 +255,6 @@ public class InputController extends InputAdapter {
 	private void readGamepad(XBoxController xbox, boolean p2) {
 		resetPressed = xbox.getStart();
 		exitPressed = xbox.getBack();
-		nextPressed = xbox.getRBumper();
-		prevPressed = xbox.getLBumper();
 		debugPressed = xbox.getY();
 		swapPressed = xbox.getA();
 		followModePressed = xbox.getB();
@@ -312,8 +284,6 @@ public class InputController extends InputAdapter {
 		// Give priority to gamepad results
 		resetPressed = (secondary && resetPressed) || (Gdx.input.isKeyPressed(Input.Keys.R));
 		debugPressed = (secondary && debugPressed) || (Gdx.input.isKeyPressed(Input.Keys.O));
-		prevPressed = (secondary && prevPressed) || (Gdx.input.isKeyPressed(Input.Keys.P));
-		nextPressed = (secondary && nextPressed) || (Gdx.input.isKeyPressed(Input.Keys.N));
 		exitPressed = (secondary && exitPressed) || (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));
 		swapPressed = (secondary && swapPressed) || (Gdx.input.isKeyPressed(settings.getSwapKey()));
 		abilityPressed = (secondary && abilityPressed) || (Gdx.input.isKeyPressed(settings
