@@ -40,6 +40,7 @@ public class GameSettings {
         this.abilityKey = abilityKey;
         this.swapKey = swapKey;
         this.followKey = followKey;
+        this.p2AbilityKey = p2AbilityKey;
         this.resolution = resolution;
         this.musicVolume = musicVolume;
         this.soundVolume = soundVolume;
