@@ -72,13 +72,7 @@ public class ZoodiniSprite extends ObstacleSprite implements Comparable<ZoodiniS
 
         float y = getBottomY();
         float y2 = o.getBottomY();
-        if(y > y2){
-            return -1;
-        } else if (y < y2) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return Float.compare(y2, y);
     }
 
     public float getBottomY(){
