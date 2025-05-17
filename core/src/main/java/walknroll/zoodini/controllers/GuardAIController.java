@@ -106,48 +106,6 @@ public class GuardAIController {
     }
 
     /**
-     * Validates waypoints and updates any that are in wall tiles to be in valid
-     * non-wall tiles.
-     *
-     * @param waypoints The array of waypoints to validate
-     * @return A new array of valid waypoints in world coordinates
-     */
-    private Vector2[] getValidWaypoints(Vector2[] waypoints) {
-        if (waypoints == null || waypoints.length == 0) {
-            return new Vector2[0];
-        }
-
-        Vector2[] validWaypoints = new Vector2[waypoints.length];
-
-        for (int i = 0; i < waypoints.length; i++) {
-            Vector2 waypoint = waypoints[i];
-            TileNode waypointTile = tileGraph.worldToTile(waypoint);
-
-            // Check if waypoint is in a wall tile
-            if (waypointTile == null || waypointTile.isObstacle) {
-                // Find the nearest non-wall tile
-                TileNode validTile = tileGraph.findNearestNonObstacleNode(waypoint);
-
-                if (validTile != null) {
-                    // Convert the valid tile to world coordinates (use the center of the tile)
-                    validWaypoints[i] = tileGraph.tileToWorld(validTile);
-//                    DebugPrinter.println("Updated waypoint " + i + " from " + waypoint +
-//                            " to " + validWaypoints[i] + " (was in wall)");
-                } else {
-                    // This should not happen if your graph has at least one non-wall tile
-//                    DebugPrinter.println("Warning: Could not find a valid non-wall tile for waypoint " + i);
-                    validWaypoints[i] = waypoint; // Keep the original as fallback
-                }
-            } else {
-                // Waypoint is already valid, so keep it
-                validWaypoints[i] = waypoint;
-            }
-        }
-
-        return validWaypoints;
-    }
-
-    /**
      * Helper function to retrieve the currently active player avatar.
      *
      * @return The active player avatar from the game level

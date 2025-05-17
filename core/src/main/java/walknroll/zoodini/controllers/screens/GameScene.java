@@ -1422,7 +1422,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 for (int x = startX; x < endX; x++) {
                     for (int y = startY; y < endY; y++) {
                         TileNode n = graph.getNode(x,y);
-                        n.isObstacle = false;
+                        if (n != null) {
+                            n.isObstacle = false;
+                        }
                     }
                 }
 

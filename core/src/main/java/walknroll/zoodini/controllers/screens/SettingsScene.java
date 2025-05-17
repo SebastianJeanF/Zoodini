@@ -300,7 +300,10 @@ public class SettingsScene implements Screen {
             }
         });
 
-        window.add(new ScrollPane(table, skin));
+        ScrollPane keybindsScroller = new ScrollPane(table, skin);
+        keybindsScroller.setFadeScrollBars(false);
+        stage.setScrollFocus(keybindsScroller);
+        window.add(keybindsScroller);
 
         window.row();
         window.add(

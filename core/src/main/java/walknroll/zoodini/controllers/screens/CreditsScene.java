@@ -29,7 +29,7 @@ public class CreditsScene implements Screen {
 
     private ScreenListener listener;
 
-    private AssetDirectory assets;
+private AssetDirectory assets;
 
     /** The drawing camera for this scene */
     private OrthographicCamera camera;
@@ -179,7 +179,10 @@ public class CreditsScene implements Screen {
         group.addActor(new Label("librayr", skin, "gold"));
         group.addActor(new Label("libgdx", skin));
 
-        table.add(new ScrollPane(group, skin)).expandX().width(Value.percentWidth(0.8f, table));
+        ScrollPane creditsScroller = new ScrollPane(group, skin);
+        creditsScroller.setFadeScrollBars(false);
+        table.add(creditsScroller).expandX().width(Value.percentWidth(0.8f, table));
+        stage.setScrollFocus(creditsScroller);
         table.row();
         TextButton menuReturn = new TextButton("Back to Menu", skin);
         menuReturn.addListener(new ChangeListener() {
