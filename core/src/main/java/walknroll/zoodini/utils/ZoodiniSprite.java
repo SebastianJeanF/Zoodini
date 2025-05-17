@@ -1,11 +1,13 @@
 package walknroll.zoodini.utils;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import edu.cornell.gdiac.graphics.SpriteMesh;
 import edu.cornell.gdiac.physics2.BoxObstacle;
 import edu.cornell.gdiac.physics2.Obstacle;
+import edu.cornell.gdiac.physics2.WheelObstacle;
 import java.util.Comparator;
 
 import com.badlogic.gdx.math.Vector2;
@@ -36,6 +38,7 @@ public class ZoodiniSprite extends ObstacleSprite implements Comparable<ZoodiniS
         h = h * units;
         mesh = new SpriteMesh(-w / 2, -h / 2, w, h);
         setTextureRegion(t.getTextureRegion());
+        setDebugColor(Color.GREEN);
     }
 
     public static Comparator<ZoodiniSprite> Comparison = new Comparator<ZoodiniSprite>() {
@@ -55,17 +58,37 @@ public class ZoodiniSprite extends ObstacleSprite implements Comparable<ZoodiniS
 
     @Override
     public int compareTo(ZoodiniSprite o) {
-        Vector2 position = this.obstacle.getPosition();
-        Vector2 oPosition = o.getObstacle().getPosition();
-        if (position.y > oPosition.y) {
+//        Vector2 position = this.obstacle.getPosition();
+//        Vector2 oPosition = o.getObstacle().getPosition();
+//        if (position.y > oPosition.y) {
+//            return -1;
+//        } else if (position.y < oPosition.y) {
+//            return 1;
+//        } else if (position.x > oPosition.x) {
+//            return -1;
+//        } else if (position.x < oPosition.x) {
+//            return 1;
+//        }
+
+        float y = getBottomY();
+        float y2 = o.getBottomY();
+        if(y > y2){
             return -1;
-        } else if (position.y < oPosition.y) {
+        } else if (y < y2) {
             return 1;
-        } else if (position.x > oPosition.x) {
-            return -1;
-        } else if (position.x < oPosition.x) {
-            return 1;
+        } else {
+            return 0;
         }
-        return 0;
+    }
+
+    public float getBottomY(){
+        float centerY = this.obstacle.getY();
+        float height = 0;
+        if(obstacle instanceof BoxObstacle b){
+            height = b.getHeight();
+        } else if (obstacle instanceof WheelObstacle w){
+            height = w.getRadius() * 2;
+        }
+        return centerY - height/2.0f;
     }
 }
