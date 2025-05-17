@@ -452,10 +452,13 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * @param dt Number of seconds since last animation frame
      */
     public void update(float dt) {
+        InputController input = InputController.getInstance();
+        if (input.didExit()) {
+            ui.togglePauseMenu(!ui.isPaused());
+        }
         if (gamePaused) {
             return;
         }
-        InputController input = InputController.getInstance();
         processPlayerAction(input, dt);
         processNPCAction(dt);
         level.update(dt); // collisions
@@ -1258,10 +1261,6 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * Applies movement forces to the avatar and change firing states.
      */
     private void processPlayerAction(InputController input, float dt) {
-        if (input.didExit()) {
-            ui.togglePauseMenu(true);
-        }
-
         vec3tmp.setZero();
         vec2tmp.setZero();
 
