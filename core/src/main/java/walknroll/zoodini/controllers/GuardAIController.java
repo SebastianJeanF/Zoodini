@@ -657,27 +657,26 @@ public class GuardAIController {
     }
 
     private void changeState(GuardState newState) {
-
-        switch (newState) {
-            case CHASE:
-                soundController.playGuardAlerted();
-                break;
-            case DISTRACTED:
-                soundController.playGuardCurious();
-                break;
-            case AlERTED:
-                soundController.playGuardAlerted();
-                break;
-            case LOOKING_AROUND:
-                soundController.playGuardCurious();
-                break;
-            default:
-                break;
-        }
-
         if (newState != currState) {
-            currState = newState;
+            switch (newState) {
+                case CHASE:
+                    soundController.playGuardAlerted();
+                    break;
+                case DISTRACTED:
+                    soundController.playGuardCurious();
+                    break;
+                case AlERTED:
+                    soundController.playGuardAlerted();
+                    break;
+                case LOOKING_AROUND:
+                    soundController.playGuardCurious();
+                    break;
+                default:
+                    break;
+            }
         }
+
+        currState = newState;
     }
 
     /**
