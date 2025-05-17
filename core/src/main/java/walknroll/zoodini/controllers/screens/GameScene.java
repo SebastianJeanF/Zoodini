@@ -368,7 +368,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             @Override
             public void run() {
                 if (listener != null) {
-                    listener.exitScreen(GameScene.this, GDXRoot.EXIT_MENU);
+                    listener.exitScreen(GameScene.this, GDXRoot.EXIT_LEVEL_SELECT);
                 }
             }
         }, 0.1f);
@@ -429,10 +429,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         }
 
         // Now it is time to maybe switch screens.
-        if (input.didExit()) {
-            listener.exitScreen(this, GDXRoot.EXIT_MENU);
-            return false;
-        } else if (countdown > 0) {
+        if (countdown > 0) {
             countdown--;
         } else if (countdown == 0) {
             reset();
@@ -1252,6 +1249,10 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * Applies movement forces to the avatar and change firing states.
      */
     private void processPlayerAction(InputController input, float dt) {
+        if (input.didExit()) {
+            ui.togglePauseMenu(true);
+        }
+
         vec3tmp.setZero();
         vec2tmp.setZero();
 
@@ -1314,8 +1315,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 for (Guard guard : level.getGuards()) {
                     guard.setInMeowRadius(false);
                 }
+            }
 
-            } else {
+            else {
                 cat.setDidFire(false);
             }
         }
@@ -1457,6 +1459,14 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private void resetAvatarState(PlayableAvatar avatar) {
         avatar.setCurrentlyAiming(false);
         avatar.resetPhysics();
+
+        // Clear all guards' meow radius indicators when switching away from cat
+        if (avatar.getAvatarType() == AvatarType.CAT) {
+            // Clear the meow radius indicators for all guards
+            for (Guard guard : level.getGuards()) {
+                guard.setInMeowRadius(false);
+            }
+        }
     }
 
     private void onSwap(InputController input) {
