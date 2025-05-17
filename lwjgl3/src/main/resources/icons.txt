@@ -1,4 +1,4 @@
-libgdx16.png
-libgdx32.png
-libgdx64.png
-libgdx128.png
+zoodini16.png
+zoodini32.png
+zoodini64.png
+zoodini128.png
