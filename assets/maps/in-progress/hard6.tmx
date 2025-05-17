@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="46" tilewidth="128" tileheight="128" infinite="0" nextlayerid="10" nextobjectid="382">
+ <editorsettings>
+  <export target="../hard6.tmx" format="tmx"/>
+ </editorsettings>
  <tileset firstgid="1" source="../../tilesets/path-1.tsx"/>
  <tileset firstgid="211" source="../../tilesets/walls-1.tsx"/>
  <tileset firstgid="421" source="../../tilesets/walls-2.tsx"/>
@@ -251,7 +254,7 @@
    </properties>
    <point/>
   </object>
-  <object id="52" type="Exit" x="3840" y="836">
+  <object id="52" type="Exit" x="3648.09" y="854.815">
    <properties>
     <property name="creature" propertytype="ExitCreature" value="PENGUIN"/>
    </properties>
@@ -338,16 +341,16 @@
   </object>
   <object id="294" type="Camera" x="4296" y="1360">
    <properties>
-    <property name="angle" type="float" value="305"/>
-    <property name="fov" type="float" value="60"/>
+    <property name="angle" type="float" value="275"/>
+    <property name="fov" type="float" value="40"/>
     <property name="viewDistance" type="float" value="4"/>
    </properties>
    <point/>
   </object>
   <object id="295" type="Camera" x="3396" y="1360">
    <properties>
-    <property name="angle" type="float" value="235"/>
-    <property name="fov" type="float" value="60"/>
+    <property name="angle" type="float" value="255"/>
+    <property name="fov" type="float" value="40"/>
     <property name="viewDistance" type="float" value="4"/>
    </properties>
    <point/>
