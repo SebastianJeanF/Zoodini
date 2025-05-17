@@ -153,7 +153,7 @@
   <object id="87" type="Exit" x="2490.5" y="721.5">
    <properties>
     <property name="category" value="10000"/>
-    <property name="creature" value="RABBIT"/>
+    <property name="creature" value="PANDA"/>
     <property name="exclude" value="00000"/>
     <property name="size" type="float" value="1.25"/>
    </properties>
