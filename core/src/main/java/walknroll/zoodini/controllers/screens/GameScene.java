@@ -900,6 +900,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 if (level.getOctopus() != null) {
                     level.getOctopus().setDrawingEnabled(false);
                 }
+                level.getGuards().forEach(guard -> guard.setDrawingEnabled(false));
             }
         }
     }
@@ -1007,12 +1008,12 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             }
 
             if (((o1 instanceof Cat && o2 instanceof Guard) || (o2 instanceof Cat && o1 instanceof Guard))
-                    && level.getCat().isInvincible()) {
+                    && (level.getCat().isInvincible() || complete)) {
                 contact.setEnabled(false);
             }
 
             if (((o1 instanceof Octopus && o2 instanceof Guard) || (o2 instanceof Octopus && o1 instanceof Guard))
-                    && level.getOctopus().isInvincible()) {
+                    && (level.getOctopus().isInvincible() || complete)) {
                 contact.setEnabled(false);
             }
         } catch (Exception e) {

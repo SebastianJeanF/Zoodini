@@ -556,7 +556,8 @@ public class Guard extends Enemy {
 
         if (suspsicionMeter == null
             || suspsicionMeter.getCurrentSpriteSheet() == null
-            || !Guard.isLoaded()) {
+            || !Guard.isLoaded()
+            || !isDrawingEnabled()) {
             return;
         }
 
