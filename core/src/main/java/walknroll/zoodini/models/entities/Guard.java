@@ -7,6 +7,9 @@ import com.badlogic.gdx.maps.objects.PolygonMapObject;
 import com.badlogic.gdx.maps.objects.PolylineMapObject;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.physics.box2d.World;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -17,6 +20,10 @@ import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import java.util.Arrays;
+
+import edu.cornell.gdiac.physics2.BoxObstacle;
+import edu.cornell.gdiac.physics2.ObstacleSprite;
+import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Enemy;
 import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.LevelPortal;
@@ -40,6 +47,8 @@ public class Guard extends Enemy {
     private static final int CLOSE_ZONE_SUS_INCREASE = 5;
     private static final int MEDIUM_ZONE_SUS_INCREASE = 5;
     private static final int FAR_ZONE_SUS_INCREASE = 2;
+
+
 
 
     private final float fov;
@@ -97,6 +106,10 @@ public class Guard extends Enemy {
 
     private boolean inMeowRadius = false;
 
+    private BoxObstacle inkDetectionObstacle;
+    private static final float INK_DETECTION_RADIUS = 0.8f; // Larger than the guard's regular hitbox
+
+    private final float yInkObstacleOffset = .25f; // Offset for the ink detection obstacle
 
     public float getSusForce() {
         return susForce;
@@ -187,6 +200,8 @@ public class Guard extends Enemy {
         tempFov = fov;
 
         obstacle.setUserData(this);
+
+        createInkDetectionObstacle();
     }
 
     public void setSusMeter(SpriteSheet sheet) {
@@ -504,6 +519,15 @@ public class Guard extends Enemy {
             DebugPrinter.println("Guard is at frame 15");
         }
 
+
+        // Update the ink detection obstacle to follow the guard
+        if (inkDetectionObstacle != null && inkDetectionObstacle.getBody() != null) {
+            // Set the position to match the guard's position
+            inkDetectionObstacle.setPosition(getPosition().x, getPosition().y + yInkObstacleOffset);
+            // Match the angle of the guard
+//            inkDetectionObstacle.setAngle(getObstacle().getAngle());
+        }
+
     }
 
     /** The value of target is only valid if guard is agroed or is "meowed" */
@@ -516,8 +540,13 @@ public class Guard extends Enemy {
 
     public void draw(SpriteBatch batch) {
         super.draw(batch);
+        // Draw the ink detection obstacle in debug mode
+        if (inkDetectionObstacle != null && inkDetectionObstacle.getBody() != null) {
+           inkDetectionObstacle.draw(batch, Color.RED);
+        }
         drawSuspicionMeter(batch);
     }
+
 
 
     public void drawSuspicionMeter(SpriteBatch batch) {
@@ -687,5 +716,61 @@ public class Guard extends Enemy {
         // Update the animation to show the correct frame
         suspsicionMeter.getCurrentSpriteSheet().setFrame(frameIndex);
     }
+
+    /**
+     * Creates a secondary obstacle that follows the guard and only interacts with ink projectiles
+     */
+    private void createInkDetectionObstacle() {
+        // Create a slightly larger circular obstacle that follows the guard
+        inkDetectionObstacle = new BoxObstacle(getPosition().x, getPosition().y + yInkObstacleOffset,
+            INK_DETECTION_RADIUS * 1.6f, INK_DETECTION_RADIUS * 2.2f);
+
+        // Set it as a sensor so it detects collisions but doesn't affect physics
+        inkDetectionObstacle.setSensor(true);
+
+        // Set up the physics properties
+        inkDetectionObstacle.setBodyType(BodyDef.BodyType.DynamicBody);
+
+        // Set filter data to only interact with ink projectiles
+        Filter filter = new Filter();
+        // Use a unique category bit for the ink detection obstacle
+        filter.categoryBits = GameLevel.bitStringToShort("100000000"); // Using a high bit
+        // Only allow collisions with ink projectiles
+        filter.maskBits = GameLevel.bitStringToShort("001000000"); // Ink projectile category
+
+        inkDetectionObstacle.setFilterData(filter);
+
+        // Set user data to refer back to this guard
+        inkDetectionObstacle.setUserData(this);
+        inkDetectionObstacle.setPhysicsUnits(getObstacle().getPhysicsUnits());
+
+//        inkDetectionObstacle.setDebugColor(Color.RED);
+    }
+
+    /**
+     * Get the ink detection obstacle
+     */
+    public BoxObstacle getInkDetectionObstacle() {
+        return inkDetectionObstacle;
+    }
+
+    /**
+     * Activate the ink detection physics in the world
+     */
+    public void activateInkDetectionPhysics(World world) {
+        if (inkDetectionObstacle != null) {
+            inkDetectionObstacle.activatePhysics(world);
+        }
+    }
+
+    /**
+     * Deactivate the ink detection physics from the world
+     */
+    public void deactivateInkDetectionPhysics(World world) {
+        if (inkDetectionObstacle != null && inkDetectionObstacle.getBody() != null) {
+            inkDetectionObstacle.deactivatePhysics(world);
+        }
+    }
+
 
 }
