@@ -3,7 +3,7 @@
 // AGAIN: THIS MUST BE IN CONSECUTIVE ORDER
 {
 //  "100": "maps/checkpointTest.tmx",
-  "0": "maps/debugMap.tmx",
+//  "0": "maps/debugMap.tmx",
   "1": "maps/tutorial/Tutorial1.tmx",
   "2": "maps/tutorial/GarMeowIntro.tmx",
   "3": "maps/tutorial/GarMultiMeowIntro.tmx",
