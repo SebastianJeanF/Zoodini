@@ -193,7 +193,7 @@
   <object id="140" x="1920" y="2048" width="256" height="2560"/>
   <object id="142" x="6912" y="1536" width="128" height="256"/>
  </objectgroup>
- <objectgroup id="3" name="objects" visible="0">
+ <objectgroup id="3" name="objects">
   <object id="2" type="Cat" x="2756" y="5828">
    <properties>
     <property name="abilityCooldown" type="float" value="5"/>
@@ -244,7 +244,7 @@
   <object id="103" type="Exit" x="6656" y="1704">
    <properties>
     <property name="category" value="10000"/>
-    <property name="creature" value="RABBIT"/>
+    <property name="creature" value="OCTOPUS"/>
     <property name="exclude" value="00000"/>
     <property name="size" type="float" value="1.25"/>
    </properties>

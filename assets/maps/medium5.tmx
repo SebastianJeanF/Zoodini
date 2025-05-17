@@ -130,6 +130,9 @@
   </object>
   <object id="23" type="Door" x="3840" y="2304" width="384" height="384"/>
   <object id="24" type="Exit" x="4039.09" y="2964.17">
+   <properties>
+    <property name="creature" propertytype="ExitCreature" value="PENGUIN"/>
+   </properties>
    <point/>
   </object>
   <object id="26" type="Guard" x="3751.36" y="2149.84">
