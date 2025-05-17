@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -27,8 +28,8 @@ import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.GDXRoot;
 import walknroll.zoodini.utils.Constants;
-import walknroll.zoodini.utils.LevelPortal;
 import walknroll.zoodini.utils.FreeTypeSkin;
+import walknroll.zoodini.utils.LevelPortal;
 
 public class LevelSelectScene implements Screen {
 
@@ -84,19 +85,6 @@ public class LevelSelectScene implements Screen {
         normalButtonSkin = new FreeTypeSkin(Gdx.files.internal("uiskins/zoodini/uiskin.json"));
 
         Table table = makeLevelSelectTable();
-
-        table.row();
-        TextButton menuReturn = new TextButton("Back to Menu", normalButtonSkin);
-        menuReturn.addListener(new ChangeListener() {
-
-            public void changed(ChangeEvent event, Actor actor) {
-                listener.exitScreen(LevelSelectScene.this, GDXRoot.EXIT_MENU);
-            }
-        });
-        menuReturn.setPosition(0.01f * width, (0.01f * height) + 10f);
-        menuReturn.setWidth(0.2f * width);
-        stage.addActor(menuReturn);
-
         stage.addActor(table);
     }
 
@@ -184,12 +172,13 @@ public class LevelSelectScene implements Screen {
     }
 
     private Table makeLevelSelectTable() {
+        Table rootTable = new Table();
+        rootTable.setFillParent(true);
+        rootTable.pad(Value.percentWidth(0.02f)).padTop(Value.percentHeight(0.3f));
+
         Table table = new Table();
-        // table.setSize(this.width, this.height);
-        table.setFillParent(true);
+        table.setFillParent(false);
         table.defaults().spaceRight(10f).spaceBottom(10f);
-        table.pad(Value.percentWidth(0.02f));
-        // table.setDebug(true); // This is optional, but enables debug lines for
 
         for (int i = 0; i < this.availableLevels.size; i++) {
             int levelKey = this.availableLevels.get(i);
@@ -219,11 +208,25 @@ public class LevelSelectScene implements Screen {
             portalStack.add(labelContainer);
             table.add(portalStack);
 
-            if ((i + 1) % 7 == 0) {
+            if ((i + 1) % 6 == 0) {
                 table.row();
             }
         }
 
-        return table;
+        ScrollPane levelsScroller = new ScrollPane(table, normalButtonSkin);
+        rootTable.add(levelsScroller).height(Value.percentHeight(0.55f,
+                rootTable)).width(Value.percentWidth(0.8f, rootTable)).top().expand();
+        stage.setScrollFocus(levelsScroller);
+
+        rootTable.row();
+        TextButton menuReturn = new TextButton("Back to Menu", normalButtonSkin);
+        menuReturn.addListener(new ChangeListener() {
+
+            public void changed(ChangeEvent event, Actor actor) {
+                listener.exitScreen(LevelSelectScene.this, GDXRoot.EXIT_MENU);
+            }
+        });
+        rootTable.add(menuReturn).bottom().left();
+        return rootTable;
     }
 }
