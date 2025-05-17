@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="128" tileheight="128" infinite="0" nextlayerid="8" nextobjectid="175">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="128" tileheight="128" infinite="0" nextlayerid="8" nextobjectid="176">
  <tileset firstgid="1" source="../tilesets/path-3.tsx"/>
  <tileset firstgid="257" source="../tilesets/trees.tsx"/>
  <tileset firstgid="263" source="../tilesets/fence.tsx"/>
@@ -198,17 +198,18 @@
     <property name="timeToOpen" type="float" value="1"/>
    </properties>
   </object>
-  <object id="28" type="Guard" x="2375.39" y="3422.97">
+  <object id="28" type="Camera" x="2413.39" y="3410.97">
    <properties>
-    <property name="angle" type="float" value="90"/>
-    <property name="path" type="object" value="0"/>
+    <property name="angle" type="float" value="70"/>
+    <property name="fov" type="float" value="30"/>
+    <property name="viewDistance" type="float" value="5"/>
    </properties>
    <point/>
   </object>
   <object id="48" type="Cat" x="1977.76" y="3523.7">
    <point/>
   </object>
-  <object id="49" type="Octopus" x="1988.85" y="2555.58">
+  <object id="49" type="Octopus" x="1988.85" y="2411.58">
    <point/>
   </object>
   <object id="68" type="Guard" x="2372.73" y="2219.15">
@@ -243,7 +244,7 @@
   <object id="116" type="Vent" x="2756" y="2440">
    <point/>
   </object>
-  <object id="144" type="Camera" x="1709.33" y="2159.33">
+  <object id="144" type="Camera" x="2107.33" y="1755.33">
    <properties>
     <property name="angle" type="float" value="0"/>
     <property name="fov" type="float" value="40"/>
@@ -251,13 +252,13 @@
    </properties>
    <point/>
   </object>
-  <object id="172" type="Door" x="1792" y="2688" width="384" height="128">
+  <object id="173" type="Key" x="2754.67" y="1848">
+   <point/>
+  </object>
+  <object id="175" type="Door" x="1792" y="2560" width="384" height="256">
    <properties>
     <property name="timeToOpen" type="float" value="2"/>
    </properties>
-  </object>
-  <object id="173" type="Key" x="2754.67" y="1848">
-   <point/>
   </object>
  </objectgroup>
 </map>
