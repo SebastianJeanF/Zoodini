@@ -194,6 +194,8 @@ public class CreditsScene implements Screen {
                 "https://pixabay.com/sound-effects/singapore-eas-alarm-279722/", skin));
         group.addActor(new LinkLabel("Ink Splatter Sound",
                 "https://www.youtube.com/watch?v=VfXpXj9NGxI", skin));
+        group.addActor(new LinkLabel("Ink Fire Sound",
+                "https://pixabay.com/sound-effects/bubble-pop-5-323639/", skin));
         group.addActor(new Label("Music", skin, "gold"));
         group.addActor(new LinkLabel("Ingame Music",
                 "https://pixabay.com/music/upbeat-game-of-dwarves-264354/", skin));
