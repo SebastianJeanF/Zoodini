@@ -777,6 +777,24 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 setComplete(true);
             }
 
+            // Handle ink projectile collision with guard's ink detection obstacle
+            if (o1 instanceof InkProjectile && o2 instanceof BoxObstacle) {
+                // The BoxObstacle should have userData pointing to the Guard
+                Object userData = ((BoxObstacle) o2).getUserData();
+                if (userData instanceof Guard) {
+                    applyInkEffect((Guard) userData);
+                    level.getProjectile().setShouldDestroy(true);
+                }
+            }
+
+            if (o2 instanceof InkProjectile && o1 instanceof BoxObstacle) {
+                Object userData = ((BoxObstacle) o1).getUserData();
+                if (userData instanceof Guard) {
+                    applyInkEffect((Guard) userData);
+                    level.getProjectile().setShouldDestroy(true);
+                }
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

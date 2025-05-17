@@ -449,6 +449,10 @@ public class GameLevel {
         activate(inkProjectile);
         inkProjectile.setDrawingEnabled(false);
         inkProjectile.getObstacle().setActive(false);
+
+        for (Guard g : guards) {
+            g.activateInkDetectionPhysics(world);
+        }
     }
 
     /**
@@ -460,6 +464,11 @@ public class GameLevel {
     public void dispose() {
         for (ObstacleSprite s : sprites) {
             s.getObstacle().deactivatePhysics(world);
+            // If it's a guard, also deactivate its ink detection obstacle
+            if (s instanceof Guard) {
+                ((Guard) s).deactivateInkDetectionPhysics(world);
+            }
+
         }
 
         visions.clear();
