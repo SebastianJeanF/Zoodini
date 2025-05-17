@@ -153,7 +153,8 @@ public class StoryboardScene implements Screen {
         table.defaults().spaceRight(10f);
         table.top().pad(Value.percentWidth(0.02f));
 
-        Value controlWidth = Value.percentWidth(0.1f, table);
+        Value controlWidth = Value.percentWidth(0.15f, table);
+        Value controlHeight = Value.percentHeight(0.075f, table);
 
         TextButton nextButton = new TextButton("Next", skin);
         nextButton.addListener(new ChangeListener() {
@@ -170,7 +171,7 @@ public class StoryboardScene implements Screen {
             }
 
         });
-        table.add(nextButton).right().bottom().width(controlWidth).expand();
+        table.add(nextButton).right().bottom().width(controlWidth).height(controlHeight).expand();
 
         // table.row();
         TextButton skipButton = new TextButton("Skip", skin);
@@ -182,7 +183,7 @@ public class StoryboardScene implements Screen {
             }
 
         });
-        table.add(skipButton).right().bottom().width(controlWidth);
+        table.add(skipButton).right().bottom().width(controlWidth).height(controlHeight);
 
         return table;
     }
