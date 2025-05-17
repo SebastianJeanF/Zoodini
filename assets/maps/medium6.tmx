@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="128" tileheight="128" infinite="0" nextlayerid="8" nextobjectid="177">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="128" tileheight="128" infinite="0" nextlayerid="8" nextobjectid="179">
  <tileset firstgid="1" source="../tilesets/path-3.tsx"/>
  <tileset firstgid="257" source="../tilesets/trees.tsx"/>
  <tileset firstgid="263" source="../tilesets/fence.tsx"/>
@@ -259,6 +259,20 @@
    <properties>
     <property name="timeToOpen" type="float" value="2"/>
    </properties>
+  </object>
+  <object id="177" type="Checkpoint" x="1984" y="2496">
+   <properties>
+    <property name="door" type="object" value="175"/>
+    <property name="forCat" type="bool" value="false"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="178" type="Checkpoint" x="1982" y="3274">
+   <properties>
+    <property name="door" type="object" value="175"/>
+    <property name="forCat" type="bool" value="true"/>
+   </properties>
+   <point/>
   </object>
  </objectgroup>
 </map>
