@@ -184,6 +184,9 @@ public class SettingsScene implements Screen {
         // window.getTitleTable().add(closeWindow).height(window.getPadTop());
         window.row().fill().expandX();
 
+        Value buttonWidth = Value.percentWidth(0.25f, container);
+        Value buttonHeight = Value.percentHeight(0.06f, container);
+        Value buttonPadding = Value.percentWidth(0.01f, container);
         Table table = new Table();
         table.setFillParent(true);
 
@@ -202,9 +205,7 @@ public class SettingsScene implements Screen {
                 SettingsScene.this.waitingForP2AbilityKey = false;
             }
         });
-        table.add(setAbilityKey).width(Value.percentWidth(0.2f, container))
-                .height(Value.percentHeight(0.06f, container)).pad(Value.percentWidth(0.01f,
-                        container));
+        table.add(setAbilityKey).width(buttonWidth).height(buttonHeight).pad(buttonPadding);
 
         table.row();
         table.add(new Label("Swap Character", skin, "dark")).width(Value.percentWidth(0.4f,
@@ -221,9 +222,7 @@ public class SettingsScene implements Screen {
                 SettingsScene.this.waitingForP2AbilityKey = false;
             }
         });
-        table.add(setSwapKey).width(Value.percentWidth(0.2f, container)).height(Value
-                .percentHeight(0.06f, container))
-                .pad(Value.percentWidth(0.01f, container));
+        table.add(setSwapKey).width(buttonWidth).height(buttonHeight).pad(buttonPadding);
 
         table.row();
         table.add(new Label("Toggle Following", skin, "dark")).width(Value.percentWidth(0.4f,
@@ -240,9 +239,7 @@ public class SettingsScene implements Screen {
                 SettingsScene.this.waitingForP2AbilityKey = false;
             }
         });
-        table.add(setFollowButton).width(Value.percentWidth(0.2f, container))
-                .height(Value.percentHeight(0.06f, container))
-                .pad(Value.percentWidth(0.01f, container));
+        table.add(setFollowButton).width(buttonWidth).height(buttonHeight).pad(buttonPadding);
 
         table.row();
         table.add(new Label("(Co-op) Use Player 2 Ability", skin, "dark")).width(Value.percentWidth(
@@ -260,9 +257,7 @@ public class SettingsScene implements Screen {
                 SettingsScene.this.waitingForP2AbilityKey = true;
             }
         });
-        table.add(setP2AbilityButton).width(Value.percentWidth(0.2f, container))
-                .height(Value.percentHeight(0.06f, container))
-                .pad(Value.percentWidth(0.01f, container));
+        table.add(setP2AbilityButton).width(buttonWidth).height(buttonHeight).pad(buttonPadding);
 
         stage.addListener(new InputListener() {
 
@@ -321,7 +316,7 @@ public class SettingsScene implements Screen {
         // table.setSize(this.width, this.height);
         table.setFillParent(true);
         table.defaults().spaceBottom(10f);
-        table.top().pad(Value.percentWidth(0.01f)).padTop(Value.percentHeight(0.3f));
+        table.top().pad(Value.percentWidth(0.02f)).padTop(Value.percentHeight(0.3f));
 
         Value labelWidth = Value.percentWidth(0.33f, table);
         Value controlWidth = Value.percentWidth(0.5f, table);

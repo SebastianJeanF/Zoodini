@@ -151,7 +151,7 @@ public class StoryboardScene implements Screen {
         Table table = new Table();
         table.setFillParent(true);
         table.defaults().spaceRight(10f);
-        table.top().pad(Value.percentWidth(0.01f));
+        table.top().pad(Value.percentWidth(0.02f));
 
         Value controlWidth = Value.percentWidth(0.1f, table);
 
