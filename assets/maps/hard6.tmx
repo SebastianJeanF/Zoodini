@@ -259,7 +259,7 @@
    </properties>
    <point/>
   </object>
-  <object id="52" type="Exit" x="3840" y="836">
+  <object id="52" type="Exit" x="3648.09" y="854.815">
    <properties>
     <property name="creature" propertytype="ExitCreature" value="PENGUIN"/>
    </properties>
@@ -354,7 +354,7 @@
   </object>
   <object id="295" type="Camera" x="3396" y="1360">
    <properties>
-    <property name="angle" type="float" value="265"/>
+    <property name="angle" type="float" value="255"/>
     <property name="fov" type="float" value="40"/>
     <property name="viewDistance" type="float" value="4"/>
    </properties>
