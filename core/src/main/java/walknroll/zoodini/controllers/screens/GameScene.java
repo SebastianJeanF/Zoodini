@@ -1131,18 +1131,15 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         vec2tmp2.set(0, 0);
         vec2tmp3.set(0, 0);
         ObjectMap<ZoodiniSprite, VisionCone> visions = level.getVisionConeMap();
+        boolean isNotUnderCameraCat = true;
+        boolean isNotUnderCameraOctopus = true;
         for (ObjectMap.Entry<ZoodiniSprite, VisionCone> entry : visions.entries()) {
             if (entry.key instanceof SecurityCamera && !((SecurityCamera) entry.key).isDisabled()) {
                 Obstacle catObs = level.isCatPresent() ? level.getCat().getObstacle() : null;
                 Obstacle octObs = level.isOctopusPresent() ? level.getOctopus().getObstacle() : null;
-
                 if ((level.isCatPresent() && entry.value.contains(catObs))
                         || (level.isOctopusPresent() && entry.value.contains(octObs))) {
-
-
                     ((SecurityCamera) entry.key).activateAlarm();
-
-
                     PlayableAvatar detectedPlayer;
                     if (catObs == null){
                         detectedPlayer = level.getOctopus();
@@ -1154,6 +1151,11 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
                     if (detectedPlayer != null) {
                         detectedPlayer.setUnderCamera(true);
+                        if (detectedPlayer.getAvatarType() == AvatarType.CAT) {
+                            isNotUnderCameraCat = false;
+                        } else if (detectedPlayer.getAvatarType() == AvatarType.OCTOPUS) {
+                            isNotUnderCameraOctopus = false;
+                        }
                     }
 
 
@@ -1165,18 +1167,19 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                             guard.setCameraAlerted(true);
 
                             // Optionally set target position directly if needed
-                            guard.setTarget(detectedPlayer.getPosition());
+                            if (detectedPlayer != null) {
+                                guard.setTarget(detectedPlayer.getPosition());
+                            }
                         }
-                    }
-                } else {
-                    if (level.isCatPresent()) {
-                        level.getCat().setUnderCamera(false);
-                    }
-                    if (level.isOctopusPresent()) {
-                        level.getOctopus().setUnderCamera(false);
                     }
                 }
             }
+        }
+        if (level.isCatPresent() && isNotUnderCameraCat) {
+            level.getCat().setUnderCamera(false);
+        }
+        if (level.isOctopusPresent() && isNotUnderCameraOctopus) {
+            level.getOctopus().setUnderCamera(false);
         }
     }
 

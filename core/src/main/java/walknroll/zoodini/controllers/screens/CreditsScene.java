@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -24,12 +25,13 @@ import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.GDXRoot;
 import walknroll.zoodini.utils.FreeTypeSkin;
+import walknroll.zoodini.utils.LinkLabel;
 
 public class CreditsScene implements Screen {
 
     private ScreenListener listener;
 
-private AssetDirectory assets;
+    private AssetDirectory assets;
 
     /** The drawing camera for this scene */
     private OrthographicCamera camera;
@@ -160,6 +162,7 @@ private AssetDirectory assets;
 
         VerticalGroup group = new VerticalGroup();
 
+        group.addActor(new Label("Walk 'n' Roll Team", skin, "header"));
         group.addActor(new Label("Project Lead", skin, "gold"));
         group.addActor(new Label("Sebastian Jean-Francois", skin));
         group.addActor(new Label("Software Lead", skin, "gold"));
@@ -176,8 +179,24 @@ private AssetDirectory assets;
         group.addActor(new Label("Abdul Raafai Asim", skin));
         group.addActor(new Label("Programmer", skin, "gold"));
         group.addActor(new Label("James Tu", skin));
-        group.addActor(new Label("librayr", skin, "gold"));
+        group.addActor(new Label("", skin));
+        group.addActor(new Label("Resources", skin, "header"));
+        group.addActor(new Label("Library", skin, "gold"));
         group.addActor(new Label("libgdx", skin));
+        group.addActor(new Label("Sound Effects", skin, "gold"));
+        group.addActor(new LinkLabel("Guard \"Hey\"",
+                "https://pixabay.com/sound-effects/hey-42237/", skin));
+        group.addActor(new LinkLabel("Cat Meow",
+                "https://pixabay.com/sound-effects/cat-meow-85175/", skin));
+        group.addActor(new LinkLabel("Guard Hmm",
+                "https://pixabay.com/sound-effects/hmm-ahh-6426/", skin));
+        group.addActor(new LinkLabel("Alarm Sound",
+                "https://pixabay.com/sound-effects/singapore-eas-alarm-279722/", skin));
+        group.addActor(new LinkLabel("Ink Splatter Sound",
+                "https://www.youtube.com/watch?v=VfXpXj9NGxI", skin));
+        group.addActor(new Label("Music", skin, "gold"));
+        group.addActor(new LinkLabel("Ingame Music",
+                "https://pixabay.com/music/upbeat-game-of-dwarves-264354/", skin));
 
         ScrollPane creditsScroller = new ScrollPane(group, skin);
         creditsScroller.setFadeScrollBars(false);

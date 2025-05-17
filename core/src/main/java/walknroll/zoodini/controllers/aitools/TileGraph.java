@@ -31,6 +31,7 @@ import edu.cornell.gdiac.math.Path2;
 import edu.cornell.gdiac.math.PathFactory;
 import edu.cornell.gdiac.math.Poly2;
 import edu.cornell.gdiac.math.PolyFactory;
+import walknroll.zoodini.utils.DebugPrinter;
 
 public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
 
@@ -483,7 +484,7 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
             }
         }
         if (path.isEmpty()) {
-            System.out.println("path is empty");
+            DebugPrinter.println("path is empty");
         }
         return path;
     }
