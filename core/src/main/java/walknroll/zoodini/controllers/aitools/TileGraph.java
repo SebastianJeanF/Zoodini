@@ -4,6 +4,7 @@ import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.Heuristic;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
+import com.badlogic.gdx.utils.Null;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -415,6 +416,9 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
      */
     public TileNode getNearestValidTile(Vector2 targetLocation) {
         TileNode targetTile = worldToTile(targetLocation);
+        if (targetTile == null) {
+            return null; // Out of bounds
+        }
         int[][] horizontal = { { 0, 1 }, { 0, -1 }, { 1, 0 }, { -1, 0 } };
         // Check all 4 directions for valid tile
         for (int[] coord : horizontal) {
@@ -430,7 +434,8 @@ public class TileGraph<N extends TileNode> implements IndexedGraph<TileNode> {
         for (int[] coord : corners) {
             int newX = targetTile.x + coord[0];
             int newY = targetTile.y + coord[1];
-            if (!(getNode(newX, newY)).isObstacle) {
+            TileNode newTile = getNode(newX, newY);
+            if (newTile != null && !newTile.isObstacle) {
                 return getNode(newX, newY);
             }
         }
