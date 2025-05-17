@@ -162,7 +162,7 @@ public class Door extends ZoodiniSprite {
         Float timeToOpen = properties.get("timeToOpen", Float.class);
         UNLOCK_DURATION = (timeToOpen == null) ? 3.0f : timeToOpen;
 
-        if(w > h) {
+        if(w >= h) {
             h = w;
             lockedTexture = new TextureRegion(directory.getEntry("locked_door", Texture.class));
             unlockedTexture = new TextureRegion(directory.getEntry("unlocked_door", Texture.class));
