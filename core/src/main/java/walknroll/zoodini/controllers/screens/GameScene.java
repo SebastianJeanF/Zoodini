@@ -1037,7 +1037,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     public void setComplete(boolean value) {
         if (value) {
-            countdown = EXIT_COUNT;
+            countdown = GameSettings.getInstance().isCoopEnabled() ? 0 : EXIT_COUNT;
         }
         complete = value;
     }
