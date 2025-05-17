@@ -25,6 +25,7 @@ import edu.cornell.gdiac.physics2.BoxObstacle;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
 import walknroll.zoodini.models.GameLevel;
 import walknroll.zoodini.models.entities.Enemy;
+import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.LevelPortal;
 import walknroll.zoodini.utils.animation.Animation;
@@ -541,8 +542,9 @@ public class Guard extends Enemy {
     public void draw(SpriteBatch batch) {
         super.draw(batch);
         // Draw the ink detection obstacle in debug mode
-        if (inkDetectionObstacle != null && inkDetectionObstacle.getBody() != null) {
+        if (inkDetectionObstacle != null && inkDetectionObstacle.getBody() != null && Constants.DEBUG ) {
            inkDetectionObstacle.draw(batch, Color.RED);
+           batch.setColor(Color.WHITE);
         }
         drawSuspicionMeter(batch);
     }
