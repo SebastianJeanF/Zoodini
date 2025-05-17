@@ -19,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
@@ -30,6 +31,7 @@ import walknroll.zoodini.utils.LevelPortal;
 import walknroll.zoodini.utils.FreeTypeSkin;
 
 public class LevelSelectScene implements Screen {
+
     private Array<Integer> availableLevels;
 
     private ScreenListener listener;
@@ -54,7 +56,11 @@ public class LevelSelectScene implements Screen {
     private Texture background;
     Affine2 cache = new Affine2();
 
-    public LevelSelectScene(SpriteBatch batch, AssetDirectory assets, Array<Integer> availableLevels,
+    private float resScale;
+    private Texture logo;
+
+    public LevelSelectScene(SpriteBatch batch, AssetDirectory assets,
+            Array<Integer> availableLevels,
             int highestClearance) {
         this.batch = batch;
         this.availableLevels = availableLevels;
@@ -62,6 +68,12 @@ public class LevelSelectScene implements Screen {
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         this.background = assets.getEntry("splash", Texture.class);
+
+        this.logo = assets.getEntry("level-select-text", Texture.class);
+        JsonValue constants = assets.getEntry("constants", JsonValue.class);
+        float resScaleX = Gdx.graphics.getWidth() / (float) constants.getFloat("screenWidth");
+        float resScaleY = Gdx.graphics.getHeight() / (float) constants.getFloat("screenHeight");
+        this.resScale = Math.min(resScaleX, resScaleY);
     }
 
     public void create() {
@@ -76,6 +88,7 @@ public class LevelSelectScene implements Screen {
         table.row();
         TextButton menuReturn = new TextButton("Back to Menu", normalButtonSkin);
         menuReturn.addListener(new ChangeListener() {
+
             public void changed(ChangeEvent event, Actor actor) {
                 listener.exitScreen(LevelSelectScene.this, GDXRoot.EXIT_MENU);
             }
@@ -114,6 +127,13 @@ public class LevelSelectScene implements Screen {
         cache.idt();
         cache.scale(scaleX, scaleY);
         batch.draw(background, cache);
+
+        batch.draw(logo,
+                ((width / 2f) - (logo.getWidth() / 2f) * resScale),
+                (height - (logo.getHeight() + 50) * resScale),
+                logo.getWidth() * resScale,
+                logo.getHeight() * resScale
+        );
         batch.end();
 
         stage.draw();
@@ -174,20 +194,26 @@ public class LevelSelectScene implements Screen {
         for (int i = 0; i < this.availableLevels.size; i++) {
             int levelKey = this.availableLevels.get(i);
             Stack portalStack = new Stack();
-            boolean levelOpen = Constants.DEBUG | Constants.UNLOCK_ALL | highestClearance >= levelKey;
-            boolean levelCompleted = Constants.DEBUG | Constants.UNLOCK_ALL | levelKey < highestClearance;
-            ImageButton levelButton = new ImageButton(new LevelPortal(levelOpen, false, levelCompleted),
+            boolean levelOpen = Constants.DEBUG | Constants.UNLOCK_ALL | highestClearance
+                    >= levelKey;
+            boolean levelCompleted = Constants.DEBUG | Constants.UNLOCK_ALL | levelKey
+                    < highestClearance;
+            ImageButton levelButton = new ImageButton(new LevelPortal(levelOpen, false,
+                    levelCompleted),
                     new LevelPortal(levelOpen, true && levelOpen, levelCompleted));
             if (levelOpen) {
                 levelButton.addListener(new ChangeListener() {
+
                     public void changed(ChangeEvent event, Actor actor) {
                         LevelSelectScene.this.selectedLevel = levelKey;
-                        LevelSelectScene.this.listener.exitScreen(LevelSelectScene.this, GDXRoot.EXIT_STORYBOARD);
+                        LevelSelectScene.this.listener.exitScreen(LevelSelectScene.this,
+                                GDXRoot.EXIT_STORYBOARD);
                     }
                 });
             }
             portalStack.add(levelButton);
-            Container<Label> labelContainer = new Container<>(new Label(String.valueOf(levelKey), levelSelectSkin));
+            Container<Label> labelContainer = new Container<>(new Label(String.valueOf(levelKey),
+                    levelSelectSkin));
             labelContainer.setFillParent(true);
             labelContainer.setTouchable(Touchable.disabled);
             portalStack.add(labelContainer);
