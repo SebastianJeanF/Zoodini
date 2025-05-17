@@ -100,7 +100,7 @@ import walknroll.zoodini.utils.enums.AvatarType;
 public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener,
     CheckpointListener {
     /** How many frames after winning/losing do we continue? */
-    public static final int EXIT_COUNT = 120;
+    public static final int EXIT_COUNT = 240;
     // ASSETS
     /** Need an ongoing reference to the asset directory */
     protected AssetDirectory directory;
@@ -422,7 +422,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             return false;
         }
 
-        if (complete) {
+        if (complete && countdown == 0) {
             soundController.stopAllSounds();
             listener.exitScreen(this, GDXRoot.EXIT_WIN);
             return false;
@@ -892,6 +892,14 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
             if (levelComplete) {
                 setComplete(true);
+
+                level.getExit().setFree(true);
+                if (level.getCat() != null) {
+                    level.getCat().setDrawingEnabled(false);
+                }
+                if (level.getOctopus() != null) {
+                    level.getOctopus().setDrawingEnabled(false);
+                }
             }
         }
     }
@@ -1593,10 +1601,16 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         PlayableAvatar avatar = level.getAvatar();
         if (avatar.isCurrentlyAiming()) {
             camera.zoom = Math.min(1.2f, camera.zoom + 0.01f);
-        } else {
+        } else if (!complete) {
             camera.zoom = Math.max(1.0f, camera.zoom - 0.005f);
         }
-        cameraTargetPosition.set(avatar.getPosition());
+
+        if (complete) {
+            cameraTargetPosition.set(level.getExit().getObstacle().getPosition());
+            camera.zoom = Math.max(0.2f, camera.zoom - 0.02f);
+        } else {
+            cameraTargetPosition.set(avatar.getPosition());
+        }
         // Get viewport dimensions in world units
         float viewWidth = camera.viewportWidth / level.getTileSize();
         float viewHeight = camera.viewportHeight / level.getTileSize();

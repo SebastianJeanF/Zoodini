@@ -286,6 +286,50 @@
         }
       }
     },
+     "panda-free-idle": {
+      "file": "textures/entities/static/panda-free.png",
+      "wrap": false,
+      "sprites": {
+        "animation": {
+          "size": 3,
+          "rows": 1,
+          "cols": 3
+        }
+      }
+    },
+    "rabbit-free-idle": {
+      "file": "textures/entities/static/rabbit-free.png",
+      "wrap": false,
+      "sprites": {
+        "animation": {
+          "size": 3,
+          "rows": 1,
+          "cols": 3
+        }
+      }
+    },
+    "penguin-free-idle": {
+      "file": "textures/entities/static/penguin-free.png",
+      "wrap": false,
+      "sprites": {
+        "animation": {
+          "size": 3,
+          "rows": 1,
+          "cols": 3
+        }
+      }
+    },
+    "octopus-free-idle": {
+      "file": "textures/entities/static/octopus-free.png",
+      "wrap": false,
+      "sprites": {
+        "animation": {
+          "size": 3,
+          "rows": 1,
+          "cols": 3
+        }
+      }
+    },
     "ink-projectile": {
       "file": "textures/entities/octopus/ink-projectile.png",
       "wrap": false,
