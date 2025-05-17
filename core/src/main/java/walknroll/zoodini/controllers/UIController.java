@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
@@ -117,16 +118,16 @@ public class UIController {
         minimap.setKeyTexture(directory.getEntry("key", Texture.class));
         minimap.setVentTexture(directory.getEntry("vent-closed", Texture.class));
         minimap.setCameraTexture(directory.getEntry("security-camera", Texture.class));
-//        ExitAnimal animalType = level.getExit().getCreature();
-//        Texture t = null;
-//        switch(animalType) {
-//            case RABBIT -> t = directory.getEntry("rabbit-chained-idle", Texture.class);
-//            case PENGUIN -> t = directory.getEntry("penguin-chained-idle", Texture.class);
-//            case OCTOPUS -> t = directory.getEntry("octopus-chained-idle", Texture.class);
-//            default -> t = directory.getEntry("exit", Texture.class);
-//        }
-//        minimap.setExitTexture(t);
-        minimap.setExitTexture(directory.getEntry("exit", Texture.class));
+        ExitAnimal animalType = level.getExit().getCreature();
+        TextureRegion t;
+        switch(animalType) {
+            case RABBIT -> t = directory.getEntry("rabbit-chained-idle.animation", SpriteSheet.class);
+            case PENGUIN -> t = directory.getEntry("penguin-chained-idle.animation", SpriteSheet.class);
+            case OCTOPUS -> t = directory.getEntry("octopus-chained-idle.animation", SpriteSheet.class);
+            default -> t = directory.getEntry("panda-chained-idle.animation", SpriteSheet.class);
+        }
+        minimap.setExitTexture(t);
+        // minimap.setExitTexture(directory.getEntry("exit", Texture.class));
 
 
 

@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.PixmapTextureData;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -44,7 +45,7 @@ public class MinimapActor extends Actor implements Disposable {
     private Texture cameraTexture;
     private Texture ventTexture;
     private Texture keyTexture;
-    private Texture exitTexture;
+    private TextureRegion exitTexture;
     private Texture doorTexture;
     private boolean disabled = false;
 
@@ -107,7 +108,7 @@ public class MinimapActor extends Actor implements Disposable {
         cameraTexture = t;
     }
 
-    public void setExitTexture(Texture t) {
+    public void setExitTexture(TextureRegion t) {
         exitTexture = t;
     }
 
