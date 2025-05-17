@@ -5,6 +5,7 @@
  * of LibGDX. Its primary purpose is to swap between scenes.
  *
  * @author: Walker M. White
+ * 
  * @version: 2/15/2025
  */
 package walknroll.zoodini;
@@ -21,7 +22,6 @@ import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.graphics.SpriteSheet;
 import edu.cornell.gdiac.util.ScreenListener;
-import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.controllers.SoundController;
 import walknroll.zoodini.controllers.screens.CreditsScene;
 import walknroll.zoodini.controllers.screens.GameOverScene;
@@ -48,6 +48,7 @@ import walknroll.zoodini.utils.LevelPortal;
  * specification.
  */
 public class GDXRoot extends Game implements ScreenListener {
+
 	public static final int EXIT_QUIT = 0;
 	public static final int EXIT_MENU = 1;
 	public static final int EXIT_PLAY = 2;
@@ -101,16 +102,17 @@ public class GDXRoot extends Game implements ScreenListener {
 		directory = new AssetDirectory("jsons/assets.json");
 		settingsPrefs = Gdx.app.getPreferences(SETTINGS_PREFERENCES_FILENAME);
 		gameSettings = new GameSettings(settingsPrefs);
-        applyGameSettings();
+		GameSettings.setInstance(gameSettings);
+		applyGameSettings();
 
-        statePrefs = Gdx.app.getPreferences(STATE_PREFERENCES_FILENAME);
+		statePrefs = Gdx.app.getPreferences(STATE_PREFERENCES_FILENAME);
 		gameState = new GameState(statePrefs);
 
 		loading = new MenuScene(directory, batch, 1);
 		loading.create();
 		loading.setScreenListener(this);
 		setScreen(loading);
-    }
+	}
 
 	/**
 	 * Called when the Application is destroyed.
@@ -179,10 +181,12 @@ public class GDXRoot extends Game implements ScreenListener {
 						directory.getEntry("level-cell", Texture.class));
 			}
 			if (!Guard.isLoaded()) {
-				Guard.setSuspicionMeterCuriousTexture(directory.getEntry("guard-suspicion-curious", Texture.class));
+				Guard.setSuspicionMeterCuriousTexture(directory.getEntry("guard-suspicion-curious",
+						Texture.class));
 			}
 			if (!StoryboardScene.isLoaded()) {
-				StoryboardScene.setSpriteSheet(directory.getEntry("storyboard.animation", SpriteSheet.class));
+				StoryboardScene.setSpriteSheet(directory.getEntry("storyboard.animation",
+						SpriteSheet.class));
 			}
 
 			JsonValue levels = directory.getEntry("levels", JsonValue.class);
@@ -194,6 +198,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			// extract settings info from settings screen here
 			gameSettings = settings.getSettings();
 			gameSettings.saveToPreferences(settingsPrefs);
+			GameSettings.setInstance(gameSettings);
 			settingsPrefs.flush();
 			applyGameSettings();
 
@@ -220,7 +225,8 @@ public class GDXRoot extends Game implements ScreenListener {
 		switch (exitCode) {
 			case GDXRoot.EXIT_CREDITS:
 				if (directory == null) {
-					throw new RuntimeException("Asset directory was somehow not loaded after initial boot");
+					throw new RuntimeException(
+							"Asset directory was somehow not loaded after initial boot");
 				}
 				credits = new CreditsScene(batch, this.directory);
 				credits.create();
@@ -237,10 +243,12 @@ public class GDXRoot extends Game implements ScreenListener {
 				break;
 			case GDXRoot.EXIT_LEVEL_SELECT:
 				if (directory == null) {
-					throw new RuntimeException("Asset directory was somehow not loaded after initial boot");
+					throw new RuntimeException(
+							"Asset directory was somehow not loaded after initial boot");
 				}
 
-				levelSelect = new LevelSelectScene(batch, directory, levelKeys, gameState.getHighestClearance());
+				levelSelect = new LevelSelectScene(batch, directory, levelKeys, gameState
+						.getHighestClearance());
 				levelSelect.create();
 				levelSelect.setScreenListener(this);
 				setScreen(levelSelect);
@@ -264,7 +272,8 @@ public class GDXRoot extends Game implements ScreenListener {
 				break;
 			case GDXRoot.EXIT_WIN:
 				// TODO: in the future, each level will have a point to the next level
-				gameWin = new GameWinScene(directory, batch, selectedLevel + 1, levelKeys.get(levelKeys.size - 1));
+				gameWin = new GameWinScene(directory, batch, selectedLevel + 1, levelKeys.get(
+						levelKeys.size - 1));
 				gameWin.setScreenListener(this);
 				setScreen(gameWin);
 				disposeExcept(gameWin);
@@ -292,20 +301,15 @@ public class GDXRoot extends Game implements ScreenListener {
 	}
 
 	private void applyGameSettings() {
-        InputController input = InputController.getInstance();
-        input.setAbilityKey(this.gameSettings.getAbilityKey());
-        input.setSwapKey(this.gameSettings.getSwapKey());
-        input.setFollowModeKey(this.gameSettings.getFollowKey());
-		switch (this.gameSettings.getResolution().toLowerCase()) {
+		switch (GameSettings.getInstance().getResolution().toLowerCase()) {
 			case "1280x720" -> Gdx.graphics.setWindowedMode(1280, 720);
 			case "1920x1080" -> Gdx.graphics.setWindowedMode(1920, 1080);
 			case "fullscreen" -> Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
 		}
 
-
-        SoundController sound = SoundController.getInstance();
-        sound.setMusicVolume(this.gameSettings.getMusicVolume() / 100f);
-        sound.setSoundVolume(this.gameSettings.getSoundVolume() / 100f);
+		SoundController sound = SoundController.getInstance();
+		sound.setMusicVolume(GameSettings.getInstance().getMusicVolume() / 100f);
+		sound.setSoundVolume(GameSettings.getInstance().getSoundVolume() / 100f);
 	}
 
 	private void startGameplay(Integer selectedLevel) {

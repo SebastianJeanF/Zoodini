@@ -46,6 +46,8 @@ public abstract class PlayableAvatar extends Avatar {
         return numKeys;
     }
 
+    public void setNumKeys(int numKeys) { this.numKeys = numKeys; }
+
     public void decreaseNumKeys() {
         numKeys--;
     }

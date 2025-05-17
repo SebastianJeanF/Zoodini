@@ -51,7 +51,6 @@ import edu.cornell.gdiac.physics2.BoxObstacle;
 import edu.cornell.gdiac.physics2.Obstacle;
 import edu.cornell.gdiac.physics2.ObstacleSprite;
 import edu.cornell.gdiac.util.PooledList;
-import walknroll.zoodini.controllers.InputController;
 import walknroll.zoodini.controllers.UIController;
 import walknroll.zoodini.models.entities.Avatar;
 import walknroll.zoodini.models.entities.Cat;
@@ -64,8 +63,14 @@ import walknroll.zoodini.models.nonentities.Exit;
 import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.models.nonentities.Vent;
+import walknroll.zoodini.utils.Checkpoint;
+import walknroll.zoodini.utils.Checkpoint.DoorState;
+import walknroll.zoodini.utils.Checkpoint.KeyState;
+import walknroll.zoodini.utils.CheckpointManager;
+import walknroll.zoodini.utils.CheckpointManager.CheckpointSaveState;
 import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.DebugPrinter;
+import walknroll.zoodini.utils.GameSettings;
 import walknroll.zoodini.utils.VisionCone;
 import walknroll.zoodini.utils.ZoodiniSprite;
 import walknroll.zoodini.utils.animation.AnimationState;
@@ -175,6 +180,9 @@ public class GameLevel {
 
     private PooledList<Door> doors = new PooledList<>();
 
+    /** Minimap disabled? */
+    private boolean minimapDisabled = false;
+
     /**
      * All the object sprites in the world.
      */
@@ -250,6 +258,20 @@ public class GameLevel {
     /** Array that contains image objects */
     private Array<TextureMapObject> imagesCache;
 
+
+    /** Tracks doors that have been unlocked for checkpoint restoration */
+    private ObjectMap<Integer, Boolean> doorUnlockStates = new ObjectMap<>();
+
+    /** Tracks keys that have been collected for checkpoint restoration */
+    private ObjectMap<Integer, Boolean> keyCollectionStates = new ObjectMap<>();
+
+    /** Tracks number of keys each character has */
+    private int catKeyCount = 0;
+    private int octopusKeyCount = 0;
+
+    /** Flag indicating we're currently restoring from a snapshot */
+    private boolean isRestoringFromSnapshot = false;
+
     /**
      * Creates a new GameLevel
      * <p>
@@ -262,11 +284,10 @@ public class GameLevel {
         debug = Constants.DEBUG;
         catActive = true;
 
-        InputController ic = InputController.getInstance();
         Map<String, String> valuesMap = new HashMap<>();
-        valuesMap.put("swapKey", Input.Keys.toString(ic.getSwapKey()));
-        valuesMap.put("abilityKey", Input.Keys.toString(ic.getAbilityKey()));
-        valuesMap.put("followKey", Input.Keys.toString(ic.getFollowModeKey()));
+        valuesMap.put("swapKey", Input.Keys.toString(GameSettings.getInstance().getSwapKey()));
+        valuesMap.put("abilityKey", Input.Keys.toString(GameSettings.getInstance().getAbilityKey()));
+        valuesMap.put("followKey", Input.Keys.toString(GameSettings.getInstance().getFollowKey()));
         substitutor = new StringSubstitutor(valuesMap);
     }
 
@@ -280,6 +301,7 @@ public class GameLevel {
      * @param directory the asset manager
      */
     public void populate(AssetDirectory directory, TiledMap map, SpriteBatch batch) {
+        DebugPrinter.println("Populating level");
         // Compute the FPS
         int[] fps = { 20, 60 };
         maxFPS = fps[1];
@@ -301,6 +323,14 @@ public class GameLevel {
                 }
             }
             imagesCache.sort((a,b) -> Float.compare(b.getY(), a.getY())); //descending order
+        }
+
+        // Clear state tracking if this is a fresh populate (not restoration)
+        if (!isRestoringFromSnapshot) {
+            doorUnlockStates.clear();
+            keyCollectionStates.clear();
+            catKeyCount = 0;
+            octopusKeyCount = 0;
         }
 
         MapProperties props = map.getProperties();
@@ -333,7 +363,6 @@ public class GameLevel {
             String type = properties.get("type", String.class);
 
             if ("Cat".equalsIgnoreCase(type)) {
-                DebugPrinter.println("Creating cat");
                 avatarCat = new Cat(properties, entityConstants.get("cat"), units);
                 avatarCat.setAnimation(AnimationState.IDLE,
                         directory.getEntry("cat-idle.animation", SpriteSheet.class), 15);
@@ -346,7 +375,6 @@ public class GameLevel {
                 activate(avatarCat);
                 catPresent = true;
             } else if ("Octopus".equalsIgnoreCase(type)) {
-                DebugPrinter.println("Creating octopus");
                 avatarOctopus = new Octopus(properties, entityConstants.get("octopus"), units);
                 avatarOctopus.setAnimation(AnimationState.IDLE,
                         directory.getEntry("octopus-idle.animation", SpriteSheet.class), 7);
@@ -359,7 +387,6 @@ public class GameLevel {
                 activate(avatarOctopus);
                 octopusPresent = true;
             } else if ("Guard".equalsIgnoreCase(type)) {
-                DebugPrinter.println("Creating guard");
                 Guard g = new Guard(properties, entityConstants.get("guard"), units);
                 SpriteSheet idle = directory.getEntry("guard-idle-all.animation", SpriteSheet.class);
                 idle = new SpriteSheet(idle);
@@ -424,7 +451,7 @@ public class GameLevel {
             } else if ("Settings".equalsIgnoreCase(type)){
                 Boolean disableMinimap = properties.get("disableMinimap", Boolean.class);
                 if (disableMinimap != null && disableMinimap) {
-                    UIController.disableMinimap(true);
+                    minimapDisabled = true;
                 }
             }
         }
@@ -664,7 +691,7 @@ public class GameLevel {
                 }
             }
         }
-        if (Constants.CO_OP) {
+        if (GameSettings.getInstance().isCoopEnabled()) {
             Avatar inactiveAvatar = getInactiveAvatar();
             if (inactiveAvatar != null && inactiveAvatar.getAvatarType() == AvatarType.OCTOPUS) {
                 Octopus octopus = (Octopus) inactiveAvatar;
@@ -764,6 +791,9 @@ public class GameLevel {
     }
 
     // ------------------Helpers-----------------------//
+    public boolean isMinimapDisabled(){
+        return minimapDisabled;
+    }
 
     public boolean isCatPresent() {
         return catPresent;
@@ -968,6 +998,13 @@ public class GameLevel {
         sprites.add(sprite);
         objects.add(sprite.getObstacle());
         sprite.getObstacle().activatePhysics(world);
+    }
+
+    protected void deactivate(ZoodiniSprite sprite) {
+        assert inBounds(sprite.getObstacle()) : "Object is not in bounds";
+        sprites.remove(sprite);
+        objects.remove(sprite.getObstacle());
+        sprite.getObstacle().deactivatePhysics(world);
     }
 
     private void initializeVisionCones(JsonValue constants) {
@@ -1182,4 +1219,59 @@ public class GameLevel {
         batch.fill(pathExtruder.getPolygon(), affineCache);
         batch.setColor(Color.WHITE);
     }
+
+
+//    public void restoreFromSnapShot(PooledList<Door> oldDoors, int numCatKeys, int numOctKeys, Array<Key> oldKeys) {
+//        // Apply the door unlock states from the old doors
+//        for (Door oldDoor : oldDoors) {
+//            int doorId = oldDoor.getId();
+//            // Find the corresponding door in the current level
+//            for (Door currentDoor : doors) {
+//                if (currentDoor.getId() == doorId) {
+//                    // Apply the locked state from the old door
+//                    currentDoor.setLocked(oldDoor.isLocked());
+//                    currentDoor.setReachedCheckpoint(oldDoor.getReachedCheckpoint());
+//                    break;
+//                }
+//            }
+//        }
+//
+//        // Apply key collection states
+//        for (Key oldKey : oldKeys) {
+//            if (oldKey.isCollected()) {
+//                // Find the corresponding key in the current level
+//                for (Key currentKey : keys) {
+//                    if (currentKey.getID() == oldKey.getID()) {
+//                        // Set it as collected and set the owner
+//                        currentKey.setCollected(true);
+//                        currentKey.setOwner(oldKey.getOwner());
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//
+//        // Restore the key counts to the characters
+//        if (catPresent) {
+//            avatarCat.setNumKeys(numCatKeys);
+//        }
+//        if (octopusPresent) {
+//            avatarOctopus.setNumKeys(numOctKeys);
+//        }
+//        DebugPrinter.println("In restoreFromSnapshot, active checkpoints: ");
+//        checkpointManager.printActiveCheckpoints();
+//        for (Map.Entry<String, Checkpoint> entry: checkpointManager.getActiveCheckpoints().entrySet() ) {
+//            DebugPrinter.println("Here");
+//            if (entry.getKey().equals("cat")) {
+//                DebugPrinter.println("Restoring cat checkpoint");
+//                Vector2 checkPointRespawn = checkpointManager.getRespawnPosition("cat");
+//                avatarCat.setPosition(checkPointRespawn);
+//            } else if (entry.getKey().equals("octopus")) {
+//                DebugPrinter.println("Restoring octopus checkpoint");
+//                Vector2 checkPointRespawn = checkpointManager.getRespawnPosition("octopus");
+//                avatarCat.setPosition(checkPointRespawn);
+//            }
+//        }
+//    }
+
 }

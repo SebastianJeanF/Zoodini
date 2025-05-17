@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Disposable;
+import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.physics2.BoxObstacle;
 import edu.cornell.gdiac.physics2.Obstacle;
 import walknroll.zoodini.models.GameLevel;
@@ -17,6 +18,7 @@ import walknroll.zoodini.models.entities.SecurityCamera;
 import walknroll.zoodini.models.nonentities.Door;
 import walknroll.zoodini.models.nonentities.Exit;
 import walknroll.zoodini.models.nonentities.Key;
+import walknroll.zoodini.models.nonentities.Vent;
 
 public class MinimapActor extends Actor implements Disposable {
     // Minimap display parameters
@@ -34,10 +36,17 @@ public class MinimapActor extends Actor implements Disposable {
     private final Color DOOR_COLOR = new Color(0.6f, 0.4f, 0.2f, 1f);
     private final Color EXIT_COLOR = new Color(0.2f, 0.9f, 0.2f, 1f);
     private final Color KEY_COLOR = new Color(0.9f, 0.9f, 0.2f, 1f);
+    private final Color VENT_COLOR = new Color(0.5f, 0.23f, 0.26f, 1f);
 
     private Texture octopusTexture;
     private Texture catTexture;
-    private boolean disabled;
+    private Texture guardTexture;
+    private Texture cameraTexture;
+    private Texture ventTexture;
+    private Texture keyTexture;
+    private Texture exitTexture;
+    private Texture doorTexture;
+    private boolean disabled = false;
 
     private int updateCounter = 0;
     private static final int UPDATE_FREQUENCY = 5;
@@ -47,6 +56,7 @@ public class MinimapActor extends Actor implements Disposable {
 
     // Texture for the minimap
     private Texture minimapTexture;
+    private Texture disabledMinimapTexture;
     private Pixmap pixmap;
 
     // Flag to check if we need to redraw the map
@@ -59,13 +69,14 @@ public class MinimapActor extends Actor implements Disposable {
     // Dot texture for dynamic entities
     private Texture dotTexture;
 
-    public MinimapActor(GameLevel level) {
+    public MinimapActor(AssetDirectory directory, GameLevel level) {
         this.level = level;
         setSize(MINIMAP_SIZE + 2 * BORDER_SIZE, MINIMAP_SIZE + 2 * BORDER_SIZE);
 
         // Initialize the pixmap and texture
-        createMinimapTexture();
+        createMinimapTexture(directory.getEntry("disabledMap", Texture.class));
         createDotTexture();
+        disabled = level.isMinimapDisabled();
     }
 
     public void setOctopusTexture(Texture t){
@@ -76,7 +87,32 @@ public class MinimapActor extends Actor implements Disposable {
         catTexture = t;
     }
 
-    private void createMinimapTexture() {
+    public void setGuardTexture(Texture t){
+        guardTexture = t;
+    }
+
+    public void setVentTexture(Texture t){
+        ventTexture = t;
+    }
+
+    public void setKeyTexture(Texture t) {
+        keyTexture = t;
+    }
+
+    public void setDoorTexture(Texture t) {
+        doorTexture = t;
+    }
+
+    public void setCameraTexture(Texture t) {
+        cameraTexture = t;
+    }
+
+    public void setExitTexture(Texture t) {
+        exitTexture = t;
+    }
+
+
+    private void createMinimapTexture(Texture t) {
         // Create a pixmap for the minimap
         pixmap = new Pixmap((int)(MINIMAP_SIZE + 2 * BORDER_SIZE),
             (int)(MINIMAP_SIZE + 2 * BORDER_SIZE),
@@ -84,6 +120,7 @@ public class MinimapActor extends Actor implements Disposable {
 
         // Create a texture from the pixmap
         minimapTexture = new Texture(new PixmapTextureData(pixmap, null, false, false));
+        disabledMinimapTexture = t;
     }
 
     private void createDotTexture() {
@@ -135,11 +172,10 @@ public class MinimapActor extends Actor implements Disposable {
         // Draw doors directly from doors collection
         drawAllDoors();
 
-        // Draw keys
-        drawAllKeys();
+        // drawAllKeys()
 
-        // Draw exit
-        drawExitDirect();
+        // drawExitDirect()
+
 
         // Update the minimap texture
         minimapTexture.draw(pixmap, 0, 0);
@@ -262,6 +298,7 @@ public class MinimapActor extends Actor implements Disposable {
         }
     }
 
+
     /**
      * Draws the exit directly from the exit reference
      */
@@ -295,16 +332,16 @@ public class MinimapActor extends Actor implements Disposable {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        if (needsRedraw) {
-            drawMinimap();
+
+        if(disabled){
+            batch.draw(disabledMinimapTexture, getX(), getY(), getWidth(), getHeight());
+        } else {
+            if (needsRedraw) {
+                drawMinimap();
+            }
+            batch.draw(minimapTexture, getX(), getY(), getWidth(), getHeight());
+            drawDynamicEntities(batch);
         }
-
-        // Draw the minimap texture
-        batch.draw(minimapTexture, getX(), getY(), getWidth(), getHeight());
-
-
-        // Draw dynamic entities (players, guards, cameras)
-        drawDynamicEntities(batch);
     }
 
 
@@ -330,7 +367,7 @@ public class MinimapActor extends Actor implements Disposable {
             Vector2 octopusPos = level.getOctopus().getPosition();
             Vector2 minimapOctopusPos = worldToMinimap(octopusPos.x, octopusPos.y);
 
-            //batch.setColor(OCTOPUS_COLOR);
+//            batch.setColor(OCTOPUS_COLOR);
             batch.draw(octopusTexture,
                 getX() + minimapOctopusPos.x - 4,
                 getY() + minimapOctopusPos.y - 4,
@@ -338,28 +375,59 @@ public class MinimapActor extends Actor implements Disposable {
         }
 
         // Draw guards
-        batch.setColor(GUARD_COLOR);
+        // batch.setColor(GUARD_COLOR);
         for (Guard guard : level.getGuards()) {
             Vector2 guardPos = guard.getPosition();
             Vector2 minimapGuardPos = worldToMinimap(guardPos.x, guardPos.y);
 
-            batch.draw(dotTexture,
+            batch.draw(guardTexture,
                 getX() + minimapGuardPos.x - 3,
                 getY() + minimapGuardPos.y - 3,
-                6, 6);
+                8, 10);
         }
 
         // Draw security cameras
-        batch.setColor(CAMERA_COLOR);
+        // batch.setColor(CAMERA_COLOR);
         for (SecurityCamera camera : level.getSecurityCameras()) {
             Vector2 cameraPos = camera.getPosition();
             Vector2 minimapCameraPos = worldToMinimap(cameraPos.x, cameraPos.y);
 
-            batch.draw(dotTexture,
+            batch.draw(cameraTexture,
                 getX() + minimapCameraPos.x - 3,
                 getY() + minimapCameraPos.y - 3,
-                6, 6);
+                8, 6);
         }
+
+        for (Vent vent : level.getVents()) {
+            Vector2 position = vent.getObstacle().getPosition();
+            Vector2 ventPos = worldToMinimap(position.x, position.y);
+            batch.draw(ventTexture,
+                getX() + ventPos.x - 4,
+                getY() + ventPos.y - 4,
+                12, 12);
+        }
+
+        for (Key key : level.getKeys()) {
+            // Only draw if not collected
+            Vector2 keyPos = key.getObstacle().getPosition();
+            Vector2 minimapKeyPos = worldToMinimap(keyPos.x, keyPos.y);
+            batch.draw(keyTexture,
+                getX() + minimapKeyPos.x - 4,
+                getY() + minimapKeyPos.y - 4,
+                10, 10);
+        }
+
+        if (level.getExit() != null) {
+            Vector2 exitPos = level.getExit().getObstacle().getPosition();
+            Vector2 minimapExitPos = worldToMinimap(exitPos.x, exitPos.y);
+
+            batch.draw(exitTexture,
+                getX() + minimapExitPos.x - 4,
+                getY() + minimapExitPos.y - 4,
+                12, 12);
+        }
+
+
 
         // Restore original color
         batch.setColor(originalColor);

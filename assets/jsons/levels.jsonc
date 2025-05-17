@@ -2,6 +2,7 @@
 // THIS MUST BE IN CONSECUTIVE ORDER, OTHERWISE THINGS WILL BREAK WITH LEVEL LOADING
 // AGAIN: THIS MUST BE IN CONSECUTIVE ORDER
 {
+  "100": "maps/checkpointTest.tmx",
   "0": "maps/debugMap.tmx",
   "1": "maps/tutorial/Tutorial1.tmx",
   "2": "maps/tutorial/GarMeowIntro.tmx",
@@ -16,8 +17,9 @@
   "11": "maps/Hard-Level-2.tmx",
   "12": "maps/hard3.tmx",
   "13": "maps/medium4.tmx",
-  "14": "maps/in-progress/medium7.tmx",
-  "15" : "maps/medium6.tmx",
+  "14": "maps/medium6.tmx",
+  "15" : "maps/medium7.tmx",
   "16" : "maps/medium8.tmx",
-  "17": "maps/hard4.tmx"
+  "17" : "maps/hard4.tmx",
+  "18": "maps/in-progress/hard6.tmx"
 }

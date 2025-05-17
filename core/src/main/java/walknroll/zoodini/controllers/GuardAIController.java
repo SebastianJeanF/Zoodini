@@ -98,6 +98,7 @@ public class GuardAIController {
         this.CAT_MEOW_RADIUS = level.isCatPresent() ? level.getCat().getAbilityRange() : 0;
         this.soundController = SoundController.getInstance();
 
+        this.guard.resetState();
         // Otherwise, stay in PATROL state
         if (waypoints.length <= 1) {
             guard.setIdle(true);
@@ -163,7 +164,7 @@ public class GuardAIController {
      *         otherwise
      */
     private boolean didDistractionOccur() {
-        float guardToPlayerDistance = guard.getPosition().dst(getActivePlayer().getPosition());
+        float guardToPlayerDistance = guard.getPosition().dst(getCatPosition());
         return (getActivePlayer().getAvatarType() == AvatarType.CAT &&
                 level.getCat().didJustMeow() &&
                 guardToPlayerDistance <= CAT_MEOW_RADIUS);
@@ -171,6 +172,26 @@ public class GuardAIController {
 
     public Vector2 getCameraAlertPosition() {
         return cameraAlertPosition;
+    }
+
+    private Vector2 findCameraAlertPosition() {
+        PlayableAvatar activePlayer = level.getAvatar();
+        if (activePlayer != null && activePlayer.isUnderCamera()){
+            return activePlayer.getPosition();
+        }
+        PlayableAvatar inactivePlayer = level.getInactiveAvatar();
+        if (inactivePlayer != null && inactivePlayer.isUnderCamera()){
+            return inactivePlayer.getPosition();
+        }
+        assert activePlayer != null;
+        return activePlayer.getPosition();
+    }
+
+    private Vector2 getCatPosition() {
+        if (level.getCat() != null) {
+            return level.getCat().getPosition();
+        }
+        return new Vector2(0, 0);
     }
 
     public Vector2 getDistractPosition() {
@@ -215,23 +236,7 @@ public class GuardAIController {
     private boolean hasReachedTargetLocation(Vector2 target) {
         // Use world coordinates and a reasonable threshold
         float distance = guard.getPosition().dst(target);
-
-        // Optional debugging
-        // if (distance < 1.0f) {
-        // DebugPrinter.println("Distance to target: " + distance);
-        // }
-
         return distance < this.ARRIVAL_DISTANCE;
-        // if (!tileGraph.isValidTile(target)) {
-        // target = tileGraph.getNearestValidTile(target).getCoords();
-        // }
-        // Vector2 guardTile = tileGraph.worldToTile(guard.getPosition()).getCoords();
-        // Vector2 targetTile = tileGraph.worldToTile(target).getCoords();
-        // DebugPrinter.println("Current guard tile " + guardTile);
-        // DebugPrinter.println("Current target tile " + targetTile);
-        // DebugPrinter.println(tileGraph.worldToTile(guard.getPosition()).isWall);
-        // DebugPrinter.println(tileGraph.worldToTile(target).isWall);
-        // return guardTile.x == targetTile.x && guardTile.y == targetTile.y;
     }
 
     /**
@@ -282,7 +287,6 @@ public class GuardAIController {
         // First check for max suspicion level, which always leads to CHASE (highest
         // priority)
         if (guard.isMaxSusLevel() && currState != GuardState.CHASE) {
-//            currState = GuardState.CHASE;
             changeState(GuardState.CHASE);
             guard.startDeAggroTimer();
             return;
@@ -316,7 +320,7 @@ public class GuardAIController {
                     potentialState = GuardState.AlERTED;
                     guard.startDeAggroTimer();
                     guard.setMaxSusLevel();
-                    cameraAlertPosition.set(getActivePlayer().getPosition());
+                    cameraAlertPosition.set(findCameraAlertPosition());
                     lastStateChangeTime = ticks;
                 }
                 break;
@@ -337,12 +341,6 @@ public class GuardAIController {
                 }
                 break;
             case DISTRACTED:
-                // If guard has reached meow location; DISTRACTED -> PATROL
-//                if (hasReachedTargetLocation(distractPosition)) {
-//                    currState = GuardState.PATROL;
-//                    guard.setMeow(false);
-//                    lastStateChangeTime = ticks;
-//                }
                 // If guard has reached meow location; DISTRACTED -> LOOKING_AROUND
                 if (hasReachedTargetLocation(distractPosition)) {
                     potentialState = GuardState.LOOKING_AROUND;
@@ -363,13 +361,12 @@ public class GuardAIController {
                     potentialState = GuardState.AlERTED;
                     guard.setCameraAlerted(true);
                     guard.setMeow(false);
-                    Vector2 playerPosition = getActivePlayer().getPosition();
+                    Vector2 playerPosition = findCameraAlertPosition();
                     cameraAlertPosition.set(tileGraph.getValidTileCoords(playerPosition));
                     lastStateChangeTime = ticks;
                 }
                 // Gar meows again -> should update distractPosition
                 else if (didDistractionOccur()) {
-                    DebugPrinter.println("here");
                     guard.setMeow(true);
                     Vector2 playerPosition = getActivePlayer().getPosition();
                     distractPosition.set(tileGraph.getValidTileCoords(playerPosition));
@@ -387,7 +384,7 @@ public class GuardAIController {
                     potentialState = GuardState.AlERTED;
                     guard.setCameraAlerted(true);
                     guard.setMeow(false);
-                    Vector2 playerPosition = getActivePlayer().getPosition();
+                    Vector2 playerPosition = findCameraAlertPosition();
                     cameraAlertPosition.set(tileGraph.getValidTileCoords(playerPosition));
                     lastStateChangeTime = ticks;
                 }
@@ -433,7 +430,7 @@ public class GuardAIController {
                 else if (guard.isCameraAlerted()) {
                     potentialState = GuardState.AlERTED;
                     guard.setCameraAlerted(true);
-                    Vector2 playerPosition = getActivePlayer().getPosition();
+                    Vector2 playerPosition = findCameraAlertPosition();
                     cameraAlertPosition.set(tileGraph.getValidTileCoords(playerPosition));
                     lastStateChangeTime = ticks;
                 }
@@ -453,10 +450,12 @@ public class GuardAIController {
         // Only change state if we've been in the current state long enough
         // or if we're forced to change by disabling/enabling follow
         if (potentialState != currState) {
-            if (ticks >= STATE_CHANGE_THRESHOLD) {
+            if (ticks >= STATE_CHANGE_THRESHOLD || potentialState == GuardState.DISTRACTED) {
                 changeState(potentialState);
                 ticks = 0; // Reset counter on state change
             }
+        } else {
+            changeState(potentialState);
         }
 
     }
@@ -543,6 +542,18 @@ public class GuardAIController {
             if (currState == GuardState.CHASE) {
                 return targetPlayer.getPosition().cpy();
             }
+            // Guard alerted by camera but can't reach player
+            if (currState == GuardState.AlERTED) {
+                currState = GuardState.PATROL;
+                guard.setCameraAlerted(false);
+                return waypoints[currentWaypointIndex];
+            }
+            // Guard meowed but can't reach player
+            if (currState == GuardState.DISTRACTED) {
+                currState = GuardState.PATROL;
+                guard.setMeow(false);
+                return waypoints[currentWaypointIndex];
+            }
             return guard.getPosition().cpy();
         }
 
@@ -553,14 +564,6 @@ public class GuardAIController {
         }
 
         int pathIndex = 0;
-        Vector2 nextStep = tileGraph.tileToWorld(path.get(pathIndex));
-//        final float MIN_STEP_DISTANCE = 0.5F;
-//
-//        // Skip steps that are too close to the guard to prevent jittering
-//        while (nextStep.dst(guard.getPosition().cpy()) < MIN_STEP_DISTANCE && pathIndex < path.size() - 1) {
-//            pathIndex++;
-//            nextStep = tileGraph.tileToWorld(path.get(pathIndex));
-//        }
 
         // Furthest visible waypoint
         int furthestVisibleIndex = pathIndex;
@@ -654,27 +657,26 @@ public class GuardAIController {
     }
 
     private void changeState(GuardState newState) {
-
-        switch (newState) {
-            case CHASE:
-                soundController.playGuardAlerted();
-                break;
-            case DISTRACTED:
-                soundController.playGuardCurious();
-                break;
-            case AlERTED:
-                soundController.playGuardAlerted();
-                break;
-            case LOOKING_AROUND:
-                soundController.playGuardCurious();
-                break;
-            default:
-                break;
-        }
-
         if (newState != currState) {
-            currState = newState;
+            switch (newState) {
+                case CHASE:
+                    soundController.playGuardAlerted();
+                    break;
+                case DISTRACTED:
+                    soundController.playGuardCurious();
+                    break;
+                case AlERTED:
+                    soundController.playGuardAlerted();
+                    break;
+                case LOOKING_AROUND:
+                    soundController.playGuardCurious();
+                    break;
+                default:
+                    break;
+            }
         }
+
+        currState = newState;
     }
 
     /**

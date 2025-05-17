@@ -168,7 +168,7 @@ public class LevelSelectScene implements Screen {
         // table.setSize(this.width, this.height);
         table.setFillParent(true);
         table.defaults().spaceRight(10f).spaceBottom(10f);
-        table.pad(Value.percentWidth(0.01f));
+        table.pad(Value.percentWidth(0.02f));
         // table.setDebug(true); // This is optional, but enables debug lines for
 
         for (int i = 0; i < this.availableLevels.size; i++) {

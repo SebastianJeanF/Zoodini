@@ -143,7 +143,7 @@ public class CreditsScene implements Screen {
         // table.setSize(this.width, this.height);
         table.setFillParent(true);
         table.defaults().spaceBottom(10f).spaceRight(5f);
-        table.top().pad(Value.percentWidth(0.01f)).padTop(Value.percentHeight(0.3f));
+        table.top().pad(Value.percentWidth(0.02f)).padTop(Value.percentHeight(0.3f));
 
         Value labelWidth = Value.percentWidth(0.2f, table);
         Value controlWidth = Value.percentWidth(0.3f, table);

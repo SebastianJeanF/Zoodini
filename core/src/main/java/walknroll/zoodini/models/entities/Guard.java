@@ -49,8 +49,10 @@ public class Guard extends Enemy {
     private static final int FAR_ZONE_SUS_INCREASE = 2;
 
 
-    private float fov;
-    private float viewDistance;
+
+
+    private final float fov;
+    private final float viewDistance;
     private boolean isChasing;
     private boolean isLookingAround;
 
@@ -89,9 +91,9 @@ public class Guard extends Enemy {
     private float tempViewDistance;
     private float tempFov;
 
-    private float originalViewDistance;
+    private final float originalViewDistance;
 
-    private float originalFov;
+    private final float originalFov;
 
     private final float agroedForce;
     private final float alertedForce;
@@ -100,12 +102,14 @@ public class Guard extends Enemy {
     private final float blindedForceScale;
 
     private boolean isIdle = false;
-    private float idleAngle;
+    private final float idleAngle;
+
+    private boolean inMeowRadius = false;
 
     private BoxObstacle inkDetectionObstacle;
     private static final float INK_DETECTION_RADIUS = 0.8f; // Larger than the guard's regular hitbox
 
-
+    private final float yInkObstacleOffset = .25f; // Offset for the ink detection obstacle
 
     public float getSusForce() {
         return susForce;
@@ -138,6 +142,15 @@ public class Guard extends Enemy {
     public float getIdleAngle(){
         return idleAngle;
     }
+
+    public boolean isInMeowRadius() {
+        return inMeowRadius;
+    }
+
+    public void setInMeowRadius(boolean inMeowRadius) {
+        this.inMeowRadius = inMeowRadius;
+    }
+
 
     /**
      * Creates a new dude with degenerate settings
@@ -354,6 +367,24 @@ public class Guard extends Enemy {
         this.meowed = meowed;
     }
 
+    public void resetState() {
+        // Reset all state-related fields
+        setAgroed(false);
+        setSusLevel(0);
+        setAggroTarget(null);
+        setTarget(null);
+        setSeesPlayer(false);
+        setSeenPlayer(null);
+        setCameraAlerted(false);
+        setMeow(false);
+        setInkBlinded(false);
+        setInkBlindTimer(0);
+        setIdle(getPatrolPoints().length <= 1);
+        setLookingAround(false);
+        setInMeowRadius(false);  // Reset the new flag
+        deAggroTimer = 0;
+    }
+
     public int calculateSusIncrease(Vector2 playerPosition) {
         // Calculate distance and angle to player
         Vector2 toPlayer = new Vector2(playerPosition).sub(getPosition());
@@ -492,9 +523,9 @@ public class Guard extends Enemy {
         // Update the ink detection obstacle to follow the guard
         if (inkDetectionObstacle != null && inkDetectionObstacle.getBody() != null) {
             // Set the position to match the guard's position
-            inkDetectionObstacle.setPosition(getPosition());
+            inkDetectionObstacle.setPosition(getPosition().x, getPosition().y + yInkObstacleOffset);
             // Match the angle of the guard
-            inkDetectionObstacle.setAngle(getObstacle().getAngle());
+//            inkDetectionObstacle.setAngle(getObstacle().getAngle());
         }
 
     }
@@ -520,9 +551,10 @@ public class Guard extends Enemy {
 
     public void drawSuspicionMeter(SpriteBatch batch) {
         float BASELINE_PX = 32;
+
         if (suspsicionMeter == null
             || suspsicionMeter.getCurrentSpriteSheet() == null
-            || !Guard.isLoaded() || (susLevel == 0 && !isMeowed())) {
+            || !Guard.isLoaded()) {
             return;
         }
 
@@ -534,7 +566,20 @@ public class Guard extends Enemy {
         float X_PIXEL_OFFSET = (-80f * SCALE);
         float Y_PIXEL_OFFSET = 140f * SCALE;
 
+        if (isInMeowRadius()) {
+            // Draw the suspicion meter in the meow radius
+            batch.draw(
+                Guard.SUSPICION_METER_CURIOUS,
+                guardXPixel + getXPixelOffset(),
+                guardYPixel + Y_PIXEL_OFFSET,
+                Guard.SUSPICION_METER_CURIOUS.getWidth() * SCALE,
+                Guard.SUSPICION_METER_CURIOUS.getHeight() * SCALE);
+            return;
+        }
 
+        if (susLevel == 0 && !isMeowed()) {
+            return;
+        }
 
         if (isMeowed()) {
             batch.draw(
@@ -677,8 +722,8 @@ public class Guard extends Enemy {
      */
     private void createInkDetectionObstacle() {
         // Create a slightly larger circular obstacle that follows the guard
-        inkDetectionObstacle = new BoxObstacle(getPosition().x, getPosition().y,
-            INK_DETECTION_RADIUS * 2, INK_DETECTION_RADIUS * 2);
+        inkDetectionObstacle = new BoxObstacle(getPosition().x, getPosition().y + yInkObstacleOffset,
+            INK_DETECTION_RADIUS * 1.6f, INK_DETECTION_RADIUS * 2.2f);
 
         // Set it as a sensor so it detects collisions but doesn't affect physics
         inkDetectionObstacle.setSensor(true);

@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
@@ -51,6 +52,7 @@ public class SettingsScene implements Screen {
     private boolean waitingForAbilityKey;
     private boolean waitingForSwapKey;
     private boolean waitingForFollowKey;
+    private boolean waitingForP2AbilityKey;
 
     private GameSettings settings;
     private GameSettings stagedSettings;
@@ -177,11 +179,18 @@ public class SettingsScene implements Screen {
         window.setVisible(false);
         window.defaults().spaceBottom(10f);
         window.pad(Value.percentWidth(0.02f, container));
+        window.setHeight(0.8f * this.height);
 
         // window.getTitleTable().add(closeWindow).height(window.getPadTop());
         window.row().fill().expandX();
 
-        window.add(new Label("Use Ability", skin, "dark")).width(Value.percentWidth(0.25f,
+        Value buttonWidth = Value.percentWidth(0.25f, container);
+        Value buttonHeight = Value.percentHeight(0.06f, container);
+        Value buttonPadding = Value.percentWidth(0.01f, container);
+        Table table = new Table();
+        table.setFillParent(true);
+
+        table.add(new Label("Use Ability", skin, "dark")).width(Value.percentWidth(0.4f,
                 container))
                 .pad(Value.percentWidth(0.01f, container));
         TextButton setAbilityKey = new TextButton(
@@ -193,33 +202,30 @@ public class SettingsScene implements Screen {
                 SettingsScene.this.waitingForAbilityKey = true;
                 SettingsScene.this.waitingForSwapKey = false;
                 SettingsScene.this.waitingForFollowKey = false;
+                SettingsScene.this.waitingForP2AbilityKey = false;
             }
         });
-        window.add(setAbilityKey).width(Value.percentWidth(0.2f, container))
-                .height(Value.percentHeight(0.06f, container)).pad(Value.percentWidth(0.01f,
-                        container));
+        table.add(setAbilityKey).width(buttonWidth).height(buttonHeight).pad(buttonPadding);
 
-        window.row();
-        window.add(new Label("Swap Character", skin, "dark")).width(Value.percentWidth(0.25f,
+        table.row();
+        table.add(new Label("Swap Character", skin, "dark")).width(Value.percentWidth(0.4f,
                 container))
                 .pad(Value.percentWidth(0.01f, container));
         TextButton setSwapKey = new TextButton("Current: " + Input.Keys.toString(this.stagedSettings
-                .getSwapKey()),
-                skin);
+                .getSwapKey()), skin);
         setSwapKey.addListener(new ChangeListener() {
 
             public void changed(ChangeEvent event, Actor actor) {
                 SettingsScene.this.waitingForSwapKey = true;
                 SettingsScene.this.waitingForAbilityKey = false;
                 SettingsScene.this.waitingForFollowKey = false;
+                SettingsScene.this.waitingForP2AbilityKey = false;
             }
         });
-        window.add(setSwapKey).width(Value.percentWidth(0.2f, container)).height(Value
-                .percentHeight(0.06f, container))
-                .pad(Value.percentWidth(0.01f, container));
+        table.add(setSwapKey).width(buttonWidth).height(buttonHeight).pad(buttonPadding);
 
-        window.row();
-        window.add(new Label("Toggle Following", skin, "dark")).width(Value.percentWidth(0.25f,
+        table.row();
+        table.add(new Label("Toggle Following", skin, "dark")).width(Value.percentWidth(0.4f,
                 container))
                 .pad(Value.percentWidth(0.01f, container));
         TextButton setFollowButton = new TextButton(
@@ -230,11 +236,28 @@ public class SettingsScene implements Screen {
                 SettingsScene.this.waitingForFollowKey = true;
                 SettingsScene.this.waitingForAbilityKey = false;
                 SettingsScene.this.waitingForSwapKey = false;
+                SettingsScene.this.waitingForP2AbilityKey = false;
             }
         });
-        window.add(setFollowButton).width(Value.percentWidth(0.2f, container))
-                .height(Value.percentHeight(0.06f, container))
+        table.add(setFollowButton).width(buttonWidth).height(buttonHeight).pad(buttonPadding);
+
+        table.row();
+        table.add(new Label("(Co-op) Use Player 2 Ability", skin, "dark")).width(Value.percentWidth(
+                0.4f,
+                container))
                 .pad(Value.percentWidth(0.01f, container));
+        TextButton setP2AbilityButton = new TextButton(
+                "Current: " + Input.Keys.toString(this.stagedSettings.getP2AbilityKey()), skin);
+        setP2AbilityButton.addListener(new ChangeListener() {
+
+            public void changed(ChangeEvent event, Actor actor) {
+                SettingsScene.this.waitingForFollowKey = false;
+                SettingsScene.this.waitingForAbilityKey = false;
+                SettingsScene.this.waitingForSwapKey = false;
+                SettingsScene.this.waitingForP2AbilityKey = true;
+            }
+        });
+        table.add(setP2AbilityButton).width(buttonWidth).height(buttonHeight).pad(buttonPadding);
 
         stage.addListener(new InputListener() {
 
@@ -257,9 +280,16 @@ public class SettingsScene implements Screen {
                     SettingsScene.this.stagedSettings.setFollowKey(keycode);
                     SettingsScene.this.waitingForFollowKey = false;
                 }
+                if (SettingsScene.this.waitingForP2AbilityKey) {
+                    setP2AbilityButton.setText("Current: " + Input.Keys.toString(keycode));
+                    SettingsScene.this.stagedSettings.setP2AbilityKey(keycode);
+                    SettingsScene.this.waitingForP2AbilityKey = false;
+                }
                 return true;
             }
         });
+
+        window.add(new ScrollPane(table, skin));
 
         window.row();
         window.add(
@@ -286,7 +316,7 @@ public class SettingsScene implements Screen {
         // table.setSize(this.width, this.height);
         table.setFillParent(true);
         table.defaults().spaceBottom(10f);
-        table.top().pad(Value.percentWidth(0.01f)).padTop(Value.percentHeight(0.3f));
+        table.top().pad(Value.percentWidth(0.02f)).padTop(Value.percentHeight(0.3f));
 
         Value labelWidth = Value.percentWidth(0.33f, table);
         Value controlWidth = Value.percentWidth(0.5f, table);

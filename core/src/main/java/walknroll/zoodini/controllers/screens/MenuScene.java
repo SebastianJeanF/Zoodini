@@ -18,7 +18,7 @@
  * at the start of the game.
  *
  * @author: Walker M. White
- * 
+ *
  * @date: 11/21/2024
  */
 package walknroll.zoodini.controllers.screens;
@@ -318,7 +318,7 @@ public class MenuScene implements Screen {
 		// table.setSize(this.width, this.height);
 		table.setFillParent(true);
 		table.defaults().spaceBottom(10f);
-		table.bottom().pad(Value.percentWidth(0.01f));
+		table.bottom().pad(Value.percentWidth(0.02f));
 
 		Value labelWidth = Value.percentWidth(0.25f, table);
 
