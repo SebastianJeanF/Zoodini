@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="128" tileheight="128" infinite="0" nextlayerid="7" nextobjectid="126">
- <editorsettings>
-  <export target="medium4..tmx" format="tmx"/>
- </editorsettings>
  <tileset firstgid="1" source="../tilesets/walls-2.tsx"/>
  <tileset firstgid="211" source="../tilesets/walls-1.tsx"/>
  <tileset firstgid="421" source="../tilesets/path-3.tsx"/>
