@@ -111,6 +111,9 @@
    </properties>
   </object>
   <object id="59" type="Exit" x="2247.88" y="350.133">
+   <properties>
+    <property name="creature" propertytype="ExitCreature" value="RABBIT"/>
+   </properties>
    <point/>
   </object>
   <object id="61" type="Vent" x="4183.11" y="372.269">

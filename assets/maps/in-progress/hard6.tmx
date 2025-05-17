@@ -252,6 +252,9 @@
    <point/>
   </object>
   <object id="52" type="Exit" x="3840" y="836">
+   <properties>
+    <property name="creature" propertytype="ExitCreature" value="PENGUIN"/>
+   </properties>
    <point/>
   </object>
   <object id="190" x="6720" y="2236">
