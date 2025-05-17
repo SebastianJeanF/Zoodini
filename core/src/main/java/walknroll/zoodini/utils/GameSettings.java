@@ -31,7 +31,7 @@ public class GameSettings {
     private boolean coopEnabled;
 
     public GameSettings() {
-        this(Input.Keys.E, Input.Keys.SPACE, Input.Keys.F, Input.Keys.SHIFT_RIGHT, "1280x720", 100f,
+        this(Input.Keys.SHIFT_LEFT, Input.Keys.SPACE, Input.Keys.F, Input.Keys.SHIFT_RIGHT, "1280x720", 100f,
                 100f, false);
     }
 
