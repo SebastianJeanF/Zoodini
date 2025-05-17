@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="26" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="9" nextobjectid="260">
- <editorsettings>
-  <export target="../SwappingIntro.tmx" format="tmx"/>
- </editorsettings>
- <tileset firstgid="1" source="../../tilesets/path-1.tsx"/>
- <tileset firstgid="211" source="../../tilesets/path-2.tsx"/>
- <tileset firstgid="421" source="../../tilesets/walls-1.tsx"/>
- <tileset firstgid="631" source="../../tilesets/walls-2.tsx"/>
- <tileset firstgid="841" source="../../tilesets/path-3.tsx"/>
- <tileset firstgid="1097" source="../../tilesets/fence.tsx"/>
- <tileset firstgid="1127" source="../../tilesets/trees.tsx"/>
- <tileset firstgid="1133" source="../../tilesets/decorations-2.tsx"/>
- <tileset firstgid="1253" source="../../tilesets/decorations.tsx"/>
+ <tileset firstgid="1" source="../tilesets/path-1.tsx"/>
+ <tileset firstgid="211" source="../tilesets/path-2.tsx"/>
+ <tileset firstgid="421" source="../tilesets/walls-1.tsx"/>
+ <tileset firstgid="631" source="../tilesets/walls-2.tsx"/>
+ <tileset firstgid="841" source="../tilesets/path-3.tsx"/>
+ <tileset firstgid="1097" source="../tilesets/fence.tsx"/>
+ <tileset firstgid="1127" source="../tilesets/trees.tsx"/>
+ <tileset firstgid="1133" source="../tilesets/decorations-2.tsx"/>
+ <tileset firstgid="1253" source="../tilesets/decorations.tsx"/>
  <layer id="1" name="ground" width="26" height="20">
   <data encoding="csv">
 429,430,431,432,429,430,431,596,597,595,594,595,596,597,596,597,596,597,1610613316,1610613316,1610613316,1610613316,1610613316,1610613316,1610613316,1610613316,
