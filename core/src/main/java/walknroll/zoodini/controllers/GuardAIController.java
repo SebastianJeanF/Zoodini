@@ -542,6 +542,18 @@ public class GuardAIController {
             if (currState == GuardState.CHASE) {
                 return targetPlayer.getPosition().cpy();
             }
+            // Guard alerted by camera but can't reach player
+            if (currState == GuardState.AlERTED) {
+                currState = GuardState.PATROL;
+                guard.setCameraAlerted(false);
+                return waypoints[currentWaypointIndex];
+            }
+            // Guard meowed but can't reach player
+            if (currState == GuardState.DISTRACTED) {
+                currState = GuardState.PATROL;
+                guard.setMeow(false);
+                return waypoints[currentWaypointIndex];
+            }
             return guard.getPosition().cpy();
         }
 
