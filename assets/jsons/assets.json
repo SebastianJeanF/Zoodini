@@ -337,6 +337,8 @@
     "guard-single": "textures/entities/guard/guard_single.png",
     "disabledMap" : "textures/ui/gameplay/disabledMap.png",
     "stretched-door" : "textures/entities/static/stretched-door.png",
+    "vertical-door-locked": "textures/entities/static/vertical-door-locked.png",
+    "vertical-door-unlocked": "textures/entities/static/vertical-door-unlocked.png"
   },
   "fonts": {
     "display": {
