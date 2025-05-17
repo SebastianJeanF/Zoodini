@@ -1323,8 +1323,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 for (Guard guard : level.getGuards()) {
                     guard.setInMeowRadius(false);
                 }
+            }
 
-            } else {
+            else {
                 cat.setDidFire(false);
             }
         }
@@ -1466,6 +1467,14 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private void resetAvatarState(PlayableAvatar avatar) {
         avatar.setCurrentlyAiming(false);
         avatar.resetPhysics();
+
+        // Clear all guards' meow radius indicators when switching away from cat
+        if (avatar.getAvatarType() == AvatarType.CAT) {
+            // Clear the meow radius indicators for all guards
+            for (Guard guard : level.getGuards()) {
+                guard.setInMeowRadius(false);
+            }
+        }
     }
 
     private void onSwap(InputController input) {
