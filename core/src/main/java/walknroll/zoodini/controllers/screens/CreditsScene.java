@@ -180,6 +180,7 @@ private AssetDirectory assets;
         group.addActor(new Label("libgdx", skin));
 
         ScrollPane creditsScroller = new ScrollPane(group, skin);
+        creditsScroller.setFadeScrollBars(false);
         table.add(creditsScroller).expandX().width(Value.percentWidth(0.8f, table));
         stage.setScrollFocus(creditsScroller);
         table.row();
