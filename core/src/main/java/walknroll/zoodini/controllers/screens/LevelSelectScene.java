@@ -214,6 +214,7 @@ public class LevelSelectScene implements Screen {
         }
 
         ScrollPane levelsScroller = new ScrollPane(table, normalButtonSkin);
+        levelsScroller.setFadeScrollBars(false);
         rootTable.add(levelsScroller).height(Value.percentHeight(0.55f,
                 rootTable)).width(Value.percentWidth(0.8f, rootTable)).top().expand();
         stage.setScrollFocus(levelsScroller);
