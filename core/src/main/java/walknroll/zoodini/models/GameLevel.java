@@ -365,25 +365,25 @@ public class GameLevel {
             if ("Cat".equalsIgnoreCase(type)) {
                 avatarCat = new Cat(properties, entityConstants.get("cat"), units);
                 avatarCat.setAnimation(AnimationState.IDLE,
-                        directory.getEntry("cat-idle.animation", SpriteSheet.class), 15);
+                    directory.getEntry("cat-idle.animation", SpriteSheet.class), 15);
                 avatarCat.setAnimation(AnimationState.WALK,
-                        directory.getEntry("cat-walk.animation", SpriteSheet.class), 4);
+                    directory.getEntry("cat-walk.animation", SpriteSheet.class), 4);
                 avatarCat.setAnimation(AnimationState.WALK_DOWN,
-                        directory.getEntry("cat-walk-down.animation", SpriteSheet.class), 8);
+                    directory.getEntry("cat-walk-down.animation", SpriteSheet.class), 8);
                 avatarCat.setAnimation(AnimationState.WALK_UP,
-                        directory.getEntry("cat-walk-up.animation", SpriteSheet.class), 6);
+                    directory.getEntry("cat-walk-up.animation", SpriteSheet.class), 6);
                 activate(avatarCat);
                 catPresent = true;
             } else if ("Octopus".equalsIgnoreCase(type)) {
                 avatarOctopus = new Octopus(properties, entityConstants.get("octopus"), units);
                 avatarOctopus.setAnimation(AnimationState.IDLE,
-                        directory.getEntry("octopus-idle.animation", SpriteSheet.class), 7);
+                    directory.getEntry("octopus-idle.animation", SpriteSheet.class), 7);
                 avatarOctopus.setAnimation(AnimationState.WALK,
-                        directory.getEntry("octopus-walk.animation", SpriteSheet.class), 6);
+                    directory.getEntry("octopus-walk.animation", SpriteSheet.class), 6);
                 avatarOctopus.setAnimation(AnimationState.WALK_DOWN,
-                        directory.getEntry("octopus-walk-down.animation", SpriteSheet.class), 8);
+                    directory.getEntry("octopus-walk-down.animation", SpriteSheet.class), 8);
                 avatarOctopus.setAnimation(AnimationState.WALK_UP,
-                        directory.getEntry("octopus-walk-up.animation", SpriteSheet.class), 6);
+                    directory.getEntry("octopus-walk-up.animation", SpriteSheet.class), 6);
                 activate(avatarOctopus);
                 octopusPresent = true;
             } else if ("Guard".equalsIgnoreCase(type)) {
@@ -420,7 +420,7 @@ public class GameLevel {
             } else if ("Camera".equalsIgnoreCase(type)) {
                 SecurityCamera cam = new SecurityCamera(properties, entityConstants.get("camera"), units);
                 cam.setAnimation(AnimationState.IDLE, directory.getEntry("camera-idle.animation", SpriteSheet.class),
-                        15);
+                    15);
                 securityCameras.add(cam);
                 activate(cam);
             } else if ("Door".equalsIgnoreCase(type)) {
@@ -472,7 +472,7 @@ public class GameLevel {
         SpriteSheet sheet1 = directory.getEntry("ink-explosion.animation", SpriteSheet.class);
         inkProjectile.setAnimation(AnimationState.EXPLODE, sheet1, sheet1.getSize() / 30);
         inkProjectile.setAnimation(AnimationState.IDLE,
-                directory.getEntry("ink-projectile.animation", SpriteSheet.class), 5);
+            directory.getEntry("ink-projectile.animation", SpriteSheet.class), 5);
         activate(inkProjectile);
         inkProjectile.setDrawingEnabled(false);
         inkProjectile.getObstacle().setActive(false);
@@ -588,7 +588,7 @@ public class GameLevel {
             if (v.contains(avatarCat.getObstacle())) {
                 if (key instanceof Guard) {
                     ((Guard) key).setTarget(
-                            avatarCat.getPosition()); // TODO: this line might not be needed
+                        avatarCat.getPosition()); // TODO: this line might not be needed
                     ((Guard) key).setAgroed(true);
                     ((Guard) key).setAggroTarget(avatarCat);
                 } else if (key instanceof SecurityCamera) {
@@ -606,7 +606,7 @@ public class GameLevel {
             } else if (v.contains(avatarOctopus.getObstacle())) {
                 if (key instanceof Guard) {
                     ((Guard) key).setTarget(
-                            avatarOctopus.getPosition()); // TODO: this line might not be needed
+                        avatarOctopus.getPosition()); // TODO: this line might not be needed
                     ((Guard) key).setAgroed(true);
                     ((Guard) key).setAggroTarget(avatarOctopus);
                     // DebugPrinter.println("In guard vision cone " + ((Guard)
@@ -651,6 +651,7 @@ public class GameLevel {
         mapRenderer.setView((OrthographicCamera) camera);
 
         // Get ground layer and render it
+        batch.setColor(Color.WHITE);
         MapLayer groundLayer = mapRenderer.getMap().getLayers().get("ground");
         mapRenderer.renderTileLayer((TiledMapTileLayer) groundLayer);
 
@@ -680,6 +681,10 @@ public class GameLevel {
             }
         }
 
+
+        // Draw the ink projectile + set ability range drawing for later
+        boolean drawCatAbilityRange = false;
+        boolean drawOctopusAbilityRange = false;
         batch.setColor(Color.WHITE);
         Avatar avatar = getAvatar();
         if (avatar != null) {
@@ -687,13 +692,13 @@ public class GameLevel {
                 Octopus octopus = (Octopus) avatar;
                 if (octopus.isCurrentlyAiming() && octopus.canUseAbility()) {
                     drawOctopusReticle(batch, octopus);
-                    drawAbilityRange(batch, avatarOctopus);
+                    drawOctopusAbilityRange = true;
                 }
             }
             if (avatar.getAvatarType() == AvatarType.CAT) {
                 Cat cat = (Cat) avatar;
                 if (cat.isCurrentlyAiming() && cat.canUseAbility()) {
-                    drawAbilityRange(batch, avatarCat);
+                    drawCatAbilityRange = true;
                 }
             }
         }
@@ -703,7 +708,7 @@ public class GameLevel {
                 Octopus octopus = (Octopus) inactiveAvatar;
                 if (octopus.isCurrentlyAiming() && octopus.canUseAbility()) {
                     drawOctopusReticle(batch, octopus);
-                    drawAbilityRange(batch, avatarOctopus);
+                    drawOctopusAbilityRange = true;
                 }
             }
         }
@@ -717,8 +722,10 @@ public class GameLevel {
         batch.setColor(Color.WHITE);
         // Get wall layer and render it
         MapLayer wallLayer = mapRenderer.getMap().getLayers().get("wall-tiles");
-        if (wallLayer != null)
+        if (wallLayer != null){
             mapRenderer.renderTileLayer((TiledMapTileLayer) wallLayer);
+
+        }
 
         batch.setColor(Color.WHITE);
         if(imagesCache != null) {
@@ -727,14 +734,26 @@ public class GameLevel {
             }
         }
 
-
+        batch.setColor(Color.WHITE);
         // d debugging on top of everything.
         if (debug) {
             for (ObstacleSprite obj : sprites) {
                 obj.drawDebug(batch);
             }
         }
+        batch.setColor(Color.WHITE);
 
+        // Draw the ability ranges
+        if (drawCatAbilityRange) {
+            drawAbilityRange(batch, avatarCat);
+        }
+        batch.setColor(Color.WHITE);
+        if (drawOctopusAbilityRange) {
+            drawAbilityRange(batch, avatarOctopus);
+        }
+        batch.setColor(Color.WHITE);
+
+        // Draw the text last on top of everything else
         drawGameText(batch);
 
         batch.end();
@@ -748,8 +767,8 @@ public class GameLevel {
         // TODO: Figure out root cause of drawing text
         // preventing debug graph tiles from being drawn
         if (textFont == null
-                || textObjects.size == 0
-                || Constants.DEBUG)
+            || textObjects.size == 0
+            || Constants.DEBUG)
             return;
 
         for (MapObject textObj : textObjects) {
@@ -1053,10 +1072,10 @@ public class GameLevel {
             if (wall instanceof RectangleMapObject rec) {
                 Rectangle rectangle = rec.getRectangle(); // dimensions given in pixels
                 Obstacle obstacle = new BoxObstacle(
-                        (rectangle.x + rectangle.width / 2) / units,
-                        (rectangle.y + rectangle.height / 2) / units,
-                        rectangle.width / units,
-                        rectangle.height / units);
+                    (rectangle.x + rectangle.width / 2) / units,
+                    (rectangle.y + rectangle.height / 2) / units,
+                    rectangle.width / units,
+                    rectangle.height / units);
 
                 obstacle.setPhysicsUnits(units);
                 obstacle.setBodyType(BodyType.StaticBody);
@@ -1121,7 +1140,7 @@ public class GameLevel {
     private void updateFlipSprite(Avatar avatar) {
         // flips the sprite if the avatar is moving left
         if (!avatar.isFlipped() && avatar.getMovement().x < 0.0f
-                || avatar.isFlipped() && avatar.getMovement().x > 0.0f) {
+            || avatar.isFlipped() && avatar.getMovement().x > 0.0f) {
             avatar.flipSprite();
         }
     }
@@ -1129,7 +1148,7 @@ public class GameLevel {
     private void updateFlipGuardSprite(Guard guard){
         // flips the sprite if the guard is moving left
         if (!guard.isIdle() && (!guard.isFlipped() && guard.getMovement().x < 0.0f
-                || guard.isFlipped() && guard.getMovement().x > 0.0f)) {
+            || guard.isFlipped() && guard.getMovement().x > 0.0f)) {
             guard.flipSprite();
         } else if (guard.isIdle() && guard.getMovement().x == 0.0f) {
             guard.setFlipped(false);
@@ -1158,7 +1177,7 @@ public class GameLevel {
 
         // and if you still want that smooth “ease-in/out” curve:
         float smoothOffset = Interpolation.smooth.apply(
-                -textMaxYOffsetTile, textMaxYOffsetTile, alpha);
+            -textMaxYOffsetTile, textMaxYOffsetTile, alpha);
         textCurrYOffsetTile = smoothOffset;
     }
 
