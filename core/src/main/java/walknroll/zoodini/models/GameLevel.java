@@ -63,11 +63,6 @@ import walknroll.zoodini.models.nonentities.Exit;
 import walknroll.zoodini.models.nonentities.InkProjectile;
 import walknroll.zoodini.models.nonentities.Key;
 import walknroll.zoodini.models.nonentities.Vent;
-import walknroll.zoodini.utils.Checkpoint;
-import walknroll.zoodini.utils.Checkpoint.DoorState;
-import walknroll.zoodini.utils.Checkpoint.KeyState;
-import walknroll.zoodini.utils.CheckpointManager;
-import walknroll.zoodini.utils.CheckpointManager.CheckpointSaveState;
 import walknroll.zoodini.utils.Constants;
 import walknroll.zoodini.utils.DebugPrinter;
 import walknroll.zoodini.utils.GameSettings;
@@ -255,10 +250,6 @@ public class GameLevel {
      */
     private OrthogonalTiledMapRenderer mapRenderer;
 
-    /** Array that contains image objects */
-    private Array<TextureMapObject> imagesCache;
-
-
     /** Tracks doors that have been unlocked for checkpoint restoration */
     private ObjectMap<Integer, Boolean> doorUnlockStates = new ObjectMap<>();
 
@@ -313,25 +304,6 @@ public class GameLevel {
         world = new World(Vector2.Zero, false);
 
         mapRenderer = new OrthogonalTiledMapRenderer(map, batch);
-        MapLayer l =  map.getLayers().get("images");
-        if(l != null){
-            MapObjects objs =l.getObjects();
-            imagesCache = new Array<>(objs.getCount());
-            for(MapObject obj : objs){
-                if(obj instanceof TextureMapObject t) {
-                    imagesCache.add(t);
-//                    BoxObstacle obs = new BoxObstacle(t.getX() / units, t.getY() / units, 1, 1);
-//                    obs.setPhysicsUnits(units);
-//                    obs.setBodyType(BodyType.StaticBody);
-//                    obs.setSensor(true);
-//                    ZoodiniSprite image = new ZoodiniSprite();
-//                    image.setTexture(t.getTextureRegion().getTexture());
-//                    image.setObstacle(obs);
-//                    activate(image);
-                }
-            }
-            imagesCache.sort((a,b) -> Float.compare(b.getY(), a.getY())); //descending order
-        }
 
 
         // Clear state tracking if this is a fresh populate (not restoration)
@@ -352,7 +324,15 @@ public class GameLevel {
         JsonValue entityConstants = directory.getEntry("constants", JsonValue.class).get("entities");
         createWallBodies(walls, entityConstants.get("walls"));
 
-
+        MapLayer l =  map.getLayers().get("images");
+        if(l != null){
+            MapObjects objs = l.getObjects();
+            for(MapObject obj : objs){
+                if(obj instanceof TextureMapObject t) {
+                    activate(new ZoodiniSprite(t,units));
+                }
+            }
+        }
 
         // Text
         textFont = directory.getEntry("game-text", BitmapFont.class);
@@ -514,9 +494,6 @@ public class GameLevel {
         sprites.clear();
         doors.clear();
         textObjects.clear();
-        if (imagesCache != null) {
-            imagesCache.clear();
-        }
         keys.clear();
         mapRenderer.dispose();
         vents.clear();
@@ -745,13 +722,6 @@ public class GameLevel {
         }
 
         batch.setColor(Color.WHITE);
-        if(imagesCache != null) {
-            for (TextureMapObject t : imagesCache) {
-                batch.draw(t.getTextureRegion(), t.getX(), t.getY());
-            }
-        }
-
-        batch.setColor(Color.WHITE);
         // d debugging on top of everything.
         if (debug) {
             for (ObstacleSprite obj : sprites) {
@@ -769,6 +739,11 @@ public class GameLevel {
             drawAbilityRange(batch, avatarOctopus);
         }
         batch.setColor(Color.WHITE);
+
+        // Draw the suspicion meter of each guard
+        for (Guard g : guards) {
+            g.drawSuspicionMeter(batch);
+        }
 
         // Draw the text last on top of everything else
         drawGameText(batch);

@@ -215,7 +215,7 @@ public class MenuScene implements Screen {
 	 *
 	 * This asset loader is NOT owned by this loading scene, so it persists even
 	 * after the scene is disposed. It is your responsbility to unload the
-	 * assets in this directory.
+	 * assets in this directory.*-
 	 *
 	 * @return the asset directory produced by this loading screen
 	 */

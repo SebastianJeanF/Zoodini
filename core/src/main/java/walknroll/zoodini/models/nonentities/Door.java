@@ -5,7 +5,7 @@
  * specialized class so that we can import its properties from a JSON file.
  *
  * @author: Walker M. White
- * 
+ *
  * @version: 2/15/2025
  */
 package walknroll.zoodini.models.nonentities;
@@ -72,7 +72,7 @@ public class Door extends ZoodiniSprite {
 
     /**
      * Sets the checkpoint listener for this door
-     * 
+     *
      * @param listener The listener to notify when checkpoints are activated
      */
     public void setCheckpointListener(CheckpointListener listener) {
@@ -134,7 +134,7 @@ public class Door extends ZoodiniSprite {
     /**
      * Sets who is the most recent character to
      * attempt to unlock this door.
-     * 
+     *
      * @param avatar the character that is trying to unlock this door
      */
     public void setUnlocker(PlayableAvatar avatar) {
@@ -162,8 +162,8 @@ public class Door extends ZoodiniSprite {
         Float timeToOpen = properties.get("timeToOpen", Float.class);
         UNLOCK_DURATION = (timeToOpen == null) ? 3.0f : timeToOpen;
 
-        w = w * units;
-        h = h * units;
+        w = 3 * units;
+        h = 3 * units;
         mesh = new SpriteMesh(-w / 2, -h / 2, w, h);
 
         // Technically, we should do error checking here.
@@ -184,7 +184,6 @@ public class Door extends ZoodiniSprite {
         filter.categoryBits = this.collideBits;
         filter.maskBits = this.excludeBitsLocked;
         obstacle.setFilterData(filter);
-
         lockedTexture = new TextureRegion(directory.getEntry("locked_door", Texture.class));
         unlockedTexture = new TextureRegion(directory.getEntry("unlocked_door", Texture.class));
         unlockTimer = new CircleTimer(0.2f, Color.YELLOW, units);
@@ -245,7 +244,19 @@ public class Door extends ZoodiniSprite {
 
     @Override
     public void draw(SpriteBatch batch) {
-        super.draw(batch);
+        if (this.obstacle != null && this.mesh != null) {
+            float x = this.obstacle.getX();
+            float y = this.obstacle.getY();
+            float a = this.obstacle.getAngle();
+            float u = this.obstacle.getPhysicsUnits();
+            this.transform.idt();
+            this.transform.preRotate((float)((double)(a * 180.0F) / Math.PI));
+            this.transform.preTranslate(x * u, y * u);
+            batch.setTextureRegion(this.sprite);
+            batch.drawMesh(this.mesh, this.transform, false);
+            batch.setTexture((Texture)null);
+        }
+
         if (isLocked() && isUnlocking) {
             unlockTimer.draw(batch);
         }
