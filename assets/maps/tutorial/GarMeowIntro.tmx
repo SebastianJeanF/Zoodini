@@ -175,15 +175,12 @@
  </layer>
  <objectgroup id="6" name="images">
   <object id="143" gid="1610" x="1078.55" y="3095.7" width="247" height="610"/>
-  <object id="144" gid="1609" x="1082.71" y="4864.15" width="229" height="300"/>
   <object id="145" gid="1607" x="2132.13" y="5286.76" width="291" height="495"/>
   <object id="146" gid="1609" x="2124.37" y="2320.54" width="229" height="300"/>
   <object id="147" gid="1609" x="2327.86" y="2315.7" width="229" height="300"/>
   <object id="148" gid="1607" x="5896.67" y="2404.01" width="291" height="495"/>
   <object id="149" gid="1607" x="877.287" y="3091.99" width="291" height="495"/>
   <object id="150" gid="1605" x="600.194" y="3096.06" width="351" height="446"/>
-  <object id="151" gid="1606" x="804.302" y="4861.32" width="310" height="429"/>
-  <object id="152" gid="1610" x="618.279" y="4864.11" width="247" height="610"/>
   <object id="153" gid="1610" x="2144.44" y="5038.53" width="247" height="610"/>
   <object id="154" gid="1605" x="2068.22" y="4675.52" width="351" height="446"/>
   <object id="155" gid="1607" x="2132.13" y="3416.6" width="291" height="495"/>
