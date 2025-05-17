@@ -9,7 +9,7 @@
  <tileset firstgid="1127" source="../../tilesets/trees.tsx"/>
  <tileset firstgid="1133" source="../../tilesets/decorations-2.tsx"/>
  <tileset firstgid="1253" source="../../tilesets/decorations.tsx"/>
- <layer id="1" name="ground" width="26" height="20" visible="0">
+ <layer id="1" name="ground" width="26" height="20">
   <data encoding="csv">
 429,430,431,432,429,430,431,596,597,595,594,595,596,597,596,597,596,597,1610613316,1610613316,1610613316,1610613316,1610613316,1610613316,1610613316,1610613316,
 429,430,431,432,429,430,431,610,610,610,609,610,611,610,611,610,610,610,1610613316,1610613316,1610613316,1610613316,1610613316,1610613316,1610613316,1610613316,
@@ -57,7 +57,7 @@
 610,610,610,609,610,611,610,611,610,610,610,611,610,610,610,610,610,610,610,1610613751,1610613751,1610613316,1610613316,1610613316,1610613316,1610613316
 </data>
  </layer>
- <layer id="8" name="decorations" width="26" height="20" visible="0">
+ <layer id="8" name="decorations" width="26" height="20">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -81,7 +81,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1110,1111,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="5" name="walls" visible="0">
+ <objectgroup id="5" name="walls">
   <object id="84" x="1920" y="1664" width="768" height="384"/>
   <object id="162" x="1792" y="768" width="384" height="512"/>
   <object id="183" x="512" y="256" width="384" height="256"/>
@@ -115,7 +115,7 @@
   <object id="252" x="1280" y="1024" width="128" height="256"/>
   <object id="259" x="896" y="512" width="384" height="128"/>
  </objectgroup>
- <objectgroup id="4" name="objects" visible="0">
+ <objectgroup id="4" name="objects">
   <object id="4" type="Exit" x="2208.24" y="428.121">
    <properties>
     <property name="category" value="10000"/>
@@ -131,7 +131,7 @@
    </properties>
    <point/>
   </object>
-  <object id="155" type="Text" x="1188.98" y="980.364">
+  <object id="155" type="Text" x="1088.98" y="750.061">
    <properties>
     <property name="text" value="${followKey} to make other character follow you"/>
    </properties>
