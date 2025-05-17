@@ -31,10 +31,12 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Value;
+import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -321,6 +323,8 @@ public class MenuScene implements Screen {
 		table.bottom().pad(Value.percentWidth(0.02f));
 
 		Value labelWidth = Value.percentWidth(0.25f, table);
+		VerticalGroup group = new VerticalGroup();
+		group.space(10f);
 
 		TextButton menuStart = new TextButton("Start", skin);
 		menuStart.addListener(new ChangeListener() {
@@ -329,9 +333,10 @@ public class MenuScene implements Screen {
 				listener.exitScreen(MenuScene.this, GDXRoot.EXIT_LEVEL_SELECT);
 			}
 		});
-		table.add(menuStart).expandX().left().width(labelWidth).bottom();
+		group.addActor(menuStart);
+		// table.add(menuStart).expandX().left().width(labelWidth).bottom();
 
-		table.row();
+		// table.row();
 		TextButton menuSettings = new TextButton("Settings", skin);
 		menuSettings.addListener(new ChangeListener() {
 
@@ -339,9 +344,10 @@ public class MenuScene implements Screen {
 				listener.exitScreen(MenuScene.this, GDXRoot.EXIT_SETTINGS);
 			}
 		});
-		table.add(menuSettings).left().width(labelWidth).bottom();
+		group.addActor(menuSettings);
+		// table.add(menuSettings).left().width(labelWidth).bottom();
 
-		table.row();
+		// table.row();
 		TextButton menuCredits = new TextButton("Credits", skin);
 		menuCredits.addListener(new ChangeListener() {
 
@@ -349,9 +355,10 @@ public class MenuScene implements Screen {
 				listener.exitScreen(MenuScene.this, GDXRoot.EXIT_CREDITS);
 			}
 		});
-		table.add(menuCredits).left().width(labelWidth).bottom();
+		group.addActor(menuCredits);
+		// table.add(menuCredits).left().width(labelWidth).bottom();
 
-		table.row();
+		// table.row();
 		TextButton menuQuit = new TextButton("Quit", skin);
 		menuQuit.addListener(new ChangeListener() {
 
@@ -359,7 +366,14 @@ public class MenuScene implements Screen {
 				listener.exitScreen(MenuScene.this, GDXRoot.EXIT_QUIT);
 			}
 		});
-		table.add(menuQuit).left().width(labelWidth).bottom();
+		group.addActor(menuQuit);
+		// table.add(menuQuit).left().width(labelWidth).bottom();
+
+		table.add(group).left().bottom();
+
+		Image teamLogo = new Image(internal.getEntry("team-logo", Texture.class));
+		table.add(teamLogo).expandX().right().bottom().size(Value.percentWidth(0.125f, table)).pad(Value
+				.percentWidth(0.02f));
 
 		return table;
 	}

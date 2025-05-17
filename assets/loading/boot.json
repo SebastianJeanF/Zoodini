@@ -30,6 +30,7 @@
             "minfilter": "linear",
             "magfilter": "linear"
         },
+        "team-logo": "loading/studio.png",
         "progress": {
             "file":   "loading/progress.png",
             "atlas":  {
