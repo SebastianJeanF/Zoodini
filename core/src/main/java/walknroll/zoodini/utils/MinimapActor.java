@@ -406,12 +406,14 @@ public class MinimapActor extends Actor implements Disposable {
 
         for (Key key : level.getKeys()) {
             // Only draw if not collected
-            Vector2 keyPos = key.getObstacle().getPosition();
-            Vector2 minimapKeyPos = worldToMinimap(keyPos.x, keyPos.y);
-            batch.draw(keyTexture,
-                getX() + minimapKeyPos.x - 4,
-                getY() + minimapKeyPos.y - 4,
-                10, 10);
+            if (!key.isCollected()) {
+                Vector2 keyPos = key.getObstacle().getPosition();
+                Vector2 minimapKeyPos = worldToMinimap(keyPos.x, keyPos.y);
+                batch.draw(keyTexture,
+                    getX() + minimapKeyPos.x - 4,
+                    getY() + minimapKeyPos.y - 4,
+                    10, 10);
+            }
         }
 
         if (level.getExit() != null) {
