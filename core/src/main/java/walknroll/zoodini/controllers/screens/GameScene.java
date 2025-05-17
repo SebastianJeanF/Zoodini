@@ -100,7 +100,7 @@ import walknroll.zoodini.utils.enums.AvatarType;
 public class GameScene implements Screen, ContactListener, UIController.PauseMenuListener,
     CheckpointListener {
     /** How many frames after winning/losing do we continue? */
-    public static final int EXIT_COUNT = 120;
+    public static final int EXIT_COUNT = 240;
     // ASSETS
     /** Need an ongoing reference to the asset directory */
     protected AssetDirectory directory;
@@ -368,7 +368,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             @Override
             public void run() {
                 if (listener != null) {
-                    listener.exitScreen(GameScene.this, GDXRoot.EXIT_MENU);
+                    listener.exitScreen(GameScene.this, GDXRoot.EXIT_LEVEL_SELECT);
                 }
             }
         }, 0.1f);
@@ -422,17 +422,14 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             return false;
         }
 
-        if (complete) {
+        if (complete && countdown == 0) {
             soundController.stopAllSounds();
             listener.exitScreen(this, GDXRoot.EXIT_WIN);
             return false;
         }
 
         // Now it is time to maybe switch screens.
-        if (input.didExit()) {
-            listener.exitScreen(this, GDXRoot.EXIT_MENU);
-            return false;
-        } else if (countdown > 0) {
+        if (countdown > 0) {
             countdown--;
         } else if (countdown == 0) {
             reset();
@@ -895,6 +892,14 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
             if (levelComplete) {
                 setComplete(true);
+
+                level.getExit().setFree(true);
+                if (level.getCat() != null) {
+                    level.getCat().setDrawingEnabled(false);
+                }
+                if (level.getOctopus() != null) {
+                    level.getOctopus().setDrawingEnabled(false);
+                }
             }
         }
     }
@@ -1252,6 +1257,10 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
      * Applies movement forces to the avatar and change firing states.
      */
     private void processPlayerAction(InputController input, float dt) {
+        if (input.didExit()) {
+            ui.togglePauseMenu(true);
+        }
+
         vec3tmp.setZero();
         vec2tmp.setZero();
 
@@ -1314,8 +1323,9 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 for (Guard guard : level.getGuards()) {
                     guard.setInMeowRadius(false);
                 }
+            }
 
-            } else {
+            else {
                 cat.setDidFire(false);
             }
         }
@@ -1457,6 +1467,14 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     private void resetAvatarState(PlayableAvatar avatar) {
         avatar.setCurrentlyAiming(false);
         avatar.resetPhysics();
+
+        // Clear all guards' meow radius indicators when switching away from cat
+        if (avatar.getAvatarType() == AvatarType.CAT) {
+            // Clear the meow radius indicators for all guards
+            for (Guard guard : level.getGuards()) {
+                guard.setInMeowRadius(false);
+            }
+        }
     }
 
     private void onSwap(InputController input) {
@@ -1592,10 +1610,16 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         PlayableAvatar avatar = level.getAvatar();
         if (avatar.isCurrentlyAiming()) {
             camera.zoom = Math.min(1.2f, camera.zoom + 0.01f);
-        } else {
+        } else if (!complete) {
             camera.zoom = Math.max(1.0f, camera.zoom - 0.005f);
         }
-        cameraTargetPosition.set(avatar.getPosition());
+
+        if (complete) {
+            cameraTargetPosition.set(level.getExit().getObstacle().getPosition());
+            camera.zoom = Math.max(0.2f, camera.zoom - 0.02f);
+        } else {
+            cameraTargetPosition.set(avatar.getPosition());
+        }
         // Get viewport dimensions in world units
         float viewWidth = camera.viewportWidth / level.getTileSize();
         float viewHeight = camera.viewportHeight / level.getTileSize();
