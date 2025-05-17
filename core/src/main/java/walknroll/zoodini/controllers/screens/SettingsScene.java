@@ -24,6 +24,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
@@ -62,6 +63,7 @@ public class SettingsScene implements Screen {
     private Texture background;
     /** logo */
     private Texture logo;
+    private float resScale;
 
     Affine2 cache = new Affine2();
 
@@ -75,6 +77,11 @@ public class SettingsScene implements Screen {
 
         this.background = assets.getEntry("splash", Texture.class);
         this.logo = assets.getEntry("logo", Texture.class);
+
+        JsonValue constants = assets.getEntry("constants", JsonValue.class);
+        float resScaleX = Gdx.graphics.getWidth() / (float) constants.getFloat("screenWidth");
+        float resScaleY = Gdx.graphics.getHeight() / (float) constants.getFloat("screenHeight");
+        this.resScale = Math.min(resScaleX, resScaleY);
     }
 
     public boolean shouldResetState() {
@@ -124,9 +131,12 @@ public class SettingsScene implements Screen {
         cache.scale(scaleX, scaleY);
         batch.draw(background, cache);
 
-        batch.draw(logo, (width / 2f) - (logo.getWidth() / 2f), height - (logo.getHeight() + 50),
-                logo.getWidth(),
-                logo.getHeight());
+        batch.draw(logo,
+                ((width / 2f) - (logo.getWidth() / 2f) * resScale),
+                (height - (logo.getHeight() + 50) * resScale),
+                logo.getWidth() * resScale,
+                logo.getHeight() * resScale
+        );
         batch.end();
 
         stage.draw();
