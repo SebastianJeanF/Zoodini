@@ -663,7 +663,13 @@ public class GameLevel {
             mapRenderer.renderTileLayer((TiledMapTileLayer) decorations);
 
         sprites.sort(ZoodiniSprite.Comparison);
+        for (Vent vent : vents) {
+            vent.draw(batch);
+        }
         for (ZoodiniSprite obj : sprites) {
+            if (obj instanceof Vent) {
+                continue;
+            }
             batch.setColor(Color.WHITE);
             if (obj.isDrawingEnabled()) {
                 obj.draw(batch);

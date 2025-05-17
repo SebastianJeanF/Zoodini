@@ -50,12 +50,12 @@ public class SoundController implements Disposable {
      */
     private void loadSounds() {
         // Load cat sounds
-        soundEffects.put("cat-meow", Gdx.audio.newSound(Gdx.files.internal("sounds/cat-meow.mp3")));
-        soundEffects.put("octopus-shoot", Gdx.audio.newSound(Gdx.files.internal("sounds/octopus-shoot.mp3")));
-        soundEffects.put("ink-finish", Gdx.audio.newSound(Gdx.files.internal("sounds/ink-finish.mp3")));
-        soundEffects.put("camera-alarm", Gdx.audio.newSound(Gdx.files.internal("sounds/camera-alarm.mp3")));
-        soundEffects.put("guard-curious", Gdx.audio.newSound(Gdx.files.internal("sounds/guard-curious.mp3")));
-        soundEffects.put("guard-alerted", Gdx.audio.newSound(Gdx.files.internal("sounds/guard-alerted.mp3")));
+        soundEffects.put("cat-meow", Gdx.audio.newSound(Gdx.files.internal("sounds/cat-meow.ogg")));
+        soundEffects.put("octopus-shoot", Gdx.audio.newSound(Gdx.files.internal("sounds/octopus-shoot.ogg")));
+        soundEffects.put("ink-finish", Gdx.audio.newSound(Gdx.files.internal("sounds/ink-finish.ogg")));
+        soundEffects.put("camera-alarm", Gdx.audio.newSound(Gdx.files.internal("sounds/camera-alarm.ogg")));
+        soundEffects.put("guard-curious", Gdx.audio.newSound(Gdx.files.internal("sounds/guard-curious.ogg")));
+        soundEffects.put("guard-alerted", Gdx.audio.newSound(Gdx.files.internal("sounds/guard-alerted.ogg")));
     }
 
     /**
@@ -63,7 +63,7 @@ public class SoundController implements Disposable {
      */
     private void loadMusic() {
         // Load background music
-        music.put("game-music", Gdx.audio.newMusic(Gdx.files.internal("music/game-music.mp3")));
+        music.put("game-music", Gdx.audio.newMusic(Gdx.files.internal("music/game-music.ogg")));
     }
 
     /**
