@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Disposable;
+import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.physics2.BoxObstacle;
 import edu.cornell.gdiac.physics2.Obstacle;
 import walknroll.zoodini.models.GameLevel;
@@ -45,7 +46,7 @@ public class MinimapActor extends Actor implements Disposable {
     private Texture keyTexture;
     private Texture exitTexture;
     private Texture doorTexture;
-    private boolean disabled;
+    private boolean disabled = false;
 
     private int updateCounter = 0;
     private static final int UPDATE_FREQUENCY = 5;
@@ -55,6 +56,7 @@ public class MinimapActor extends Actor implements Disposable {
 
     // Texture for the minimap
     private Texture minimapTexture;
+    private Texture disabledMinimapTexture;
     private Pixmap pixmap;
 
     // Flag to check if we need to redraw the map
@@ -67,13 +69,14 @@ public class MinimapActor extends Actor implements Disposable {
     // Dot texture for dynamic entities
     private Texture dotTexture;
 
-    public MinimapActor(GameLevel level) {
+    public MinimapActor(AssetDirectory directory, GameLevel level) {
         this.level = level;
         setSize(MINIMAP_SIZE + 2 * BORDER_SIZE, MINIMAP_SIZE + 2 * BORDER_SIZE);
 
         // Initialize the pixmap and texture
-        createMinimapTexture();
+        createMinimapTexture(directory.getEntry("disabledMap", Texture.class));
         createDotTexture();
+        disabled = level.isMinimapDisabled();
     }
 
     public void setOctopusTexture(Texture t){
@@ -109,9 +112,7 @@ public class MinimapActor extends Actor implements Disposable {
     }
 
 
-
-
-    private void createMinimapTexture() {
+    private void createMinimapTexture(Texture t) {
         // Create a pixmap for the minimap
         pixmap = new Pixmap((int)(MINIMAP_SIZE + 2 * BORDER_SIZE),
             (int)(MINIMAP_SIZE + 2 * BORDER_SIZE),
@@ -119,6 +120,7 @@ public class MinimapActor extends Actor implements Disposable {
 
         // Create a texture from the pixmap
         minimapTexture = new Texture(new PixmapTextureData(pixmap, null, false, false));
+        disabledMinimapTexture = t;
     }
 
     private void createDotTexture() {
@@ -173,6 +175,7 @@ public class MinimapActor extends Actor implements Disposable {
         // drawAllKeys()
 
         // drawExitDirect()
+
 
         // Update the minimap texture
         minimapTexture.draw(pixmap, 0, 0);
@@ -329,16 +332,16 @@ public class MinimapActor extends Actor implements Disposable {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        if (needsRedraw) {
-            drawMinimap();
+
+        if(disabled){
+            batch.draw(disabledMinimapTexture, getX(), getY(), getWidth(), getHeight());
+        } else {
+            if (needsRedraw) {
+                drawMinimap();
+            }
+            batch.draw(minimapTexture, getX(), getY(), getWidth(), getHeight());
+            drawDynamicEntities(batch);
         }
-
-        // Draw the minimap texture
-        batch.draw(minimapTexture, getX(), getY(), getWidth(), getHeight());
-
-
-        // Draw dynamic entities (players, guards, cameras)
-        drawDynamicEntities(batch);
     }
 
 
