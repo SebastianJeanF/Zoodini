@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="46" tilewidth="128" tileheight="128" infinite="0" nextlayerid="9" nextobjectid="302">
- <editorsettings>
-  <export target="hard6.tmx" format="tmx"/>
- </editorsettings>
  <tileset firstgid="1" source="../../tilesets/path-1.tsx"/>
  <tileset firstgid="211" source="../../tilesets/walls-1.tsx"/>
  <tileset firstgid="421" source="../../tilesets/walls-2.tsx"/>
@@ -251,24 +248,24 @@
    </properties>
    <point/>
   </object>
-  <object id="247" type="Guard" x="4420" y="1016">
+  <object id="247" type="Guard" x="4414" y="1380">
    <properties>
     <property name="angle" type="float" value="270"/>
     <property name="path" type="object" value="0"/>
    </properties>
    <point/>
   </object>
-  <object id="248" type="Guard" x="3268" y="1012">
+  <object id="248" type="Guard" x="3266" y="1372">
    <properties>
     <property name="angle" type="float" value="270"/>
     <property name="path" type="object" value="0"/>
    </properties>
    <point/>
   </object>
-  <object id="249" type="Vent" x="4160" y="1576">
+  <object id="249" type="Vent" x="4097.38" y="1573.68">
    <point/>
   </object>
-  <object id="293" type="Vent" x="3524" y="1584">
+  <object id="293" type="Vent" x="3584.3" y="1570.09">
    <point/>
   </object>
   <object id="294" type="Camera" x="4296" y="1360">
@@ -291,7 +288,7 @@
    <point/>
   </object>
   <object id="297" type="Door" x="3584" y="768" width="512" height="512"/>
-  <object id="298" type="Checkpoint" x="3528" y="1584">
+  <object id="298" type="Checkpoint" x="3588.3" y="1567.77">
    <properties>
     <property name="door" type="object" value="297"/>
     <property name="forCat" type="bool" value="false"/>
