@@ -162,8 +162,18 @@ public class Door extends ZoodiniSprite {
         Float timeToOpen = properties.get("timeToOpen", Float.class);
         UNLOCK_DURATION = (timeToOpen == null) ? 3.0f : timeToOpen;
 
-        w = 3 * units;
-        h = 3 * units;
+        if(w >= h) {
+            h = w;
+            lockedTexture = new TextureRegion(directory.getEntry("locked_door", Texture.class));
+            unlockedTexture = new TextureRegion(directory.getEntry("unlocked_door", Texture.class));
+        } else {
+            w = h;
+            lockedTexture = new TextureRegion(directory.getEntry("vertical-door-locked", Texture.class));
+            unlockedTexture = new TextureRegion(directory.getEntry("vertical-door-unlocked", Texture.class));
+        }
+        w = w * units;
+        h = h * units;
+        mesh = new SpriteMesh(-w / 2, -h / 2, w, h);
         mesh = new SpriteMesh(-w / 2, -h / 2, w, h);
 
         // Technically, we should do error checking here.
@@ -184,8 +194,6 @@ public class Door extends ZoodiniSprite {
         filter.categoryBits = this.collideBits;
         filter.maskBits = this.excludeBitsLocked;
         obstacle.setFilterData(filter);
-        lockedTexture = new TextureRegion(directory.getEntry("locked_door", Texture.class));
-        unlockedTexture = new TextureRegion(directory.getEntry("unlocked_door", Texture.class));
         unlockTimer = new CircleTimer(0.2f, Color.YELLOW, units);
 
         // Set initial state (locked by default)

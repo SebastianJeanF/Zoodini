@@ -718,7 +718,6 @@ public class GameLevel {
         MapLayer foreground = mapRenderer.getMap().getLayers().get("foreground");
         if (foreground != null){
             mapRenderer.renderTileLayer((TiledMapTileLayer) foreground);
-
         }
 
         batch.setColor(Color.WHITE);
