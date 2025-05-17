@@ -1,28 +1,9 @@
 package walknroll.zoodini.utils;
 
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-import com.badlogic.gdx.physics.box2d.Filter;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.JsonValue;
-import edu.cornell.gdiac.assets.AssetDirectory;
-import edu.cornell.gdiac.graphics.SpriteMesh;
-import edu.cornell.gdiac.physics2.BoxObstacle;
-import edu.cornell.gdiac.util.PooledList;
-import java.util.HashMap;
-import java.util.Objects;
-import walknroll.zoodini.models.GameLevel;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.MapProperties;
-import walknroll.zoodini.models.entities.Cat;
-import walknroll.zoodini.models.entities.Octopus;
-import walknroll.zoodini.models.entities.PlayableAvatar;
-import walknroll.zoodini.models.nonentities.Door;
-import walknroll.zoodini.models.nonentities.Key;
+
 import walknroll.zoodini.utils.enums.AvatarType;
 
 public class Checkpoint {
@@ -33,7 +14,7 @@ public class Checkpoint {
     private final Integer doorId;
 
     /** Which character this checkpoint is for (either "cat" or "octopus") */
-    private final String forCharacter;
+    private final AvatarType forCharacter;
 
     /** Whether this checkpoint is currently active */
     private boolean isActive;
@@ -89,7 +70,7 @@ public class Checkpoint {
         this.id = properties.get("id", Integer.class);
         MapObject door = properties.get("door", MapObject.class);
         this.doorId = door.getProperties().get("id", Integer.class);
-        this.forCharacter = (properties.get("forCat", Boolean.class)) ? "cat" : "octopus";
+        this.forCharacter = (properties.get("forCat", Boolean.class)) ? AvatarType.CAT : AvatarType.OCTOPUS;
         this.position = new Vector2(properties.get("x", Float.class) / units, properties.get("y", Float.class) / units);
         this.isActive = false;
     }
@@ -99,7 +80,7 @@ public class Checkpoint {
 
     public Integer getDoorId() { return doorId; }
 
-    public String getForCharacter() { return forCharacter; }
+    public AvatarType getForCharacter() { return forCharacter; }
 
     public boolean isActive() { return isActive; }
 
@@ -108,8 +89,8 @@ public class Checkpoint {
     public Vector2 getPosition() { return position; }
 
     /** Returns whether this checkpoint applies to the given character */
-    public boolean appliesTo(String character) {
-        return forCharacter.equals(character);
+    public boolean appliesTo(AvatarType character) {
+        return forCharacter == character;
     }
 
 
