@@ -266,14 +266,15 @@ public class GDXRoot extends Game implements ScreenListener {
 				break;
 			case GDXRoot.EXIT_LOSE:
 				gameOver = new GameOverScene(directory, batch, selectedLevel);
+				gameOver.create();
 				gameOver.setScreenListener(this);
 				setScreen(gameOver);
 				disposeExcept(gameOver);
 				break;
 			case GDXRoot.EXIT_WIN:
-				// TODO: in the future, each level will have a point to the next level
 				gameWin = new GameWinScene(directory, batch, selectedLevel + 1, levelKeys.get(
 						levelKeys.size - 1));
+				gameWin.create();
 				gameWin.setScreenListener(this);
 				setScreen(gameWin);
 				disposeExcept(gameWin);
