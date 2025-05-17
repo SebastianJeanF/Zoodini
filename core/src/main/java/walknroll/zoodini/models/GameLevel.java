@@ -301,7 +301,7 @@ public class GameLevel {
      * @param directory the asset manager
      */
     public void populate(AssetDirectory directory, TiledMap map, SpriteBatch batch) {
-        System.out.println("Populating level");
+        DebugPrinter.println("Populating level");
         // Compute the FPS
         int[] fps = { 20, 60 };
         maxFPS = fps[1];
@@ -1249,16 +1249,16 @@ public class GameLevel {
 //        if (octopusPresent) {
 //            avatarOctopus.setNumKeys(numOctKeys);
 //        }
-//        System.out.println("In restoreFromSnapshot, active checkpoints: ");
+//        DebugPrinter.println("In restoreFromSnapshot, active checkpoints: ");
 //        checkpointManager.printActiveCheckpoints();
 //        for (Map.Entry<String, Checkpoint> entry: checkpointManager.getActiveCheckpoints().entrySet() ) {
-//            System.out.println("Here");
+//            DebugPrinter.println("Here");
 //            if (entry.getKey().equals("cat")) {
-//                System.out.println("Restoring cat checkpoint");
+//                DebugPrinter.println("Restoring cat checkpoint");
 //                Vector2 checkPointRespawn = checkpointManager.getRespawnPosition("cat");
 //                avatarCat.setPosition(checkPointRespawn);
 //            } else if (entry.getKey().equals("octopus")) {
-//                System.out.println("Restoring octopus checkpoint");
+//                DebugPrinter.println("Restoring octopus checkpoint");
 //                Vector2 checkPointRespawn = checkpointManager.getRespawnPosition("octopus");
 //                avatarCat.setPosition(checkPointRespawn);
 //            }

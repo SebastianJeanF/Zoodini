@@ -94,7 +94,7 @@ public class CheckpointManager {
     //        if (!doorHasCheckpoints(doorId)) {
     //            return;
     //        }
-    //        System.out.println("Activating checkpoints for door ID: " + doorId);
+    //        DebugPrinter.println("Activating checkpoints for door ID: " + doorId);
     //        resetCheckpoints(); // deactivate old checkpoints
     //        for (Checkpoint checkpoint : doorCheckpoints.get(doorId)) {
     //            checkpoint.setActive(true);
@@ -120,7 +120,7 @@ public class CheckpointManager {
             return;
         }
 
-        System.out.println("Activating checkpoints for door ID: " + doorId);
+        DebugPrinter.println("Activating checkpoints for door ID: " + doorId);
 
         // Instead of resetting all checkpoints, we'll process each character individually
         for (Checkpoint checkpoint : doorCheckpoints.get(doorId)) {
@@ -134,14 +134,14 @@ public class CheckpointManager {
                     currGarCheckpoint.setActive(false);
                 }
                 currGarCheckpoint = checkpoint;
-                System.out.println("Set Gar's checkpoint to door ID: " + doorId);
+                DebugPrinter.println("Set Gar's checkpoint to door ID: " + doorId);
             } else if (forCharacter == AvatarType.OCTOPUS) {
                 // If there was a previous checkpoint for this character, deactivate it
                 if (currOttoCheckpoint != null) {
                     currOttoCheckpoint.setActive(false);
                 }
                 currOttoCheckpoint = checkpoint;
-                System.out.println("Set Otto's checkpoint to door ID: " + doorId);
+                DebugPrinter.println("Set Otto's checkpoint to door ID: " + doorId);
             }
         }
 
@@ -181,14 +181,14 @@ public class CheckpointManager {
 
     public void printActiveCheckpoints() {
         if (currGarCheckpoint == null) {
-            System.out.println("No active checkpoint for Gar");
+            DebugPrinter.println("No active checkpoint for Gar");
         } else {
-            System.out.println("Active checkpoint for Gar: " + currGarCheckpoint.getId());
+            DebugPrinter.println("Active checkpoint for Gar: " + currGarCheckpoint.getId());
         }
         if (currOttoCheckpoint == null) {
-            System.out.println("No active checkpoint for Otto");
+            DebugPrinter.println("No active checkpoint for Otto");
         } else {
-            System.out.println("Active checkpoint for Otto: " + currOttoCheckpoint.getId());
+            DebugPrinter.println("Active checkpoint for Otto: " + currOttoCheckpoint.getId());
         }
     }
 

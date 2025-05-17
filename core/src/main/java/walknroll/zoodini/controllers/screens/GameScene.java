@@ -262,7 +262,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         for (Door door : level.getDoors()) {
             door.setCheckpointListener(this);
         }
-        System.out.println("Re-attached checkpoint listeners to all doors");
+        DebugPrinter.println("Re-attached checkpoint listeners to all doors");
     }
 
     public void initializeCheckpoints(MapLayer objectLayer, float units) {
@@ -417,7 +417,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 resetFromSnapShot();
                 return false;
             }
-            System.out.println("No checkpoints reached");
+            DebugPrinter.println("No checkpoints reached");
             listener.exitScreen(this, GDXRoot.EXIT_LOSE);
             return false;
         }
@@ -1263,7 +1263,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             Cat cat = (Cat) avatar;
 
             if (input.isAbilityHeld() && cat.canUseAbility()) {
-                System.out.println("Cat ability held");
+                DebugPrinter.println("Cat ability held");
                 cat.setCurrentlyAiming(true);
 
                 float meowRadius = cat.getAbilityRange();
@@ -1273,7 +1273,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
                 for (Guard guard : level.getGuards()) {
                     float distance = guard.getPosition().dst(catPosition);
                     if (distance <= meowRadius) {
-                        System.out.println("Guard in meow radius: ");
+                        DebugPrinter.println("Guard in meow radius: ");
                         guard.setInMeowRadius(true);
                     } else {
                         guard.setInMeowRadius(false);
@@ -1282,7 +1282,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
             }
 
             if (cat.isCurrentlyAiming() && !input.isAbilityHeld()) {
-                System.out.println("Cat ability fired");
+                DebugPrinter.println("Cat ability fired");
                 cat.setDidFire(true);
                 cat.setCurrentlyAiming(false);
                 soundController.playCatMeow();
@@ -1676,14 +1676,14 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
     // Update the restoreFromSnapShot method in GameScene to use the merged checkpoint state
 
     public void restoreFromSnapShot() {
-        System.out.println("Restoring from snapshot");
+        DebugPrinter.println("Restoring from snapshot");
 
         // Get active checkpoints
         Checkpoint currGarCheckpoint = checkpointManager.getCurrGarCheckpoint();
         Checkpoint currOttoCheckpoint = checkpointManager.getCurrOttoCheckpoint();
 
         if (currGarCheckpoint == null && currOttoCheckpoint == null) {
-            System.out.println("No active checkpoints to restore from.");
+            DebugPrinter.println("No active checkpoints to restore from.");
             return;
         }
 
@@ -1691,7 +1691,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
         CheckpointSaveState mergedState = checkpointManager.getMergedCheckpointState();
 
         if (mergedState == null) {
-            System.out.println("Failed to get merged checkpoint state.");
+            DebugPrinter.println("Failed to get merged checkpoint state.");
             return;
         }
 
@@ -1719,7 +1719,7 @@ public class GameScene implements Screen, ContactListener, UIController.PauseMen
 
     @Override
     public void onCheckpointActivated(Integer doorId, PlayableAvatar unlocker) {
-        System.out.println("Checkpoint activated for door ID: " + doorId);
+        DebugPrinter.println("Checkpoint activated for door ID: " + doorId);
         // Create snapshot of current game state
         HashMap<Integer, DoorState> doorStates = new HashMap<>();
         HashMap<Integer, KeyState> keyStates = new HashMap<>();
