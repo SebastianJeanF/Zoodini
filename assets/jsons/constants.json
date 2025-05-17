@@ -1,107 +1,107 @@
 {
-  "CAMERA_INTERPOLATION_DURATION" : 0.75,
-  "entities" : {
+  "CAMERA_INTERPOLATION_DURATION": 0.75,
+  "entities": {
     "cat": {
       "category": "000000001",
-      "exclude" : "001000001",
-      "force" : 3.5,
-      "maxSpeed" : 10.0,
+      "exclude": "001000001",
+      "force": 3.5,
+      "maxSpeed": 10.0,
       "spriteRadius": 0.6,
-      "obstacleRadius" : 0.4,
+      "obstacleRadius": 0.4,
       "abilityCooldown": 5.0,
-      "abilityRange" : 7.25,
-      "meowExpansionSpeed" : 30.0
+      "abilityRange": 7.25,
+      "meowExpansionSpeed": 30.0
     },
-    "octopus" : {
+    "octopus": {
       "category": "000000001",
-      "exclude" : "001000001",
-      "force" : 2.5,
-      "maxSpeed" : 10.0,
+      "exclude": "001000001",
+      "force": 2.5,
+      "maxSpeed": 10.0,
       "spriteRadius": 0.6,
-      "obstacleRadius" : 0.4,
-      "abilityRange" : 7,
-      "inkCapacity" : 50.0,
-      "inkRegen" : 4,
-      "inkUsage" : 25.0
+      "obstacleRadius": 0.4,
+      "abilityRange": 7,
+      "inkCapacity": 50.0,
+      "inkRegen": 4,
+      "inkUsage": 25.0
     },
-    "guard" : {
+    "guard": {
       "category": "000000010",
-      "exclude" : "000011010",
-      "force" : 1.5,
-      "maxSpeed" : 10.0,
+      "exclude": "000011010",
+      "force": 1.5,
+      "maxSpeed": 10.0,
       "spriteRadius": 1,
-      "obstacleRadius" : 0.4,
-      "agroedForce" : 2.8,
-      "alertedForce" : 3.5,
-      "susForce" : 2.5,
-      "distractedForce" : 1.4,
-      "blindedForceScale" : 0.65,
-      "viewDistance" : 5.0,
-      "fov" : 60.0
+      "obstacleRadius": 0.4,
+      "agroedForce": 2.8,
+      "alertedForce": 3.5,
+      "susForce": 2.5,
+      "distractedForce": 1.4,
+      "blindedForceScale": 0.65,
+      "viewDistance": 5.0,
+      "fov": 60.0
     },
-    "camera" : {
+    "camera": {
       "category": "000000100",
-      "exclude" : "000010000",
+      "exclude": "000010000",
       "spriteRadius": 0.6,
-      "obstacleRadius" : 0.4,
-      "disabledTime" : 5.0,
-      "alarmDistance" : 10
+      "obstacleRadius": 0.4,
+      "disabledTime": 5.0,
+      "alarmDistance": 10
     },
-    "exit" : {
+    "exit": {
       "category": "000001000",
-      "exclude" : "001110110",
+      "exclude": "001110110",
       "size": 1.0,
       "spriteScale": 0.25
     },
-    "vent" : {
+    "vent": {
       "category": "000001000",
-      "exclude" : "001110110",
+      "exclude": "001110110",
       "spriteScale": 0.25,
       "size": 1.0
     },
-    "key" : {
+    "key": {
       "category": "000010000",
-      "exclude" : "001111110",
-      "force" : 1.0,
-      "maxSpeed" : 10.0,
-      "size" : 0.6
+      "exclude": "001111110",
+      "force": 1.0,
+      "maxSpeed": 10.0,
+      "size": 0.6
     },
-    "door" : {
+    "door": {
       "category": "000100000",
-      "exclude" : "000011100",
-      "category-unlocked" : "000000000",
-      "exclude-unlocked" : "111111111",
-      "force" : 1.0,
-      "maxSpeed" : 10.0,
-      "size" : 3.0
+      "exclude": "000011100",
+      "category-unlocked": "000000000",
+      "exclude-unlocked": "111111111",
+      "force": 1.0,
+      "maxSpeed": 10.0,
+      "size": 3.0
     },
-    "ink" : {
+    "ink": {
       "category": "001000000",
-      "exclude" : "000011001",
-      "radius":       0.2,
-      "spriterad":    0.2,
-      "startframe":   0,
-      "force" : 1.0,
-      "maxSpeed" : 10.0,
+      "exclude": "000011001",
+      "radius": 0.2,
+      "spriterad": 0.2,
+      "startframe": 0,
+      "force": 1.0,
+      "maxSpeed": 10.0,
       "spriteRadius": 1.0,
-      "obstacleRadius" : 1.0,
-      "density":      1.0,
-      "friction":     0.0,
-      "restitution":  0.0
+      "obstacleRadius": 1.0,
+      "density": 1.0,
+      "friction": 0.0,
+      "restitution": 0.0
     },
-    "walls" : {
+    "walls": {
       "category": "010000000",
-      "exclude" : "010000000"
+      "exclude": "010000000"
     },
-    "visioncone" : {
+    "visioncone": {
       "category": "100000000",
-      "exclude" : "101011111"
+      "exclude": "101011111"
     }
   },
   "gameOverScreen": {
-    "height" : 576,
-    "bar.width" : 0.66,
-    "bar.height" : 0.25,
+    "height": 576,
+    "bar.width": 0.66,
+    "bar.height": 0.25,
     "button.y": 50,
     "button.restart.x": 50,
     "button.menu.x": 125,
@@ -109,7 +109,7 @@
     "button.height": 65
   },
   "gameWinScreen": {
-    "height" : 576,
+    "height": 576,
     "button.y": 50,
     "button.menu.x": 50,
     "button.next.x": 125,
@@ -118,8 +118,10 @@
     "button.menu.height": 65,
     "button.next.height": 65
   },
-  "gameText" : {
-    "cycleTimeSec" : 4,
-    "maxYOffsetTile" : 0.1
-  }
+  "gameText": {
+    "cycleTimeSec": 4,
+    "maxYOffsetTile": 0.1
+  },
+  "screenWidth": 1280,
+  "screenHeight": 720
 }

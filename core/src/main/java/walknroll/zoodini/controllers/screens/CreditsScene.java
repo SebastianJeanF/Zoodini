@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
@@ -48,6 +49,7 @@ public class CreditsScene implements Screen {
 
     /** logo */
     private Texture logo;
+    private float resScale;
 
     public CreditsScene(SpriteBatch batch, AssetDirectory assets) {
         this.batch = batch;
@@ -55,6 +57,11 @@ public class CreditsScene implements Screen {
         this.background = assets.getEntry("splash", Texture.class);
         this.logo = assets.getEntry("logo", Texture.class);
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        JsonValue constants = assets.getEntry("constants", JsonValue.class);
+        float resScaleX = Gdx.graphics.getWidth() / (float) constants.getFloat("screenWidth");
+        float resScaleY = Gdx.graphics.getHeight() / (float) constants.getFloat("screenHeight");
+        this.resScale = Math.min(resScaleX, resScaleY);
     }
 
     public void create() {
@@ -92,9 +99,12 @@ public class CreditsScene implements Screen {
         cache.scale(scaleX, scaleY);
         batch.draw(background, cache);
 
-        batch.draw(logo, (width / 2f) - (logo.getWidth() / 2f), height - (logo.getHeight() + 50),
-                logo.getWidth(),
-                logo.getHeight());
+        batch.draw(logo,
+                ((width / 2f) - (logo.getWidth() / 2f) * resScale),
+                (height - (logo.getHeight() + 50) * resScale),
+                logo.getWidth() * resScale,
+                logo.getHeight() * resScale
+        );
         batch.end();
 
         stage.draw();
@@ -147,7 +157,7 @@ public class CreditsScene implements Screen {
 
         Value labelWidth = Value.percentWidth(0.2f, table);
         Value controlWidth = Value.percentWidth(0.3f, table);
-        
+
         VerticalGroup group = new VerticalGroup();
 
         group.addActor(new Label("Project Lead", skin, "gold"));
