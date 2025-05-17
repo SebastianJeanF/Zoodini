@@ -24,22 +24,26 @@
 package walknroll.zoodini.controllers.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Affine2;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Value;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.graphics.SpriteBatch;
 import edu.cornell.gdiac.util.ScreenListener;
 import walknroll.zoodini.GDXRoot;
-import walknroll.zoodini.utils.MenuButton;
+import walknroll.zoodini.utils.FreeTypeSkin;
 
 /**
  * Class that provides a loading screen for the state of the game.
@@ -48,11 +52,12 @@ import walknroll.zoodini.utils.MenuButton;
  * progress bar. Once all assets are loaded, the progress bar is replaced
  * by a play button. You are free to adopt this to your needs.
  */
-public class GameOverScene implements Screen, InputProcessor {
+public class GameOverScene implements Screen {
 
     // There are TWO asset managers.
     // One to load the loading screen. The other to load the assets
     /** The actual assets to be loaded */
+    @SuppressWarnings("unused")
     private AssetDirectory assets;
     /** The drawing camera for this scene */
     private OrthographicCamera camera;
@@ -78,12 +83,14 @@ public class GameOverScene implements Screen, InputProcessor {
     /** Whether or not this player mode is still active */
     private boolean active;
 
-    private Array<MenuButton> buttons;
-
     Affine2 cache = new Affine2();
 
     /** Background image */
     private Texture background;
+
+    private Stage stage;
+
+    private Skin skin;
 
     /**
      * Creates a LoadingMode with the default size and position.
@@ -107,21 +114,7 @@ public class GameOverScene implements Screen, InputProcessor {
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         pressState = null;
-        Gdx.input.setInputProcessor(this);
         this.background = assets.getEntry("game-over-splash", Texture.class);
-
-        float buttonY = constants.getFloat("button.y");
-        float buttonWidth = constants.getFloat("button.width");
-        float buttonHeight = constants.getFloat("button.height");
-        buttons = Array.with(
-                new MenuButton(constants.getFloat("button.restart.x"), buttonY, buttonWidth,
-                        buttonHeight,
-                        "game-over-restart-button",
-                        GDXRoot.EXIT_PLAY),
-                new MenuButton(constants.getFloat("button.menu.x"), buttonY, buttonWidth,
-                        buttonHeight,
-                        "game-over-menu-button",
-                        GDXRoot.EXIT_MENU));
     }
 
     /**
@@ -131,10 +124,6 @@ public class GameOverScene implements Screen, InputProcessor {
      */
     public boolean isReady() {
         return pressState != null;
-    }
-
-    @Override
-    public void dispose() {
     }
 
     public int getLostLevel() {
@@ -155,11 +144,6 @@ public class GameOverScene implements Screen, InputProcessor {
         if (active) {
             update(delta);
             draw();
-
-            // We are are ready, notify our listener
-            if (isReady() && listener != null) {
-                listener.exitScreen(this, pressState);
-            }
         }
     }
 
@@ -228,162 +212,51 @@ public class GameOverScene implements Screen, InputProcessor {
         this.listener = listener;
     }
 
-    // PROCESSING PLAYER INPUT
-    /**
-     * Called when the screen was touched or a mouse button was pressed.
-     *
-     * This method checks to see if the play button is available and if the click
-     * is in the bounds of the play button. If so, it signals the that the button
-     * has been pressed and is currently down. Any mouse button is accepted.
-     *
-     * @param screenX the x-coordinate of the mouse on the screen
-     * @param screenY the y-coordinate of the mouse on the screen
-     * @param pointer the button or touch finger number
-     * @return whether to hand the event to other listeners.
-     */
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+    @Override
+    public void dispose() {
+        stage.dispose();
+        skin.dispose();
+    }
 
-        // Flip to match graphics coordinates
-        screenY = height - screenY;
+    public void create() {
+        stage = new Stage(new ScreenViewport(camera));
+        Gdx.input.setInputProcessor(stage);
 
-        // Play button is a circle.
-        for (MenuButton menuButton : buttons) {
-            if (menuButton.isPressed()) {
-                return true;
+        skin = new FreeTypeSkin(Gdx.files.internal("uiskins/zoodini/uiskin.json"));
+
+        Table table = makeGameOverTable();
+
+        stage.addActor(table);
+    }
+
+    private Table makeGameOverTable() {
+        Table table = new Table();
+        // table.setSize(this.width, this.height);
+        table.setFillParent(true);
+        table.defaults().space(10f);
+        table.bottom().pad(Value.percentWidth(0.02f));
+
+        Value labelWidth = Value.percentWidth(0.25f, table);
+
+        TextButton toMenu = new TextButton("Level Select", skin);
+        toMenu.addListener(new ChangeListener() {
+
+            public void changed(ChangeEvent event, Actor actor) {
+                listener.exitScreen(GameOverScene.this, GDXRoot.EXIT_LEVEL_SELECT);
             }
-            if (menuButton.contains(screenX, screenY)) {
-                menuButton.press();
-                break;
+        });
+        table.add(toMenu).expandX().left().width(labelWidth).bottom();
+
+        TextButton toNextLevel = new TextButton("Retry", skin);
+        toNextLevel.addListener(new ChangeListener() {
+
+            public void changed(ChangeEvent event, Actor actor) {
+                listener.exitScreen(GameOverScene.this, GDXRoot.EXIT_PLAY);
             }
-        }
-        // float buttonX = constants.getFloat("button.x");
-        // float buttonWidth = constants.getFloat("button.width");
-        // if (screenX >= buttonX && screenX <= buttonX + buttonWidth) {
-        // pressState = 1;
-        // }
-        // float cx = width / 2;
-        // float cy = (int) (constants.getFloat("bar.height") * height);
-        // float s = constants.getFloat("button.scale") * scale;
-        // float radius = s * internal.getEntry("play", Texture.class).getWidth() /
-        // 2.0f;
-        // float dist = (screenX - cx) * (screenX - cx) + (screenY - cy) * (screenY -
-        // cy);
-        // if (dist < radius * radius) {
-        // pressState = 1;
-        // }
-        return false;
-    }
+        });
+        table.add(toNextLevel).left().width(labelWidth).bottom();
 
-    /**
-     * Called when a finger was lifted or a mouse button was released.
-     *
-     * This method checks to see if the play button is currently pressed down. If
-     * so,
-     * it signals the that the player is ready to go.
-     *
-     * @param screenX the x-coordinate of the mouse on the screen
-     * @param screenY the y-coordinate of the mouse on the screen
-     * @param pointer the button or touch finger number
-     * @return whether to hand the event to other listeners.
-     */
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        for (MenuButton menuButton : buttons) {
-            if (menuButton.isPressed()) {
-                pressState = menuButton.getPressedState();
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Called when a key is pressed
-     *
-     * Used to process quitting the game with the ESC key
-     *
-     * @param keycode the key pressed
-     * @return whether to hand the event to other listeners.
-     */
-    public boolean keyDown(int keycode) {
-        if (keycode == Input.Keys.ESCAPE) {
-            pressState = GDXRoot.EXIT_QUIT;
-        }
-        return true;
-    }
-
-    /**
-     * Called when a key is typed (UNSUPPORTED)
-     *
-     * @param keycode the key typed
-     * @return whether to hand the event to other listeners.
-     */
-    public boolean keyTyped(char character) {
-        return true;
-    }
-
-    /**
-     * Called when a key is released (UNSUPPORTED)
-     *
-     * @param keycode the key released
-     * @return whether to hand the event to other listeners.
-     */
-    public boolean keyUp(int keycode) {
-        return true;
-    }
-
-    // UNSUPPORTED METHODS FROM InputProcessor
-
-    /**
-     * Called when the mouse was moved without any buttons being pressed.
-     * (UNSUPPORTED)
-     *
-     * @param screenX the x-coordinate of the mouse on the screen
-     * @param screenY the y-coordinate of the mouse on the screen
-     * @return whether to hand the event to other listeners.
-     */
-    public boolean mouseMoved(int screenX, int screenY) {
-        return true;
-    }
-
-    /**
-     * Called when the mouse wheel was scrolled. (UNSUPPORTED)
-     *
-     * @param dx the amount of horizontal scroll
-     * @param dy the amount of vertical scroll
-     *
-     * @return whether to hand the event to other listeners.
-     */
-    public boolean scrolled(float dx, float dy) {
-        return true;
-    }
-
-    /**
-     * Called when the touch gesture is cancelled (UNSUPPORTED)
-     *
-     * Reason may be from OS interruption to touch becoming a large surface such
-     * as the user cheek. Relevant on Android and iOS only. The button parameter
-     * will be Input.Buttons.LEFT on iOS.
-     *
-     * @param screenX the x-coordinate of the mouse on the screen
-     * @param screenY the y-coordinate of the mouse on the screen
-     * @param pointer the button or touch finger number
-     * @param button  the button
-     * @return whether to hand the event to other listeners.
-     */
-    public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
-        return true;
-    }
-
-    /**
-     * Called when the mouse or finger was dragged. (UNSUPPORTED)
-     *
-     * @param screenX the x-coordinate of the mouse on the screen
-     * @param screenY the y-coordinate of the mouse on the screen
-     * @param pointer the button or touch finger number
-     * @return whether to hand the event to other listeners.
-     */
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return true;
+        return table;
     }
 
     /**
@@ -398,7 +271,7 @@ public class GameOverScene implements Screen, InputProcessor {
      * @param delta Number of seconds since last animation frame
      */
     private void update(float delta) {
-
+        stage.act();
     }
 
     /**
@@ -419,15 +292,8 @@ public class GameOverScene implements Screen, InputProcessor {
         cache.scale(scaleX, scaleY);
         batch.draw(background, cache);
 
-        Texture texture;
-        for (MenuButton menuButton : buttons) {
-            Color tint = menuButton.isPressed() ? Color.GRAY : Color.WHITE;
-            texture = assets.getEntry(menuButton.getAssetName(), Texture.class);
-
-            batch.setColor(tint);
-            batch.draw(texture, menuButton.x, menuButton.y, menuButton.width, menuButton.height);
-        }
         batch.end();
+        stage.draw();
     }
 
 }
