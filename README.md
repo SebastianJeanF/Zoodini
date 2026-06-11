@@ -1,8 +1,5 @@
 # Zoodini
-<p align="center">
-Showcase of Project: 
-<p align="center">
-https://gdiac.cs.cornell.edu/gdiac/showcase/gallery/zoodini/  
+
 
 ## Description
 
